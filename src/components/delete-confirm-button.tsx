@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 
 interface DeleteConfirmButtonProps {
   itemLabel: string;
@@ -25,18 +24,29 @@ export function DeleteConfirmButton({ itemLabel, onConfirm }: DeleteConfirmButto
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive">
-          <TrashIcon className="size-4" />
-        </Button>
+        <button
+          type="button"
+          aria-label={`Eliminar ${itemLabel}`}
+          title={`Eliminar ${itemLabel}`}
+          className="inline-flex size-10 items-center justify-center rounded-full text-[#586C64] transition-colors outline-none hover:bg-[#ECE6F4] hover:text-[#26413C] focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5F1] sm:size-9"
+        >
+          <TrashIcon aria-hidden="true" className="size-4" />
+        </button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-md gap-4 p-5 sm:p-7">
         <AlertDialogHeader>
           <AlertDialogTitle>¿Eliminar {itemLabel}?</AlertDialogTitle>
           <AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="gap-2 sm:gap-3">
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={() => onConfirm()}>Eliminar</AlertDialogAction>
+          {/* Único elemento rojo: es la acción realmente destructiva. */}
+          <AlertDialogAction
+            onClick={() => onConfirm()}
+            className="bg-[#9F3A38] text-white focus-visible:ring-[#9F3A38]"
+          >
+            Eliminar
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
