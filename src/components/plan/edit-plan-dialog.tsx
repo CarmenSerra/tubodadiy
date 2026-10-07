@@ -34,9 +34,9 @@ export function EditPlanDialog({ plan }: { plan: WeddingPlan }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-10 rounded-full border-transparent bg-[#D4C0EA] px-5 text-sm text-[#38384D] shadow-none hover:bg-[#D4C0EA] hover:text-[#38384D] hover:opacity-90 focus-visible:ring-[#927AAC] focus-visible:ring-offset-[#F8F5F1]"
+          className="h-10 rounded-full px-3.5 text-sm font-medium text-[#26413C] shadow-none hover:bg-[#ECE6F4] hover:text-[#26413C] focus-visible:ring-[#927AAC] focus-visible:ring-offset-[#F8F5F1]"
         >
           <PencilIcon />
           Editar

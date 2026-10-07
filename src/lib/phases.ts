@@ -5,12 +5,12 @@ import type { PlanStep } from "@/lib/types";
  * tiempo realista de una boda en España. Todo se deriva del estado y la
  * categoría de cada paso, sin tocar el esquema de Firestore.
  *
- * Reglas:
- *  - La fase 1 siempre está abierta.
- *  - La fase N+1 se abre cuando la fase N está completa (todos sus pasos
- *    completados u omitidos).
- *  - Un paso con avance propio (en progreso, completado o con alguna tarea
- *    hecha) se muestra siempre, aunque su fase siga cerrada.
+ * Las fases ORDENAN y RECOMIENDAN, nunca bloquean: todas son accesibles
+ * siempre. Reglas:
+ *  - La fase actual (`current`) es la primera sin completar: es la que se
+ *    recomienda y se preselecciona.
+ *  - Una fase está completa cuando todos sus pasos están completados u
+ *    omitidos.
  *  - "tareas_generales" no pertenece a ninguna fase: siempre está a mano.
  *  - Una categoría desconocida cae en la última fase.
  */
@@ -92,13 +92,14 @@ export interface PhaseState extends PhaseDefinition {
   /** Pasos completados u omitidos. */
   done: number;
   complete: boolean;
+  /**
+   * La fase anterior está completa (o es la primera). Ya no bloquea nada en
+   * la UI; se conserva solo porque `pickNextSteps` (home) lo usa para ordenar
+   * lo pendiente.
+   */
   unlocked: boolean;
   /** Primera fase sin completar: donde toca trabajar ahora. */
   current: boolean;
-  /** Pasos que se muestran aunque la fase esté cerrada (tienen avance propio). */
-  visibleSteps: PlanStep[];
-  /** Pasos que solo se ven como vista previa difuminada mientras esté cerrada. */
-  previewSteps: PlanStep[];
 }
 
 export interface PhasesSummary {
@@ -128,7 +129,7 @@ export function computePhases(steps: PlanStep[]): PhasesSummary {
   };
 
   const phases: PhaseState[] = [];
-  let previousComplete = true; // la primera fase con pasos siempre está abierta
+  let previousComplete = true; // la primera fase con pasos no tiene anterior
 
   PHASES.forEach((def, i) => {
     const bucket = buckets[i];
@@ -140,7 +141,6 @@ export function computePhases(steps: PlanStep[]): PhasesSummary {
     const complete = done === ordered.length;
     const unlocked = previousComplete;
     previousComplete = complete;
-    const visibleSteps = unlocked ? ordered : ordered.filter(hasStepProgress);
     phases.push({
       ...def,
       index: phases.length,
@@ -150,8 +150,6 @@ export function computePhases(steps: PlanStep[]): PhasesSummary {
       complete,
       unlocked,
       current: false,
-      visibleSteps,
-      previewSteps: ordered.filter((s) => !visibleSteps.includes(s)),
     });
   });
 

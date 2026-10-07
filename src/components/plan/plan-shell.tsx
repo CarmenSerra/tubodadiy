@@ -40,14 +40,11 @@ function PlanShellSkeleton() {
           <Bone key={i} className="h-4 w-16 bg-[#E5DDEC] sm:w-20" />
         ))}
       </div>
-      <div className={cn(CARD, "grid gap-5 p-5 sm:grid-cols-3 sm:p-6")}>
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="flex items-center gap-3.5">
-            <Bone className="size-10 shrink-0 rounded-full" />
-            <div className="flex flex-1 flex-col gap-2.5">
-              <Bone className="h-3 w-1/2" />
-              <Bone className="h-5 w-3/4" />
-            </div>
+      <div className={cn(CARD, "grid grid-cols-2 gap-4 px-4 py-3 sm:grid-cols-4 sm:px-5")}>
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="flex flex-col gap-2">
+            <Bone className="h-3 w-1/3" />
+            <Bone className="h-4 w-2/3" />
           </div>
         ))}
       </div>
