@@ -13,6 +13,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/hooks/use-auth";
+import { cn } from "@/lib/utils";
+
+// Colores de marca fijos para esta landing page (no los tokens globales
+// --primary/--card/etc., que siguen usándose tal cual en el resto de la
+// app): jerarquía crema/lila-claro/lila-medio/salvia/verde-oscuro pedida
+// específicamente para esta página.
+const BRAND_CTA = "bg-[#A894C7] text-[#F1EFE8] hover:bg-[#6B7C5E]";
 
 const FEATURES = [
   {
@@ -55,23 +62,23 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b">
+      <header className="border-b bg-[#F1EFE8]">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2 text-primary">
+          <div className="flex items-center gap-2 text-[#A894C7]">
             <HeartIcon className="size-5 fill-current" />
             <span className="font-display text-lg font-semibold">tubodadiy</span>
           </div>
           <nav className="flex items-center gap-2">
             {!loading && user ? (
-              <Button asChild size="sm">
+              <Button asChild size="sm" className={BRAND_CTA}>
                 <Link href="/dashboard">Ir a mi panel</Link>
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm" className="text-[#2E3D34]">
                   <Link href="/login">Iniciar sesión</Link>
                 </Button>
-                <Button asChild size="sm">
+                <Button asChild size="sm" className={BRAND_CTA}>
                   <Link href="/signup">Regístrate</Link>
                 </Button>
               </>
@@ -80,18 +87,18 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="bg-secondary/40 px-4 py-16 sm:py-24">
+      <section className="bg-[#F1EFE8] px-4 py-16 sm:py-24">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 text-center">
-          <span className="text-script-accent" aria-hidden="true">
+          <span className="text-script-accent" aria-hidden="true" style={{ color: "#A894C7" }}>
             tubodadiy
           </span>
-          <h1 className="mt-2">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
-          <p className="max-w-xl text-balance font-display text-lg italic text-muted-foreground sm:text-xl">
+          <h1 className="mt-2 text-[#2E3D34]">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
+          <p className="max-w-xl text-balance font-display text-lg italic text-[#2E3D34]/80 sm:text-xl">
             A diferencia de los directorios de proveedores, tubodadiy centraliza presupuesto,
             invitados, proveedores, timeline y tareas — con seguimiento real de tu progreso.
           </p>
           <div className="flex gap-3">
-            <Button asChild size="lg">
+            <Button asChild size="lg" className={BRAND_CTA}>
               <Link href={user ? "/dashboard" : "/signup"}>
                 {user ? "Ir a mi panel" : "Empieza gratis"}
               </Link>
@@ -100,15 +107,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-16">
+      <section className="mx-auto w-full max-w-6xl bg-[#DCCCF2] px-4 py-16">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feature) => (
-            <Card key={feature.title}>
+          {FEATURES.map((feature, i) => (
+            <Card key={feature.title} className="bg-[#F1EFE8] text-[#2E3D34]">
               <CardHeader>
-                <feature.icon className="size-6 text-primary" />
+                <div
+                  className={cn(
+                    "flex size-11 items-center justify-center rounded-full",
+                    i % 2 === 0 ? "bg-[#DCCCF2]" : "bg-[#6B7C5E]/20"
+                  )}
+                >
+                  <feature.icon className="size-5 text-[#2E3D34]" />
+                </div>
                 <CardTitle className="mt-2 text-base">{feature.title}</CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
+              <CardContent className="text-sm text-[#2E3D34]/75">
                 {feature.description}
               </CardContent>
             </Card>
