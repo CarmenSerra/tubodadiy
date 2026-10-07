@@ -1,20 +1,24 @@
-import { AlertCircleIcon, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { AlertCircleIcon, ArrowRightIcon, Loader2, PlusIcon } from "lucide-react";
 
+import { CreatePlanDialog } from "@/components/plan/create-plan-dialog";
 import type { WeddingPlan } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { EmptyHome } from "./empty-home";
+import { GlanceRow } from "./glance-row";
 import { firstName, type FeaturedPlanData } from "./helpers";
-import { NextSteps } from "./next-steps";
-import { OtherPlans } from "./other-plans";
-import { PlanHero } from "./plan-hero";
-import { SnapshotTiles } from "./snapshot-tiles";
+import { HomeHeader } from "./home-header";
+import { NowCard } from "./now-card";
+import { FOCUS, LINK } from "./ui";
 
 export interface DashboardHomeProps {
   /** displayName de Firebase Auth (puede venir vacío). */
   userName: string | null;
   userId: string;
-  /** Plan destacado (ver `splitPlans`) y resto de planes. */
+  /** Plan que se está viendo (ver `rankPlans`) y todos los planes del usuario. */
   featured: WeddingPlan | null;
-  others: WeddingPlan[];
+  plans: WeddingPlan[];
+  onSelectPlan: (planId: string) => void;
   /** Datos del plan destacado; todo plano, sin acceso a Firestore aquí. */
   data: FeaturedPlanData;
   /** Esperando la lista de planes. */
@@ -26,12 +30,16 @@ export interface DashboardHomeProps {
 /**
  * Home personal del usuario. Componente presentacional: recibe datos planos y
  * no toca Firebase, de modo que se puede pintar con datos de ejemplo.
+ *
+ * Tres bloques, en este orden: cabecera (saludo + cuenta atrás), "Ahora toca"
+ * (la única acción principal) y "De un vistazo" (tres datos con enlace).
  */
 export function DashboardHome({
   userName,
   userId,
   featured,
-  others,
+  plans,
+  onSelectPlan,
   data,
   loadingPlans = false,
   plansError = false,
@@ -63,15 +71,41 @@ export function DashboardHome({
   }
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8">
-      <PlanHero plan={featured} data={data} greetingName={greetingName} />
+    <div className="flex flex-col gap-8 sm:gap-10">
+      <HomeHeader
+        plan={featured}
+        plans={plans}
+        data={data}
+        greetingName={greetingName}
+        currentUserId={userId}
+        userName={userName}
+        onSelectPlan={onSelectPlan}
+      />
 
-      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-        <NextSteps plan={featured} data={data} />
-        <SnapshotTiles plan={featured} data={data} currentUserId={userId} userName={userName} />
-      </div>
+      <NowCard plan={featured} data={data} />
 
-      <OtherPlans plans={others} />
+      <GlanceRow plan={featured} data={data} />
+
+      <footer className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+        <Link href={`/plan/${featured.id}`} className={cn(LINK, "inline-flex items-center gap-1.5")}>
+          Ver todo el plan
+          <ArrowRightIcon className="size-4" aria-hidden="true" />
+        </Link>
+        <CreatePlanDialog
+          trigger={
+            <button
+              type="button"
+              className={cn(
+                FOCUS,
+                "-mr-3 inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none"
+              )}
+            >
+              <PlusIcon className="size-4" aria-hidden="true" />
+              Nuevo plan de boda
+            </button>
+          }
+        />
+      </footer>
     </div>
   );
 }

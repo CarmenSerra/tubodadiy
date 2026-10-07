@@ -1,4 +1,3 @@
-import { computePhases } from "@/lib/phases";
 import { daysUntil } from "@/lib/utils";
 import type {
   BudgetItem,
@@ -30,7 +29,7 @@ export interface FeaturedPlanData {
  *  1. próximos (fecha de hoy o futura), el más cercano primero;
  *  2. sin fecha, el más reciente primero;
  *  3. con fecha ya pasada, el más reciente primero.
- * El primero es el plan destacado; el resto van a "Tus otros planes".
+ * El primero es el plan que se muestra por defecto en la home.
  */
 export function rankPlans(plans: WeddingPlan[]): WeddingPlan[] {
   const bucket = (plan: WeddingPlan): number => {
@@ -48,75 +47,10 @@ export function rankPlans(plans: WeddingPlan[]): WeddingPlan[] {
   });
 }
 
-export function splitPlans(plans: WeddingPlan[]): {
-  featured: WeddingPlan | null;
-  others: WeddingPlan[];
-} {
-  const ranked = rankPlans(plans);
-  return { featured: ranked[0] ?? null, others: ranked.slice(1) };
-}
-
 /** Primer nombre para el saludo; null si no hay nombre fiable. */
 export function firstName(displayName: string | null | undefined): string | null {
   const name = displayName?.trim().split(/\s+/)[0];
   return name ? name : null;
-}
-
-export function computeProgress(steps: PlanStep[]) {
-  const completed = steps.filter((s) => s.status === "completed").length;
-  const skipped = steps.filter((s) => s.status === "skipped").length;
-  const applicable = steps.length - skipped;
-  const percent = applicable > 0 ? Math.round((completed / applicable) * 100) : 0;
-  const tasks = steps.filter((s) => s.status !== "skipped").flatMap((s) => s.tasks);
-  return {
-    completed,
-    applicable,
-    percent,
-    tasksDone: tasks.filter((t) => t.done).length,
-    tasksTotal: tasks.length,
-  };
-}
-
-/** Frase de ánimo según el avance; siempre amable, nunca de reproche. */
-export function progressMessage(percent: number, applicable: number): string {
-  if (applicable === 0) return "Cuando añadas secciones, aquí verás cómo avanzas.";
-  if (percent >= 100) return "¡Todo listo! Has completado todas las secciones.";
-  if (percent >= 75) return "Recta final: ya casi lo tienes todo atado.";
-  if (percent >= 40) return "Vas a muy buen ritmo. Sigue a tu manera.";
-  if (percent > 0) return "Buen comienzo: cada paso cuenta.";
-  return "Todo por hacer, y ese es un gran punto de partida.";
-}
-
-/**
- * Siguientes pasos, guiados por fases: primero lo que ya está en marcha (el
- * trabajo propio nunca se esconde) y después lo pendiente, solo de las fases
- * abiertas y en el orden natural de la línea de tiempo. Las secciones
- * completadas y omitidas no aparecen (omitir es una decisión, no una deuda).
- * "Tareas generales" solo aparece si ya la estás usando.
- */
-export function pickNextSteps(steps: PlanStep[], limit = 4): PlanStep[] {
-  const { phases, general } = computePhases(steps);
-  const phased = phases.flatMap((p) => p.steps);
-  const inProgress = [...phased, ...general].filter((s) => s.status === "in_progress");
-  const pending = phases
-    .filter((p) => p.unlocked)
-    .flatMap((p) => p.steps)
-    .filter((s) => s.status === "pending");
-  return [...inProgress, ...pending].slice(0, limit);
-}
-
-export function summarizeBudget(plan: WeddingPlan, items: BudgetItem[]) {
-  const estimated = items.reduce((sum, i) => sum + (i.estimatedCost || 0), 0);
-  const spent = items.reduce((sum, i) => sum + (i.actualCost || 0), 0);
-  const total = plan.budgetTotal;
-  return {
-    total,
-    estimated,
-    spent,
-    itemCount: items.length,
-    spentRatio: total > 0 ? Math.min(100, Math.round((spent / total) * 100)) : 0,
-    over: total > 0 && spent > total ? spent - total : 0,
-  };
 }
 
 export function summarizeGuests(guests: Guest[]) {
@@ -143,19 +77,6 @@ export function summarizeVendors(vendors: Vendor[]) {
     considering: total - booked,
     ratio: total > 0 ? Math.round((booked / total) * 100) : 0,
   };
-}
-
-/** "sábado, 15 de mayo de 2027" para el encabezado de la boda. */
-export function formatLongDate(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const date = new Date(value + "T00:00:00");
-  if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat("es-ES", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
 }
 
 export function pluralize(n: number, one: string, many: string): string {
