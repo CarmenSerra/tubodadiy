@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Produces a self-contained .next/standalone server (minimal node_modules)
+  // for container deployments, e.g. Cloud Run.
+  output: "standalone",
   // Cache Components (on by default in new create-next-app projects) requires
   // wrapping every dynamic read — including dynamic route params — in
   // <Suspense>. This app is almost entirely client-rendered (Firebase Auth
