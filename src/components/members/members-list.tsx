@@ -49,9 +49,9 @@ export function MembersList({ planId }: { planId: string }) {
 
       {!loadingInvites && invites.length > 0 && (
         <div>
-          <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+          <p className="mb-2 text-sm font-medium text-muted-foreground">
             Invitaciones pendientes
-          </h3>
+          </p>
           <div className="flex flex-col gap-2">
             {invites.map((invite) => (
               <div

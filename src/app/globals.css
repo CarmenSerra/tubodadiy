@@ -100,8 +100,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-body);
   --font-display: var(--font-display);
+  --font-script: var(--font-script);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -114,5 +115,43 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  h1 {
+    font-size: clamp(2.5rem, 2rem + 2vw, 3rem); /* ~40–48px */
+  }
+  h2 {
+    font-size: 2rem; /* 32px */
+  }
+  h3 {
+    font-size: 1.5rem; /* 24px */
+  }
+  h4 {
+    font-size: 1.25rem; /* 20px */
+  }
+}
+
+@layer utilities {
+  /*
+   * Decorative script accent (Birthstone). For couple's-names-style
+   * moments and section openers only — never UI copy. Enforces the
+   * ~36px floor from the design tokens doc; add text-[#2E3D34] to swap
+   * the darker of the two approved colors in for the default sage.
+   */
+  .text-script-accent {
+    font-family: var(--font-script);
+    font-size: clamp(2.25rem, 2rem + 1vw, 3rem);
+    line-height: 1.1;
+    color: #6b7c5e;
   }
 }

@@ -81,11 +81,12 @@ export default function LandingPage() {
       </header>
 
       <section className="bg-secondary/40 px-4 py-16 sm:py-24">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-          <h1 className="font-display text-3xl font-semibold sm:text-5xl">
-            Organiza tu boda paso a paso, todo en un mismo lugar
-          </h1>
-          <p className="max-w-xl text-balance text-muted-foreground sm:text-lg">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 text-center">
+          <span className="text-script-accent" aria-hidden="true">
+            tubodadiy
+          </span>
+          <h1 className="mt-2">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
+          <p className="max-w-xl text-balance font-display text-lg italic text-muted-foreground sm:text-xl">
             A diferencia de los directorios de proveedores, tubodadiy centraliza presupuesto,
             invitados, proveedores, timeline y tareas — con seguimiento real de tu progreso.
           </p>
