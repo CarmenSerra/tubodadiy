@@ -127,13 +127,14 @@ export function summarizeGuests(guests: Guest[]) {
 }
 
 export function summarizeVendors(vendors: Vendor[]) {
-  const active = vendors.filter((v) => v.status !== "declined");
-  const booked = active.filter((v) => v.status === "booked").length;
+  // booked = opciones "elegidas"; considering = el resto (explorando, visitada, favorita).
+  const total = vendors.length;
+  const booked = vendors.filter((v) => v.status === "chosen").length;
   return {
-    total: active.length,
+    total,
     booked,
-    considering: active.length - booked,
-    ratio: active.length > 0 ? Math.round((booked / active.length) * 100) : 0,
+    considering: total - booked,
+    ratio: total > 0 ? Math.round((booked / total) * 100) : 0,
   };
 }
 

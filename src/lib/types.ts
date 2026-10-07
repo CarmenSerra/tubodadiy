@@ -57,7 +57,8 @@ export interface Guest {
   createdAt: number | null;
 }
 
-export type VendorStatus = "considering" | "contacted" | "booked" | "declined";
+/** Flujo de decisión de una opción: explorando → visitada → favorita → elegida. */
+export type VendorStatus = "exploring" | "visited" | "favorite" | "chosen";
 
 export interface Vendor {
   id: string;
@@ -68,6 +69,12 @@ export interface Vendor {
   cost: number | null;
   status: VendorStatus;
   notes: string;
+  /** URL (http/https) de una foto de la opción. */
+  photoUrl?: string;
+  /** Dirección o ubicación en texto libre. */
+  location?: string;
+  /** Enlace (http/https) a Google Maps. */
+  mapsUrl?: string;
   createdAt: number | null;
 }
 

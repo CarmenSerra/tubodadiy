@@ -20,6 +20,7 @@ import type {
   PlanMember,
   Guest,
   Vendor,
+  VendorStatus,
   BudgetItem,
 } from "@/lib/types";
 
@@ -75,6 +76,19 @@ export function mapGuest(id: string, data: DocumentData): Guest {
   };
 }
 
+// Estados antiguos (valorando/contactado/contratado/descartado) → flujo actual,
+// para que los proveedores ya guardados sigan funcionando.
+const VENDOR_STATUS_BY_STORED_VALUE: Record<string, VendorStatus> = {
+  exploring: "exploring",
+  visited: "visited",
+  favorite: "favorite",
+  chosen: "chosen",
+  considering: "exploring",
+  contacted: "visited",
+  booked: "chosen",
+  declined: "exploring",
+};
+
 export function mapVendor(id: string, data: DocumentData): Vendor {
   return {
     id,
@@ -83,8 +97,11 @@ export function mapVendor(id: string, data: DocumentData): Vendor {
     contactEmail: data.contactEmail ?? "",
     contactPhone: data.contactPhone ?? "",
     cost: data.cost ?? null,
-    status: data.status ?? "considering",
+    status: VENDOR_STATUS_BY_STORED_VALUE[String(data.status)] ?? "exploring",
     notes: data.notes ?? "",
+    photoUrl: data.photoUrl ?? "",
+    location: data.location ?? "",
+    mapsUrl: data.mapsUrl ?? "",
     createdAt: toMillis(data.createdAt),
   };
 }

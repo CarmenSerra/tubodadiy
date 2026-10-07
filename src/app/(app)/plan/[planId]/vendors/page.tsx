@@ -1,17 +1,33 @@
 "use client";
 
-import { usePlanContext } from "@/lib/context/plan-context";
-import { VendorsList } from "@/components/vendors/vendors-list";
+import { PlusIcon } from "lucide-react";
+
+import { CTA_PRIMARY, SECTION_TITLE } from "@/components/dashboard/ui";
 import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
+import { VendorsList } from "@/components/vendors/vendors-list";
+import { usePlanContext } from "@/lib/context/plan-context";
 
 export default function VendorsPage() {
   const { planId } = usePlanContext();
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">Proveedores</h2>
-        <VendorFormDialog planId={planId} />
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0">
+          <h2 className={SECTION_TITLE}>Proveedores</h2>
+          <p className="mt-1 text-sm text-[#586C64]">
+            Compara tus opciones por categoría y quédate con la que más te enamore.
+          </p>
+        </div>
+        <VendorFormDialog
+          planId={planId}
+          trigger={
+            <button type="button" className={CTA_PRIMARY}>
+              <PlusIcon className="size-4" aria-hidden="true" />
+              Añadir proveedor
+            </button>
+          }
+        />
       </div>
       <VendorsList planId={planId} />
     </div>
