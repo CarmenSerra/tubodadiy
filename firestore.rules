@@ -27,7 +27,10 @@ service cloud.firestore {
 
     // ---- Wedding plans ----
     match /weddingPlans/{planId} {
-      allow read: if isPlanMember(planId);
+      // Reads check the document's own memberIds (not isPlanMember, which
+      // does a get()): Firestore can only authorize list queries such as
+      // `where("memberIds", "array-contains", uid)` against resource.data.
+      allow read: if isSignedIn() && request.auth.uid in resource.data.memberIds;
 
       allow create: if isSignedIn()
         && request.resource.data.ownerId == request.auth.uid
