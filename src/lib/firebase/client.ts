@@ -2,7 +2,7 @@
 
 import { type FirebaseApp, getApps, initializeApp } from "firebase/app";
 import { type Auth, getAuth } from "firebase/auth";
-import { type Firestore, getFirestore } from "firebase/firestore";
+import { type Firestore, initializeFirestore } from "firebase/firestore";
 import { type FirebaseStorage, getStorage } from "firebase/storage";
 
 import { firebaseConfig, isFirebaseConfigured } from "./config";
@@ -33,7 +33,13 @@ export function getFirebaseAuth(): Auth {
 
 export function getFirebaseDb(): Firestore {
   if (!dbInstance) {
-    dbInstance = getFirestore(getFirebaseApp());
+    // Auto-detect long polling: some networks (corporate proxies, some
+    // firewalls) don't play well with Firestore's default WebChannel
+    // streaming transport and silently stall listeners. This probes once
+    // and falls back to long polling only when needed.
+    dbInstance = initializeFirestore(getFirebaseApp(), {
+      experimentalAutoDetectLongPolling: true,
+    });
   }
   return dbInstance;
 }
