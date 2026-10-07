@@ -1,6 +1,18 @@
 import { CalendarHeartIcon, ListChecksIcon, WalletIcon } from "lucide-react";
 
-import { Branch, Sparkles } from "@/components/brand/hero-decorations";
+import {
+  Dot,
+  Envelope,
+  Eucalyptus,
+  Floret,
+  Flourish,
+  Heart,
+  JourneyPath,
+  Rings,
+  WelcomeDisc,
+  WelcomePebble,
+  WelcomeWave,
+} from "@/components/brand/welcome-decorations";
 import { CARD, IconCircle, NewPlanButton } from "./ui";
 
 const FIRST_STEPS = [
@@ -29,32 +41,40 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
         aria-labelledby="home-greeting"
         className="relative overflow-hidden rounded-3xl bg-[#ECE6F4] px-5 py-14 sm:px-10 sm:py-20"
       >
-        <svg
-          viewBox="0 0 200 300"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-0 h-[45%] w-[18%] sm:h-[85%] sm:w-[22%]"
-        >
-          <path
-            d="M0 20 C 50 -10, 130 30, 150 90 C 170 150, 210 170, 190 230 C 175 280, 90 300, 0 300 Z"
-            fill="#E5DDEC"
-          />
-        </svg>
-        <svg
-          viewBox="0 0 100 200"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-[45%] h-[35%] w-[5%] sm:top-[25%] sm:h-[50%] sm:w-[9%]"
-        >
-          <path d="M100 0 C 70 10, 30 50, 25 100 C 20 150, 60 185, 100 200 Z" fill="#BCC7B5" />
-        </svg>
-        <Branch className="bottom-0 left-[2%] hidden h-[60%] w-auto sm:block" />
-        <Branch className="bottom-0 right-[2%] hidden h-[56%] w-auto -scale-x-100 sm:block" />
+        {/* Blobs: guijarro arriba-izquierda, disco arriba-derecha y ola inferior */}
+        <WelcomePebble className="-left-10 -top-9 h-24 w-28 sm:-left-14 sm:-top-12 sm:h-36 sm:w-44 lg:h-44 lg:w-52" />
+        <WelcomeDisc className="-right-9 -top-9 size-24 sm:-right-12 sm:-top-12 sm:size-32 lg:size-40" />
+        <WelcomeWave className="inset-x-0 bottom-0 h-12 w-full sm:h-16" />
+
+        {/* Confeti, siempre en las esquinas libres de texto */}
+        <Floret className="right-4 top-14 size-7 sm:hidden" />
+        <Heart className="left-6 top-14 size-3.5 sm:hidden" />
+        <Dot className="left-[34%] top-4 size-2 sm:hidden" />
+
+        {/* Lado izquierdo: alianzas, camino punteado y florecillas */}
+        <Rings className="left-[3%] top-[34%] hidden w-[13%] min-w-20 -rotate-6 sm:block lg:left-[6%] lg:top-[28%] lg:w-48" />
+        <JourneyPath className="bottom-[13%] left-[2%] hidden w-32 lg:block" />
+        <Floret className="left-[15%] top-[10%] hidden size-14 rotate-12 lg:block" />
+        <Floret className="left-[16%] bottom-[20%] hidden size-10 -rotate-12 lg:block" />
+        <Heart className="left-[3%] top-[26%] hidden size-3.5 sm:block" />
+        <Heart className="left-[21%] top-[56%] hidden size-3 lg:block" />
+        <Dot className="left-[4%] bottom-[24%] hidden size-2 sm:block" />
+        <Dot className="left-[14%] top-[62%] hidden size-1.5 lg:block" />
+
+        {/* Lado derecho: invitación, eucalipto y florecillas */}
+        <Envelope className="right-[3%] top-[34%] hidden w-[13%] min-w-20 rotate-6 sm:block lg:right-[7%] lg:top-[20%] lg:w-44" />
+        <Eucalyptus className="bottom-[7%] right-[3%] hidden h-52 w-auto lg:block" />
+        <Floret className="right-[20%] top-[9%] hidden size-12 -rotate-6 lg:block" />
+        <Floret className="right-[3%] bottom-[24%] hidden size-7 rotate-12 sm:block lg:hidden" />
+        <Heart className="right-[4%] top-[24%] hidden size-3.5 sm:block" />
+        <Heart className="right-[20%] top-[58%] hidden size-3.5 lg:block" />
+        <Dot className="right-[16%] top-[44%] hidden size-2 lg:block" />
+        <Dot className="right-[5%] bottom-[18%] hidden size-1.5 sm:block lg:hidden" />
 
         <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-3 text-center">
           <div className="relative inline-block px-10 sm:px-14">
-            <Sparkles className="left-0 top-0" />
-            <Sparkles className="right-0 top-0 -scale-x-100" />
+            <Flourish className="left-0 top-1/2 -translate-y-1/2" />
+            <Flourish className="right-0 top-1/2 -translate-y-1/2 -scale-x-100" />
             <span className="text-script-accent" aria-hidden="true" style={{ color: "#A38ED2" }}>
               tubodadiy
             </span>
