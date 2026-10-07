@@ -1,8 +1,11 @@
+import * as React from "react";
 import Link from "next/link";
 import { ChevronRightIcon, StoreIcon, UsersIcon, WalletIcon, HeartHandshakeIcon } from "lucide-react";
 
 import { initials, formatCurrency, cn } from "@/lib/utils";
 import type { PlanMember, PlanRole, WeddingPlan } from "@/lib/types";
+import { TeamDialog } from "@/components/members/team-dialog";
+import { ROLE_LABEL } from "@/components/members/roles";
 import {
   pluralize,
   summarizeBudget,
@@ -12,48 +15,45 @@ import {
 } from "./helpers";
 import { CARD, FOCUS, IconCircle, LIFT, MiniBar, Skeleton } from "./ui";
 
-const ROLE_LABEL: Record<PlanRole, string> = {
-  owner: "Dueño/a",
-  partner: "Pareja",
-  planner: "Wedding planner",
-};
-
 const COMPANION_LABEL: Record<PlanRole, string> = {
   owner: "otra persona",
   partner: "tu pareja",
   planner: "tu wedding planner",
 };
 
+const TILE_CLASS = cn(CARD, LIFT, FOCUS, "group flex h-full flex-col gap-3 p-4 sm:p-5");
+
 function Tile({
   href,
+  onClick,
   title,
   icon,
   tone,
   loading,
   children,
 }: {
-  href: string;
+  /** Enlace a otra pantalla; sin `href` la pieza es un botón que llama a `onClick`. */
+  href?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   title: string;
   icon: React.ReactNode;
   tone: "lilac" | "sage";
   loading: boolean;
   children: React.ReactNode;
 }) {
-  return (
-    <Link
-      href={href}
-      className={cn(CARD, LIFT, FOCUS, "group flex h-full flex-col gap-3 p-4 sm:p-5")}
-    >
-      <div className="flex items-center gap-3">
+  const Title = href ? "h3" : "span";
+  const content = (
+    <>
+      <span className="flex items-center gap-3">
         <IconCircle tone={tone} className="size-9 sm:size-10">
           {icon}
         </IconCircle>
-        <h3 className="min-w-0 flex-1 font-display text-base font-semibold text-[#102D28]">{title}</h3>
+        <Title className="min-w-0 flex-1 font-display text-base font-semibold text-[#102D28]">{title}</Title>
         <ChevronRightIcon
           className="hidden size-5 shrink-0 text-[#586C64] transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none sm:block"
           aria-hidden="true"
         />
-      </div>
+      </span>
       {loading ? (
         <span className="flex flex-col gap-2.5" role="status" aria-label={`Cargando ${title.toLowerCase()}`}>
           <Skeleton className="h-7 w-2/3" />
@@ -63,7 +63,20 @@ function Tile({
       ) : (
         children
       )}
-    </Link>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={TILE_CLASS}>
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} aria-haspopup="dialog" className={cn(TILE_CLASS, "w-full text-left")}>
+      {content}
+    </button>
   );
 }
 
@@ -173,7 +186,7 @@ function VendorsTile({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanData
             <Metric>
               {v.booked} <span className="text-lg font-medium text-[#586C64]">de {v.total}</span>
             </Metric>
-            <Detail>{v.booked === 1 ? "contratado" : "contratados"}</Detail>
+            <Detail>{v.booked === 1 ? "elegido" : "elegidos"}</Detail>
           </span>
           <MiniBar value={v.ratio} tone="sage" />
           <Detail>{`${v.considering} en estudio`}</Detail>
@@ -206,57 +219,81 @@ function TeamTile({
   const alone = accepted.length <= 1;
   const others = accepted.filter((m) => m.userId !== currentUserId);
 
+  const [open, setOpen] = React.useState(false);
+  // La pieza no es un <DialogTrigger>, así que devolvemos el foco a mano al cerrar.
+  const openerRef = React.useRef<HTMLElement | null>(null);
+
   return (
-    <Tile
-      href={`/plan/${plan.id}/members`}
-      title="Equipo"
-      tone="sage"
-      icon={<HeartHandshakeIcon />}
-      loading={data.loading && data.members.length === 0}
-    >
-      {accepted.length === 0 ? (
-        <>
-          <Metric small>Solo tú</Metric>
-          <Detail>Invita a tu pareja o a tu wedding planner.</Detail>
-        </>
-      ) : (
-        <>
-          <ul className="flex items-center" aria-label="Personas del plan">
-            {shown.map((m, i) => {
-              const label = memberLabel(m, currentUserId, userName);
-              return (
-                <li
-                  key={m.userId}
-                  title={`${label} · ${ROLE_LABEL[m.role]}`}
-                  className={cn(
-                    "-ml-2 flex size-10 items-center justify-center rounded-full border-2 border-[#F8F5F1] text-sm font-semibold text-[#474755] first:ml-0",
-                    i % 2 === 0 ? "bg-[#DECDF1]" : "bg-[#D2D7CB]"
-                  )}
-                >
-                  <span aria-hidden="true">{initials(label)}</span>
-                  <span className="sr-only">
-                    {label}, {ROLE_LABEL[m.role]}
+    <>
+      <Tile
+        onClick={(e) => {
+        openerRef.current = e.currentTarget;
+        setOpen(true);
+      }}
+        title="Equipo"
+        tone="sage"
+        icon={<HeartHandshakeIcon />}
+        loading={data.loading && data.members.length === 0}
+      >
+        {accepted.length === 0 ? (
+          <>
+            <Metric small>Solo tú</Metric>
+            <Detail>Invita a tu pareja o a tu wedding planner.</Detail>
+          </>
+        ) : (
+          <>
+            <span aria-hidden="true" className="flex items-center">
+              {shown.map((m, i) => {
+                const label = memberLabel(m, currentUserId, userName);
+                return (
+                  <span
+                    key={m.userId}
+                    className={cn(
+                      "-ml-2 flex size-10 items-center justify-center rounded-full border-2 border-[#F8F5F1] text-sm font-semibold text-[#474755] first:ml-0",
+                      i % 2 === 0 ? "bg-[#DECDF1]" : "bg-[#D2D7CB]"
+                    )}
+                  >
+                    {initials(label)}
                   </span>
-                </li>
-              );
-            })}
-            {extra > 0 && (
-              <li className="-ml-2 flex size-10 items-center justify-center rounded-full border-2 border-[#F8F5F1] bg-[#ECE6F4] text-xs font-semibold text-[#26413C]">
-                +{extra}
-              </li>
-            )}
-          </ul>
-          <Detail>
-            {alone
-              ? "Ahora mismo solo estás tú. Invita a tu pareja o a tu planner."
-              : others.length === 1
-                ? `Organizas junto a ${COMPANION_LABEL[others[0].role]}.`
-                : `Organizas junto a ${pluralize(others.length, "persona más", "personas más")}.`}
-            {pendingCount > 0 && ` ${pluralize(pendingCount, "invitación pendiente", "invitaciones pendientes")}.`}
-          </Detail>
-        </>
-      )}
-    </Tile>
+                );
+              })}
+              {extra > 0 && (
+                <span
+                  aria-hidden="true"
+                  className="-ml-2 flex size-10 items-center justify-center rounded-full border-2 border-[#F8F5F1] bg-[#ECE6F4] text-xs font-semibold text-[#26413C]"
+                >
+                  +{extra}
+                </span>
+              )}
+            </span>
+            <Detail>
+              {alone
+                ? "Ahora mismo solo estás tú. Invita a tu pareja o a tu planner."
+                : others.length === 1
+                  ? `Organizas junto a ${COMPANION_LABEL[others[0].role]}.`
+                  : `Organizas junto a ${pluralize(others.length, "persona más", "personas más")}.`}
+              {pendingCount > 0 && ` ${pluralize(pendingCount, "invitación pendiente", "invitaciones pendientes")}.`}
+            </Detail>
+            <span className="sr-only">
+              Personas del plan: {shown.map((m) => `${memberLabel(m, currentUserId, userName)}, ${ROLE_LABEL[m.role]}`).join("; ")}
+              {extra > 0 ? ` y ${extra} más` : ""}.
+            </span>
+          </>
+        )}
+      </Tile>
+      <TeamDialog
+        open={open}
+        onOpenChange={setOpen}
+        returnFocusRef={openerRef}
+        planId={plan.id}
+        planTitle={plan.title}
+        ownerId={plan.ownerId}
+        members={data.members}
+        membersLoading={data.loading}
+        currentUserId={currentUserId}
+        userName={userName}
+      />
+    </>
   );
 }
 

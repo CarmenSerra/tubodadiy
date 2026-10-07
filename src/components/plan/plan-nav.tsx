@@ -14,7 +14,6 @@ export function PlanNav({ planId }: { planId: string }) {
     { href: `${base}/guests`, label: "Invitados" },
     { href: `${base}/vendors`, label: "Proveedores" },
     { href: `${base}/budget`, label: "Presupuesto" },
-    { href: `${base}/members`, label: "Miembros" },
   ];
 
   return (
