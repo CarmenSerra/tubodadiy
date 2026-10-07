@@ -13,6 +13,9 @@ export function formatCurrency(value: number | null | undefined): string {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,
+    // es-ES no agrupa por defecto los números de 4 cifras (3450 € frente a
+    // 20.000 €); se fuerza para que todas las cifras de la app casen.
+    useGrouping: "always",
   }).format(value);
 }
 

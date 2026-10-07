@@ -1,10 +1,21 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, PlusIcon, PencilIcon } from "lucide-react";
+import { Loader2, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import {
+  CHECKBOX,
+  DIALOG_CONTENT,
+  DIALOG_TITLE,
+  EditIconButton,
+  FIELD,
+  FIELD_LABEL,
+  SELECT_CONTENT,
+  SELECT_ITEM,
+  SELECT_TRIGGER,
+} from "@/components/guests/brand-dialog";
+import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -24,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { addGuest, updateGuest } from "@/lib/firebase/mutations";
 import type { Guest, RsvpStatus } from "@/lib/types";
 
@@ -37,25 +49,27 @@ interface GuestFormDialogProps {
   planId: string;
   guest?: Guest;
   trigger?: React.ReactNode;
+  /** Grupos ya usados, para sugerirlos al escribir. */
+  groups?: string[];
 }
 
-export function GuestFormDialog({ planId, guest, trigger }: GuestFormDialogProps) {
+export function GuestFormDialog({ planId, guest, trigger, groups = [] }: GuestFormDialogProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button size="sm">
-            <PlusIcon />
+          <button type="button" className={CTA_PRIMARY}>
+            <PlusIcon aria-hidden="true" className="size-4" />
             Añadir invitado
-          </Button>
+          </button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined} className={DIALOG_CONTENT}>
         {/* Mounted only while open so form fields always start from fresh values. */}
         {open && (
-          <GuestForm planId={planId} guest={guest} onDone={() => setOpen(false)} />
+          <GuestForm planId={planId} guest={guest} groups={groups} onDone={() => setOpen(false)} />
         )}
       </DialogContent>
     </Dialog>
@@ -65,10 +79,12 @@ export function GuestFormDialog({ planId, guest, trigger }: GuestFormDialogProps
 function GuestForm({
   planId,
   guest,
+  groups,
   onDone,
 }: {
   planId: string;
   guest?: Guest;
+  groups: string[];
   onDone: () => void;
 }) {
   const isEdit = Boolean(guest);
@@ -104,69 +120,111 @@ function GuestForm({
   return (
     <form onSubmit={handleSubmit}>
       <DialogHeader>
-        <DialogTitle>{isEdit ? "Editar invitado" : "Nuevo invitado"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar invitado" : "Nuevo invitado"}</DialogTitle>
       </DialogHeader>
-      <div className="mt-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="guest-name">Nombre</Label>
-          <Input id="guest-name" value={name} onChange={(e) => setName(e.target.value)} required />
+      <div className="mt-5 flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="guest-name" className={FIELD_LABEL}>
+            Nombre
+          </Label>
+          <Input
+            id="guest-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nombre y apellidos"
+            required
+            autoFocus
+            className={FIELD}
+          />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="guest-group">Grupo / familia</Label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="guest-group" className={FIELD_LABEL}>
+            Grupo / familia
+          </Label>
           <Input
             id="guest-group"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
             placeholder="Familia de la novia, amigos..."
+            list={groups.length > 0 ? "guest-group-options" : undefined}
+            autoComplete="off"
+            className={FIELD}
           />
+          {groups.length > 0 && (
+            <datalist id="guest-group-options">
+              {groups.map((g) => (
+                <option key={g} value={g} />
+              ))}
+            </datalist>
+          )}
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="guest-rsvp">Estado RSVP</Label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="guest-rsvp" className={FIELD_LABEL}>
+            Respuesta
+          </Label>
           <Select value={rsvpStatus} onValueChange={(v) => setRsvpStatus(v as RsvpStatus)}>
-            <SelectTrigger id="guest-rsvp">
+            <SelectTrigger id="guest-rsvp" className={SELECT_TRIGGER}>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={SELECT_CONTENT}>
               {RSVP_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value} className={SELECT_ITEM}>
                   {opt.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <Checkbox checked={plusOne} onCheckedChange={(v) => setPlusOne(Boolean(v))} />
+        <label className="flex min-h-10 cursor-pointer items-center gap-3 text-sm text-[#102D28]">
+          <Checkbox
+            checked={plusOne}
+            onCheckedChange={(v) => setPlusOne(Boolean(v))}
+            className={CHECKBOX}
+          />
           Lleva acompañante
         </label>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="guest-diet">Notas dietéticas</Label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="guest-diet" className={FIELD_LABEL}>
+            Notas dietéticas
+          </Label>
           <Input
             id="guest-diet"
             value={dietaryNotes}
             onChange={(e) => setDietaryNotes(e.target.value)}
             placeholder="Vegetariano, alergias..."
+            className={FIELD}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="guest-notes">Notas</Label>
-          <Textarea id="guest-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="guest-notes" className={FIELD_LABEL}>
+            Notas
+          </Label>
+          <Textarea
+            id="guest-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+            className={cn(FIELD, "h-auto min-h-20 py-2.5")}
+          />
         </div>
       </div>
-      <DialogFooter className="mt-6">
-        <Button type="submit" disabled={submitting}>
-          {submitting && <Loader2 className="animate-spin" />}
+      <DialogFooter className="mt-6 gap-2 sm:gap-3">
+        <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
+          Cancelar
+        </button>
+        <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
+          {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
           Guardar
-        </Button>
+        </button>
       </DialogFooter>
     </form>
   );
 }
 
-export function EditGuestTrigger() {
-  return (
-    <Button variant="ghost" size="icon" className="size-8">
-      <PencilIcon className="size-4" />
-    </Button>
-  );
+/** Disparador de edición; recibe las props que le inyecta DialogTrigger. */
+export function EditGuestTrigger({
+  guestName,
+  ...props
+}: React.ComponentProps<"button"> & { guestName?: string }) {
+  return <EditIconButton label={guestName ? `Editar a ${guestName}` : "Editar invitado"} {...props} />;
 }
