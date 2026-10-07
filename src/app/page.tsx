@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  ArrowRightIcon,
   HeartIcon,
   ListChecksIcon,
   UsersIcon,
@@ -19,7 +20,69 @@ import { cn } from "@/lib/utils";
 // --primary/--card/etc., que siguen usándose tal cual en el resto de la
 // app): jerarquía crema/lila-claro/lila-medio/salvia/verde-oscuro pedida
 // específicamente para esta página.
-const BRAND_CTA = "bg-[#A894C7] text-[#F1EFE8] hover:bg-[#6B7C5E]";
+// Botón principal (hero): píldora lila con texto blanco.
+const BRAND_CTA =
+  "rounded-full bg-[#927AAC] px-8 text-white shadow-none hover:bg-[#927AAC] hover:opacity-90";
+// Botón de cabecera: píldora lila clara con texto oscuro.
+const HEADER_PILL =
+  "rounded-full bg-[#D4C0EA] px-4 text-[#38384D] shadow-none hover:bg-[#D4C0EA] hover:opacity-90";
+
+// Hojas de las ramas decorativas: [x, y, rotación] sobre el tallo.
+const BRANCH_LEAVES: [number, number, number][] = [
+  [24, 166, -115],
+  [26, 160, -20],
+  [33, 136, -120],
+  [36, 130, -25],
+  [45, 108, -125],
+  [49, 102, -30],
+  [59, 82, -128],
+  [63, 77, -35],
+  [73, 57, -130],
+  [77, 52, -40],
+  [85, 32, -80],
+];
+
+function Branch({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 120 200"
+      fill="none"
+      stroke="#4E6A5A"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={cn("pointer-events-none absolute", className)}
+    >
+      <path d="M20 200 C 24 150, 50 100, 85 30" />
+      {BRANCH_LEAVES.map(([x, y, r]) => (
+        <path
+          key={`${x}-${y}`}
+          d="M0 0 C 6 -7, 16 -7, 24 0 C 16 7, 6 7, 0 0Z"
+          transform={`translate(${x} ${y}) rotate(${r})`}
+        />
+      ))}
+    </svg>
+  );
+}
+
+function Sparkles({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 40 40"
+      fill="none"
+      stroke="#A38ED2"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+      className={cn("pointer-events-none absolute size-8 sm:size-10", className)}
+    >
+      <path d="M6 14 L14 18" />
+      <path d="M12 4 L17 12" />
+      <path d="M26 2 L26 11" />
+    </svg>
+  );
+}
 
 const FEATURES = [
   {
@@ -62,23 +125,23 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b bg-[#F1EFE8]">
+      <header className="bg-[#F8F5F0]">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2 text-[#A894C7]">
+          <div className="flex items-center gap-2 text-[#907AB2]">
             <HeartIcon className="size-5 fill-current" />
             <span className="font-display text-lg font-semibold">tubodadiy</span>
           </div>
           <nav className="flex items-center gap-2">
             {!loading && user ? (
-              <Button asChild size="sm" className={BRAND_CTA}>
+              <Button asChild size="sm" className={HEADER_PILL}>
                 <Link href="/dashboard">Ir a mi panel</Link>
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" size="sm" className="text-[#2E3D34]">
+                <Button asChild variant="ghost" size="sm" className="text-[#5E696B] hover:bg-transparent hover:text-[#5E696B] hover:opacity-80">
                   <Link href="/login">Iniciar sesión</Link>
                 </Button>
-                <Button asChild size="sm" className={BRAND_CTA}>
+                <Button asChild size="sm" className={HEADER_PILL}>
                   <Link href="/signup">Regístrate</Link>
                 </Button>
               </>
@@ -87,42 +150,78 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="bg-[#F1EFE8] px-4 py-16 sm:py-24">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 text-center">
-          <span className="text-script-accent" aria-hidden="true" style={{ color: "#A894C7" }}>
-            tubodadiy
-          </span>
-          <h1 className="mt-2 text-[#2E3D34]">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
-          <p className="max-w-xl text-balance font-display text-lg italic text-[#2E3D34]/80 sm:text-xl">
+      <section className="relative overflow-hidden bg-[#F4F1EB] px-4 py-16 sm:py-24">
+        {/* Decoración: blobs orgánicos y ramas, siempre detrás del contenido */}
+        <svg
+          viewBox="0 0 200 300"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-0 h-[45%] w-[18%] sm:h-[85%] sm:w-[22%]"
+        >
+          <path
+            d="M0 20 C 50 -10, 130 30, 150 90 C 170 150, 210 170, 190 230 C 175 280, 90 300, 0 300 Z"
+            fill="#E5DDEC"
+          />
+        </svg>
+        <svg
+          viewBox="0 0 100 200"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-[55%] h-[35%] w-[5%] sm:top-[30%] sm:h-[50%] sm:w-[10%]"
+        >
+          <path
+            d="M100 0 C 70 10, 30 50, 25 100 C 20 150, 60 185, 100 200 Z"
+            fill="#BCC7B5"
+          />
+        </svg>
+        <Branch className="bottom-0 left-[2%] hidden h-[48%] w-auto sm:block" />
+        <Branch className="bottom-0 right-[1%] hidden h-[45%] w-auto -scale-x-100 sm:block" />
+
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-2 text-center">
+          <div className="relative inline-block px-10 sm:px-14">
+            <Sparkles className="left-0 top-0" />
+            <Sparkles className="right-0 top-0 -scale-x-100" />
+            <span className="text-script-accent" aria-hidden="true" style={{ color: "#A38ED2" }}>
+              tubodadiy
+            </span>
+          </div>
+          <h1 className="mt-2 text-[#26413C]">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
+          <p className="max-w-xl text-balance font-sans text-base not-italic text-[#586C64] sm:text-lg">
             A diferencia de los directorios de proveedores, tubodadiy centraliza presupuesto,
             invitados, proveedores, timeline y tareas — con seguimiento real de tu progreso.
           </p>
-          <div className="flex gap-3">
+          <div className="mt-4 flex gap-3">
             <Button asChild size="lg" className={BRAND_CTA}>
               <Link href={user ? "/dashboard" : "/signup"}>
                 {user ? "Ir a mi panel" : "Empieza gratis"}
+                <ArrowRightIcon />
               </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl bg-[#DCCCF2] px-4 py-16">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="w-full bg-[#ECE6F4] px-4 py-16">
+        <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature, i) => (
-            <Card key={feature.title} className="bg-[#F1EFE8] text-[#2E3D34]">
+            <Card
+              key={feature.title}
+              className="rounded-2xl border-[#F8F5F1] bg-[#F8F5F1] text-[#102D28] shadow-none"
+            >
               <CardHeader>
                 <div
                   className={cn(
                     "flex size-11 items-center justify-center rounded-full",
-                    i % 2 === 0 ? "bg-[#DCCCF2]" : "bg-[#6B7C5E]/20"
+                    i % 2 === 0 ? "bg-[#DECDF1]" : "bg-[#D2D7CB]"
                   )}
                 >
-                  <feature.icon className="size-5 text-[#2E3D34]" />
+                  <feature.icon className="size-5 text-[#474755]" />
                 </div>
-                <CardTitle className="mt-2 text-base">{feature.title}</CardTitle>
+                <CardTitle className="mt-2 font-display text-base font-semibold text-[#102D28]">
+                  {feature.title}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-[#2E3D34]/75">
+              <CardContent className="text-sm text-[#677775]">
                 {feature.description}
               </CardContent>
             </Card>
