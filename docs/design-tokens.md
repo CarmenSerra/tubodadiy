@@ -6,11 +6,93 @@ decisiones; los valores reales siempre viven en el CSS.
 
 ## Color
 
-Definido como variables OKLCH en `:root` / `.dark` dentro de
-`globals.css`, mapeadas a los tokens de Tailwind (`--color-primary`,
-`--color-background`, etc.) vía `@theme inline`. Ver ese archivo para la
-paleta completa (primary, secondary, muted, accent, destructive, success,
-warning + sus variantes `-foreground`).
+Paleta lila + verde salvia (sustituye a la anterior de rosas/crema, que se
+parecía demasiado a Bodas.net). Definida como variables CSS en `:root`
+dentro de `globals.css`, mapeadas a los tokens de Tailwind
+(`--color-primary`, `--color-background`, etc.) vía `@theme inline`.
+Ningún componente usa un hex suelto: todos consumen estos tokens
+(`bg-primary`, `text-muted-foreground`, `bg-state-favorite`, etc.).
+
+`globals.css` separa los neutros fijos (fondo, texto, superficie, bordes —
+no cambian con el tema de la app) de los acentos (primary, secondary,
+accent, success, warning, state-chosen). Esa separación es intencional: en
+el futuro, un cambio de temporada podría añadir un selector
+`[data-season="primavera"] { --primary: ...; --accent: ...; ... }` que
+sobrescriba solo el bloque de acentos sin tocar los neutros. **No está
+implementado** — es solo la preparación pedida, el selector no existe
+todavía en el CSS.
+
+### Tokens base
+
+| Token | Hex | Rol |
+|---|---|---|
+| `--background` | `#F1EFE8` | Fondo general de la app |
+| `--foreground` | `#2E3D34` | Texto principal |
+| `--card` / `--popover` | `#DCCCF2` | Superficies suaves: tarjetas, cabeceras, secciones |
+| `--card-foreground` / `--popover-foreground` | `#2E3D34` | Texto sobre esas superficies |
+| `--muted` | `#E6E2D6` | Fondo neutro para zonas de baja prominencia |
+| `--muted-foreground` | `#4E5D52` | Texto secundario (captions, descripciones) |
+| `--border` / `--input` | `#D8CFE3` | Bordes y contornos de formularios (gris-lila suave, no estaba en la paleta indicada; derivado para separar superficies sin introducir un acento) |
+| `--primary` | `#B6A5D0` | Botones y elementos destacados — ver "Ajustes de contraste" |
+| `--secondary` | `#E8D9F7` | Superficie alternativa / botón secundario (lila muy claro, paleta de "toques") |
+| `--accent` | `#647458` | Hover y estados interactivos — ver "Ajustes de contraste" |
+| `--success` | `#8FAF8A` | Confirmaciones (pagado, confirmado, completado) |
+| `--warning` | `= var(--primary)` | Alias intencional: ya no hay amarillo/naranja de alerta, ver más abajo |
+| `--destructive` | sin cambios (rojo oklch existente) | Errores y acciones irreversibles reales — fuera del alcance de este rediseño |
+| `--ring` | `= var(--primary)` | Foco de teclado/accesibilidad |
+
+### Estados del flujo de venue/proveedores
+
+| Token | Hex | Equivale a |
+|---|---|---|
+| `--state-exploring` | `#DCCCF2` | alias de `--card` |
+| `--state-visited` | `#B6A5D0` | alias de `--primary` (ver ajuste de contraste) |
+| `--state-favorite` | `#8FAF8A` | alias de `--success` |
+| `--state-chosen` | `#3F5C4A` | color nuevo, sin alias |
+
+Expuestos como utilidades Tailwind (`bg-state-exploring`,
+`text-state-chosen-foreground`, etc.) para cuando exista una UI que
+distinga estos cuatro pasos. Hoy no hay ningún tipo en `src/lib/types.ts`
+con una etapa "favorita" distinta de "booked" (`VendorStatus` solo tiene
+`considering | contacted | booked | declined`), así que estos tokens
+están listos pero no forzados sobre ese enum — hacerlo sería un cambio de
+producto, no de paleta. Mientras tanto, los badges de estado existentes
+(`step-status-badge.tsx`, `vendors-list.tsx`, `guests-list.tsx`,
+`budget-list.tsx`) ya heredan los nuevos colores sin tocar esos
+componentes, porque solo usan clases `bg-success`/`bg-warning`/etc., no
+hex propios.
+
+`declined` (proveedor descartado) y `no asiste` (RSVP) siguen en
+`--destructive` (rojo): son resultados negativos reales, no avisos de
+dependencia entre secciones, así que quedan fuera de la petición de
+"nada de alerta".
+
+### Ajustes de contraste (AA, texto normal ≥4.5:1 / texto grande ≥3:1)
+
+| Combinación real | Hex pedido | Ratio con el hex pedido | Ajuste | Hex final | Ratio final |
+|---|---|---|---|---|---|
+| Texto `#2E3D34` sobre botón primario | `#A894C7` | 4.22:1 (coincide con tu estimación de ~4,2:1) | Se aclaró ligeramente el mismo matiz (mismo tono/saturación HSL, +5% de luminosidad) | `#B6A5D0` | **5.06:1** ✅ |
+| Texto blanco sobre acento secundario / hover | `#6B7C5E` | 4.50:1 (coincide con tu estimación de ~4,5:1, justo en el límite) | Se oscureció ligeramente el mismo matiz para dejar margen sobre el mínimo, en vez de quedarse justo en el borde | `#647458` | **5.03:1** ✅ |
+| Texto `#2E3D34` sobre `--card` / `--state-exploring` | `#DCCCF2` (sin cambios) | — | ninguno | `#DCCCF2` | 7.62:1 ✅ |
+| Texto `#2E3D34` sobre `--success` / `--state-favorite` | `#8FAF8A` (sin cambios) | — | ninguno | `#8FAF8A` | 4.73:1 ✅ |
+| Texto blanco sobre `--state-chosen` | `#3F5C4A` (sin cambios) | — | ninguno | `#3F5C4A` | 7.39:1 ✅ |
+| Texto `#2E3D34` sobre `--background` | `#F1EFE8` (sin cambios) | — | ninguno | `#F1EFE8` | 9.96:1 ✅ |
+| `--muted-foreground` sobre `--card` | — | — | derivado para pasar AA sobre la superficie más oscura (`--card`, no solo `--background`) | `#4E5D52` sobre `#DCCCF2` | 4.64:1 ✅ (6.06:1 sobre `--background`) |
+| `--secondary-foreground` sobre `--secondary` | `#E8D9F7` (sin cambios) | — | ninguno | `#2E3D34` sobre `#E8D9F7` | 8.57:1 ✅ |
+
+Los dos ajustes reales (`--primary` y `--accent`) mantienen el matiz y la
+familia de color pedidos — son el mismo lila y el mismo salvia, solo un
+punto de luminosidad distinto — y por eso `--state-visited` (que alias a
+`--primary`) también queda en 5.06:1 en vez del 4.22:1 original. El resto
+de combinaciones ya cumplían con los hex exactos que diste.
+
+### Color heredado sin tocar
+
+`.dark` sigue con la paleta vieja de rosas (oklch). No hay ningún toggle
+de tema oscuro ni `next-themes` integrado en la app — esa clase no se
+aplica nunca hoy — así que no se han inventado valores oscuros para la
+paleta lila/salvia sin que me los pidieras. Si se activa el modo oscuro,
+hay que re-derivar `.dark` a partir de esta paleta.
 
 ## Tipografía
 

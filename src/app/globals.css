@@ -5,31 +5,60 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.99 0.005 40);
-  --foreground: oklch(0.24 0.02 30);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.24 0.02 30);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.24 0.02 30);
-  --primary: oklch(0.62 0.13 15);
-  --primary-foreground: oklch(0.99 0.005 40);
-  --secondary: oklch(0.95 0.02 40);
-  --secondary-foreground: oklch(0.3 0.03 30);
-  --muted: oklch(0.96 0.015 40);
-  --muted-foreground: oklch(0.5 0.02 30);
-  --accent: oklch(0.93 0.04 40);
-  --accent-foreground: oklch(0.3 0.03 30);
+
+  /* Neutros fijos: no cambian entre estaciones, solo entre temas claro/oscuro. */
+  --background: #f1efe8;
+  --foreground: #2e3d34;
+  --card: #dcccf2;
+  --card-foreground: #2e3d34;
+  --popover: #dcccf2;
+  --popover-foreground: #2e3d34;
+  --muted: #e6e2d6;
+  --muted-foreground: #4e5d52;
+  --border: #d8cfe3;
+  --input: #d8cfe3;
+
+  /*
+   * Acentos: punto de extensión para un futuro cambio de temporada.
+   * Cuando se implemente, un selector `[data-season="..."] { ... }` con
+   * mayor especificidad que :root sobrescribiría primary/secondary/accent/
+   * success/warning/state-chosen (y ring, que depende de primary) sin
+   * tocar los neutros de arriba. No implementado todavía, solo preparado.
+   */
+  --primary: #b6a5d0;
+  --primary-foreground: #2e3d34;
+  --secondary: #e8d9f7;
+  --secondary-foreground: #2e3d34;
+  --accent: #647458;
+  --accent-foreground: #ffffff;
+  --success: #8faf8a;
+  --success-foreground: #2e3d34;
+  --warning: var(--primary);
+  --warning-foreground: var(--primary-foreground);
+  --ring: var(--primary);
+
+  /* Destructivo: sin cambios, fuera del alcance del rediseño de paleta
+     (es para errores/acciones irreversibles reales, no para avisos). */
   --destructive: oklch(0.58 0.22 27);
   --destructive-foreground: oklch(0.99 0.005 40);
-  --border: oklch(0.9 0.015 40);
-  --input: oklch(0.9 0.015 40);
-  --ring: oklch(0.62 0.13 15);
-  --success: oklch(0.64 0.14 145);
-  --success-foreground: oklch(0.99 0.005 40);
-  --warning: oklch(0.75 0.14 75);
-  --warning-foreground: oklch(0.25 0.02 30);
+
+  /* Estados del flujo de venue/proveedores (explorando → elegida). Los
+     tres primeros reutilizan tokens ya existentes a propósito; "chosen"
+     es el único color nuevo sin un uso todavía. */
+  --state-exploring: var(--card);
+  --state-exploring-foreground: var(--card-foreground);
+  --state-visited: var(--primary);
+  --state-visited-foreground: var(--primary-foreground);
+  --state-favorite: var(--success);
+  --state-favorite-foreground: var(--success-foreground);
+  --state-chosen: #3f5c4a;
+  --state-chosen-foreground: #ffffff;
 }
 
+/* Paleta heredada (rosas/crema): sin tema oscuro activo en la app todavía
+   (no hay toggle ni next-themes), así que esta clase nunca se aplica hoy.
+   Se deja sin tocar para no inventar valores oscuros que nadie ha pedido;
+   revisar y re-derivar de la paleta lila/salvia si se activa el modo oscuro. */
 .dark {
   --background: oklch(0.2 0.015 30);
   --foreground: oklch(0.95 0.01 40);
@@ -100,6 +129,14 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-state-exploring: var(--state-exploring);
+  --color-state-exploring-foreground: var(--state-exploring-foreground);
+  --color-state-visited: var(--state-visited);
+  --color-state-visited-foreground: var(--state-visited-foreground);
+  --color-state-favorite: var(--state-favorite);
+  --color-state-favorite-foreground: var(--state-favorite-foreground);
+  --color-state-chosen: var(--state-chosen);
+  --color-state-chosen-foreground: var(--state-chosen-foreground);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
   --font-script: var(--font-script);
