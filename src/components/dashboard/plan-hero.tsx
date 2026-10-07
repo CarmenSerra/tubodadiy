@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRightIcon, CalendarHeartIcon, HeartIcon, PartyPopperIcon } from "lucide-react";
 
-import { Sparkles } from "@/components/brand/hero-decorations";
 import { formatDate, daysUntil } from "@/lib/utils";
 import type { WeddingPlan } from "@/lib/types";
 import {
@@ -205,14 +204,13 @@ export function PlanHero({
 
       <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center lg:gap-12">
         <div>
-          <div className="relative inline-block pr-10">
+          <div>
             <h1
               id="home-greeting"
               className="font-display text-xl font-semibold text-[#26413C] sm:text-2xl"
             >
               {greetingName ? `Hola, ${greetingName}` : "Hola"}
             </h1>
-            <Sparkles className="-right-1 -top-4 size-8 sm:size-9" />
           </div>
           <p
             className="text-script-accent mt-1 text-balance break-words"

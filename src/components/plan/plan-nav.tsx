@@ -19,7 +19,7 @@ export function PlanNav({ planId }: { planId: string }) {
   return (
     <nav
       aria-label="Secciones del plan"
-      className="-mx-4 flex gap-1 overflow-x-auto border-b border-[#E5DDEC] px-4 sm:mx-0 sm:gap-2 sm:px-0"
+      className="-mx-4 flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-[#E5DDEC] px-4 sm:mx-0 sm:gap-2 sm:px-0"
     >
       {items.map((item) => {
         const active = item.href === base ? pathname === base : pathname.startsWith(item.href);
