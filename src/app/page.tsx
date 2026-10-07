@@ -13,6 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Branch, Sparkles } from "@/components/brand/hero-decorations";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -26,63 +27,6 @@ const BRAND_CTA =
 // Botón de cabecera: píldora lila clara con texto oscuro.
 const HEADER_PILL =
   "rounded-full bg-[#D4C0EA] px-4 text-[#38384D] shadow-none hover:bg-[#D4C0EA] hover:opacity-90";
-
-// Hojas de las ramas decorativas: [x, y, rotación] sobre el tallo.
-const BRANCH_LEAVES: [number, number, number][] = [
-  [24, 166, -115],
-  [26, 160, -20],
-  [33, 136, -120],
-  [36, 130, -25],
-  [45, 108, -125],
-  [49, 102, -30],
-  [59, 82, -128],
-  [63, 77, -35],
-  [73, 57, -130],
-  [77, 52, -40],
-  [85, 32, -80],
-];
-
-function Branch({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 200"
-      fill="none"
-      stroke="#4E6A5A"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={cn("pointer-events-none absolute", className)}
-    >
-      <path d="M20 200 C 24 150, 50 100, 85 30" />
-      {BRANCH_LEAVES.map(([x, y, r]) => (
-        <path
-          key={`${x}-${y}`}
-          d="M0 0 C 6 -7, 16 -7, 24 0 C 16 7, 6 7, 0 0Z"
-          transform={`translate(${x} ${y}) rotate(${r})`}
-        />
-      ))}
-    </svg>
-  );
-}
-
-function Sparkles({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 40 40"
-      fill="none"
-      stroke="#A38ED2"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      aria-hidden="true"
-      className={cn("pointer-events-none absolute size-8 sm:size-10", className)}
-    >
-      <path d="M6 14 L14 18" />
-      <path d="M12 4 L17 12" />
-      <path d="M26 2 L26 11" />
-    </svg>
-  );
-}
 
 const FEATURES = [
   {
