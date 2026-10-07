@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function planData(planId) {
+      return get(/databases/$(database)/documents/weddingPlans/$(planId)).data;
+    }
+
+    function isPlanMember(planId) {
+      return isSignedIn() && planData(planId).memberIds.hasAny([request.auth.uid]);
+    }
+
+    function isPlanOwner(planId) {
+      return isSignedIn() && planData(planId).ownerId == request.auth.uid;
+    }
+
+    // ---- Users ----
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ---- Wedding plans ----
+    match /weddingPlans/{planId} {
+      allow read: if isPlanMember(planId);
+
+      allow create: if isSignedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.memberIds.size() == 1
+        && request.resource.data.memberIds[0] == request.auth.uid;
+
+      // Any member (owner, partner or planner) has full edit access in the MVP.
+      allow update: if isPlanMember(planId);
+
+      allow delete: if isPlanOwner(planId);
+
+      match /members/{memberId} {
+        allow read: if isPlanMember(planId);
+        // Self-service creation only (used right after creating a plan, to
+        // register the owner as its first member). Adding other members is
+        // done server-side by the accept-invite flow, which uses the Admin
+        // SDK and therefore bypasses these rules.
+        allow create: if isPlanMember(planId) && memberId == request.auth.uid;
+        allow update, delete: if isPlanOwner(planId);
+      }
+
+      match /steps/{stepId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      match /guests/{guestId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      match /vendors/{vendorId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      match /budgetItems/{itemId} {
+        allow read, write: if isPlanMember(planId);
+      }
+    }
+
+    // ---- Invites ----
+    // Keyed by an unguessable token so it can be looked up by anyone who
+    // received the link, before they are a plan member.
+    match /invites/{token} {
+      allow read: if true;
+      allow create: if isSignedIn() && isPlanOwner(request.resource.data.planId);
+      // Accepting an invite touches multiple documents atomically (the plan,
+      // the member doc and the invite itself) so it is handled by a trusted
+      // Server Action using the Admin SDK instead of a client-side write.
+      allow update: if false;
+      allow delete: if isSignedIn() && isPlanOwner(resource.data.planId);
+    }
+  }
+}
