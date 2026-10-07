@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { onSnapshot, type DocumentData, type Query } from "firebase/firestore";
+import { onSnapshot, queryEqual, type DocumentData, type Query } from "firebase/firestore";
 
 interface UseCollectionResult<T> {
   data: T[];
@@ -17,7 +17,18 @@ export function useCollection<T>(
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
+  // Callers often build the query inline (`useCollection(stepsQuery(id), ...)`),
+  // which creates a new object every render. Keep the previous instance while
+  // it is equivalent, so the effect below only resubscribes when the query
+  // really changes (otherwise each snapshot re-render resubscribes and
+  // `loading` never settles).
+  const [stableQuery, setStableQuery] = React.useState(query);
+  if (query !== stableQuery && !sameQuery(query, stableQuery)) {
+    setStableQuery(query);
+  }
+
   React.useEffect(() => {
+    const query = stableQuery;
     // Subscribes to a Firestore query; setState calls here mirror that
     // external system, including the "no query yet" early exit.
     if (!query) {
@@ -41,7 +52,12 @@ export function useCollection<T>(
     );
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, [stableQuery]);
 
   return { data, loading, error };
+}
+
+function sameQuery(a: Query<DocumentData> | null, b: Query<DocumentData> | null): boolean {
+  if (a === null || b === null) return a === b;
+  return queryEqual(a, b);
 }
