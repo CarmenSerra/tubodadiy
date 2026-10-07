@@ -3,9 +3,10 @@
 import { MapPinIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { CARD, FOCUS } from "@/components/dashboard/ui";
+import { CARD } from "@/components/dashboard/ui";
 import { ConfirmDelete } from "@/components/vendors/vendor-confirm-delete";
-import { IconTrigger } from "@/components/vendors/vendor-brand";
+import { IconTrigger, ROW_FOCUS as FOCUS_WHITE } from "@/components/vendors/vendor-brand";
+import { SLIDE_WIDTH } from "@/components/vendors/vendor-carousel";
 import { VendorContactDialog } from "@/components/vendors/vendor-contact-dialog";
 import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
 import { EMPTY_COPY } from "@/components/vendors/vendor-model";
@@ -15,10 +16,20 @@ import { deleteVendor } from "@/lib/firebase/mutations";
 import type { Vendor } from "@/lib/types";
 import { cn, formatCurrency } from "@/lib/utils";
 
-/** Ancho de las tarjetas del carrusel (también del hueco vacío y del esqueleto). */
-export const CARD_WIDTH = "w-[17.5rem] sm:w-[18.25rem]";
-
-export function VendorCard({ planId, vendor }: { planId: string; vendor: Vendor }) {
+/**
+ * Tarjeta de una opción. Dentro del carrusel solo la central (`active`) es
+ * interactiva y lleva el zoom de la foto al pasar el ratón (grupo `group/card`);
+ * las vecinas son decorativas y el carrusel las marca como `inert`.
+ */
+export function VendorCard({
+  planId,
+  vendor,
+  active = true,
+}: {
+  planId: string;
+  vendor: Vendor;
+  active?: boolean;
+}) {
   async function handleDelete() {
     try {
       await deleteVendor(planId, vendor.id);
@@ -33,7 +44,11 @@ export function VendorCard({ planId, vendor }: { planId: string; vendor: Vendor 
   return (
     <article
       aria-label={vendor.name}
-      className={cn(CARD, "group/card flex shrink-0 snap-start flex-col bg-white", CARD_WIDTH)}
+      className={cn(
+        CARD,
+        "flex h-full w-full flex-col overflow-hidden bg-white",
+        active && "group/card shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+      )}
     >
       <div className="relative">
         <VendorPhoto photoUrl={vendor.photoUrl} name={vendor.name} category={vendor.category} />
@@ -92,36 +107,37 @@ export function EmptyVendorCard({ planId, category }: { planId: string; category
     cta: "Añadir opción",
   };
   return (
-    <VendorFormDialog
-      planId={planId}
-      defaultCategory={category}
-      trigger={
-        <button
-          type="button"
-          className={cn(
-            "group/card flex shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-dashed border-[#D4C0EA] bg-white text-left",
-            "transition-colors hover:border-[#927AAC]",
-            FOCUS,
-            CARD_WIDTH
-          )}
-        >
-          <div className="aspect-[4/3] w-full">
-            <VendorPlaceholder category={category} muted />
-          </div>
-          <span className="flex flex-col gap-3 p-4">
-            <span className="font-display text-lg leading-snug font-semibold text-[#102D28]">
-              {copy.title}
+    <div className={cn("mx-auto", SLIDE_WIDTH)}>
+      <VendorFormDialog
+        planId={planId}
+        defaultCategory={category}
+        trigger={
+          <button
+            type="button"
+            className={cn(
+              "group/card flex w-full flex-col overflow-hidden rounded-2xl border border-dashed border-[#D4C0EA] bg-white text-left",
+              "transition-colors hover:border-[#927AAC]",
+              FOCUS_WHITE
+            )}
+          >
+            <div className="aspect-[4/3] w-full">
+              <VendorPlaceholder category={category} muted />
+            </div>
+            <span className="flex flex-col gap-3 p-4">
+              <span className="font-display text-lg leading-snug font-semibold text-[#102D28]">
+                {copy.title}
+              </span>
+              <span className="text-sm text-[#586C64]">
+                Guarda aquí las opciones que estás comparando.
+              </span>
+              <span className="inline-flex h-10 w-fit items-center gap-2 rounded-full bg-[#927AAC] px-5 text-sm font-medium text-white">
+                <PlusIcon className="size-4" aria-hidden="true" />
+                {copy.cta}
+              </span>
             </span>
-            <span className="text-sm text-[#586C64]">
-              Guarda aquí las opciones que estás comparando.
-            </span>
-            <span className="inline-flex h-10 w-fit items-center gap-2 rounded-full bg-[#927AAC] px-5 text-sm font-medium text-white">
-              <PlusIcon className="size-4" aria-hidden="true" />
-              {copy.cta}
-            </span>
-          </span>
-        </button>
-      }
-    />
+          </button>
+        }
+      />
+    </div>
   );
 }
