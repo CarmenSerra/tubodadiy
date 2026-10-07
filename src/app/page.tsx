@@ -150,7 +150,7 @@ export default function LandingPage() {
           {FEATURES.map((feature, i) => (
             <Card
               key={feature.title}
-              className="relative rounded-2xl border-[#F8F5F1] bg-[#F8F5F1] text-[#102D28] shadow-none transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform hover:z-10 hover:scale-[1.05] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] motion-reduce:transition-none motion-reduce:hover:scale-100"
+              className="relative rounded-2xl border-[#F8F5F1] bg-[#F8F5F1] text-[#102D28] shadow-none transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:scale-[1.05] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] motion-reduce:transition-none motion-reduce:hover:scale-100"
             >
               <CardHeader>
                 <div

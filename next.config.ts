@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // Produces a self-contained .next/standalone server (minimal node_modules)
   // for container deployments, e.g. Cloud Run.
   output: "standalone",
+  // Lets several local builds run side by side (e.g. parallel QA runs) by
+  // pointing each at its own folder. Production builds use the default.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // Cache Components (on by default in new create-next-app projects) requires
   // wrapping every dynamic read — including dynamic route params — in
   // <Suspense>. This app is almost entirely client-rendered (Firebase Auth
