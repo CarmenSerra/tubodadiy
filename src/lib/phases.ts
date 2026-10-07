@@ -165,3 +165,19 @@ export function computePhases(steps: PlanStep[]): PhasesSummary {
     current: currentIndex === -1 ? null : phases[currentIndex],
   };
 }
+
+/**
+ * The one step we recommend working on now: an in-progress step of the
+ * current phase, else its first pending step; if the current phase has
+ * nothing left, any in-progress step elsewhere. Null when all is done.
+ */
+export function recommendedStep(steps: PlanStep[]): PlanStep | null {
+  const { current, phases, general } = computePhases(steps);
+  if (current) {
+    const inPhase = current.steps.find((s) => s.status === "in_progress")
+      ?? current.steps.find((s) => s.status === "pending");
+    if (inPhase) return inPhase;
+  }
+  const all = [...phases.flatMap((p) => p.steps), ...general];
+  return all.find((s) => s.status === "in_progress") ?? null;
+}
