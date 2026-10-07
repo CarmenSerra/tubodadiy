@@ -1,3 +1,4 @@
+import { computePhases } from "@/lib/phases";
 import { daysUntil } from "@/lib/utils";
 import type {
   BudgetItem,
@@ -87,14 +88,20 @@ export function progressMessage(percent: number, applicable: number): string {
 }
 
 /**
- * Siguientes pasos: primero lo que ya está en marcha, luego lo pendiente, en
- * el orden natural del checklist. Las secciones completadas y omitidas no
- * aparecen (omitir es una decisión, no una deuda).
+ * Siguientes pasos, guiados por fases: primero lo que ya está en marcha (el
+ * trabajo propio nunca se esconde) y después lo pendiente, solo de las fases
+ * abiertas y en el orden natural de la línea de tiempo. Las secciones
+ * completadas y omitidas no aparecen (omitir es una decisión, no una deuda).
+ * "Tareas generales" solo aparece si ya la estás usando.
  */
 export function pickNextSteps(steps: PlanStep[], limit = 4): PlanStep[] {
-  const open = steps.filter((s) => s.status === "in_progress" || s.status === "pending");
-  const inProgress = open.filter((s) => s.status === "in_progress");
-  const pending = open.filter((s) => s.status === "pending");
+  const { phases, general } = computePhases(steps);
+  const phased = phases.flatMap((p) => p.steps);
+  const inProgress = [...phased, ...general].filter((s) => s.status === "in_progress");
+  const pending = phases
+    .filter((p) => p.unlocked)
+    .flatMap((p) => p.steps)
+    .filter((s) => s.status === "pending");
   return [...inProgress, ...pending].slice(0, limit);
 }
 

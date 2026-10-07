@@ -43,6 +43,9 @@ const STATUS_OPTIONS: { value: StepStatus; label: string }[] = [
 const FIELD =
   "h-10 rounded-xl border-[#D4C0EA] bg-white text-sm text-[#102D28] shadow-none placeholder:text-[#677775] focus-visible:ring-[#927AAC] focus-visible:ring-offset-0";
 
+/** Id del elemento de la tarjeta: permite saltar a ella desde otras partes de la página. */
+export const stepElementId = (stepId: string) => `step-${stepId}`;
+
 export function StepCard({ planId, step }: { planId: string; step: PlanStep }) {
   const [notes, setNotes] = React.useState(step.notes);
   const [newTask, setNewTask] = React.useState("");
@@ -103,7 +106,9 @@ export function StepCard({ planId, step }: { planId: string; step: PlanStep }) {
   return (
     <AccordionItem
       value={step.id}
+      id={stepElementId(step.id)}
       className={cn(
+        "scroll-mt-24",
         // `last:border-b` revierte el `last:border-b-0` del AccordionItem base.
         "rounded-2xl border border-[#E5DDEC] bg-[#F8F5F1] px-5 text-[#102D28] shadow-none last:border-b sm:px-6",
         "transition-colors hover:border-[#D4C0EA] data-[state=open]:border-[#D4C0EA]"

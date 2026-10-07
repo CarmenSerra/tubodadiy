@@ -9,6 +9,7 @@ import {
   GiftIcon,
   HeartIcon,
   ListChecksIcon,
+  LockIcon,
   MailIcon,
   MapPinIcon,
   PlaneIcon,
@@ -18,6 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { computePhases, phaseOf } from "@/lib/phases";
 import type { PlanStep, WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { pickNextSteps, pluralize, type FeaturedPlanData } from "./helpers";
@@ -53,7 +55,21 @@ function stepDetail(step: PlanStep): string {
 export function NextSteps({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanData }) {
   const waiting = data.loading && data.steps.length === 0;
   const next = pickNextSteps(data.steps, 4);
-  const allClosed = !waiting && data.steps.length > 0 && next.length === 0;
+  const { phases, current } = computePhases(data.steps);
+  const anyOpen = data.steps.some((s) => s.status === "pending" || s.status === "in_progress");
+  const allClosed = !waiting && data.steps.length > 0 && !anyOpen;
+  // Solo las tareas generales siguen abiertas: las fases ya están terminadas.
+  const onlyGeneral = !waiting && anyOpen && next.length === 0;
+  const upcoming = current ? (phases[current.index + 1] ?? null) : null;
+
+  // La fase actual ya se indica arriba: solo se etiqueta lo que cae fuera de ella.
+  function outsidePhaseLabel(step: PlanStep): string | null {
+    const def = phaseOf(step.category);
+    if (!def) return "Siempre a mano";
+    const phase = phases.find((p) => p.id === def.id);
+    if (!phase || phase === current) return null;
+    return `Fase ${phase.index + 1} · ${phase.name}`;
+  }
 
   return (
     <section aria-labelledby="next-steps-title" className={cn(CARD, "flex flex-col p-5 sm:p-6")}>
@@ -61,8 +77,13 @@ export function NextSteps({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
         Tus siguientes pasos
       </h2>
       <p className="mt-1 text-sm text-[#586C64]">
-        Sin prisa: elige el que te apetezca hoy y avanza a tu ritmo.
+        Vamos por partes: empieza por lo más importante y avanza a tu ritmo.
       </p>
+      {!waiting && current && next.length > 0 && (
+        <p className="mt-3 inline-flex w-fit max-w-full rounded-full bg-[#ECE6F4] px-3 py-1 text-xs font-medium text-[#26413C]">
+          Fase {current.index + 1} de {phases.length} · {current.name}
+        </p>
+      )}
 
       {waiting ? (
         <ul className="mt-5 flex flex-col gap-4" role="status" aria-label="Cargando siguientes pasos">
@@ -102,11 +123,26 @@ export function NextSteps({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
             .
           </p>
         </div>
+      ) : onlyGeneral ? (
+        <div className="mt-5 flex items-center gap-4 rounded-xl bg-[#ECE6F4] p-4">
+          <IconCircle tone="sage">
+            <HeartIcon />
+          </IconCircle>
+          <p className="text-[#26413C]">
+            Has terminado todas las fases del plan. Solo te queda tu lista libre de{" "}
+            <Link href={`/plan/${plan.id}`} className={LINK}>
+              tareas generales
+            </Link>
+            , cuando quieras.
+          </p>
+        </div>
       ) : (
         <ul className="mt-3 flex flex-col divide-y divide-[#E5DDEC]">
           {next.map((step, i) => {
             const Icon = CATEGORY_ICON[step.category] ?? ListChecksIcon;
             const inProgress = step.status === "in_progress";
+
+            const outsideLabel = outsidePhaseLabel(step);
             return (
               <li key={step.id}>
                 <Link
@@ -135,6 +171,11 @@ export function NextSteps({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
                         {inProgress ? "En marcha" : "Por empezar"}
                       </span>
                     </span>
+                    {outsideLabel && (
+                      <span className="mt-0.5 block text-xs font-medium text-[#586C64]">
+                        {outsideLabel}
+                      </span>
+                    )}
                     <span className="mt-0.5 block text-sm text-[#586C64] [overflow-wrap:anywhere]">
                       {stepDetail(step)}
                     </span>
@@ -148,6 +189,15 @@ export function NextSteps({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
             );
           })}
         </ul>
+      )}
+
+      {!waiting && current && upcoming && next.length > 0 && (
+        <p className="mt-2 flex items-start gap-2 text-sm text-[#586C64]">
+          <LockIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <span>
+            Cuando termines «{current.name}», se abre «{upcoming.name}». Sin prisa.
+          </span>
+        </p>
       )}
 
       {!waiting && data.steps.length > 0 && (
