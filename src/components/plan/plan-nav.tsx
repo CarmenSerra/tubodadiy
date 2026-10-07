@@ -18,18 +18,23 @@ export function PlanNav({ planId }: { planId: string }) {
   ];
 
   return (
-    <nav className="-mx-4 flex gap-1 overflow-x-auto border-b px-4 pb-px sm:mx-0 sm:px-0">
+    <nav
+      aria-label="Secciones del plan"
+      className="-mx-4 flex gap-1 overflow-x-auto border-b border-[#E5DDEC] px-4 sm:mx-0 sm:gap-2 sm:px-0"
+    >
       {items.map((item) => {
         const active = item.href === base ? pathname === base : pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "shrink-0 rounded-t-md border-b-2 px-3 py-2 text-sm font-medium transition-colors",
+              "-mb-px shrink-0 rounded-t-lg border-b-2 px-3 py-2.5 text-sm font-medium outline-none transition-colors sm:px-4",
+              "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#927AAC]",
               active
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "border-[#927AAC] text-[#26413C]"
+                : "border-transparent text-[#586C64] hover:border-[#D4C0EA] hover:text-[#26413C]"
             )}
           >
             {item.label}

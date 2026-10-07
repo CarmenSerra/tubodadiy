@@ -1,16 +1,41 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { CalendarHeartIcon, ListChecksIcon, WalletIcon } from "lucide-react";
 
 import { Accordion } from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { CARD, IconCircle } from "@/components/dashboard/ui";
 import { StepCard } from "@/components/plan/step-card";
+import { StepCardSkeleton } from "@/components/plan/plan-shell";
 import { EditPlanDialog } from "@/components/plan/edit-plan-dialog";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils";
+
+function Stat({
+  icon,
+  tone,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  tone: "lilac" | "sage";
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 items-start gap-3.5">
+      <IconCircle tone={tone}>{icon}</IconCircle>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm text-[#586C64]">{label}</p>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const VALUE = "font-display text-xl font-semibold leading-tight text-[#26413C]";
 
 export default function PlanOverviewPage() {
   const { planId, plan } = usePlanContext();
@@ -25,35 +50,43 @@ export default function PlanOverviewPage() {
   return (
     <div className="flex flex-col gap-6">
       {plan && (
-        <Card>
-          <CardContent className="flex flex-col gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-8">
-              <div>
-                <p className="text-xs text-muted-foreground">Fecha</p>
-                <p className="font-medium">{formatDate(plan.weddingDate)}</p>
-                {days !== null && days >= 0 && (
-                  <p className="text-xs text-primary">Quedan {days} días</p>
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Presupuesto</p>
-                <p className="font-medium">{formatCurrency(plan.budgetTotal)}</p>
-              </div>
-              <div className="min-w-40">
-                <p className="text-xs text-muted-foreground">
-                  Progreso · {completed}/{applicable} secciones
+        <section aria-label="Resumen del plan" className={`${CARD} p-5 sm:p-6`}>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_auto] lg:items-center lg:gap-8">
+            <Stat icon={<CalendarHeartIcon />} tone="lilac" label="Fecha">
+              <p className={VALUE}>{formatDate(plan.weddingDate)}</p>
+              {days !== null && days >= 0 && (
+                <p className="mt-1.5 inline-flex rounded-full bg-[#ECE6F4] px-2.5 py-0.5 text-xs font-medium text-[#26413C]">
+                  Quedan {days} días
                 </p>
-                <Progress value={progress} className="mt-1.5" />
-              </div>
+              )}
+            </Stat>
+            <Stat icon={<WalletIcon />} tone="sage" label="Presupuesto">
+              <p className={VALUE}>{formatCurrency(plan.budgetTotal)}</p>
+            </Stat>
+            <Stat
+              icon={<ListChecksIcon />}
+              tone="lilac"
+              label={`Progreso · ${completed}/${applicable} secciones`}
+            >
+              <p className={VALUE}>{progress}%</p>
+              <Progress
+                value={progress}
+                aria-label="Progreso de las secciones"
+                className="mt-2 h-2 bg-[#ECE6F4] [&_[data-slot=progress-indicator]]:bg-[#927AAC]"
+              />
+            </Stat>
+            <div className="sm:col-span-2 lg:col-span-1 lg:justify-self-end">
+              <EditPlanDialog plan={plan} />
             </div>
-            <EditPlanDialog plan={plan} />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       )}
 
       {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <div className="flex flex-col gap-3" role="status" aria-label="Cargando secciones">
+          {[0, 1, 2, 3].map((i) => (
+            <StepCardSkeleton key={i} />
+          ))}
         </div>
       ) : (
         <Accordion type="multiple" className="flex flex-col gap-3">

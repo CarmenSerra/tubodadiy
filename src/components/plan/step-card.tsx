@@ -39,6 +39,10 @@ const STATUS_OPTIONS: { value: StepStatus; label: string }[] = [
   { value: "skipped", label: "Omitido" },
 ];
 
+// Campos de texto de marca: blancos, borde lila y foco #927AAC.
+const FIELD =
+  "h-10 rounded-xl border-[#D4C0EA] bg-white text-sm text-[#102D28] shadow-none placeholder:text-[#677775] focus-visible:ring-[#927AAC] focus-visible:ring-offset-0";
+
 export function StepCard({ planId, step }: { planId: string; step: PlanStep }) {
   const [notes, setNotes] = React.useState(step.notes);
   const [newTask, setNewTask] = React.useState("");
@@ -97,18 +101,33 @@ export function StepCard({ planId, step }: { planId: string; step: PlanStep }) {
   }
 
   return (
-    <AccordionItem value={step.id} className="rounded-lg border px-4">
-      <AccordionTrigger>
-        <div className="flex flex-1 flex-wrap items-center justify-between gap-2 pr-2">
-          <div>
-            <p className="font-medium">{step.title}</p>
+    <AccordionItem
+      value={step.id}
+      className={cn(
+        // `last:border-b` revierte el `last:border-b-0` del AccordionItem base.
+        "rounded-2xl border border-[#E5DDEC] bg-[#F8F5F1] px-5 text-[#102D28] shadow-none last:border-b sm:px-6",
+        "transition-colors hover:border-[#D4C0EA] data-[state=open]:border-[#D4C0EA]"
+      )}
+    >
+      <AccordionTrigger
+        className={cn(
+          "items-center rounded-xl py-5 hover:no-underline",
+          "focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5F1]",
+          "[&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:text-[#586C64]"
+        )}
+      >
+        <div className="flex flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-2 pr-2">
+          <div className="min-w-0">
+            <p className="font-display text-base font-semibold text-[#102D28] sm:text-lg">
+              {step.title}
+            </p>
             {step.description && (
-              <p className="text-xs font-normal text-muted-foreground">{step.description}</p>
+              <p className="mt-0.5 text-sm font-normal text-[#586C64]">{step.description}</p>
             )}
           </div>
           <div className="flex items-center gap-3">
             {step.tasks.length > 0 && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm font-normal text-[#586C64]">
                 {doneCount}/{step.tasks.length} tareas
               </span>
             )}
@@ -116,17 +135,21 @@ export function StepCard({ planId, step }: { planId: string; step: PlanStep }) {
           </div>
         </div>
       </AccordionTrigger>
-      <AccordionContent>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5 sm:w-56">
-            <span className="text-xs font-medium text-muted-foreground">Estado</span>
+      <AccordionContent className="pb-6">
+        <div className="flex flex-col gap-5 border-t border-[#E5DDEC] pt-5">
+          <div className="flex flex-col gap-1.5 sm:w-60">
+            <span className="text-sm font-medium text-[#586C64]">Estado</span>
             <Select value={step.status} onValueChange={(v) => handleStatusChange(v as StepStatus)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-10 rounded-xl border-[#D4C0EA] bg-white text-[#102D28] shadow-none focus:ring-[#927AAC]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl border-[#E5DDEC] bg-[#F8F5F1] text-[#102D28] shadow-md">
                 {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className="rounded-lg focus:bg-[#ECE6F4] focus:text-[#26413C]"
+                  >
                     {opt.label}
                   </SelectItem>
                 ))}
@@ -134,54 +157,68 @@ export function StepCard({ planId, step }: { planId: string; step: PlanStep }) {
             </Select>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Tareas</span>
+          <div className="flex flex-col gap-2.5">
+            <span className="text-sm font-medium text-[#586C64]">Tareas</span>
             {step.tasks.length === 0 && (
-              <p className="text-sm text-muted-foreground">Sin tareas todavía.</p>
+              <p className="text-sm text-[#586C64]">Sin tareas todavía.</p>
             )}
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col gap-1">
               {step.tasks.map((task) => (
-                <li key={task.id} className="flex items-center gap-2">
+                <li key={task.id} className="flex items-center gap-3">
                   <Checkbox
                     checked={task.done}
                     onCheckedChange={() => handleToggleTask(task.id)}
+                    className="size-5 rounded-md border-[#D4C0EA] bg-white shadow-none focus-visible:ring-[#927AAC] data-[state=checked]:border-[#927AAC] data-[state=checked]:bg-[#927AAC] data-[state=checked]:text-white"
                   />
-                  <span className={cn("flex-1 text-sm", task.done && "text-muted-foreground line-through")}>
+                  <span
+                    className={cn(
+                      "flex-1 text-sm text-[#102D28]",
+                      task.done && "text-[#586C64] line-through"
+                    )}
+                  >
                     {task.title}
                   </span>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="size-7"
+                    aria-label={`Eliminar tarea: ${task.title}`}
+                    className="size-8 rounded-full text-[#586C64] hover:bg-[#ECE6F4] hover:text-[#26413C] focus-visible:ring-[#927AAC]"
                     onClick={() => handleRemoveTask(task.id)}
                   >
-                    <TrashIcon className="size-3.5" />
+                    <TrashIcon className="size-4" />
                   </Button>
                 </li>
               ))}
             </ul>
-            <form onSubmit={handleAddTask} className="flex gap-2">
+            <form onSubmit={handleAddTask} className="mt-1 flex gap-2">
               <Input
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
                 placeholder="Añadir tarea"
-                className="h-8 text-sm"
+                aria-label="Añadir tarea"
+                className={FIELD}
               />
-              <Button type="submit" variant="outline" size="icon" className="size-8 shrink-0">
+              <Button
+                type="submit"
+                size="icon"
+                aria-label="Añadir tarea"
+                className="size-10 shrink-0 rounded-full bg-[#927AAC] text-white shadow-none hover:bg-[#927AAC] hover:opacity-90 focus-visible:ring-[#927AAC] focus-visible:ring-offset-[#F8F5F1]"
+              >
                 <PlusIcon className="size-4" />
               </Button>
             </form>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">Notas</span>
+            <span className="text-sm font-medium text-[#586C64]">Notas</span>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onBlur={handleNotesBlur}
               placeholder="Apunta aquí cualquier detalle sobre esta sección..."
               rows={3}
+              className={cn(FIELD, "h-auto min-h-20 py-2.5")}
             />
           </div>
         </div>
