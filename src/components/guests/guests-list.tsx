@@ -26,9 +26,18 @@ import { deleteGuest, updateGuest } from "@/lib/firebase/mutations";
 import type { Guest, RsvpStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function GuestsList({ planId }: { planId: string }) {
+export function GuestsList({
+  planId,
+  initialStatus,
+}: {
+  planId: string;
+  /** Filtro de respuesta con el que se abre la lista (p. ej. «pendientes»). */
+  initialStatus?: RsvpStatus;
+}) {
   const { data: stored, loading } = useCollection(guestsQuery(planId), mapGuest);
-  const [filters, setFilters] = React.useState<GuestFilters>(NO_FILTERS);
+  const [filters, setFilters] = React.useState<GuestFilters>(() =>
+    initialStatus ? { ...NO_FILTERS, status: initialStatus } : NO_FILTERS
+  );
   // Cambios de respuesta aún sin confirmar por Firestore: se ven al instante.
   const [pendingRsvp, setPendingRsvp] = React.useState<Record<string, RsvpStatus>>({});
   const [announcement, setAnnouncement] = React.useState("");

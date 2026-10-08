@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDownIcon, ClockIcon, PlusIcon, XIcon } from "lucide-react";
+import Link from "next/link";
+import { ArrowRightIcon, ChevronDownIcon, ClockIcon, PlusIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
 import { StepIdeas } from "@/components/ideas/step-ideas";
+import { useEditPlanLauncher } from "@/components/plan/edit-plan-launcher";
 import { STATUS_LABEL, StepStatusControl } from "@/components/plan/step-status";
+import { taskTarget } from "@/components/plan/task-links";
 import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import {
   addTaskToStep,
@@ -65,6 +68,45 @@ export function StepCard({
   // El paso del cronograma tiene su propia herramienta (un diálogo).
   const timeline = useTimelineLauncher();
   const openTimeline = step.category === TIMELINE_CATEGORY ? timeline?.open : undefined;
+  const editPlan = useEditPlanLauncher();
+
+  // Flecha de una tarea base hacia su herramienta; `null` si no tiene o no se puede abrir aquí.
+  function taskArrow(task: PlanStep["tasks"][number]) {
+    const target = taskTarget(task.auto, planId);
+    if (!target) return null;
+    const label = `${target.label}: ${task.title}`;
+    const className = cn(
+      "size-8 shrink-0 rounded-full focus-visible:ring-lilac",
+      completed
+        ? "text-on-done-muted hover:bg-on-done/15 hover:text-on-done focus-visible:ring-on-done"
+        : "text-ink-muted hover:bg-lilac-soft hover:text-ink"
+    );
+    const icon = <ArrowRightIcon aria-hidden="true" className="size-4" />;
+    if (target.kind === "href") {
+      return (
+        <Button asChild variant="ghost" size="icon" className={className}>
+          <Link href={target.href} aria-label={label} title={target.label}>
+            {icon}
+          </Link>
+        </Button>
+      );
+    }
+    const open = target.kind === "timeline" ? timeline?.open : editPlan?.open;
+    if (!open) return null;
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label={label}
+        title={target.label}
+        className={className}
+        onClick={open}
+      >
+        {icon}
+      </Button>
+    );
+  }
 
   React.useEffect(() => {
     // Keep the editable textarea in sync with real-time updates from other
@@ -130,11 +172,12 @@ export function StepCard({
         // Franja decorativa: el estado ya lo anuncia el control de estado
         // («Completado»), así que se oculta a los lectores de pantalla. Con
         // writing-mode vertical + rotate-180 se lee de abajo arriba y el 🎉
-        // queda arriba, al final de la lectura.
+        // queda arriba, al final de la lectura. Emoji y texto forman un solo
+        // grupo centrado en la altura de la tarjeta.
         <div
           aria-hidden="true"
           data-testid="completed-strip"
-          className="flex w-9 shrink-0 select-none flex-col items-center justify-between gap-1.5 bg-done-strip py-2.5 text-on-done sm:w-10"
+          className="flex w-9 shrink-0 select-none flex-col items-center justify-center gap-2 bg-done-strip py-2.5 text-on-done sm:w-10"
         >
           <span className="text-base leading-none">🎉</span>
           <span className="rotate-180 text-[0.7rem] font-bold uppercase leading-none tracking-[0.1em] [writing-mode:vertical-rl]">
@@ -274,6 +317,7 @@ export function StepCard({
                         >
                           {task.title}
                         </span>
+                        {taskArrow(task)}
                         <Button
                           type="button"
                           variant="ghost"

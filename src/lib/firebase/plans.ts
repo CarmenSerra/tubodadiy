@@ -14,7 +14,7 @@ import {
 
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { initialAutoDone, statusAfterTasksChange } from "@/lib/auto-tasks";
-import { STEP_DEFINITIONS } from "@/lib/steps";
+import { STEP_DEFINITIONS, baseTaskAuto } from "@/lib/steps";
 import type {
   StepTask,
   WeddingPlan,
@@ -41,6 +41,7 @@ export function mapPlan(id: string, data: DocumentData): WeddingPlan {
     budgetTotal: data.budgetTotal ?? 0,
     memberIds: data.memberIds ?? [],
     unlockedPhaseIds: data.unlockedPhaseIds ?? [],
+    lockedPhaseIds: data.lockedPhaseIds ?? [],
     createdAt: toMillis(data.createdAt),
   };
 }
@@ -61,7 +62,13 @@ export function mapStep(id: string, data: DocumentData): PlanStep {
     status: data.status ?? "pending",
     sortOrder: data.sortOrder ?? 0,
     notes: data.notes ?? "",
-    tasks: data.tasks ?? [],
+    // Las tareas base de planes anteriores a las herramientas enlazadas se
+    // guardaron sin `auto`: se reconocen por paso + título para darles su flecha.
+    tasks: ((data.tasks ?? []) as StepTask[]).map((task) => {
+      if (task.auto) return task;
+      const auto = baseTaskAuto(data.category, task.title);
+      return auto ? { ...task, auto } : task;
+    }),
   };
 }
 

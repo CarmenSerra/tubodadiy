@@ -22,18 +22,47 @@ export interface WeddingPlan {
   memberIds: string[];
   /** Fases posteriores a la recomendada que el equipo ya ha desbloqueado. */
   unlockedPhaseIds: string[];
+  /**
+   * Fases que el equipo ha vuelto a bloquear a mano. Gana a `unlockedPhaseIds`
+   * y al progreso: así se puede re-bloquear una fase abierta por tener avances.
+   */
+  lockedPhaseIds: string[];
   createdAt: number | null;
 }
 
 export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
 
 /**
- * Tarea que se marca sola a partir de los datos del plan: "date" cuando hay
- * fecha de boda, "budget" cuando el presupuesto total es mayor que cero,
- * "timeline-draft" al crear el primer momento del cronograma y
- * "timeline-share" al copiar o imprimir el cronograma.
+ * Clave de una tarea base que tiene una herramienta propia en la app (lleva
+ * una flecha para ir a ella) y, casi siempre, se marca sola:
+ *  - "date" / "budget": hay fecha de boda / presupuesto total (en los dos sentidos);
+ *  - "timeline-draft" / "timeline-share": se crea el primer momento del
+ *    cronograma / se copia o imprime;
+ *  - "budget-split": hay gastos en 2 o más categorías;
+ *  - "guests-draft": hay al menos un invitado;
+ *  - "guests-final": hay invitados y ninguno está pendiente de respuesta;
+ *  - "vendor-catering" / "vendor-photo" / "vendor-music" / "vendor-officiant":
+ *    hay un proveedor elegido de esa categoría;
+ *  - "venue-ceremony" / "venue-banquet": solo enlace a «Finca». Ceremonia y
+ *    banquete comparten categoría, así que no se pueden distinguir y no se
+ *    marcan solas.
+ * Las que se marcan por datos del plan nunca se desmarcan solas, salvo
+ * "date" y "budget".
  */
-export type StepTaskAuto = "date" | "budget" | "timeline-draft" | "timeline-share";
+export type StepTaskAuto =
+  | "date"
+  | "budget"
+  | "budget-split"
+  | "timeline-draft"
+  | "timeline-share"
+  | "guests-draft"
+  | "guests-final"
+  | "vendor-catering"
+  | "vendor-photo"
+  | "vendor-music"
+  | "vendor-officiant"
+  | "venue-ceremony"
+  | "venue-banquet";
 
 export interface StepTask {
   id: string;

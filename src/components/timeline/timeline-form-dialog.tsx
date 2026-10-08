@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Trash2Icon } from "lucide-react";
+import { ArrowLeftIcon, Loader2, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -25,7 +25,7 @@ import {
   parseClock,
 } from "@/components/timeline/timeline-model";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
-import { ConfirmDelete } from "@/components/vendors/vendor-confirm-delete";
+import { ignoreToastInteraction } from "@/components/timeline/use-timeline-undo";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -45,9 +45,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { addTimelineItem, deleteTimelineItem, updateTimelineItem } from "@/lib/firebase/timeline";
+import { createTimelineItem, deleteTimelineItem, updateTimelineItem } from "@/lib/firebase/timeline";
 import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+/** Lo que el formulario ha cambiado en Firestore; el cronograma lo apunta para poder deshacerlo. */
+export type TimelineChange =
+  | { type: "created"; id: string; title: string }
+  | { type: "updated"; before: TimelineItem; title: string }
+  | { type: "deleted"; item: TimelineItem };
 
 const CUSTOM = "custom";
 const MAX_DURATION_MIN = 24 * 60;
@@ -65,6 +71,8 @@ interface TimelineFormDialogProps {
   defaultStartMin?: number;
   /** Se llama tras crear con éxito (para el progreso del paso). */
   onCreated?: () => void;
+  /** Se llama tras crear, editar o eliminar con éxito (para poder deshacerlo). */
+  onChange?: (change: TimelineChange) => void;
 }
 
 export function TimelineFormDialog({
@@ -74,6 +82,7 @@ export function TimelineFormDialog({
   item,
   defaultStartMin = 12 * 60,
   onCreated,
+  onChange,
 }: TimelineFormDialogProps) {
   const restoreFocus = useRestoreFocus();
 
@@ -83,6 +92,7 @@ export function TimelineFormDialog({
         aria-describedby={undefined}
         className={DIALOG_CONTENT}
         onOpenAutoFocus={restoreFocus.onOpenAutoFocus}
+        onInteractOutside={ignoreToastInteraction}
         onCloseAutoFocus={restoreFocus.onCloseAutoFocus}
       >
         {open && (
@@ -94,6 +104,7 @@ export function TimelineFormDialog({
             defaultStartMin={defaultStartMin}
             onDone={() => onOpenChange(false)}
             onCreated={onCreated}
+            onChange={onChange}
           />
         )}
       </DialogContent>
@@ -116,12 +127,14 @@ function MomentForm({
   defaultStartMin,
   onDone,
   onCreated,
+  onChange,
 }: {
   planId: string;
   item?: TimelineItem;
   defaultStartMin: number;
   onDone: () => void;
   onCreated?: () => void;
+  onChange?: (change: TimelineChange) => void;
 }) {
   const isEdit = Boolean(item);
   const initialStart = item?.startMin ?? defaultStartMin;
@@ -199,11 +212,11 @@ function MomentForm({
     try {
       if (item) {
         await updateTimelineItem(planId, item.id, data);
-        toast.success("Momento actualizado");
+        onChange?.({ type: "updated", before: item, title: data.title });
       } else {
-        await addTimelineItem(planId, data);
-        toast.success("Momento añadido");
+        const id = await createTimelineItem(planId, data);
         onCreated?.();
+        onChange?.({ type: "created", id, title: data.title });
       }
       onDone();
     } catch {
@@ -217,7 +230,7 @@ function MomentForm({
     if (!item) return;
     try {
       await deleteTimelineItem(planId, item.id);
-      toast.success("Momento eliminado");
+      onChange?.({ type: "deleted", item });
       onDone();
     } catch {
       toast.error("No se ha podido eliminar el momento.");
@@ -227,6 +240,17 @@ function MomentForm({
   return (
     <form onSubmit={handleSubmit} noValidate>
       <DialogHeader>
+        <button
+          type="button"
+          onClick={onDone}
+          className={cn(
+            "-ml-3 -mt-1 mb-1 inline-flex h-9 w-fit items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink",
+            ROW_FOCUS
+          )}
+        >
+          <ArrowLeftIcon aria-hidden="true" className="size-4" />
+          Volver al cronograma
+        </button>
         <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar momento" : "Nuevo momento"}</DialogTitle>
         <DialogDescription className="sr-only">
           Hora, duración y detalles de este momento del día.
@@ -412,22 +436,18 @@ function MomentForm({
 
       <DialogFooter className="mt-6 gap-2 sm:items-center sm:gap-3">
         {item && (
-          <ConfirmDelete
-            itemLabel={`«${item.title}»`}
-            onConfirm={handleDelete}
-            trigger={
-              <button
-                type="button"
-                className={cn(
-                  "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink sm:mr-auto",
-                  ROW_FOCUS
-                )}
-              >
-                <Trash2Icon aria-hidden="true" className="size-4" />
-                Eliminar momento
-              </button>
-            }
-          />
+          // Sin confirmación previa: borrar se puede deshacer desde el aviso o la cabecera.
+          <button
+            type="button"
+            onClick={handleDelete}
+            className={cn(
+              "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink sm:mr-auto",
+              ROW_FOCUS
+            )}
+          >
+            <Trash2Icon aria-hidden="true" className="size-4" />
+            Eliminar momento
+          </button>
         )}
         <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
           Cancelar

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { CARD } from "@/components/dashboard/ui";
 import { EditPlanDialog } from "@/components/plan/edit-plan-dialog";
+import { EditPlanLauncherProvider } from "@/components/plan/edit-plan-launcher";
 import { PhasePanel } from "@/components/plan/phase-panel";
 import { PhaseTabs, type PhaseTab } from "@/components/plan/phase-tabs";
 import { Bone, StepCardSkeleton } from "@/components/plan/plan-shell";
@@ -15,7 +16,7 @@ import { usePlanContext } from "@/lib/context/plan-context";
 import { computePhases, isStepDone, planProgress, recommendedStep } from "@/lib/phases";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
-import { unlockPhase } from "@/lib/firebase/mutations";
+import { lockPhase, unlockPhase } from "@/lib/firebase/mutations";
 import { daysUntil, formatCurrency, formatDate } from "@/lib/utils";
 
 /** Pestaña de "Siempre a mano" (pasos sin fase). */
@@ -68,7 +69,7 @@ function PlanOverview() {
   const days = plan ? daysUntil(plan.weddingDate) : null;
 
   const unlockedPhaseIds = plan?.unlockedPhaseIds;
-  const { phases, general, current } = computePhases(steps, unlockedPhaseIds);
+  const { phases, general, current } = computePhases(steps, unlockedPhaseIds, plan?.lockedPhaseIds);
   const next = recommendedStep(steps);
 
   const tabs: PhaseTab[] = phases.map((p) => ({
@@ -151,6 +152,16 @@ function PlanOverview() {
     }
   }
 
+  // Volver a bloquear una fase (gana al progreso y a un desbloqueo anterior).
+  async function lock(phaseId: string) {
+    try {
+      await lockPhase(planId, phaseId);
+      toast.success("Fase bloqueada");
+    } catch {
+      toast.error("No se ha podido bloquear la fase.");
+    }
+  }
+
   // Aviso suave (descartable) al mirar una fase posterior a la recomendada que
   // ya está abierta pero no por haberla desbloqueado (eso ya lo has decidido
   // tú); en las bloqueadas lo dice el candado.
@@ -212,7 +223,9 @@ function PlanOverview() {
               softNote={showSoftNote && current ? current.name : null}
               onDismissNote={() => current && setDismissedNoteFor(current.id)}
               locked={selectedPhase.locked}
+              lockable={selectedPhase.lockable}
               onUnlock={() => unlock(selectedPhase.id)}
+              onLock={() => lock(selectedPhase.id)}
               recommendedId={next?.id ?? null}
               openIds={openIds}
               onOpenChange={setStepOpen}
@@ -245,9 +258,11 @@ export default function PlanOverviewPage() {
   // useSearchParams (?fase=, ?cronograma=) pide un límite de Suspense.
   return (
     <React.Suspense fallback={null}>
-      <TimelineLauncherProvider>
-        <PlanOverview />
-      </TimelineLauncherProvider>
+      <EditPlanLauncherProvider>
+        <TimelineLauncherProvider>
+          <PlanOverview />
+        </TimelineLauncherProvider>
+      </EditPlanLauncherProvider>
     </React.Suspense>
   );
 }

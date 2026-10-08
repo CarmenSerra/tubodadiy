@@ -2,6 +2,7 @@
 
 import {
   addDoc,
+  arrayRemove,
   arrayUnion,
   collection,
   deleteDoc,
@@ -17,11 +18,18 @@ import {
 
 import {
   AUTO_TASKS_CATEGORY,
+  CEREMONY_CATEGORY,
+  GUESTS_CATEGORY,
+  VENDORS_CATEGORY,
+  budgetReached,
+  guestsReached,
   statusAfterTasksChange,
   syncAutoTasks,
+  vendorsReached,
   type AutoTaskInput,
 } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
+import { mapBudgetItem, mapGuest, mapVendor } from "@/lib/firebase/plans";
 import { TIMELINE_CATEGORY } from "@/lib/steps";
 import type {
   BudgetItem,
@@ -59,7 +67,22 @@ export async function updatePlanDetails(
  * plan (arrayUnion, idempotente), así lo ven también quienes colaboran.
  */
 export async function unlockPhase(planId: string, phaseId: string) {
-  await updateDoc(plan(planId), { unlockedPhaseIds: arrayUnion(phaseId) });
+  await updateDoc(plan(planId), {
+    unlockedPhaseIds: arrayUnion(phaseId),
+    lockedPhaseIds: arrayRemove(phaseId),
+  });
+}
+
+/**
+ * Vuelve a bloquear una fase posterior a la recomendada, aunque estuviera
+ * abierta por haberla desbloqueado o por tener progreso (el bloqueo explícito
+ * gana). Ambas listas se mantienen coherentes en una sola escritura.
+ */
+export async function lockPhase(planId: string, phaseId: string) {
+  await updateDoc(plan(planId), {
+    lockedPhaseIds: arrayUnion(phaseId),
+    unlockedPhaseIds: arrayRemove(phaseId),
+  });
 }
 
 /**
@@ -86,7 +109,7 @@ async function syncAutoTaskStep(planId: string, category: string, data: AutoTask
     if (status === "skipped") return;
 
     const current: StepTask[] = snap.data().tasks ?? [];
-    const { tasks, changed } = syncAutoTasks(current, data);
+    const { tasks, changed } = syncAutoTasks(category, current, data);
     if (!changed) return;
 
     const nextStatus = statusAfterTasksChange(status, current, tasks);
@@ -108,6 +131,33 @@ export async function markTimelineProgress(planId: string, milestone: "draft" | 
     );
   } catch (error) {
     console.warn("No se pudo actualizar el progreso del cronograma", error);
+  }
+}
+
+/**
+ * Revisa los datos de una herramienta (invitados, proveedores, gastos) y marca
+ * las tareas base de los pasos indicados cuyo hito ya se cumple. Quien la usa
+ * no la espera (`void`) para no retrasar el guardado, y nunca falla hacia
+ * fuera: el dato ya se ha guardado y esto es solo el progreso del paso.
+ */
+async function syncToolTasks(
+  planId: string,
+  subcollection: "guests" | "vendors" | "budgetItems",
+  categories: string[]
+) {
+  try {
+    const snap = await getDocs(collection(getFirebaseDb(), "weddingPlans", planId, subcollection));
+    const reached =
+      subcollection === "guests"
+        ? guestsReached(snap.docs.map((d) => mapGuest(d.id, d.data())))
+        : subcollection === "vendors"
+          ? vendorsReached(snap.docs.map((d) => mapVendor(d.id, d.data())))
+          : budgetReached(snap.docs.map((d) => mapBudgetItem(d.id, d.data())));
+    for (const category of categories) {
+      await syncAutoTaskStep(planId, category, { reached });
+    }
+  } catch (error) {
+    console.warn("No se pudieron sincronizar las tareas del plan", error);
   }
 }
 
@@ -154,6 +204,7 @@ export async function addGuest(planId: string, data: Omit<Guest, "id" | "created
     ...data,
     createdAt: serverTimestamp(),
   });
+  void syncToolTasks(planId, "guests", [GUESTS_CATEGORY]);
 }
 
 export async function updateGuest(
@@ -162,19 +213,26 @@ export async function updateGuest(
   data: Partial<Omit<Guest, "id" | "createdAt">>
 ) {
   await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "guests", guestId), data);
+  void syncToolTasks(planId, "guests", [GUESTS_CATEGORY]);
 }
 
 export async function deleteGuest(planId: string, guestId: string) {
   await deleteDoc(doc(getFirebaseDb(), "weddingPlans", planId, "guests", guestId));
+  void syncToolTasks(planId, "guests", [GUESTS_CATEGORY]);
 }
 
 // ---- Vendors ----
+
+// «Contratar…» vive en Proveedores y «Confirmar oficiante» en Ceremonia.
+const syncVendorTasks = (planId: string) =>
+  syncToolTasks(planId, "vendors", [VENDORS_CATEGORY, CEREMONY_CATEGORY]);
 
 export async function addVendor(planId: string, data: Omit<Vendor, "id" | "createdAt">) {
   await addDoc(collection(getFirebaseDb(), "weddingPlans", planId, "vendors"), {
     ...data,
     createdAt: serverTimestamp(),
   });
+  void syncVendorTasks(planId);
 }
 
 export async function updateVendor(
@@ -183,10 +241,12 @@ export async function updateVendor(
   data: Partial<Omit<Vendor, "id" | "createdAt">>
 ) {
   await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "vendors", vendorId), data);
+  void syncVendorTasks(planId);
 }
 
 export async function deleteVendor(planId: string, vendorId: string) {
   await deleteDoc(doc(getFirebaseDb(), "weddingPlans", planId, "vendors", vendorId));
+  void syncVendorTasks(planId);
 }
 
 // ---- Budget items ----
@@ -199,6 +259,7 @@ export async function addBudgetItem(
     ...data,
     createdAt: serverTimestamp(),
   });
+  void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
 }
 
 /** Crea varias partidas de una vez (todas o ninguna). */
@@ -215,6 +276,7 @@ export async function addBudgetItems(
     });
   }
   await batch.commit();
+  void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
 }
 
 export async function updateBudgetItem(
@@ -223,8 +285,10 @@ export async function updateBudgetItem(
   data: Partial<Omit<BudgetItem, "id" | "createdAt">>
 ) {
   await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "budgetItems", itemId), data);
+  void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
 }
 
 export async function deleteBudgetItem(planId: string, itemId: string) {
   await deleteDoc(doc(getFirebaseDb(), "weddingPlans", planId, "budgetItems", itemId));
+  void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
 }

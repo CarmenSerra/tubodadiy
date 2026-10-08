@@ -7,6 +7,16 @@ import { ArrowLeftIcon, ArrowRightIcon, Loader2, XIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { SELECTED_PLAN_KEY } from "@/components/dashboard/helpers";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { createWeddingPlan } from "@/lib/firebase/plans";
 import {
   applyOnboardingExtras,
@@ -181,6 +191,27 @@ function clearDraft() {
   }
 }
 
+/** Pantalla con la que se quedan las respuestas tras saltarla (para poder recuperarlas con «Atrás»). */
+function restoreSkipped(
+  flow: FlowState,
+  next: ScreenId,
+  stash: Partial<Record<ScreenId, Partial<OnboardingAnswers>>>
+): FlowState {
+  const saved = stash[next];
+  const patch = SKIP_PATCH[next];
+  if (!saved || !patch) return flow;
+  // Solo si siguen tal y como las dejó «saltar»: si no, lo escrito después gana.
+  const untouched = (Object.keys(patch) as (keyof OnboardingAnswers)[]).every(
+    (key) => JSON.stringify(flow.answers[key]) === JSON.stringify(patch[key])
+  );
+  return untouched ? { ...flow, answers: { ...flow.answers, ...saved } } : flow;
+}
+
+/** ¿Hay algo escrito que se perdería al salir? */
+function hasProgress(answers: OnboardingAnswers): boolean {
+  return JSON.stringify(answers) !== JSON.stringify(emptyAnswers());
+}
+
 function rememberSelectedPlan(planId: string) {
   try {
     window.localStorage.setItem(SELECTED_PLAN_KEY, planId);
@@ -212,10 +243,13 @@ export function OnboardingFlow() {
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [creating, setCreating] = React.useState(false);
   const [stages, setStages] = React.useState<StageRow[]>([]);
+  const [leaveOpen, setLeaveOpen] = React.useState(false);
 
   const headingRef = React.useRef<HTMLHeadingElement>(null);
   const firstRender = React.useRef(true);
   const finished = React.useRef(false);
+  /** Lo que había en las pantallas saltadas, para devolverlo al volver con «Atrás». */
+  const skippedRef = React.useRef<Partial<Record<ScreenId, Partial<OnboardingAnswers>>>>({});
 
   const screens = screensFor(answers);
   const index = Math.max(0, screens.indexOf(screen));
@@ -245,10 +279,44 @@ export function OnboardingFlow() {
     setErrors((e) => (Object.keys(e).length ? {} : e));
   }
 
-  function goTo(next: ScreenId | undefined) {
+  // Cada pantalla es una entrada del historial: el botón «atrás» del navegador o
+  // del móvil vuelve a la pantalla anterior en vez de sacar de todo el flujo.
+  React.useEffect(() => {
+    try {
+      window.history.replaceState({ ...window.history.state, onbStep: index }, "");
+    } catch {
+      /* sin History API: «Atrás» sigue funcionando con el botón */
+    }
+    // Solo al montar: después cada cambio de pantalla lo gestiona goTo / popstate.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    function onPopState(event: PopStateEvent) {
+      const step = (event.state as { onbStep?: unknown } | null)?.onbStep;
+      if (typeof step !== "number" || creating || finished.current) return;
+      setErrors({});
+      setFlow((f) => {
+        const seq = screensFor(f.answers);
+        const target = seq[Math.min(Math.max(step, 0), seq.length - 1)];
+        return target === f.screen ? f : restoreSkipped({ ...f, screen: target }, target, skippedRef.current);
+      });
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [creating]);
+
+  function goTo(next: ScreenId | undefined, push = false) {
     if (!next) return;
     setErrors({});
-    setFlow((f) => ({ ...f, screen: next }));
+    setFlow((f) => restoreSkipped({ ...f, screen: next }, next, skippedRef.current));
+    if (push) {
+      try {
+        window.history.pushState({ onbStep: screens.indexOf(next) }, "");
+      } catch {
+        /* sin History API */
+      }
+    }
   }
 
   function goNext() {
@@ -259,10 +327,15 @@ export function OnboardingFlow() {
       requestAnimationFrame(() => document.getElementById(firstId)?.focus());
       return;
     }
-    goTo(screens[index + 1]);
+    goTo(screens[index + 1], true);
   }
 
   function goBack() {
+    // Con entrada de historial propia, «Atrás» la consume (así «adelante» del navegador también funciona).
+    if ((window.history.state as { onbStep?: unknown } | null)?.onbStep === index && index > 0) {
+      window.history.back();
+      return;
+    }
     goTo(screens[index - 1]);
   }
 
@@ -271,8 +344,18 @@ export function OnboardingFlow() {
     if (!patch) return;
     const next = { ...answers, ...patch };
     const seq = screensFor(next);
+    const target = seq[seq.indexOf(screen) + 1] ?? "summary";
+    // Lo que había se guarda por si se vuelve atrás: saltar no debe borrar sin remedio.
+    skippedRef.current[screen] = Object.fromEntries(
+      (Object.keys(patch) as (keyof OnboardingAnswers)[]).map((key) => [key, answers[key]])
+    ) as Partial<OnboardingAnswers>;
     setErrors({});
-    setFlow({ answers: next, screen: seq[seq.indexOf(screen) + 1] ?? "summary" });
+    setFlow({ answers: next, screen: target });
+    try {
+      window.history.pushState({ onbStep: seq.indexOf(target) }, "");
+    } catch {
+      /* sin History API */
+    }
   }
 
   async function create() {
@@ -385,7 +468,15 @@ export function OnboardingFlow() {
           <div className={cn(creating && "invisible")} aria-hidden={creating || undefined}>
             <Link
               href="/dashboard"
-              onClick={clearDraft}
+              onClick={(event) => {
+                // Con respuestas ya escritas, antes de tirarlas se pregunta.
+                if (hasProgress(answers)) {
+                  event.preventDefault();
+                  setLeaveOpen(true);
+                } else {
+                  clearDraft();
+                }
+              }}
               aria-label="Salir sin crear el plan"
               tabIndex={creating ? -1 : undefined}
               className={cn(WIZ_QUIET, "-ml-3")}
@@ -455,6 +546,31 @@ export function OnboardingFlow() {
           )}
         </div>
       </div>
+
+      <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+        <AlertDialogContent className="max-w-md gap-4 border-line bg-surface p-5 text-ink-strong shadow-none sm:p-7">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-xl font-semibold text-ink sm:text-2xl">
+              ¿Salir sin crear el plan?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-ink-muted">
+              Perderéis lo que habéis escrito hasta ahora.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-3">
+            <AlertDialogCancel className="bg-cta text-on-cta">Seguir con el plan</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                clearDraft();
+                router.push("/dashboard");
+              }}
+              className="bg-btn-soft text-ink-on-lilac"
+            >
+              Salir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

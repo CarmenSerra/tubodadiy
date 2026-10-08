@@ -112,9 +112,12 @@ export interface PhaseState extends PhaseDefinition {
   /**
    * Posterior a la actual y aún sin desbloquear: se ve difuminada. Nunca lo
    * están la fase actual, las completas, las que el plan ya desbloqueó ni las
-   * que ya tienen trabajo (planes anteriores a esta función).
+   * que ya tienen trabajo (planes anteriores a esta función). Precedencia:
+   * bloqueo explícito > desbloqueo explícito > progreso.
    */
   locked: boolean;
+  /** Se puede bloquear/desbloquear a mano: posterior a la actual y sin completar. */
+  lockable: boolean;
   /** Primera fase sin completar: donde toca trabajar ahora. */
   current: boolean;
 }
@@ -131,7 +134,8 @@ export interface PhasesSummary {
 
 export function computePhases(
   steps: PlanStep[],
-  unlockedPhaseIds: readonly string[] = []
+  unlockedPhaseIds: readonly string[] = [],
+  lockedPhaseIds: readonly string[] = []
 ): PhasesSummary {
   const buckets: PlanStep[][] = PHASES.map(() => []);
   const general: PlanStep[] = [];
@@ -165,6 +169,7 @@ export function computePhases(
       done,
       complete,
       locked: false,
+      lockable: false,
       current: false,
     });
   });
@@ -173,11 +178,11 @@ export function computePhases(
   if (currentIndex !== -1) {
     phases[currentIndex].current = true;
     for (const phase of phases) {
+      phase.lockable = phase.index > currentIndex && !phase.complete;
       phase.locked =
-        phase.index > currentIndex &&
-        !phase.complete &&
-        !unlockedPhaseIds.includes(phase.id) &&
-        !phase.steps.some(hasStepProgress);
+        phase.lockable &&
+        (lockedPhaseIds.includes(phase.id) ||
+          (!unlockedPhaseIds.includes(phase.id) && !phase.steps.some(hasStepProgress)));
     }
   }
 

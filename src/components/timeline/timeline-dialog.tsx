@@ -2,14 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CopyIcon, PlusIcon, PrinterIcon } from "lucide-react";
+import { CopyIcon, PlusIcon, PrinterIcon, Undo2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
 import { CHECKBOX } from "@/components/guests/brand-dialog";
 import { TimelineIdeas } from "@/components/ideas/timeline-ideas";
 import { TimelineEmpty } from "@/components/timeline/timeline-empty";
-import { TimelineFormDialog } from "@/components/timeline/timeline-form-dialog";
+import { TimelineFormDialog, type TimelineChange } from "@/components/timeline/timeline-form-dialog";
 import {
   MAX_START_MIN,
   buildTemplate,
@@ -22,6 +22,11 @@ import {
 } from "@/components/timeline/timeline-model";
 import { TimelineRoadmap } from "@/components/timeline/timeline-roadmap";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
+import {
+  ignoreToastInteraction,
+  useTimelineUndo,
+  type TimelineUndo,
+} from "@/components/timeline/use-timeline-undo";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -33,7 +38,14 @@ import {
 import { usePlanContext } from "@/lib/context/plan-context";
 import { markTimelineProgress } from "@/lib/firebase/mutations";
 import { mapTimelineItem, timelineItemsQuery } from "@/lib/firebase/plans";
-import { addTimelineItems, shiftTimelineItems } from "@/lib/firebase/timeline";
+import {
+  addTimelineItems,
+  deleteTimelineItem,
+  deleteTimelineItems,
+  restoreTimelineItem,
+  shiftTimelineItems,
+  updateTimelineItem,
+} from "@/lib/firebase/timeline";
 import { useCollection } from "@/lib/hooks/use-collection";
 import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -117,9 +129,28 @@ export function TimelineDialog({
   const dateText = formatWeekdayDate(plan?.weddingDate);
   const contentRef = React.useRef<HTMLDivElement>(null);
   const restoreFocus = useRestoreFocus();
+  const undo = useTimelineUndo();
+  const { clear: clearUndo, undoLast } = undo;
+
+  // El historial dura lo que la sesión del diálogo: al cerrarlo (o abrirlo de nuevo) empieza vacío.
+  function handleOpenChange(next: boolean) {
+    clearUndo();
+    onOpenChange(next);
+  }
+
+  /** Ctrl/Cmd+Z deshace el último cambio, salvo mientras se escribe o hay otro diálogo encima. */
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (!(event.ctrlKey || event.metaKey) || event.shiftKey || event.altKey) return;
+    if (event.key.toLowerCase() !== "z") return;
+    const target = event.target as HTMLElement;
+    if (target.closest("input, textarea, select, [contenteditable='true'], [role='combobox']")) return;
+    if (target.closest("[role='dialog']") !== contentRef.current) return;
+    event.preventDefault();
+    void undoLast();
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         ref={contentRef}
         className={MODAL}
@@ -131,16 +162,39 @@ export function TimelineDialog({
           contentRef.current?.focus();
         }}
         onCloseAutoFocus={restoreFocus.onCloseAutoFocus}
+        onKeyDown={handleKeyDown}
+        onInteractOutside={ignoreToastInteraction}
       >
         <DialogHeader className="shrink-0 gap-1 px-5 pb-4 pt-5 pr-14 text-left sm:px-8 sm:pt-7">
-          <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            Cronograma del día
-          </DialogTitle>
-          <DialogDescription className="text-sm text-ink-muted">
-            {dateText ?? "Aún no tienes fecha"}
-          </DialogDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1">
+              <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+                Cronograma del día
+              </DialogTitle>
+              <DialogDescription className="text-sm text-ink-muted">
+                {dateText ?? "Aún no tienes fecha"}
+              </DialogDescription>
+            </div>
+            {undo.count > 0 && (
+              <button
+                type="button"
+                onClick={() => void undoLast()}
+                aria-label={`Deshacer: ${undo.lastMessage}`}
+                title={undo.lastMessage ?? undefined}
+                className={cn(CTA_SECONDARY, "h-9 shrink-0 px-4")}
+              >
+                <Undo2Icon aria-hidden="true" className="size-4" />
+                Deshacer
+                {undo.count > 1 && (
+                  <span aria-hidden="true" className="tabular-nums text-ink-muted">
+                    ({undo.count})
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
         </DialogHeader>
-        {open && <TimelineBody />}
+        {open && <TimelineBody undo={undo} />}
       </DialogContent>
     </Dialog>
   );
@@ -159,7 +213,7 @@ function TimelineSkeleton() {
   );
 }
 
-function TimelineBody() {
+function TimelineBody({ undo }: { undo: TimelineUndo }) {
   const { planId, plan } = usePlanContext();
   const { data, loading, error } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
   const items = React.useMemo(() => sortItems(data), [data]);
@@ -169,7 +223,6 @@ function TimelineBody() {
   const [form, setForm] = React.useState<{ open: boolean; item?: TimelineItem }>({ open: false });
   const [creating, setCreating] = React.useState(false);
   const [announcement, setAnnouncement] = React.useState("");
-
 
   const lastEnd = items.length > 0 ? Math.max(...items.map(endMin)) : null;
   const defaultStart = lastEnd === null ? 12 * 60 : Math.min(lastEnd, MAX_START_MIN);
@@ -186,8 +239,11 @@ function TimelineBody() {
   async function handleTemplate(ceremonyStartMin: number) {
     setCreating(true);
     try {
-      await addTimelineItems(planId, buildTemplate(ceremonyStartMin));
-      toast.success("Cronograma creado. Ya puedes ajustar las horas.");
+      const ids = await addTimelineItems(planId, buildTemplate(ceremonyStartMin));
+      undo.push({
+        message: "Cronograma creado. Ya puedes ajustar las horas.",
+        undo: () => deleteTimelineItems(planId, ids),
+      });
       void markTimelineProgress(planId, "draft");
     } catch {
       toast.error("No se ha podido crear el cronograma.");
@@ -199,12 +255,53 @@ function TimelineBody() {
   async function handleNudge(item: TimelineItem, delta: number) {
     const updates = planShift(items, item.id, delta, cascade);
     if (!updates) return;
+    // Las horas de antes, para devolver cada momento a su sitio.
+    const before = updates.map((u) => ({
+      id: u.id,
+      startMin: items.find((i) => i.id === u.id)?.startMin ?? u.startMin - delta,
+    }));
     try {
       await shiftTimelineItems(planId, updates);
       const moved = updates.length > 1 ? " y lo que viene después" : "";
-      setAnnouncement(`«${item.title}»${moved}: ahora a las ${formatClock(item.startMin + delta)}`);
+      const now = formatClock(item.startMin + delta);
+      setAnnouncement(`«${item.title}»${moved}: ahora a las ${now}`);
+      undo.push({
+        message: `«${item.title}»${moved} ${updates.length > 1 ? "movidos" : "movido"} a las ${now}`,
+        undo: () => shiftTimelineItems(planId, before),
+      });
     } catch {
       toast.error("No se ha podido cambiar la hora.");
+    }
+  }
+
+  /** Apunta lo que ha hecho el formulario (crear / editar / eliminar) para poder deshacerlo. */
+  function handleFormChange(change: TimelineChange) {
+    if (change.type === "created") {
+      undo.push({
+        message: "Momento añadido",
+        undo: () => deleteTimelineItem(planId, change.id),
+      });
+    } else if (change.type === "updated") {
+      const { before } = change;
+      undo.push({
+        message: `«${change.title}» actualizado`,
+        undo: () =>
+          updateTimelineItem(planId, before.id, {
+            title: before.title,
+            startMin: before.startMin,
+            durationMin: before.durationMin,
+            location: before.location,
+            responsible: before.responsible,
+            notes: before.notes,
+            highlight: before.highlight,
+          }),
+      });
+    } else {
+      const { item } = change;
+      undo.push({
+        message: `«${item.title}» eliminado`,
+        undo: () => restoreTimelineItem(planId, item),
+      });
     }
   }
 
@@ -312,6 +409,7 @@ function TimelineBody() {
         // Ojo: Firestore refleja la escritura al instante, así que "¿es el primero?"
         // se decide con la lista tal y como estaba al enviar el formulario (esta
         // función es la de ese render), no con la de cuando termina de guardar.
+        onChange={handleFormChange}
         onCreated={() => {
           if (items.length === 0) void markTimelineProgress(planId, "draft");
         }}

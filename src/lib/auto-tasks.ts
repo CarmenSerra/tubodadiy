@@ -1,12 +1,19 @@
-import {
-  BUDGET_TASK_TITLE,
-  DATE_TASK_TITLE,
-  TIMELINE_DRAFT_TASK_TITLE,
-  TIMELINE_SHARE_TASK_TITLE,
-} from "@/lib/steps";
-import type { StepStatus, StepTask, StepTaskAuto } from "@/lib/types";
+import { listCategories } from "@/components/budget/budget-math";
+import { canonicalCategory, categoryKey } from "@/components/vendors/vendor-model";
+import { baseTaskAuto } from "@/lib/steps";
+import type {
+  BudgetItem,
+  Guest,
+  StepStatus,
+  StepTask,
+  StepTaskAuto,
+  Vendor,
+} from "@/lib/types";
 
 export const AUTO_TASKS_CATEGORY = "fecha_presupuesto";
+export const GUESTS_CATEGORY = "invitados";
+export const VENDORS_CATEGORY = "proveedores";
+export const CEREMONY_CATEGORY = "ceremonia";
 
 /** Qué tareas automáticas hay que (re)evaluar y con qué datos del plan. */
 export interface AutoTaskInput {
@@ -18,14 +25,13 @@ export interface AutoTaskInput {
   timelineDraft?: boolean;
   /** `true`: se acaba de copiar o imprimir el cronograma. */
   timelineShare?: boolean;
+  /**
+   * Tareas cuyo hito se cumple ahora mismo según los datos de una herramienta
+   * (invitados, proveedores, gastos). Solo se marcan: nunca se desmarcan solas,
+   * para no borrar un tick puesto a mano.
+   */
+  reached?: StepTaskAuto[];
 }
-
-const LEGACY_AUTO_BY_TITLE: Record<string, StepTaskAuto> = {
-  [DATE_TASK_TITLE]: "date",
-  [BUDGET_TASK_TITLE]: "budget",
-  [TIMELINE_DRAFT_TASK_TITLE]: "timeline-draft",
-  [TIMELINE_SHARE_TASK_TITLE]: "timeline-share",
-};
 
 export function isDateSet(weddingDate: string | null | undefined): boolean {
   return Boolean(weddingDate);
@@ -47,30 +53,71 @@ export function initialAutoDone(
 
 /**
  * Aplica los datos del plan a las tareas automáticas de un paso. Los planes
- * anteriores a `auto` no lo tienen: se reconocen por el título original y se
- * les escribe `auto`. Devuelve `changed: false` si no hay nada que guardar.
+ * anteriores a `auto` no lo tienen: se reconocen por el paso y el título
+ * original y se les escribe `auto`. Devuelve `changed: false` si no hay nada
+ * que guardar.
  *
  * La fecha y el presupuesto se reflejan en los dos sentidos (si se borran, la
- * tarea se desmarca). Las del cronograma son hitos: solo se marcan, nunca se
- * desmarcan solas.
+ * tarea se desmarca). El resto son hitos: solo se marcan, nunca se desmarcan
+ * solas.
  */
 export function syncAutoTasks(
+  category: string,
   tasks: StepTask[],
   input: AutoTaskInput
 ): { tasks: StepTask[]; changed: boolean } {
   let changed = false;
   const next = tasks.map((task) => {
-    const auto = task.auto ?? LEGACY_AUTO_BY_TITLE[task.title];
+    const auto = task.auto ?? baseTaskAuto(category, task.title);
     let done = task.done;
     if (auto === "date" && input.weddingDate !== undefined) done = isDateSet(input.weddingDate);
     if (auto === "budget" && input.budgetTotal !== undefined) done = isBudgetSet(input.budgetTotal);
     if (auto === "timeline-draft" && input.timelineDraft) done = true;
     if (auto === "timeline-share" && input.timelineShare) done = true;
+    if (auto && input.reached?.includes(auto)) done = true;
     if (auto === task.auto && done === task.done) return task;
     changed = true;
     return { ...task, auto, done };
   });
   return { tasks: next, changed };
+}
+
+/** Hitos de «Lista de invitados» que cumple la lista actual. */
+export function guestsReached(guests: Pick<Guest, "rsvpStatus">[]): StepTaskAuto[] {
+  const reached: StepTaskAuto[] = [];
+  if (guests.length > 0) reached.push("guests-draft");
+  if (guests.length > 0 && guests.every((g) => g.rsvpStatus !== "pending")) {
+    reached.push("guests-final");
+  }
+  return reached;
+}
+
+/** Categoría de proveedor cuya elección marca cada tarea de «Contratar…». */
+const VENDOR_AUTO_CATEGORY: Partial<Record<StepTaskAuto, string>> = {
+  "vendor-catering": "Catering",
+  "vendor-photo": "Fotógrafo",
+  "vendor-music": "Música",
+  "vendor-officiant": "Oficiante",
+};
+
+/**
+ * Tareas de proveedor cumplidas: hay uno «Elegida» (el estado más cercano a
+ * contratado) en esa categoría.
+ */
+export function vendorsReached(vendors: Pick<Vendor, "category" | "status">[]): StepTaskAuto[] {
+  const chosen = new Set(
+    vendors
+      .filter((v) => v.status === "chosen")
+      .map((v) => categoryKey(canonicalCategory(v.category)))
+  );
+  return (Object.keys(VENDOR_AUTO_CATEGORY) as StepTaskAuto[]).filter((auto) =>
+    chosen.has(categoryKey(VENDOR_AUTO_CATEGORY[auto]!))
+  );
+}
+
+/** El presupuesto está repartido cuando hay gastos en 2 o más categorías. */
+export function budgetReached(items: BudgetItem[]): StepTaskAuto[] {
+  return listCategories(items).length >= 2 ? ["budget-split"] : [];
 }
 
 /** Un paso pendiente pasa a "en progreso" en cuanto alguna tarea está hecha. */

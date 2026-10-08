@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,22 +29,43 @@ import { updatePlanDetails } from "@/lib/firebase/mutations";
 import type { WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function EditPlanDialog({ plan }: { plan: WeddingPlan }) {
-  const [open, setOpen] = React.useState(false);
+export function EditPlanDialog({
+  plan,
+  open: openProp,
+  onOpenChange,
+}: {
+  plan: WeddingPlan;
+  /** Modo controlado (sin botón propio): lo abre quien lo usa, p. ej. la flecha de una tarea. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [openState, setOpenState] = React.useState(false);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : openState;
+  const setOpen = controlled ? (onOpenChange ?? (() => {})) : setOpenState;
+  // Sin DialogTrigger, Radix no sabe a dónde devolver el foco: se recuerda quién lo tenía.
+  const restoreFocus = useRestoreFocus();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-10 rounded-full px-3.5 text-sm font-medium text-ink shadow-none hover:bg-lilac-soft hover:text-ink focus-visible:ring-lilac focus-visible:ring-offset-surface"
-        >
-          <PencilIcon />
-          Editar
-        </Button>
-      </DialogTrigger>
-      <DialogContent aria-describedby={undefined} className="gap-0 p-5 sm:p-7">
+      {!controlled && (
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-10 rounded-full px-3.5 text-sm font-medium text-ink shadow-none hover:bg-lilac-soft hover:text-ink focus-visible:ring-lilac focus-visible:ring-offset-surface"
+          >
+            <PencilIcon />
+            Editar
+          </Button>
+        </DialogTrigger>
+      )}
+      <DialogContent
+        aria-describedby={undefined}
+        className="gap-0 p-5 sm:p-7"
+        onOpenAutoFocus={controlled ? restoreFocus.onOpenAutoFocus : undefined}
+        onCloseAutoFocus={controlled ? restoreFocus.onCloseAutoFocus : undefined}
+      >
         {open && <EditPlanForm plan={plan} onDone={() => setOpen(false)} />}
       </DialogContent>
     </Dialog>

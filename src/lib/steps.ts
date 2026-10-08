@@ -24,7 +24,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     suggestedTasks: [
       { title: DATE_TASK_TITLE, auto: "date" },
       { title: BUDGET_TASK_TITLE, auto: "budget" },
-      "Repartir el presupuesto por categorías",
+      { title: "Repartir el presupuesto por categorías", auto: "budget-split" },
     ],
   },
   {
@@ -33,8 +33,8 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     description: "Ceremonia y banquete (pueden ser el mismo sitio o distintos).",
     suggestedTasks: [
       "Visitar posibles lugares",
-      "Reservar lugar de ceremonia",
-      "Reservar lugar de banquete",
+      { title: "Reservar lugar de ceremonia", auto: "venue-ceremony" },
+      { title: "Reservar lugar de banquete", auto: "venue-banquet" },
     ],
   },
   {
@@ -42,8 +42,8 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     title: "Lista de invitados",
     description: "Nombre, grupo/familia, confirmación, acompañante y notas dietéticas.",
     suggestedTasks: [
-      "Hacer el borrador de la lista",
-      "Confirmar número final de invitados",
+      { title: "Hacer el borrador de la lista", auto: "guests-draft" },
+      { title: "Confirmar número final de invitados", auto: "guests-final" },
     ],
   },
   {
@@ -51,9 +51,9 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     title: "Proveedores",
     description: "Catering, fotografía, música/DJ, flores, pastel, transporte, etc.",
     suggestedTasks: [
-      "Contratar catering",
-      "Contratar fotógrafo/a",
-      "Contratar música/DJ",
+      { title: "Contratar catering", auto: "vendor-catering" },
+      { title: "Contratar fotógrafo/a", auto: "vendor-photo" },
+      { title: "Contratar música/DJ", auto: "vendor-music" },
     ],
   },
   {
@@ -72,7 +72,10 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     category: "ceremonia",
     title: "Ceremonia",
     description: "Tipo (civil, religiosa, simbólica), oficiante y estructura.",
-    suggestedTasks: ["Elegir tipo de ceremonia", "Confirmar oficiante"],
+    suggestedTasks: [
+      "Elegir tipo de ceremonia",
+      { title: "Confirmar oficiante", auto: "vendor-officiant" },
+    ],
   },
   {
     category: TIMELINE_CATEGORY,
@@ -114,3 +117,19 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     suggestedTasks: [],
   },
 ];
+
+const AUTO_BY_CATEGORY_AND_TITLE = new Map<string, StepTaskAuto>(
+  STEP_DEFINITIONS.flatMap((def) =>
+    def.suggestedTasks.flatMap((task) =>
+      typeof task === "string" ? [] : ([[`${def.category}|${task.title}`, task.auto]] as const)
+    )
+  )
+);
+
+/**
+ * Clave `auto` de una tarea base guardada sin ella (los planes anteriores a
+ * las herramientas enlazadas), según su paso y su título original.
+ */
+export function baseTaskAuto(category: string, title: string): StepTaskAuto | undefined {
+  return AUTO_BY_CATEGORY_AND_TITLE.get(`${category}|${title}`);
+}

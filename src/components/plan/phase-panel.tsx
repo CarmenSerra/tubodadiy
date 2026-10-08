@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, LockIcon, LockOpenIcon, XIcon } from "lucide-react";
 
 import { TabsContent } from "@/components/ui/tabs";
-import { FOCUS } from "@/components/dashboard/ui";
+import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
 import { PhaseLock } from "@/components/plan/phase-lock";
 import { StepCard } from "@/components/plan/step-card";
 import type { PlanStep } from "@/lib/types";
@@ -28,7 +28,9 @@ export function PhasePanel({
   softNote,
   onDismissNote,
   locked = false,
+  lockable = false,
   onUnlock,
+  onLock,
   recommendedId,
   openIds,
   onOpenChange,
@@ -47,7 +49,10 @@ export function PhasePanel({
   onDismissNote: () => void;
   /** Fase posterior a la recomendada y sin desbloquear. */
   locked?: boolean;
+  /** Se puede bloquear/desbloquear a mano (botón al pie del panel). */
+  lockable?: boolean;
   onUnlock?: () => void;
+  onLock?: () => void;
   recommendedId: string | null;
   openIds: string[];
   onOpenChange: (stepId: string, open: boolean) => void;
@@ -56,7 +61,12 @@ export function PhasePanel({
   const panelRef = React.useRef<HTMLDivElement>(null);
   const wasLocked = React.useRef(locked);
   React.useEffect(() => {
-    if (wasLocked.current && !locked) panelRef.current?.focus({ preventScroll: true });
+    // Solo si el foco se perdió (desapareció el candado); si lo tiene el botón
+    // del pie, se queda ahí.
+    const active = document.activeElement;
+    if (wasLocked.current && !locked && (!active || active === document.body)) {
+      panelRef.current?.focus({ preventScroll: true });
+    }
     wasLocked.current = locked;
   }, [locked]);
 
@@ -126,13 +136,9 @@ export function PhasePanel({
   );
 
   return (
-    <TabsContent
-      ref={panelRef}
-      value={tabId}
-      className={cn(locked ? "relative" : "flex flex-col gap-3", "rounded-xl", FOCUS)}
-    >
+    <TabsContent ref={panelRef} value={tabId} className={cn("flex flex-col gap-3 rounded-xl", FOCUS)}>
       {locked ? (
-        <>
+        <div className="relative">
           {/* inert: ni foco ni clics ni lectores de pantalla dentro de lo difuminado. */}
           <div className="min-h-[22rem] overflow-hidden rounded-xl">
             <div
@@ -144,9 +150,27 @@ export function PhasePanel({
             </div>
           </div>
           <PhaseLock phaseName={name} onUnlock={() => onUnlock?.()} />
-        </>
+        </div>
       ) : (
-        body
+        <div className="flex flex-col gap-3">{body}</div>
+      )}
+
+      {/* Fuera de lo difuminado: siempre nítido y alcanzable con teclado. */}
+      {lockable && (
+        <div className="flex justify-center pt-1">
+          <button
+            type="button"
+            onClick={() => (locked ? onUnlock?.() : onLock?.())}
+            className={CTA_SECONDARY}
+          >
+            {locked ? (
+              <LockOpenIcon className="size-4" aria-hidden="true" />
+            ) : (
+              <LockIcon className="size-4" aria-hidden="true" />
+            )}
+            {locked ? "Desbloquear fase" : "Bloquear fase"}
+          </button>
+        </div>
       )}
     </TabsContent>
   );
