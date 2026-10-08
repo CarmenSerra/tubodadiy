@@ -3,6 +3,7 @@
 import { PlusIcon } from "lucide-react";
 
 import { CTA_PRIMARY, SECTION_TITLE } from "@/components/dashboard/ui";
+import { VendorIdeas } from "@/components/ideas/vendor-ideas";
 import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
 import { VendorsList } from "@/components/vendors/vendors-list";
 import { usePlanContext } from "@/lib/context/plan-context";
@@ -19,15 +20,18 @@ export default function VendorsPage() {
             Compara tus opciones por categoría y quédate con la que más te enamore.
           </p>
         </div>
-        <VendorFormDialog
-          planId={planId}
-          trigger={
-            <button type="button" className={CTA_PRIMARY}>
-              <PlusIcon className="size-4" aria-hidden="true" />
-              Añadir proveedor
-            </button>
-          }
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <VendorFormDialog
+            planId={planId}
+            trigger={
+              <button type="button" className={CTA_PRIMARY}>
+                <PlusIcon className="size-4" aria-hidden="true" />
+                Añadir proveedor
+              </button>
+            }
+          />
+          <VendorIdeas planId={planId} align="end" />
+        </div>
       </div>
       <VendorsList planId={planId} />
     </div>

@@ -17,6 +17,7 @@ import {
   normalizeText,
   type GuestFilters,
 } from "@/components/guests/guest-filters";
+import { GuestIdeas } from "@/components/ideas/guest-ideas";
 import { GuestSummary, GuestsSkeleton } from "@/components/guests/guest-summary";
 import { RSVP_CONFIG, RsvpMenu, RsvpSegmented } from "@/components/guests/rsvp";
 import { useCollection } from "@/lib/hooks/use-collection";
@@ -83,7 +84,12 @@ export function GuestsList({ planId }: { planId: string }) {
         <h2 className={SECTION_TITLE}>Lista de invitados</h2>
         <p className="mt-1 text-sm text-[#586C64]">Quién viene, quién falta por contestar y qué necesita cada persona.</p>
       </div>
-      {!loading && guests.length > 0 && <GuestFormDialog planId={planId} groups={groups} />}
+      {!loading && guests.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <GuestFormDialog planId={planId} groups={groups} />
+          <GuestIdeas planId={planId} groups={groups} align="end" />
+        </div>
+      )}
     </div>
   );
 
@@ -111,8 +117,9 @@ export function GuestsList({ planId }: { planId: string }) {
             Añade a las personas que no pueden faltar y ve apuntando quién confirma, quién lleva
             acompañante y qué necesita cada uno. Sin prisa.
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <GuestFormDialog planId={planId} />
+            <GuestIdeas planId={planId} groups={groups} align="center" />
           </div>
         </div>
       </div>

@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { addGuest, updateGuest } from "@/lib/firebase/mutations";
@@ -51,25 +52,70 @@ interface GuestFormDialogProps {
   trigger?: React.ReactNode;
   /** Grupos ya usados, para sugerirlos al escribir. */
   groups?: string[];
+  /** Grupo con el que arranca un invitado nuevo (p. ej. desde el panel de ideas). */
+  defaultGroup?: string;
+  /** Modo controlado (sin botón propio): lo abre quien lo usa. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Modo controlado: a quién devolver el foco al cerrar (por defecto, a quien lo tenía al abrir). */
+  returnFocusTo?: HTMLElement | null;
 }
 
-export function GuestFormDialog({ planId, guest, trigger, groups = [] }: GuestFormDialogProps) {
-  const [open, setOpen] = React.useState(false);
+export function GuestFormDialog({
+  planId,
+  guest,
+  trigger,
+  groups = [],
+  defaultGroup,
+  open: openProp,
+  onOpenChange,
+  returnFocusTo,
+}: GuestFormDialogProps) {
+  const [openState, setOpenState] = React.useState(false);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : openState;
+  const setOpen = controlled ? (onOpenChange ?? (() => {})) : setOpenState;
+  // Sin DialogTrigger, Radix no sabe a dónde devolver el foco: se recuerda quién lo tenía.
+  const restoreFocus = useRestoreFocus();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <button type="button" className={CTA_PRIMARY}>
-            <PlusIcon aria-hidden="true" className="size-4" />
-            Añadir invitado
-          </button>
-        )}
-      </DialogTrigger>
-      <DialogContent aria-describedby={undefined} className={DIALOG_CONTENT}>
+      {!controlled && (
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <button type="button" className={CTA_PRIMARY}>
+              <PlusIcon aria-hidden="true" className="size-4" />
+              Añadir invitado
+            </button>
+          )}
+        </DialogTrigger>
+      )}
+      <DialogContent
+        aria-describedby={undefined}
+        className={DIALOG_CONTENT}
+        onOpenAutoFocus={controlled ? restoreFocus.onOpenAutoFocus : undefined}
+        onCloseAutoFocus={
+          controlled
+            ? (event) => {
+                if (returnFocusTo?.isConnected) {
+                  event.preventDefault();
+                  returnFocusTo.focus();
+                } else {
+                  restoreFocus.onCloseAutoFocus(event);
+                }
+              }
+            : undefined
+        }
+      >
         {/* Mounted only while open so form fields always start from fresh values. */}
         {open && (
-          <GuestForm planId={planId} guest={guest} groups={groups} onDone={() => setOpen(false)} />
+          <GuestForm
+            planId={planId}
+            guest={guest}
+            groups={groups}
+            defaultGroup={defaultGroup}
+            onDone={() => setOpen(false)}
+          />
         )}
       </DialogContent>
     </Dialog>
@@ -80,16 +126,18 @@ function GuestForm({
   planId,
   guest,
   groups,
+  defaultGroup,
   onDone,
 }: {
   planId: string;
   guest?: Guest;
   groups: string[];
+  defaultGroup?: string;
   onDone: () => void;
 }) {
   const isEdit = Boolean(guest);
   const [name, setName] = React.useState(guest?.name ?? "");
-  const [groupName, setGroupName] = React.useState(guest?.groupName ?? "");
+  const [groupName, setGroupName] = React.useState(guest?.groupName ?? defaultGroup ?? "");
   const [rsvpStatus, setRsvpStatus] = React.useState<RsvpStatus>(guest?.rsvpStatus ?? "pending");
   const [plusOne, setPlusOne] = React.useState(guest?.plusOne ?? false);
   const [dietaryNotes, setDietaryNotes] = React.useState(guest?.dietaryNotes ?? "");

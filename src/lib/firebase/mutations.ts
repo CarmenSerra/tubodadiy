@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from "firebase/firestore";
 
 import {
@@ -178,6 +179,22 @@ export async function addBudgetItem(
     ...data,
     createdAt: serverTimestamp(),
   });
+}
+
+/** Crea varias partidas de una vez (todas o ninguna). */
+export async function addBudgetItems(
+  planId: string,
+  items: Omit<BudgetItem, "id" | "createdAt">[]
+) {
+  const db = getFirebaseDb();
+  const batch = writeBatch(db);
+  for (const data of items) {
+    batch.set(doc(collection(db, "weddingPlans", planId, "budgetItems")), {
+      ...data,
+      createdAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
 }
 
 export async function updateBudgetItem(

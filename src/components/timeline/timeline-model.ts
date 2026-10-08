@@ -179,6 +179,42 @@ export function buildTemplate(ceremonyStartMin: number): NewTimelineItem[] {
 }
 
 /* ------------------------------------------------------------------ */
+/* Ideas                                                              */
+/* ------------------------------------------------------------------ */
+
+/** Minúsculas y sin tildes, para encontrar «Ceremonia» escriba como se escriba. */
+function plain(text: string): string {
+  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
+}
+
+/** El momento «Ceremonia» (o el primero que empiece por esa palabra), si existe. */
+export function findCeremony(items: TimelineItem[]): TimelineItem | null {
+  return (
+    items.find((i) => plain(i.title) === "ceremonia") ??
+    items.find((i) => plain(i.title).startsWith("ceremonia")) ??
+    null
+  );
+}
+
+/**
+ * Hora de inicio de un momento sugerido: respecto a la ceremonia si hay una y la
+ * idea tiene hora típica; si no, justo cuando acaba el último momento (o a las
+ * 12:00 con el cronograma vacío). Siempre dentro del rango permitido.
+ */
+export function suggestStart(items: TimelineItem[], typicalOffsetMin?: number): number {
+  const ceremony = findCeremony(items);
+  let start: number;
+  if (ceremony && typicalOffsetMin !== undefined) {
+    start = ceremony.startMin + typicalOffsetMin;
+  } else if (items.length > 0) {
+    start = Math.max(...items.map(endMin));
+  } else {
+    start = 12 * 60;
+  }
+  return Math.min(Math.max(start, 0), MAX_START_MIN);
+}
+
+/* ------------------------------------------------------------------ */
 /* Textos                                                             */
 /* ------------------------------------------------------------------ */
 

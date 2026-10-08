@@ -13,6 +13,7 @@ import {
 import { BudgetBreakdown } from "@/components/budget/budget-breakdown";
 import { listCategories, UNCATEGORISED, formatMoney } from "@/components/budget/budget-math";
 import { BudgetSummary, BudgetSummarySkeleton } from "@/components/budget/budget-summary";
+import { BudgetIdeas } from "@/components/ideas/budget-ideas";
 import { Bone } from "@/components/plan/plan-shell";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCollection } from "@/lib/hooks/use-collection";
@@ -121,7 +122,12 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
         <h2 className={SECTION_TITLE}>Presupuesto</h2>
         <p className="mt-1 text-sm text-[#586C64]">Lo que has previsto, lo que llevas gastado y lo que ya está pagado.</p>
       </div>
-      {!loading && items.length > 0 && <BudgetItemFormDialog planId={planId} categories={categories} />}
+      {!loading && items.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <BudgetItemFormDialog planId={planId} categories={categories} />
+          <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="end" />
+        </div>
+      )}
     </div>
   );
 
@@ -151,8 +157,9 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
             Desglosa tu presupuesto por conceptos y compara lo estimado con lo que realmente vas
             gastando. Puedes empezar por lo más grande: el lugar o el catering.
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <BudgetItemFormDialog planId={planId} />
+            <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="center" />
           </div>
         </div>
       ) : (

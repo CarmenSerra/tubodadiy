@@ -22,6 +22,7 @@ import {
   isHttpUrl,
   isLooseEmail,
 } from "@/components/vendors/vendor-model";
+import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { VENDOR_STATUS_OPTIONS } from "@/components/vendors/vendor-status";
 import {
   Dialog,
@@ -52,22 +53,57 @@ interface VendorFormDialogProps {
   /** Categoría preseleccionada al crear (p. ej. desde el hueco vacío de "Finca"). */
   defaultCategory?: string;
   trigger?: React.ReactNode;
+  /** Modo controlado (sin botón propio): lo abre quien lo usa, p. ej. el panel de ideas. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Modo controlado: a quién devolver el foco al cerrar (por defecto, a quien lo tenía al abrir). */
+  returnFocusTo?: HTMLElement | null;
 }
 
-export function VendorFormDialog({ planId, vendor, defaultCategory, trigger }: VendorFormDialogProps) {
-  const [open, setOpen] = React.useState(false);
+export function VendorFormDialog({
+  planId,
+  vendor,
+  defaultCategory,
+  trigger,
+  open: openProp,
+  onOpenChange,
+  returnFocusTo,
+}: VendorFormDialogProps) {
+  const [openState, setOpenState] = React.useState(false);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : openState;
+  const setOpen = controlled ? (onOpenChange ?? (() => {})) : setOpenState;
+  // Sin DialogTrigger, Radix no sabe a dónde devolver el foco: se recuerda quién lo tenía.
+  const restoreFocus = useRestoreFocus();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <button type="button" className={CTA_PRIMARY}>
-            <PlusIcon className="size-4" aria-hidden="true" />
-            Añadir proveedor
-          </button>
-        )}
-      </DialogTrigger>
-      <DialogContent className={DIALOG_CONTENT}>
+      {!controlled && (
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <button type="button" className={CTA_PRIMARY}>
+              <PlusIcon className="size-4" aria-hidden="true" />
+              Añadir proveedor
+            </button>
+          )}
+        </DialogTrigger>
+      )}
+      <DialogContent
+        className={DIALOG_CONTENT}
+        onOpenAutoFocus={controlled ? restoreFocus.onOpenAutoFocus : undefined}
+        onCloseAutoFocus={
+          controlled
+            ? (event) => {
+                if (returnFocusTo?.isConnected) {
+                  event.preventDefault();
+                  returnFocusTo.focus();
+                } else {
+                  restoreFocus.onCloseAutoFocus(event);
+                }
+              }
+            : undefined
+        }
+      >
         {open && (
           <VendorForm
             planId={planId}
@@ -250,7 +286,8 @@ function VendorForm({
               aria-invalid={invalid("category")}
               aria-describedby={describedBy("category", "vendor-category")}
               maxLength={40}
-              autoFocus
+              // Con la categoría ya puesta (p. ej. desde Ideas), el foco se queda en el nombre.
+              autoFocus={!customCategory}
             />
           )}
         </Field>

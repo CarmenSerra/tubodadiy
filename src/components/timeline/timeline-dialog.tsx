@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
 import { CHECKBOX } from "@/components/guests/brand-dialog";
+import { TimelineIdeas } from "@/components/ideas/timeline-ideas";
 import { TimelineEmpty } from "@/components/timeline/timeline-empty";
 import { TimelineFormDialog } from "@/components/timeline/timeline-form-dialog";
 import {
@@ -243,6 +244,7 @@ function TimelineBody() {
           <PlusIcon aria-hidden="true" className="size-4" />
           Añadir momento
         </button>
+        <TimelineIdeas planId={planId} items={items} />
         <button type="button" onClick={handleCopy} className={CTA_SECONDARY}>
           <CopyIcon aria-hidden="true" className="size-4" />
           Copiar como texto

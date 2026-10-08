@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
+import { StepIdeas } from "@/components/ideas/step-ideas";
 import { STATUS_LABEL, StepStatusControl } from "@/components/plan/step-status";
 import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import {
@@ -260,6 +261,11 @@ export function StepCard({
                   <PlusIcon className="size-4" />
                 </Button>
               </form>
+              <StepIdeas
+                planId={planId}
+                step={step}
+                className="-ml-2.5 self-start focus-visible:ring-offset-[#F8F5F1]"
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
