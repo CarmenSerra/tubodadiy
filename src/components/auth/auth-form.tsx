@@ -135,14 +135,14 @@ export function AuthForm({ mode }: AuthFormProps) {
             </div>
           )}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email" className={AUTH_LABEL}>Email</Label>
+            <Label htmlFor="email" className={AUTH_LABEL}>Correo electrónico</Label>
             <Input
               id="email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
+              placeholder="tu@ejemplo.com"
               className={AUTH_INPUT}
               autoComplete="email"
             />

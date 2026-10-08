@@ -150,7 +150,7 @@ function VendorForm({
       next.category = "Escribe el nombre de la categoría.";
     }
     if (contactEmail.trim() && !isLooseEmail(contactEmail)) {
-      next.email = "Revisa el email: debería parecerse a nombre@dominio.com.";
+      next.email = "Revisa el correo electrónico: debería parecerse a nombre@dominio.com.";
     }
     if (photoUrl.trim() && !isHttpUrl(photoUrl)) {
       next.photoUrl = "El enlace debe empezar por http:// o https://.";
@@ -288,7 +288,7 @@ function VendorForm({
 
         <Field
           id="vendor-photo"
-          label="URL de la foto"
+          label="Enlace de la foto"
           error={errors.photoUrl}
           hint="Pega el enlace de una imagen. Si no, verás una ilustración."
         >
@@ -330,7 +330,7 @@ function VendorForm({
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field id="vendor-email" label="Email de contacto" error={errors.email}>
+          <Field id="vendor-email" label="Correo de contacto" error={errors.email}>
             <Input
               id="vendor-email"
               type="email"

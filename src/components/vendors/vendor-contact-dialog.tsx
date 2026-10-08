@@ -85,7 +85,7 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
               </ContactRow>
             )}
             {email && (
-              <ContactRow icon={<MailIcon />} label="Email">
+              <ContactRow icon={<MailIcon />} label="Correo electrónico">
                 <a href={`mailto:${email}`} className={cn(LINK, "break-all")}>
                   {email}
                 </a>
@@ -107,7 +107,7 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
         ) : (
           <p className="mt-6 rounded-xl bg-[#ECE6F4] px-4 py-3.5 text-sm text-[#26413C]">
             Todavía no has guardado datos de contacto de esta opción. Edítala con el lápiz de la
-            tarjeta para añadir la dirección, el email o el teléfono.
+            tarjeta para añadir la dirección, el correo electrónico o el teléfono.
           </p>
         )}
       </DialogContent>

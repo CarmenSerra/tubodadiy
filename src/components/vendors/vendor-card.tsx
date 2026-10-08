@@ -100,7 +100,7 @@ export function VendorCard({
   );
 }
 
-/** Hueco inviting de una categoría vacía: abre el formulario con la categoría ya elegida. */
+/** Hueco acogedor de una categoría vacía: abre el formulario con la categoría ya elegida. */
 export function EmptyVendorCard({ planId, category }: { planId: string; category: string }) {
   const copy = EMPTY_COPY[category] ?? {
     title: `Añade tu primera opción de ${category.toLowerCase()}`,

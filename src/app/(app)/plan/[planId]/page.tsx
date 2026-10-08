@@ -157,7 +157,7 @@ function PlanOverview() {
         >
           <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-10">
             <SummaryItem label="Fecha">{formatDate(plan.weddingDate)}</SummaryItem>
-            {days !== null && days >= 0 && <SummaryItem label="Quedan">{days} días</SummaryItem>}
+            {days !== null && days >= 0 && <SummaryItem label="Quedan">{days === 1 ? "1 día" : `${days} días`}</SummaryItem>}
             <SummaryItem label="Presupuesto">{formatCurrency(plan.budgetTotal)}</SummaryItem>
             <SummaryItem label="Progreso">{progress}%</SummaryItem>
           </dl>

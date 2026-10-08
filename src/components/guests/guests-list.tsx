@@ -226,7 +226,7 @@ export function GuestsList({ planId }: { planId: string }) {
                     Respuesta
                   </th>
                   <th scope="col" className="px-3 py-3 font-medium">
-                    +1
+                    Acompañante
                   </th>
                   <th scope="col" className="px-3 py-3 font-medium">
                     Notas dietéticas

@@ -28,7 +28,7 @@ const FIRST_STEPS = [
   },
   {
     icon: ListChecksIcon,
-    title: "Sigue tu checklist",
+    title: "Sigue tu lista de tareas",
     text: "13 secciones listas para que avances a tu ritmo, sin agobios.",
   },
 ];

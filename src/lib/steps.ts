@@ -29,7 +29,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
   {
     category: "invitados",
     title: "Lista de invitados",
-    description: "Nombre, grupo/familia, estado RSVP, acompañante y notas dietéticas.",
+    description: "Nombre, grupo/familia, confirmación, acompañante y notas dietéticas.",
     suggestedTasks: [
       "Hacer el borrador de la lista",
       "Confirmar número final de invitados",
@@ -54,8 +54,8 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
   {
     category: "papeleria",
     title: "Papelería",
-    description: "Save the date, invitaciones, seating cards.",
-    suggestedTasks: ["Diseñar save the date", "Enviar invitaciones"],
+    description: "Reserva la fecha, invitaciones y tarjetas de mesa.",
+    suggestedTasks: ["Diseñar las tarjetas «reserva la fecha»", "Enviar invitaciones"],
   },
   {
     category: "ceremonia",
@@ -65,7 +65,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
   },
   {
     category: "timeline",
-    title: "Timeline del día",
+    title: "Cronograma del día",
     description: "Cronograma hora a hora del gran día.",
     suggestedTasks: ["Borrador del cronograma", "Compartir cronograma con proveedores"],
   },
@@ -96,7 +96,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
   {
     category: "tareas_generales",
     title: "Tareas generales",
-    description: "Checklist libre para todo lo que no encaje en otra sección.",
+    description: "Lista libre para todo lo que no encaje en otra sección.",
     suggestedTasks: [],
   },
 ];

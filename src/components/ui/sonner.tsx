@@ -11,6 +11,7 @@ const Toaster = ({ toastOptions, style, ...props }: ToasterProps) => {
   return (
     <Sonner
       theme="light"
+      containerAriaLabel="Notificaciones"
       className="toaster group"
       style={
         {

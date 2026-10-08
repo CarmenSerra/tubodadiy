@@ -45,7 +45,7 @@ const birthstone = Birthstone({
 export const metadata: Metadata = {
   title: "tubodadiy — Organiza tu boda paso a paso",
   description:
-    "Centraliza toda la organización de tu boda: presupuesto, invitados, proveedores y timeline en un mismo lugar.",
+    "Centraliza toda la organización de tu boda: presupuesto, invitados, proveedores y cronograma en un mismo lugar.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

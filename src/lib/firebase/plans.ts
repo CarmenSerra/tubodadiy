@@ -41,12 +41,19 @@ export function mapPlan(id: string, data: DocumentData): WeddingPlan {
   };
 }
 
+const STEP_DEFINITION_BY_CATEGORY = new Map(STEP_DEFINITIONS.map((def) => [def.category, def]));
+
 export function mapStep(id: string, data: DocumentData): PlanStep {
+  // El título y la descripción de los pasos integrados se copian a Firestore al
+  // crear el plan; para que los planes ya creados muestren siempre el texto
+  // vigente, se lee de la definición y solo se recurre a lo guardado si la
+  // categoría no es una de las integradas.
+  const definition = STEP_DEFINITION_BY_CATEGORY.get(data.category);
   return {
     id,
     category: data.category,
-    title: data.title,
-    description: data.description ?? "",
+    title: definition?.title ?? data.title,
+    description: definition?.description ?? data.description ?? "",
     status: data.status ?? "pending",
     sortOrder: data.sortOrder ?? 0,
     notes: data.notes ?? "",

@@ -33,13 +33,13 @@ const FEATURES = [
     icon: ListChecksIcon,
     title: "13 secciones, un solo lugar",
     description:
-      "Fecha, lugar, invitados, proveedores, vestuario, papelería, ceremonia, timeline y mucho más, todo centralizado.",
+      "Fecha, lugar, invitados, proveedores, vestuario, papelería, ceremonia, cronograma y mucho más, todo centralizado.",
   },
   {
     icon: UsersIcon,
     title: "Invitados sin complicaciones",
     description:
-      "Gestiona la lista de invitados, el RSVP y las notas dietéticas tú misma/o, sin depender de que ellos usen la web.",
+      "Gestiona la lista de invitados, las confirmaciones y las notas dietéticas tú misma/o, sin depender de que ellos usen la web.",
   },
   {
     icon: StoreIcon,
@@ -60,7 +60,7 @@ const FEATURES = [
   {
     icon: HeartIcon,
     title: "Comparte el plan",
-    description: "Invita a tu pareja o a tu wedding planner con acceso total para organizarlo juntos.",
+    description: "Invita a tu pareja o a tu organizador/a de bodas con acceso total para organizarlo juntos.",
   },
 ];
 
@@ -132,7 +132,7 @@ export default function LandingPage() {
           <h1 className="mt-2 text-[#26413C]">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
           <p className="max-w-xl text-balance font-sans text-base not-italic text-[#586C64] sm:text-lg">
             A diferencia de los directorios de proveedores, tubodadiy centraliza presupuesto,
-            invitados, proveedores, timeline y tareas — con seguimiento real de tu progreso.
+            invitados, proveedores, cronograma y tareas — con seguimiento real de tu progreso.
           </p>
           <div className="mt-4 flex gap-3">
             <Button asChild size="lg" className={BRAND_CTA}>

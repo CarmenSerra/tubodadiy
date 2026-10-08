@@ -203,7 +203,7 @@ function InviteForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="team-invite-email" className="text-sm font-medium text-[#26413C]">
-          Email de la persona invitada
+          Correo electrónico de la persona invitada
         </label>
         <input
           id="team-invite-email"
@@ -212,7 +212,7 @@ function InviteForm({
           autoComplete="off"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="pareja@email.com"
+          placeholder="pareja@ejemplo.com"
           className={INPUT}
         />
       </div>
@@ -259,7 +259,7 @@ function CreatedInvite({
     <div className="flex flex-col gap-3 rounded-xl border border-[#D4C0EA] bg-[#ECE6F4] p-4" role="status">
       <p className="text-sm text-[#26413C]">
         <span className="font-medium">Invitación creada.</span> Comparte este enlace con{" "}
-        <span className="break-all font-medium">{created.email}</span> por WhatsApp, email o como prefieras. Podrá
+        <span className="break-all font-medium">{created.email}</span> por WhatsApp, correo o como prefieras. Podrá
         aceptarla tras crear una cuenta o iniciar sesión.
       </p>
       <LinkField link={link} autoSelect={manual} label="Enlace de invitación" />
@@ -376,7 +376,7 @@ function TeamBody({
           ) : (
             <>
               <p className="text-sm text-[#586C64]">
-                Genera un enlace para que tu pareja o tu wedding planner vean y editen el plan contigo.
+                Genera un enlace para que tu pareja o tu organizador/a de bodas vean y editen el plan contigo.
               </p>
               <InviteForm planId={planId} planTitle={planTitle} onCreated={setCreated} />
             </>

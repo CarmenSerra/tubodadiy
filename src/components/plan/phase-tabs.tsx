@@ -87,7 +87,7 @@ export function PhaseTabs({
                     {tab.done}/{tab.total}
                   </span>
                   <span className="sr-only">
-                    {tab.done} de {tab.total} pasos
+                    {tab.done} de {tab.total} {tab.total === 1 ? "paso" : "pasos"}
                   </span>
                 </>
               )}
