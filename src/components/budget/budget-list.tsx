@@ -5,7 +5,7 @@ import { WalletIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { CARD, IconCircle, SECTION_TITLE } from "@/components/dashboard/ui";
-import { CHECKBOX, ConfirmDeleteButton } from "@/components/guests/brand-dialog";
+import { CHECKBOX, DeleteIconButton } from "@/components/guests/brand-dialog";
 import {
   BudgetItemFormDialog,
   EditBudgetItemTrigger,
@@ -18,8 +18,9 @@ import { Bone } from "@/components/plan/plan-shell";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { budgetItemsQuery, mapBudgetItem } from "@/lib/firebase/plans";
-import { deleteBudgetItem, updateBudgetItem } from "@/lib/firebase/mutations";
+import { deleteBudgetItem, restoreBudgetItem, updateBudgetItem } from "@/lib/firebase/mutations";
 import type { BudgetItem, WeddingPlan } from "@/lib/types";
+import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
 function PaidToggle({
@@ -108,9 +109,12 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
   }
 
   async function handleDelete(id: string) {
+    // El gasto tal como está guardado (sin el cambio de «pagado» aún pendiente).
+    const item = stored.find((i) => i.id === id);
     try {
       await deleteBudgetItem(planId, id);
-      toast.success("Gasto eliminado");
+      if (item) toastWithUndo("Gasto eliminado", () => restoreBudgetItem(planId, item));
+      else toast.success("Gasto eliminado");
     } catch {
       toast.error("No se ha podido eliminar el gasto.");
     }
@@ -194,10 +198,9 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                         categories={categories}
                         trigger={<EditBudgetItemTrigger concept={item.concept} />}
                       />
-                      <ConfirmDeleteButton
-                        itemLabel={`«${item.concept}»`}
+                      <DeleteIconButton
                         ariaLabel={`Eliminar «${item.concept}»`}
-                        onConfirm={() => handleDelete(item.id)}
+                        onDelete={() => handleDelete(item.id)}
                       />
                     </div>
                   </div>
@@ -276,10 +279,9 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                             categories={categories}
                             trigger={<EditBudgetItemTrigger concept={item.concept} />}
                           />
-                          <ConfirmDeleteButton
-                            itemLabel={`«${item.concept}»`}
+                          <DeleteIconButton
                             ariaLabel={`Eliminar «${item.concept}»`}
-                            onConfirm={() => handleDelete(item.id)}
+                            onDelete={() => handleDelete(item.id)}
                           />
                         </div>
                       </td>

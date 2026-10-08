@@ -5,7 +5,7 @@ import { SearchXIcon, UserPlusIcon, UsersIcon, UtensilsIcon } from "lucide-react
 import { toast } from "sonner";
 
 import { CARD, CTA_SECONDARY, IconCircle, SECTION_TITLE } from "@/components/dashboard/ui";
-import { ConfirmDeleteButton } from "@/components/guests/brand-dialog";
+import { DeleteIconButton } from "@/components/guests/brand-dialog";
 import { EditGuestTrigger, GuestFormDialog } from "@/components/guests/guest-form-dialog";
 import { GuestFilterBar } from "@/components/guests/guest-filter-bar";
 import {
@@ -22,8 +22,9 @@ import { GuestSummary, GuestsSkeleton } from "@/components/guests/guest-summary"
 import { RSVP_CONFIG, RsvpMenu, RsvpSegmented } from "@/components/guests/rsvp";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { guestsQuery, mapGuest } from "@/lib/firebase/plans";
-import { deleteGuest, updateGuest } from "@/lib/firebase/mutations";
+import { deleteGuest, restoreGuest, updateGuest } from "@/lib/firebase/mutations";
 import type { Guest, RsvpStatus } from "@/lib/types";
+import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
 export function GuestsList({
@@ -79,9 +80,12 @@ export function GuestsList({
   }
 
   async function handleDelete(id: string) {
+    // El invitado tal como está guardado (sin el cambio de respuesta aún pendiente).
+    const guest = stored.find((g) => g.id === id);
     try {
       await deleteGuest(planId, id);
-      toast.success("Invitado eliminado");
+      if (guest) toastWithUndo("Invitado eliminado", () => restoreGuest(planId, guest));
+      else toast.success("Invitado eliminado");
     } catch {
       toast.error("No se ha podido eliminar el invitado.");
     }
@@ -190,10 +194,9 @@ export function GuestsList({
                       groups={groups}
                       trigger={<EditGuestTrigger guestName={guest.name} />}
                     />
-                    <ConfirmDeleteButton
-                      itemLabel={`a ${guest.name}`}
+                    <DeleteIconButton
                       ariaLabel={`Eliminar a ${guest.name}`}
-                      onConfirm={() => handleDelete(guest.id)}
+                      onDelete={() => handleDelete(guest.id)}
                     />
                   </div>
                 </div>
@@ -289,10 +292,9 @@ export function GuestsList({
                           groups={groups}
                           trigger={<EditGuestTrigger guestName={guest.name} />}
                         />
-                        <ConfirmDeleteButton
-                          itemLabel={`a ${guest.name}`}
+                        <DeleteIconButton
                           ariaLabel={`Eliminar a ${guest.name}`}
-                          onConfirm={() => handleDelete(guest.id)}
+                          onDelete={() => handleDelete(guest.id)}
                         />
                       </div>
                     </td>

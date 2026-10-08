@@ -11,6 +11,8 @@ import {
   query,
   runTransaction,
   serverTimestamp,
+  setDoc,
+  Timestamp,
   updateDoc,
   where,
   writeBatch,
@@ -185,6 +187,21 @@ export async function replaceStepTasks(planId: string, step: PlanStep, tasks: St
   );
 }
 
+/**
+ * Deshace un cambio de tareas: vuelve a dejar el paso con las tareas y el
+ * estado que tenía antes. El estado se guarda tal cual (no se recalcula con
+ * `statusAfterTasksChange`, que no es reversible: p. ej. un paso completado a
+ * mano no vuelve a «completado» solo por recuperar una tarea hecha).
+ */
+export async function restoreStepTasks(
+  planId: string,
+  stepId: string,
+  tasks: StepTask[],
+  status: StepStatus
+) {
+  await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "steps", stepId), { tasks, status });
+}
+
 export function addTaskToStep(step: PlanStep, title: string): StepTask[] {
   return [...step.tasks, { id: crypto.randomUUID(), title, done: false }];
 }
@@ -196,6 +213,10 @@ export function toggleTaskInStep(step: PlanStep, taskId: string): StepTask[] {
 export function removeTaskFromStep(step: PlanStep, taskId: string): StepTask[] {
   return step.tasks.filter((t) => t.id !== taskId);
 }
+
+/** Fecha de creación para volver a escribir un documento borrado (conserva su sitio en el orden). */
+const restoredCreatedAt = (createdAt: number | null) =>
+  createdAt === null ? serverTimestamp() : Timestamp.fromMillis(createdAt);
 
 // ---- Guests ----
 
@@ -218,6 +239,19 @@ export async function updateGuest(
 
 export async function deleteGuest(planId: string, guestId: string) {
   await deleteDoc(doc(getFirebaseDb(), "weddingPlans", planId, "guests", guestId));
+  void syncToolTasks(planId, "guests", [GUESTS_CATEGORY]);
+}
+
+/**
+ * Deshace un borrado: vuelve a crear al invitado con su mismo id y su fecha de
+ * creación original, y repite la sincronización de tareas del plan.
+ */
+export async function restoreGuest(planId: string, guest: Guest) {
+  const { id, createdAt, ...data } = guest;
+  await setDoc(doc(getFirebaseDb(), "weddingPlans", planId, "guests", id), {
+    ...data,
+    createdAt: restoredCreatedAt(createdAt),
+  });
   void syncToolTasks(planId, "guests", [GUESTS_CATEGORY]);
 }
 
@@ -246,6 +280,16 @@ export async function updateVendor(
 
 export async function deleteVendor(planId: string, vendorId: string) {
   await deleteDoc(doc(getFirebaseDb(), "weddingPlans", planId, "vendors", vendorId));
+  void syncVendorTasks(planId);
+}
+
+/** Deshace un borrado: vuelve a crear al proveedor con su mismo id y fecha de creación. */
+export async function restoreVendor(planId: string, vendor: Vendor) {
+  const { id, createdAt, ...data } = vendor;
+  await setDoc(doc(getFirebaseDb(), "weddingPlans", planId, "vendors", id), {
+    ...data,
+    createdAt: restoredCreatedAt(createdAt),
+  });
   void syncVendorTasks(planId);
 }
 
@@ -290,5 +334,15 @@ export async function updateBudgetItem(
 
 export async function deleteBudgetItem(planId: string, itemId: string) {
   await deleteDoc(doc(getFirebaseDb(), "weddingPlans", planId, "budgetItems", itemId));
+  void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
+}
+
+/** Deshace un borrado: vuelve a crear el gasto con su mismo id y fecha de creación. */
+export async function restoreBudgetItem(planId: string, item: BudgetItem) {
+  const { id, createdAt, ...data } = item;
+  await setDoc(doc(getFirebaseDb(), "weddingPlans", planId, "budgetItems", id), {
+    ...data,
+    createdAt: restoredCreatedAt(createdAt),
+  });
   void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
 }

@@ -17,6 +17,7 @@ import { computePhases, isStepDone, planProgress, recommendedStep } from "@/lib/
 import { useCollection } from "@/lib/hooks/use-collection";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
 import { lockPhase, unlockPhase } from "@/lib/firebase/mutations";
+import { toastWithUndo } from "@/lib/undo-toast";
 import { daysUntil, formatCurrency, formatDate } from "@/lib/utils";
 
 /** Pestaña de "Siempre a mano" (pasos sin fase). */
@@ -146,7 +147,7 @@ function PlanOverview() {
   async function unlock(phaseId: string) {
     try {
       await unlockPhase(planId, phaseId);
-      toast.success("Fase desbloqueada");
+      toastWithUndo("Fase desbloqueada", () => lockPhase(planId, phaseId));
     } catch {
       toast.error("No se ha podido desbloquear la fase.");
     }
@@ -156,7 +157,7 @@ function PlanOverview() {
   async function lock(phaseId: string) {
     try {
       await lockPhase(planId, phaseId);
-      toast.success("Fase bloqueada");
+      toastWithUndo("Fase bloqueada", () => unlockPhase(planId, phaseId));
     } catch {
       toast.error("No se ha podido bloquear la fase.");
     }

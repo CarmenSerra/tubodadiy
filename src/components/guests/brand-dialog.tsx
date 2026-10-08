@@ -3,18 +3,6 @@
 import * as React from "react";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { CTA_SECONDARY } from "@/components/dashboard/ui";
 import { cn } from "@/lib/utils";
 
 // Piezas de marca compartidas por los diálogos de Invitados y Presupuesto.
@@ -73,51 +61,19 @@ export function EditIconButton({
 }
 
 /**
- * Eliminar con confirmación. Sustituye a DeleteConfirmButton en estas pantallas
- * (ese componente no admite estilos). El rojo se reserva al botón de
- * confirmación, que es la única acción realmente destructiva.
+ * Botón de eliminar de una fila. No pide confirmación: quien lo usa avisa con
+ * «Deshacer» (toastWithUndo) para recuperar lo borrado.
  */
-export function ConfirmDeleteButton({
-  itemLabel,
+export function DeleteIconButton({
   ariaLabel,
-  onConfirm,
+  onDelete,
 }: {
-  /** Texto del título: «¿Eliminar {itemLabel}?» */
-  itemLabel: string;
   ariaLabel: string;
-  onConfirm: () => void | Promise<void>;
+  onDelete: () => void | Promise<void>;
 }) {
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <button type="button" aria-label={ariaLabel} title={ariaLabel} className={ICON_BUTTON}>
-          <Trash2Icon aria-hidden="true" />
-        </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent className={cn(DIALOG_CONTENT, "max-w-md gap-4 sm:p-7")}>
-        <AlertDialogHeader>
-          <AlertDialogTitle className={DIALOG_TITLE}>¿Eliminar {itemLabel}?</AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-ink-muted">
-            Esta acción no se puede deshacer.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="gap-2 sm:gap-3">
-          <AlertDialogCancel
-            className={cn(
-              CTA_SECONDARY,
-              "border-transparent shadow-none hover:bg-btn-soft hover:text-ink-on-lilac hover:opacity-90"
-            )}
-          >
-            Cancelar
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => onConfirm()}
-            className="inline-flex h-10 items-center justify-center rounded-full bg-danger-solid px-5 text-sm font-medium text-on-solid shadow-none transition-opacity hover:bg-danger-solid hover:opacity-90 focus-visible:ring-danger focus-visible:ring-offset-surface"
-          >
-            Eliminar
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <button type="button" aria-label={ariaLabel} title={ariaLabel} className={ICON_BUTTON} onClick={() => void onDelete()}>
+      <Trash2Icon aria-hidden="true" />
+    </button>
   );
 }

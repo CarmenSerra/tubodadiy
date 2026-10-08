@@ -4,7 +4,6 @@ import { MapPinIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { CARD } from "@/components/dashboard/ui";
-import { ConfirmDelete } from "@/components/vendors/vendor-confirm-delete";
 import { IconTrigger, ROW_FOCUS as FOCUS_WHITE } from "@/components/vendors/vendor-brand";
 import { SLIDE_WIDTH } from "@/components/vendors/vendor-carousel";
 import { VendorContactDialog } from "@/components/vendors/vendor-contact-dialog";
@@ -12,8 +11,9 @@ import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
 import { EMPTY_COPY } from "@/components/vendors/vendor-model";
 import { VendorPhoto, VendorPlaceholder } from "@/components/vendors/vendor-photo";
 import { VendorStatusBadge } from "@/components/vendors/vendor-status";
-import { deleteVendor } from "@/lib/firebase/mutations";
+import { deleteVendor, restoreVendor } from "@/lib/firebase/mutations";
 import type { Vendor } from "@/lib/types";
+import { toastWithUndo } from "@/lib/undo-toast";
 import { cn, formatCurrency } from "@/lib/utils";
 
 /**
@@ -33,7 +33,7 @@ export function VendorCard({
   async function handleDelete() {
     try {
       await deleteVendor(planId, vendor.id);
-      toast.success("Proveedor eliminado");
+      toastWithUndo("Proveedor eliminado", () => restoreVendor(planId, vendor));
     } catch {
       toast.error("No se ha podido eliminar el proveedor.");
     }
@@ -62,15 +62,9 @@ export function VendorCard({
               </IconTrigger>
             }
           />
-          <ConfirmDelete
-            itemLabel={`a ${vendor.name}`}
-            onConfirm={handleDelete}
-            trigger={
-              <IconTrigger label={`Eliminar ${vendor.name}`}>
-                <Trash2Icon aria-hidden="true" />
-              </IconTrigger>
-            }
-          />
+          <IconTrigger label={`Eliminar ${vendor.name}`} onClick={() => void handleDelete()}>
+            <Trash2Icon aria-hidden="true" />
+          </IconTrigger>
         </div>
       </div>
 

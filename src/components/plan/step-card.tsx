@@ -19,11 +19,13 @@ import {
   addTaskToStep,
   removeTaskFromStep,
   replaceStepTasks,
+  restoreStepTasks,
   toggleTaskInStep,
   updateStepNotes,
 } from "@/lib/firebase/mutations";
 import { TIMELINE_CATEGORY } from "@/lib/steps";
 import type { PlanStep } from "@/lib/types";
+import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
 // Campos de texto de marca: blancos, borde lila y foco #927AAC.
@@ -134,7 +136,11 @@ export function StepCard({
 
   async function handleRemoveTask(taskId: string) {
     try {
+      // Foto del paso antes de quitarla: «Deshacer» devuelve las tareas y el estado (que
+      // sigue a las tareas: quitar la última pendiente completa el paso).
+      const { id, tasks, status } = step;
       await replaceStepTasks(planId, step, removeTaskFromStep(step, taskId));
+      toastWithUndo("Tarea eliminada", () => restoreStepTasks(planId, id, tasks, status));
     } catch {
       toast.error("No se ha podido eliminar la tarea.");
     }

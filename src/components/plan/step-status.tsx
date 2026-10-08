@@ -13,6 +13,7 @@ import {
 import { FOCUS } from "@/components/dashboard/ui";
 import { updateStepStatus } from "@/lib/firebase/mutations";
 import type { StepStatus } from "@/lib/types";
+import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
 /** Opciones del menú de estado, en el orden en que se muestran. */
@@ -100,7 +101,11 @@ export function StepStatusControl({
   async function handleChange(next: string) {
     if (next === status) return;
     try {
+      const previous = status;
       await updateStepStatus(planId, stepId, next as StepStatus);
+      toastWithUndo(`Estado: ${STATUS_LABEL[next as StepStatus]}`, () =>
+        updateStepStatus(planId, stepId, previous)
+      );
     } catch {
       toast.error("No se ha podido actualizar el estado.");
     }
