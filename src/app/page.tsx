@@ -60,7 +60,7 @@ const FEATURES = [
   {
     icon: HeartIcon,
     title: "Comparte el plan",
-    description: "Invita a tu pareja o a tu organizador/a de bodas con acceso total para organizarlo juntos.",
+    description: "Invita a tu pareja o a tu wedding planner con acceso total para organizarlo juntos.",
   },
 ];
 

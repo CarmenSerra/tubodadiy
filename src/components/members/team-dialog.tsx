@@ -376,7 +376,7 @@ function TeamBody({
           ) : (
             <>
               <p className="text-sm text-[#586C64]">
-                Genera un enlace para que tu pareja o tu organizador/a de bodas vean y editen el plan contigo.
+                Genera un enlace para que tu pareja o tu wedding planner vean y editen el plan contigo.
               </p>
               <InviteForm planId={planId} planTitle={planTitle} onCreated={setCreated} />
             </>

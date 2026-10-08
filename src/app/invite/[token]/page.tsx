@@ -17,7 +17,7 @@ import type { PlanInvite, PlanRole } from "@/lib/types";
 const ROLE_LABEL: Record<PlanRole, string> = {
   owner: "Dueño/a",
   partner: "Pareja",
-  planner: "Organizador/a de bodas",
+  planner: "Wedding planner",
 };
 
 export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
