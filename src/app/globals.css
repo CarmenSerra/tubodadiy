@@ -69,6 +69,11 @@
   --deco-line-bright: #a38ed2;
   --deco-green: #4e6a5a;
   --deco-sage-line: #8faf8a;
+  /* Fondo fijo de la app autenticada (AppBackdrop): bajo contraste a propósito */
+  --bd-lilac: rgb(222 205 241 / 0.42);
+  --bd-sage: rgb(188 199 181 / 0.36);
+  --bd-line: rgb(146 122 172 / 0.4);
+  --bd-line-sage: rgb(111 145 106 / 0.5);
   --script-accent: #6b7c5e;
   /* Sombras */
   --shadow-pop-value: 0 4px 16px rgba(38, 65, 60, 0.06);
@@ -189,6 +194,10 @@ html[data-theme="dark"] {
   --deco-line-bright: #a38ed2;
   --deco-green: #4e6a5a;
   --deco-sage-line: #8faf8a;
+  --bd-lilac: rgb(212 192 234 / 0.09);
+  --bd-sage: rgb(143 175 138 / 0.09);
+  --bd-line: rgb(163 142 210 / 0.3);
+  --bd-line-sage: rgb(143 175 138 / 0.3);
   --script-accent: #8faf8a;
   --shadow-pop-value: 0 4px 16px rgba(0, 0, 0, 0.35);
   --shadow-lift-value: 0 8px 24px rgba(0, 0, 0, 0.35);

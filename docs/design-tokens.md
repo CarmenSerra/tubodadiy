@@ -183,6 +183,19 @@ Decoración (landing, bienvenida, onboarding):
 | `--deco-sage-line` | `#8FAF8A` | `#8FAF8A` |
 | `--script-accent` | `#6B7C5E` | `#8FAF8A` |
 
+Fondo fijo de la app autenticada (`src/components/brand/app-backdrop.tsx`,
+montado en `src/app/(app)/layout.tsx`; no aparece en la landing ni en
+`(print)`). Manchas lila/salvia y dibujos de línea fina con `position: fixed`
+detrás del contenido; son semitransparentes para dejarse ver sobre `--page` y
+quedar por debajo de las tarjetas (`bg-surface`). Bajo contraste a propósito:
+
+| Token | Claro | Oscuro |
+|---|---|---|
+| `--bd-lilac` (mancha) | `rgb(222 205 241 / .42)` | `rgb(212 192 234 / .09)` |
+| `--bd-sage` (mancha) | `rgb(188 199 181 / .36)` | `rgb(143 175 138 / .09)` |
+| `--bd-line` (trazo lila) | `rgb(146 122 172 / .4)` | `rgb(163 142 210 / .3)` |
+| `--bd-line-sage` (trazo salvia) | `rgb(111 145 106 / .5)` | `rgb(143 175 138 / .3)` |
+
 #### Contraste del tema oscuro (texto normal ≥ 4,5:1)
 
 | Combinación | Ratio |
