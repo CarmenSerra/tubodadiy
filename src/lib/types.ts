@@ -27,7 +27,22 @@ export interface WeddingPlan {
    * y al progreso: así se puede re-bloquear una fase abierta por tener avances.
    */
   lockedPhaseIds: string[];
+  /** Tipo de ceremonia elegido (sirve para la checklist de documentos legales). */
+  ceremonyType: CeremonyType | null;
+  /** Ids de documentos legales ya reunidos (ver checklist por tipo de ceremonia). */
+  legalDocsDone: string[];
+  /** Datos para el regalo en dinero (se pueden mostrar en la invitación pública). */
+  gift: PlanGift | null;
   createdAt: number | null;
+}
+
+export type CeremonyType = "civil" | "religiosa" | "simbolica";
+
+export interface PlanGift {
+  iban: string;
+  bizum: string;
+  message: string;
+  showOnInvitation: boolean;
 }
 
 export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";

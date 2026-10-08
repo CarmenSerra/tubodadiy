@@ -42,6 +42,9 @@ export function mapPlan(id: string, data: DocumentData): WeddingPlan {
     memberIds: data.memberIds ?? [],
     unlockedPhaseIds: data.unlockedPhaseIds ?? [],
     lockedPhaseIds: data.lockedPhaseIds ?? [],
+    ceremonyType: data.ceremonyType ?? null,
+    legalDocsDone: data.legalDocsDone ?? [],
+    gift: data.gift ?? null,
     createdAt: toMillis(data.createdAt),
   };
 }
