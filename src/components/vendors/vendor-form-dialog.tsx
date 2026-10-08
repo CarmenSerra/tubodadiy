@@ -140,7 +140,7 @@ function Field({
         {label}
       </Label>
       {children}
-      {hint && !error && <p className="text-sm text-[#586C64]">{hint}</p>}
+      {hint && !error && <p className="text-sm text-ink-muted">{hint}</p>}
       {error && (
         <p id={`${id}-error`} role="alert" className={FIELD_ERROR}>
           {error}
@@ -242,7 +242,7 @@ function VendorForm({
     <form onSubmit={handleSubmit} noValidate>
       <DialogHeader className="gap-1.5 pr-6">
         <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar proveedor" : "Nuevo proveedor"}</DialogTitle>
-        <DialogDescription className="text-sm text-[#586C64]">
+        <DialogDescription className="text-sm text-ink-muted">
           Solo el nombre es obligatorio; el resto puedes completarlo cuando quieras.
         </DialogDescription>
       </DialogHeader>

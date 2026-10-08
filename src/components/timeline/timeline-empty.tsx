@@ -51,10 +51,10 @@ export function TimelineEmpty({
       <IconCircle tone="sage" className="size-12 [&_svg]:size-6">
         <CalendarClockIcon />
       </IconCircle>
-      <h3 className="mt-4 font-display text-xl font-semibold text-[#26413C] sm:text-2xl">
+      <h3 className="mt-4 font-display text-xl font-semibold text-ink sm:text-2xl">
         Tu día, hora a hora
       </h3>
-      <p className="mt-2 max-w-md text-sm text-[#586C64]">
+      <p className="mt-2 max-w-md text-sm text-ink-muted">
         Pon en orden todo lo que pasará el gran día y ve afinando las horas con calma. Puedes partir
         de una plantilla y cambiar lo que quieras, o empezar desde cero.
       </p>
@@ -79,7 +79,7 @@ export function TimelineEmpty({
             <p
               id={helpId}
               role={invalid ? "alert" : undefined}
-              className={cn("text-sm", invalid ? "font-medium text-[#26413C]" : "text-[#586C64]")}
+              className={cn("text-sm", invalid ? "font-medium text-ink" : "text-ink-muted")}
             >
               {invalid
                 ? `Elige una hora entre las ${formatClock(MIN_CEREMONY_MIN)} y las ${formatClock(MAX_CEREMONY_MIN)}.`

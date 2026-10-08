@@ -40,29 +40,29 @@ export function StatusGlyph({ status, className }: { status: StepStatus; classNa
       className={cn("size-6 shrink-0", className)}
       fill="none"
     >
-      {status === "pending" && <circle cx="12" cy="12" r="9" stroke="#927AAC" strokeWidth="2" />}
+      {status === "pending" && <circle cx="12" cy="12" r="9" strokeWidth="2" style={{ stroke: "var(--lilac)" }} />}
       {status === "in_progress" && (
         <>
-          <circle cx="12" cy="12" r="9" stroke="#927AAC" strokeWidth="2" />
-          <path d="M12 6.5a5.5 5.5 0 0 1 0 11Z" fill="#927AAC" />
+          <circle cx="12" cy="12" r="9" strokeWidth="2" style={{ stroke: "var(--lilac)" }} />
+          <path d="M12 6.5a5.5 5.5 0 0 1 0 11Z" style={{ fill: "var(--lilac)" }} />
         </>
       )}
       {status === "completed" && (
         <>
-          <circle cx="12" cy="12" r="10" fill="#4E6A5A" />
+          <circle cx="12" cy="12" r="10" style={{ fill: "var(--green-solid)" }} />
           <path
             d="m7.5 12.3 3 3 6-6.3"
-            stroke="#FFFFFF"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            style={{ stroke: "var(--on-solid)" }}
           />
         </>
       )}
       {status === "skipped" && (
         <>
-          <circle cx="12" cy="12" r="9" stroke="#586C64" strokeWidth="2" strokeDasharray="3.2 3" />
-          <path d="M8.5 12h7" stroke="#586C64" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="12" r="9" strokeWidth="2" strokeDasharray="3.2 3" style={{ stroke: "var(--ink-muted)" }} />
+          <path d="M8.5 12h7" strokeWidth="2" strokeLinecap="round" style={{ stroke: "var(--ink-muted)" }} />
         </>
       )}
     </svg>
@@ -99,24 +99,24 @@ export function StepStatusControl({
       <DropdownMenuTrigger
         aria-label={`Estado de «${title}»: ${STATUS_LABEL[status]}. Cambiar`}
         className={cn(
-          "flex size-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[#ECE6F4] sm:size-10",
-          "data-[state=open]:bg-[#ECE6F4]",
+          "flex size-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-lilac-soft sm:size-10",
+          "data-[state=open]:bg-lilac-soft",
           FOCUS,
-          "focus-visible:ring-offset-[#F8F5F1]"
+          "focus-visible:ring-offset-surface"
         )}
       >
         <StatusGlyph status={status} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="min-w-44 rounded-xl border-[#E5DDEC] bg-[#F8F5F1] p-1.5 text-[#102D28] shadow-md"
+        className="min-w-44 rounded-xl border-line bg-surface p-1.5 text-ink-strong shadow-md"
       >
         <DropdownMenuRadioGroup value={status} onValueChange={handleChange}>
           {STATUS_OPTIONS.map((opt) => (
             <DropdownMenuRadioItem
               key={opt.value}
               value={opt.value}
-              className="rounded-lg py-2.5 text-sm focus:bg-[#ECE6F4] focus:text-[#26413C] sm:py-2"
+              className="rounded-lg py-2.5 text-sm focus:bg-lilac-soft focus:text-ink sm:py-2"
             >
               {opt.label}
             </DropdownMenuRadioItem>

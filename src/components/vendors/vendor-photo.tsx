@@ -65,21 +65,21 @@ export function VendorPlaceholder({
 }) {
   const key = categoryKey(category);
   const sage = SAGE_CATEGORIES.has(key);
-  const iconClass = "size-16 text-[#4E6A5A] sm:size-[4.5rem]";
+  const iconClass = "size-16 text-green sm:size-[4.5rem]";
   const Icon = CATEGORY_ICON[key] ?? SparklesIcon;
   return (
     <div
       aria-hidden="true"
       className={cn(
         "relative flex h-full w-full items-center justify-center overflow-hidden",
-        sage ? "bg-[#D2D7CB]" : "bg-[#ECE6F4]",
+        sage ? "bg-sage-pale" : "bg-lilac-soft",
         className
       )}
     >
       <span
         className={cn(
           "absolute size-36 rounded-full border border-dashed",
-          sage ? "border-[#4E6A5A]/25" : "border-[#927AAC]/40"
+          sage ? "border-green/25" : "border-lilac/40"
         )}
       />
       <span className={cn("relative", muted && "opacity-70")}>
@@ -113,7 +113,7 @@ export function VendorPhoto({
   const showImage = isHttpUrl(url) && failedUrl !== url;
 
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#ECE6F4]">
+    <div className="relative aspect-[4/3] w-full overflow-hidden bg-lilac-soft">
       {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element -- dominios remotos libres: no se puede usar next/image
         <img

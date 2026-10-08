@@ -37,7 +37,7 @@ export function ConfirmDelete({
       <AlertDialogContent className={cn(DIALOG_CONTENT, "max-w-md gap-4 sm:p-7")}>
         <AlertDialogHeader>
           <AlertDialogTitle className={DIALOG_TITLE}>¿Eliminar {itemLabel}?</AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-[#586C64]">
+          <AlertDialogDescription className="text-sm text-ink-muted">
             Esta acción no se puede deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -45,14 +45,14 @@ export function ConfirmDelete({
           <AlertDialogCancel
             className={cn(
               CTA_SECONDARY,
-              "border-transparent shadow-none hover:bg-[#D4C0EA] hover:text-[#38384D] hover:opacity-90"
+              "border-transparent shadow-none hover:bg-btn-soft hover:text-ink-on-lilac hover:opacity-90"
             )}
           >
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => onConfirm()}
-            className="inline-flex h-10 items-center justify-center rounded-full bg-[#9F3A38] px-5 text-sm font-medium text-white shadow-none transition-opacity hover:bg-[#9F3A38] hover:opacity-90 focus-visible:ring-[#9F3A38] focus-visible:ring-offset-[#F8F5F1]"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-danger-solid px-5 text-sm font-medium text-on-solid shadow-none transition-opacity hover:bg-danger-solid hover:opacity-90 focus-visible:ring-danger focus-visible:ring-offset-surface"
           >
             Eliminar
           </AlertDialogAction>

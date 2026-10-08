@@ -13,7 +13,7 @@ import { CARD, FOCUS, Skeleton } from "./ui";
 const STAT_CARD = cn(
   CARD,
   FOCUS,
-  "group block p-4 transition-colors hover:bg-[#F8F5F0] hover:border-[#D4C0EA] motion-reduce:transition-none sm:p-5"
+  "group block p-4 transition-colors hover:bg-surface-alt hover:border-line-strong motion-reduce:transition-none sm:p-5"
 );
 
 function StatBody({
@@ -31,8 +31,8 @@ function StatBody({
 }) {
   return (
     <>
-      <span className="flex items-center gap-2 text-sm text-[#586C64]">
-        <Icon className="size-4 shrink-0 text-[#474755]" aria-hidden="true" />
+      <span className="flex items-center gap-2 text-sm text-ink-muted">
+        <Icon className="size-4 shrink-0 text-ink-on-tint" aria-hidden="true" />
         {label}
       </span>
       {loading ? (
@@ -43,7 +43,7 @@ function StatBody({
         <span
           className={cn(
             "mt-1.5 block font-display leading-snug [overflow-wrap:anywhere]",
-            muted ? "text-base text-[#586C64] underline decoration-[#D4C0EA] decoration-2 underline-offset-4" : "text-xl font-semibold text-[#26413C]"
+            muted ? "text-base text-ink-muted underline decoration-btn-soft decoration-2 underline-offset-4" : "text-xl font-semibold text-ink"
           )}
         >
           {value}
@@ -103,7 +103,7 @@ export function GlanceRow({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
 
   return (
     <section aria-labelledby="glance-title">
-      <h2 id="glance-title" className="mb-3 font-display text-lg font-semibold text-[#26413C]">
+      <h2 id="glance-title" className="mb-3 font-display text-lg font-semibold text-ink">
         De un vistazo
       </h2>
       <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">

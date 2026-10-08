@@ -49,7 +49,7 @@ export function PhasePanel({
       {softNote && (
         <div
           role="note"
-          className="flex items-start gap-3 rounded-xl bg-[#ECE6F4] py-2.5 pl-4 pr-2 text-sm text-[#26413C]"
+          className="flex items-start gap-3 rounded-xl bg-lilac-soft py-2.5 pl-4 pr-2 text-sm text-ink"
         >
           <p className="flex-1 py-1">
             Te recomendamos terminar «{softNote}» primero, pero puedes avanzar aquí cuando quieras.
@@ -59,9 +59,9 @@ export function PhasePanel({
             aria-label="Cerrar aviso"
             onClick={onDismissNote}
             className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-white/70",
+              "flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-raised/70",
               FOCUS,
-              "focus-visible:ring-offset-[#ECE6F4]"
+              "focus-visible:ring-offset-lilac-soft"
             )}
           >
             <XIcon className="size-4" aria-hidden="true" />
@@ -72,7 +72,7 @@ export function PhasePanel({
       {complete && (
         <div
           role="status"
-          className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-[#D2D7CB] px-4 py-3 text-[#26413C]"
+          className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-sage-pale px-4 py-3 text-ink"
         >
           <CheckIcon className="size-5 shrink-0" aria-hidden="true" />
           <p className="flex-1 font-display text-base font-semibold">¡{name}, listo!</p>
@@ -81,9 +81,9 @@ export function PhasePanel({
               type="button"
               onClick={onGoToNext}
               className={cn(
-                "rounded-full px-3 py-1.5 text-sm font-medium underline decoration-[#4E6A5A] decoration-2 underline-offset-4 hover:bg-white/50",
+                "rounded-full px-3 py-1.5 text-sm font-medium underline decoration-green decoration-2 underline-offset-4 hover:bg-raised/50",
                 FOCUS,
-                "focus-visible:ring-offset-[#D2D7CB]"
+                "focus-visible:ring-offset-sage-pale"
               )}
             >
               Seguir con «{nextPhaseName}»
@@ -92,7 +92,7 @@ export function PhasePanel({
         </div>
       )}
 
-      <p className="px-1 text-sm text-[#586C64]">{blurb}</p>
+      <p className="px-1 text-sm text-ink-muted">{blurb}</p>
 
       <ul className="flex flex-col gap-3">
         {steps.map((step) => (

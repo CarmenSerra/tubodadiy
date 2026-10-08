@@ -46,8 +46,8 @@ export function VendorCard({
       aria-label={vendor.name}
       className={cn(
         CARD,
-        "flex h-full w-full flex-col overflow-hidden bg-white",
-        active && "group/card shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+        "flex h-full w-full flex-col overflow-hidden bg-raised",
+        active && "group/card shadow-lift"
       )}
     >
       <div className="relative">
@@ -74,18 +74,18 @@ export function VendorCard({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 bg-white p-4">
+      <div className="flex flex-1 flex-col gap-3 bg-raised p-4">
         <div className="min-w-0">
-          <h3 className="line-clamp-2 font-display text-lg leading-snug font-semibold text-[#102D28]">
+          <h3 className="line-clamp-2 font-display text-lg leading-snug font-semibold text-ink-strong">
             {vendor.name}
           </h3>
           {vendor.cost !== null ? (
-            <p className="mt-1 text-base font-medium text-[#26413C]">{formatCurrency(vendor.cost)}</p>
+            <p className="mt-1 text-base font-medium text-ink">{formatCurrency(vendor.cost)}</p>
           ) : (
-            <p className="mt-1 text-sm text-[#586C64]">Precio por confirmar</p>
+            <p className="mt-1 text-sm text-ink-muted">Precio por confirmar</p>
           )}
           {location && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-sm text-[#586C64]">
+            <p className="mt-1.5 flex items-center gap-1.5 text-sm text-ink-muted">
               <MapPinIcon className="size-3.5 shrink-0" aria-hidden="true" />
               <span className="truncate">{location}</span>
             </p>
@@ -115,8 +115,8 @@ export function EmptyVendorCard({ planId, category }: { planId: string; category
           <button
             type="button"
             className={cn(
-              "group/card flex w-full flex-col overflow-hidden rounded-2xl border border-dashed border-[#D4C0EA] bg-white text-left",
-              "transition-colors hover:border-[#927AAC]",
+              "group/card flex w-full flex-col overflow-hidden rounded-2xl border border-dashed border-line-strong bg-raised text-left",
+              "transition-colors hover:border-lilac",
               FOCUS_WHITE
             )}
           >
@@ -124,13 +124,13 @@ export function EmptyVendorCard({ planId, category }: { planId: string; category
               <VendorPlaceholder category={category} muted />
             </div>
             <span className="flex flex-col gap-3 p-4">
-              <span className="font-display text-lg leading-snug font-semibold text-[#102D28]">
+              <span className="font-display text-lg leading-snug font-semibold text-ink-strong">
                 {copy.title}
               </span>
-              <span className="text-sm text-[#586C64]">
+              <span className="text-sm text-ink-muted">
                 Guarda aquí las opciones que estás comparando.
               </span>
-              <span className="inline-flex h-10 w-fit items-center gap-2 rounded-full bg-[#927AAC] px-5 text-sm font-medium text-white">
+              <span className="inline-flex h-10 w-fit items-center gap-2 rounded-full bg-cta px-5 text-sm font-medium text-on-cta">
                 <PlusIcon className="size-4" aria-hidden="true" />
                 {copy.cta}
               </span>

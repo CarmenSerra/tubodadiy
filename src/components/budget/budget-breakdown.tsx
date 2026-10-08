@@ -17,28 +17,28 @@ export function BudgetBreakdown({ items }: { items: BudgetItem[] }) {
   return (
     <section aria-labelledby="budget-breakdown-title" className={cn(CARD, "p-5 sm:p-6")}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id="budget-breakdown-title" className="font-display text-lg font-semibold text-[#26413C] sm:text-xl">
+        <h2 id="budget-breakdown-title" className="font-display text-lg font-semibold text-ink sm:text-xl">
           Por categorías
         </h2>
-        <p className="text-sm text-[#586C64]">
-          Total apuntado: <span className="font-medium text-[#26413C]">{formatMoney(total)}</span>
+        <p className="text-sm text-ink-muted">
+          Total apuntado: <span className="font-medium text-ink">{formatMoney(total)}</span>
         </p>
       </div>
-      <p className="mt-1 text-sm text-[#586C64]">
+      <p className="mt-1 text-sm text-ink-muted">
         Importe = coste real o, si aún no lo hay, el estimado. El porcentaje es sobre el total apuntado.
       </p>
       <ul className="mt-5 flex flex-col gap-4">
         {rows.map((row, i) => (
           <li key={row.key} className="flex flex-col gap-2" data-testid="category-row">
             <div className="flex items-baseline justify-between gap-3">
-              <p className="min-w-0 break-words text-sm font-medium text-[#102D28]">
+              <p className="min-w-0 break-words text-sm font-medium text-ink-strong">
                 {row.label}
-                <span className="ml-2 font-normal text-[#586C64]">
+                <span className="ml-2 font-normal text-ink-muted">
                   {row.count} {row.count === 1 ? "partida" : "partidas"}
                 </span>
               </p>
-              <p className="shrink-0 text-sm text-[#586C64]">
-                <span className="font-display text-base font-semibold text-[#26413C]">
+              <p className="shrink-0 text-sm text-ink-muted">
+                <span className="font-display text-base font-semibold text-ink">
                   {formatMoney(row.amount)}
                 </span>
                 <span className="ml-2 inline-block min-w-9 text-right">{formatPercent(row.percent)}</span>

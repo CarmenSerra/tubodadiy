@@ -44,9 +44,9 @@ function withMonth(date: Date, year: number, month: number) {
 }
 
 const NAV_BUTTON =
-  "inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#4E6A5A] transition-colors outline-none hover:bg-[#D2D7CB] hover:text-[#26413C] focus-visible:ring-2 focus-visible:ring-[#A38ED2] disabled:pointer-events-none disabled:opacity-40";
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-full text-green transition-colors outline-none hover:bg-sage-pale hover:text-ink focus-visible:ring-2 focus-visible:ring-lilac-bright disabled:pointer-events-none disabled:opacity-40";
 const TEXT_BUTTON =
-  "rounded-md px-2 py-1 text-sm font-medium text-[#4E6A5A] outline-none hover:underline focus-visible:ring-2 focus-visible:ring-[#A38ED2]";
+  "rounded-md px-2 py-1 text-sm font-medium text-green outline-none hover:underline focus-visible:ring-2 focus-visible:ring-lilac-bright";
 
 export interface CalendarPanelProps {
   /** Fecha en formato `yyyy-MM-dd`, o cadena vacía. */
@@ -193,7 +193,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
             ? `${monthLabel}. Cambiar mes y año`
             : `${focusDate.getFullYear()}. Volver a los días`
         }
-        className="font-display min-w-0 flex-1 rounded-full px-3 py-1.5 text-lg leading-tight font-medium text-[#26413C] outline-none transition-colors hover:bg-[#D2D7CB] focus-visible:ring-2 focus-visible:ring-[#A38ED2]"
+        className="font-display min-w-0 flex-1 rounded-full px-3 py-1.5 text-lg leading-tight font-medium text-ink outline-none transition-colors hover:bg-sage-pale focus-visible:ring-2 focus-visible:ring-lilac-bright"
         onClick={() => {
           requestFocus();
           setView(view === "days" ? "months" : "days");
@@ -219,7 +219,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
               key={label}
               role="columnheader"
               aria-label={format(addDays(startOfWeek(monthStart, WEEK), i), "EEEE", { locale: es })}
-              className="flex h-7 items-center justify-center text-xs font-medium tracking-wide text-[#586C64]"
+              className="flex h-7 items-center justify-center text-xs font-medium tracking-wide text-ink-muted"
             >
               {label}
             </div>
@@ -247,14 +247,14 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
                   onClick={() => commit(day)}
                   className={cn(
                     "mx-auto flex size-9 max-w-full items-center justify-center rounded-full text-sm tabular-nums outline-none transition-colors",
-                    "focus-visible:ring-2 focus-visible:ring-[#A38ED2] focus-visible:ring-offset-1 focus-visible:ring-offset-[#F8F5F0]",
-                    inMonth ? "text-[#26413C]" : "text-[#586C64]/75",
-                    !dayDisabled && !isSelected && "hover:text-[#26413C]",
-                    isToday && !isSelected && "ring-1 ring-inset ring-[#A38ED2]",
+                    "focus-visible:ring-2 focus-visible:ring-lilac-bright focus-visible:ring-offset-1 focus-visible:ring-offset-surface-alt",
+                    inMonth ? "text-ink" : "text-ink-muted/75",
+                    !dayDisabled && !isSelected && "hover:text-ink",
+                    isToday && !isSelected && "ring-1 ring-inset ring-lilac-bright",
                     isToday && !isSelected && "focus-visible:ring-2",
-                    !dayDisabled && !isSelected && "hover:bg-[#D2D7CB]",
-                    isSelected && "bg-[#927AAC] font-medium text-white",
-                    dayDisabled && "cursor-not-allowed text-[#586C64]/40 line-through"
+                    !dayDisabled && !isSelected && "hover:bg-sage-pale",
+                    isSelected && "bg-cta font-medium text-on-cta",
+                    dayDisabled && "cursor-not-allowed text-ink-muted/40 line-through"
                   )}
                 >
                   {day.getDate()}
@@ -290,14 +290,14 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
               }}
               className={cn(
                 "flex h-10 items-center justify-center rounded-full text-sm outline-none transition-colors",
-                "focus-visible:ring-2 focus-visible:ring-[#A38ED2]",
-                "disabled:pointer-events-none disabled:text-[#586C64]/40",
+                "focus-visible:ring-2 focus-visible:ring-lilac-bright",
+                "disabled:pointer-events-none disabled:text-ink-muted/40",
                 isSelectedMonth
-                  ? "bg-[#927AAC] font-medium text-white"
-                  : "text-[#26413C] hover:bg-[#D2D7CB]",
+                  ? "bg-cta font-medium text-on-cta"
+                  : "text-ink hover:bg-sage-pale",
                 !isSelectedMonth &&
                   isSameMonth(date, today) &&
-                  "ring-1 ring-inset ring-[#A38ED2] focus-visible:ring-2"
+                  "ring-1 ring-inset ring-lilac-bright focus-visible:ring-2"
               )}
             >
               {capitalize(format(date, "LLL", { locale: es })).replace(".", "")}
@@ -307,7 +307,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
       </div>
     )}
 
-    <div className="mt-2 flex min-h-8 items-center justify-between border-t border-[#E5DDEC] pt-2">
+    <div className="mt-2 flex min-h-8 items-center justify-between border-t border-line pt-2">
       {selected ? (
         <button
           type="button"
@@ -334,7 +334,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
 
 /** Superficie común de los popovers de marca (calendario, editores de plan…). */
 export const BRAND_POPOVER_SURFACE =
-  "max-h-[var(--radix-popover-content-available-height)] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl border border-[#E5DDEC] bg-[#F8F5F0] p-3 text-[#26413C] shadow-[0_4px_16px_rgba(38,65,60,0.06)]";
+  "max-h-[var(--radix-popover-content-available-height)] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl border border-line bg-surface-alt p-3 text-ink shadow-pop";
 
 /** Popover con el calendario de marca, anclado al elemento que lo dispara. */
 export function CalendarPopoverContent({
@@ -403,15 +403,15 @@ export function DatePicker({
           className={cn(
             "flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-1 text-left text-sm shadow-sm transition-colors outline-none",
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-            "data-[state=open]:ring-2 data-[state=open]:ring-[#927AAC]",
+            "data-[state=open]:ring-2 data-[state=open]:ring-lilac",
             "disabled:cursor-not-allowed disabled:opacity-50",
             className
           )}
         >
-          <span className={cn("truncate", !selected && "text-[#586C64]")}>
+          <span className={cn("truncate", !selected && "text-ink-muted")}>
             {selected ? format(selected, "d 'de' MMMM 'de' yyyy", { locale: es }) : placeholder}
           </span>
-          <CalendarDays aria-hidden className="size-4 shrink-0 text-[#927AAC]" />
+          <CalendarDays aria-hidden className="size-4 shrink-0 text-lilac" />
         </button>
       </PopoverTrigger>
       <CalendarPopoverContent

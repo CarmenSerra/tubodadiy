@@ -21,9 +21,9 @@ function stepLine(step: PlanStep): string {
 /** Barra de fases: una pieza por fase, la actual a medio llenar. Decorativa. */
 function PhaseLine({ phases, phase }: { phases: PhaseState[]; phase: PhaseState }) {
   return (
-    <div className="mt-6 border-t border-[#E5DDEC] pt-5 sm:mt-8">
-      <p className="text-sm text-[#586C64]">
-        <span className="font-medium text-[#26413C]">{phase.name}</span> · {phase.done} de {phase.total}{" "}
+    <div className="mt-6 border-t border-line pt-5 sm:mt-8">
+      <p className="text-sm text-ink-muted">
+        <span className="font-medium text-ink">{phase.name}</span> · {phase.done} de {phase.total}{" "}
         {phase.total === 1 ? "paso" : "pasos"}
         <span className="sr-only">
           . Fase {phase.index + 1} de {phases.length}
@@ -35,9 +35,9 @@ function PhaseLine({ phases, phase }: { phases: PhaseState[]; phase: PhaseState 
         style={{ gridTemplateColumns: `repeat(${phases.length}, minmax(0, 1fr))` }}
       >
         {phases.map((p) => (
-          <span key={p.id} className="h-1.5 overflow-hidden rounded-full bg-[#E5DDEC]">
+          <span key={p.id} className="h-1.5 overflow-hidden rounded-full bg-track">
             <span
-              className={cn("block h-full rounded-full", p.complete ? "bg-[#8FAF8A]" : "bg-[#927AAC]")}
+              className={cn("block h-full rounded-full", p.complete ? "bg-sage" : "bg-lilac")}
               style={{
                 width: p.complete ? "100%" : p.id === phase.id ? `${(p.done / Math.max(1, p.total)) * 100}%` : "0%",
               }}
@@ -51,8 +51,8 @@ function PhaseLine({ phases, phase }: { phases: PhaseState[]; phase: PhaseState 
 
 function Label() {
   return (
-    <h2 className="flex items-center gap-2 text-sm font-medium text-[#586C64]">
-      <span aria-hidden="true" className="size-2 rounded-full bg-[#927AAC]" />
+    <h2 className="flex items-center gap-2 text-sm font-medium text-ink-muted">
+      <span aria-hidden="true" className="size-2 rounded-full bg-lilac" />
       Ahora toca
     </h2>
   );
@@ -92,7 +92,7 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
 
   if (data.error && data.steps.length === 0) {
     return withLabel(
-      <p className="mt-4 text-[#26413C]">
+      <p className="mt-4 text-ink">
         No hemos podido cargar tus pasos ahora mismo. Puedes verlos en{" "}
         <Link href={planHref} className={LINK}>
           el plan
@@ -105,7 +105,7 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
   if (data.steps.length === 0) {
     return withLabel(
       <>
-        <p className="mt-4 text-[#26413C]">Este plan todavía no tiene secciones.</p>
+        <p className="mt-4 text-ink">Este plan todavía no tiene secciones.</p>
         <Link href={planHref} className={cn(CTA_PRIMARY, "mt-6")}>
           Abrir el plan
           <ArrowRightIcon className="size-4" aria-hidden="true" />
@@ -121,10 +121,10 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
     const anyOpen = data.steps.some((s) => s.status === "pending" || s.status === "in_progress");
     return withLabel(
       <>
-        <p className="mt-4 font-display text-2xl font-semibold text-[#26413C] sm:text-3xl">
+        <p className="mt-4 font-display text-2xl font-semibold text-ink sm:text-3xl">
           {anyOpen ? "Lo principal está hecho" : "¡Todo listo!"}
         </p>
-        <p className="mt-2 text-[#586C64]">
+        <p className="mt-2 text-ink-muted">
           {anyOpen
             ? "Solo te queda tu lista libre de tareas generales, cuando quieras."
             : "Has completado todas las secciones del plan."}
@@ -146,10 +146,10 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
     <>
       <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
         <div className="min-w-0">
-          <h3 className="font-display text-2xl font-semibold leading-tight text-[#26413C] sm:text-3xl">
+          <h3 className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
             {step.title}
           </h3>
-          {line && <p className="mt-2 text-[#586C64] [overflow-wrap:anywhere]">{line}</p>}
+          {line && <p className="mt-2 text-ink-muted [overflow-wrap:anywhere]">{line}</p>}
         </div>
         <Link href={`${planHref}#step-${step.id}`} className={cn(CTA_PRIMARY, "w-full shrink-0 sm:w-auto")}>
           {started ? "Continuar" : "Empezar"}

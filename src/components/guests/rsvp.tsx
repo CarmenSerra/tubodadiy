@@ -20,18 +20,18 @@ export const RSVP_ORDER: RsvpStatus[] = ["confirmed", "pending", "declined"];
 export const RSVP_CONFIG: Record<RsvpStatus, { label: string; badge: string; active: string }> = {
   confirmed: {
     label: "Confirmado",
-    badge: "border-transparent bg-[#D2D7CB] text-[#26413C]",
-    active: "border-[#8FAF8A] bg-[#D2D7CB] text-[#26413C]",
+    badge: "border-transparent bg-sage-pale text-ink",
+    active: "border-sage bg-sage-pale text-ink",
   },
   pending: {
     label: "Pendiente",
-    badge: "border-[#D4C0EA] bg-transparent text-[#586C64]",
-    active: "border-[#D4C0EA] bg-[#F4F1EB] text-[#38384D]",
+    badge: "border-line-strong bg-transparent text-ink-muted",
+    active: "border-line-strong bg-page text-ink-on-lilac",
   },
   declined: {
     label: "No asiste",
-    badge: "border-transparent bg-[#ECE6F4] text-[#586C64]",
-    active: "border-[#D4C0EA] bg-[#ECE6F4] text-[#38384D]",
+    badge: "border-transparent bg-lilac-soft text-ink-muted",
+    active: "border-line-strong bg-lilac-soft text-ink-on-lilac",
   },
 };
 
@@ -68,27 +68,27 @@ export function RsvpMenu({
           type="button"
           aria-label={`Respuesta de ${name}: ${RSVP_CONFIG[value].label}. Cambiar`}
           className={cn(
-            "group -ml-1 inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-1.5 transition-colors hover:bg-[#ECE6F4] data-[state=open]:bg-[#ECE6F4]",
+            "group -ml-1 inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-1.5 transition-colors hover:bg-lilac-soft data-[state=open]:bg-lilac-soft",
             ROW_FOCUS
           )}
         >
           <RsvpBadge status={value} />
           <ChevronDownIcon
-            className="size-4 text-[#586C64] transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none"
+            className="size-4 text-ink-muted transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none"
             aria-hidden="true"
           />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="min-w-44 rounded-xl border-[#E5DDEC] bg-[#F8F5F1] p-1.5 text-[#102D28] shadow-md"
+        className="min-w-44 rounded-xl border-line bg-surface p-1.5 text-ink-strong shadow-md"
       >
         <DropdownMenuRadioGroup value={value} onValueChange={(v) => onChange(v as RsvpStatus)}>
           {RSVP_ORDER.map((status) => (
             <DropdownMenuRadioItem
               key={status}
               value={status}
-              className="rounded-lg py-2 text-sm focus:bg-[#ECE6F4] focus:text-[#26413C]"
+              className="rounded-lg py-2 text-sm focus:bg-lilac-soft focus:text-ink"
             >
               {RSVP_CONFIG[status].label}
             </DropdownMenuRadioItem>
@@ -113,7 +113,7 @@ export function RsvpSegmented({
     <div
       role="group"
       aria-label={`Respuesta de ${name}`}
-      className="grid grid-cols-3 gap-1 rounded-full border border-[#D4C0EA] bg-white p-1"
+      className="grid grid-cols-3 gap-1 rounded-full border border-line-strong bg-raised p-1"
     >
       {RSVP_ORDER.map((status) => {
         const active = value === status;
@@ -128,7 +128,7 @@ export function RsvpSegmented({
               ROW_FOCUS,
               active
                 ? cn("font-semibold", RSVP_CONFIG[status].active)
-                : "border-transparent font-medium text-[#586C64] hover:bg-[#ECE6F4]"
+                : "border-transparent font-medium text-ink-muted hover:bg-lilac-soft"
             )}
           >
             {active && status === "confirmed" && <CheckIcon className="size-3.5" aria-hidden="true" />}

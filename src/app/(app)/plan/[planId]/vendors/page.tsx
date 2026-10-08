@@ -16,7 +16,7 @@ export default function VendorsPage() {
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="min-w-0">
           <h2 className={SECTION_TITLE}>Proveedores</h2>
-          <p className="mt-1 text-sm text-[#586C64]">
+          <p className="mt-1 text-sm text-ink-muted">
             Compara tus opciones por categoría y quédate con la que más te enamore.
           </p>
         </div>

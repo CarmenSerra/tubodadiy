@@ -30,8 +30,8 @@ function ContactRow({
     <li className="flex items-start gap-3.5">
       <IconCircle tone="lilac">{icon}</IconCircle>
       <div className="min-w-0 flex-1 pt-0.5">
-        <p className="text-sm text-[#586C64]">{label}</p>
-        <div className="mt-0.5 break-words text-base text-[#102D28]">{children}</div>
+        <p className="text-sm text-ink-muted">{label}</p>
+        <div className="mt-0.5 break-words text-base text-ink-strong">{children}</div>
       </div>
     </li>
   );
@@ -60,7 +60,7 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
       <DialogContent className={DIALOG_CONTENT}>
         <DialogHeader className="gap-1.5 pr-6">
           <DialogTitle className={DIALOG_TITLE}>{vendor.name}</DialogTitle>
-          <DialogDescription className="text-sm text-[#586C64]">
+          <DialogDescription className="text-sm text-ink-muted">
             {vendor.category} · datos de contacto
           </DialogDescription>
         </DialogHeader>
@@ -105,7 +105,7 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
             )}
           </ul>
         ) : (
-          <p className="mt-6 rounded-xl bg-[#ECE6F4] px-4 py-3.5 text-sm text-[#26413C]">
+          <p className="mt-6 rounded-xl bg-lilac-soft px-4 py-3.5 text-sm text-ink">
             Todavía no has guardado datos de contacto de esta opción. Edítala con el lápiz de la
             tarjeta para añadir la dirección, el correo electrónico o el teléfono.
           </p>

@@ -44,8 +44,8 @@ import { cn } from "@/lib/utils";
  * cronograma desplazándose.
  */
 const MODAL =
-  "top-0 left-0 flex h-dvh max-h-dvh w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-[#F8F5F1] p-0 outline-none " +
-  "sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[85vh] sm:w-[calc(100%-2rem)] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:border-[#E5DDEC]";
+  "top-0 left-0 flex h-dvh max-h-dvh w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-surface p-0 outline-none " +
+  "sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[85vh] sm:w-[calc(100%-2rem)] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:border-line";
 
 const CASCADE_KEY = "tubodadiy:timeline-cascade";
 
@@ -133,10 +133,10 @@ export function TimelineDialog({
         onCloseAutoFocus={restoreFocus.onCloseAutoFocus}
       >
         <DialogHeader className="shrink-0 gap-1 px-5 pb-4 pt-5 pr-14 text-left sm:px-8 sm:pt-7">
-          <DialogTitle className="font-display text-2xl font-semibold leading-tight text-[#26413C] sm:text-3xl">
+          <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
             Cronograma del día
           </DialogTitle>
-          <DialogDescription className="text-sm text-[#586C64]">
+          <DialogDescription className="text-sm text-ink-muted">
             {dateText ?? "Aún no tienes fecha"}
           </DialogDescription>
         </DialogHeader>
@@ -222,7 +222,7 @@ function TimelineBody() {
   if (error) {
     return (
       <div className="flex-1 px-5 py-6 sm:px-8">
-        <p role="alert" className="text-sm text-[#26413C]">
+        <p role="alert" className="text-sm text-ink">
           No se ha podido cargar el cronograma. Recarga la página e inténtalo de nuevo.
         </p>
       </div>
@@ -236,7 +236,7 @@ function TimelineBody() {
         "flex flex-col gap-3",
         // En escritorio la barra queda fija; en móvil forma parte del desplazamiento
         // (ocupa demasiado alto para dejarla siempre a la vista).
-        isDesktop ? "shrink-0 border-y border-[#E5DDEC] px-8 py-3" : "pb-4 pt-1"
+        isDesktop ? "shrink-0 border-y border-line px-8 py-3" : "pb-4 pt-1"
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -261,14 +261,14 @@ function TimelineBody() {
           <span className="sr-only"> (se abre en una pestaña nueva)</span>
         </Link>
       </div>
-      <label className="flex cursor-pointer flex-wrap items-center gap-x-2.5 gap-y-0.5 text-sm text-[#102D28]">
+      <label className="flex cursor-pointer flex-wrap items-center gap-x-2.5 gap-y-0.5 text-sm text-ink-strong">
         <Checkbox
           checked={cascade}
           onCheckedChange={(v) => handleCascadeChange(Boolean(v))}
           className={CHECKBOX}
         />
         <span>Mover también lo que viene después</span>
-        <span className="hidden text-[#586C64] sm:inline">(al ajustar una hora con −15 / +15)</span>
+        <span className="hidden text-ink-muted sm:inline">(al ajustar una hora con −15 / +15)</span>
       </label>
     </div>
   ) : null;

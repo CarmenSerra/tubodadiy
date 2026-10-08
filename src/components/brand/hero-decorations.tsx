@@ -24,12 +24,12 @@ export function Branch({ className }: { className?: string }) {
     <svg
       viewBox="0 0 120 200"
       fill="none"
-      stroke="#4E6A5A"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
       className={cn("pointer-events-none absolute", className)}
+      style={{ stroke: "var(--deco-green)" }}
     >
       <path d="M20 200 C 24 150, 50 100, 85 30" />
       {BRANCH_LEAVES.map(([x, y, r]) => (
@@ -48,11 +48,11 @@ export function Sparkles({ className }: { className?: string }) {
     <svg
       viewBox="0 0 40 40"
       fill="none"
-      stroke="#A38ED2"
       strokeWidth="1.5"
       strokeLinecap="round"
       aria-hidden="true"
       className={cn("pointer-events-none absolute size-8 sm:size-10", className)}
+      style={{ stroke: "var(--deco-line-bright)" }}
     >
       <path d="M6 14 L14 18" />
       <path d="M12 4 L17 12" />

@@ -145,7 +145,7 @@ function AddAllFooter({
         ref={startRef}
         type="button"
         onClick={() => setConfirming(true)}
-        className={cn(CTA_SECONDARY, "h-10 w-full focus-visible:ring-offset-[#F8F5F1]")}
+        className={cn(CTA_SECONDARY, "h-10 w-full focus-visible:ring-offset-surface")}
       >
         Añadir todas las partidas sugeridas
       </button>
@@ -154,7 +154,7 @@ function AddAllFooter({
 
   return (
     <div role="group" aria-label="Confirmar partidas sugeridas" className="flex flex-col gap-3">
-      <p className="text-[13px] leading-snug text-[#26413C]">
+      <p className="text-[13px] leading-snug text-ink">
         Se crearán {count} partidas
         {hasTotal
           ? " con el importe estimado según tu presupuesto total. Podrás editarlas después."
@@ -165,7 +165,7 @@ function AddAllFooter({
           type="button"
           onClick={cancel}
           disabled={saving}
-          className={cn(CTA_SECONDARY, "h-10 flex-1 px-3 focus-visible:ring-offset-[#F8F5F1]")}
+          className={cn(CTA_SECONDARY, "h-10 flex-1 px-3 focus-visible:ring-offset-surface")}
         >
           Cancelar
         </button>
@@ -175,8 +175,8 @@ function AddAllFooter({
           onClick={() => void handleConfirm()}
           disabled={saving}
           className={cn(
-            "inline-flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-full bg-[#927AAC] px-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60",
-            "outline-none focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5F1]"
+            "inline-flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-full bg-cta px-3 text-sm font-medium text-on-cta transition-opacity hover:opacity-90 disabled:opacity-60",
+            "outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           )}
         >
           {saving ? "Añadiendo…" : `Sí, añadir las ${count}`}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Birthstone, DM_Sans, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/lib/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 // Body & UI text. Variable font, so every Tailwind font-weight utility
@@ -50,10 +51,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // data-theme / data-dark los fija THEME_INIT_SCRIPT antes del primer pintado
+    // (según la elección guardada), por eso suppressHydrationWarning.
     <html
       lang="es"
+      data-theme="light"
+      suppressHydrationWarning
       className={`${dmSans.variable} ${newsreader.variable} ${birthstone.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>{children}</AuthProvider>
         <Toaster position="top-center" />

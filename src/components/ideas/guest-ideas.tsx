@@ -43,8 +43,8 @@ export function GuestIdeas({
           <div className="flex flex-col gap-5 pb-3 pt-1">
             <ul className="flex flex-col gap-2.5">
               {GUEST_IDEAS.tips.map((tip) => (
-                <li key={tip} className="flex gap-2.5 text-sm leading-snug text-[#102D28]">
-                  <span aria-hidden="true" className="mt-[7px] size-1.5 shrink-0 rounded-full bg-[#8FAF8A]" />
+                <li key={tip} className="flex gap-2.5 text-sm leading-snug text-ink-strong">
+                  <span aria-hidden="true" className="mt-[7px] size-1.5 shrink-0 rounded-full bg-sage" />
                   {tip}
                 </li>
               ))}
@@ -52,10 +52,10 @@ export function GuestIdeas({
 
             <section aria-labelledby="guest-ideas-groups" className="flex flex-col gap-2">
               <div>
-                <h3 id="guest-ideas-groups" className="text-sm font-medium text-[#26413C]">
+                <h3 id="guest-ideas-groups" className="text-sm font-medium text-ink">
                   Grupos habituales
                 </h3>
-                <p className="text-[13px] text-[#586C64]">
+                <p className="text-[13px] text-ink-muted">
                   Toca uno para añadir a alguien directamente en ese grupo.
                 </p>
               </div>
@@ -72,7 +72,7 @@ export function GuestIdeas({
                             : `Añadir invitado en «${group}»`
                         }
                         onClick={() => ctx.handoff((opener) => setForm({ open: true, group, opener }))}
-                        className={cn(IDEA_CHIP, exists && "border-[#BCC7B5] bg-[#F4F1EB] text-[#4E6A5A]")}
+                        className={cn(IDEA_CHIP, exists && "border-sage-light bg-page text-green")}
                       >
                         {exists && <CheckIcon aria-hidden="true" className="size-3.5" />}
                         {group}

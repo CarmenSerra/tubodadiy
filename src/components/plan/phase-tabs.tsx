@@ -52,7 +52,7 @@ export function PhaseTabs({
         ref={listRef}
         aria-label="Fases del plan"
         className={cn(
-          "h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-[#ECE6F4] p-1.5",
+          "h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-lilac-soft p-1.5",
           "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         )}
       >
@@ -62,23 +62,23 @@ export function PhaseTabs({
             value={tab.id}
             className={cn(
               "relative min-h-14 min-w-[9.5rem] flex-none flex-col sm:flex-1 items-start justify-center gap-0.5 rounded-xl border border-transparent px-3.5 py-2 text-left",
-              "text-[#26413C] hover:bg-[#E5DDEC] motion-reduce:transition-none",
-              "data-[state=active]:border-[#D4C0EA] data-[state=active]:bg-white data-[state=active]:text-[#102D28] data-[state=active]:shadow-none",
-              "outline-none focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-0"
+              "text-ink hover:bg-track motion-reduce:transition-none",
+              "data-[state=active]:border-line-strong data-[state=active]:bg-raised data-[state=active]:text-ink-strong data-[state=active]:shadow-none",
+              "outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-0"
             )}
           >
             <span className="text-sm font-semibold sm:text-[0.95rem]">{tab.name}</span>
-            <span className="flex items-center gap-1.5 text-xs font-normal text-[#586C64]">
+            <span className="flex items-center gap-1.5 text-xs font-normal text-ink-muted">
               {tab.recommended && (
                 <>
-                  <span aria-hidden="true" className="size-1.5 rounded-full bg-[#927AAC]" />
+                  <span aria-hidden="true" className="size-1.5 rounded-full bg-lilac" />
                   <span>Recomendado</span>
                   <span aria-hidden="true">·</span>
                 </>
               )}
               {tab.complete ? (
                 <>
-                  <CheckIcon className="size-3.5 text-[#4E6A5A]" aria-hidden="true" />
+                  <CheckIcon className="size-3.5 text-green" aria-hidden="true" />
                   <span className="sr-only">Completada</span>
                 </>
               ) : (

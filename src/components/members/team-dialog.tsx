@@ -15,9 +15,9 @@ import { INVITE_ROLE_OPTIONS, ROLE_LABEL } from "./roles";
 
 // Estilos de marca propios del modal (mismos tokens que la home).
 const INPUT =
-  "h-11 w-full min-w-0 rounded-xl border border-[#D4C0EA] bg-white px-3.5 text-sm text-[#102D28] outline-none placeholder:text-[#586C64] focus-visible:border-[#927AAC] focus-visible:ring-2 focus-visible:ring-[#927AAC]";
-const ROW = "rounded-xl border border-[#E5DDEC] bg-white p-3";
-const H3 = "font-display text-base font-semibold text-[#26413C]";
+  "h-11 w-full min-w-0 rounded-xl border border-line-strong bg-field px-3.5 text-sm text-ink-strong outline-none placeholder:text-ink-muted focus-visible:border-lilac focus-visible:ring-2 focus-visible:ring-lilac";
+const ROW = "rounded-xl border border-line bg-raised p-3";
+const H3 = "font-display text-base font-semibold text-ink";
 
 function inviteLink(token: string) {
   return `${window.location.origin}/invite/${token}`;
@@ -27,8 +27,8 @@ function RoleChip({ role }: { role: PlanRole }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-[#26413C]",
-        role === "owner" ? "bg-[#D2D7CB]" : "bg-[#DECDF1]"
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-ink",
+        role === "owner" ? "bg-sage-pale" : "bg-lilac-mid"
       )}
     >
       {ROLE_LABEL[role]}
@@ -38,11 +38,11 @@ function RoleChip({ role }: { role: PlanRole }) {
 
 function StatusChip({ pending }: { pending: boolean }) {
   return pending ? (
-    <span className="inline-flex items-center rounded-full border border-[#D4C0EA] px-2.5 py-0.5 text-xs font-medium text-[#586C64]">
+    <span className="inline-flex items-center rounded-full border border-line-strong px-2.5 py-0.5 text-xs font-medium text-ink-muted">
       Pendiente
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-[#586C64]">
+    <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-muted">
       <CheckIcon className="size-3.5" aria-hidden="true" />
       En el plan
     </span>
@@ -54,8 +54,8 @@ function Avatar({ label, index }: { label: string; index: number }) {
     <span
       aria-hidden="true"
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-[#474755]",
-        index % 2 === 0 ? "bg-[#DECDF1]" : "bg-[#D2D7CB]"
+        "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-ink-on-tint",
+        index % 2 === 0 ? "bg-lilac-mid" : "bg-sage-pale"
       )}
     >
       {initials(label)}
@@ -152,7 +152,7 @@ function PendingInviteRow({ invite }: { invite: PlanInvite }) {
     <li className={cn(ROW, "flex flex-col gap-3")}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="min-w-0 flex-1 basis-40">
-          <p className="truncate text-sm font-medium text-[#102D28]">{invite.email}</p>
+          <p className="truncate text-sm font-medium text-ink-strong">{invite.email}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <RoleChip role={invite.role} />
             <StatusChip pending />
@@ -202,7 +202,7 @@ function InviteForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="team-invite-email" className="text-sm font-medium text-[#26413C]">
+        <label htmlFor="team-invite-email" className="text-sm font-medium text-ink">
           Correo electrónico de la persona invitada
         </label>
         <input
@@ -217,7 +217,7 @@ function InviteForm({
         />
       </div>
       <fieldset className="flex flex-col gap-1.5">
-        <legend className="mb-1.5 text-sm font-medium text-[#26413C]">Rol</legend>
+        <legend className="mb-1.5 text-sm font-medium text-ink">Rol</legend>
         <div className="grid gap-2 sm:grid-cols-2">
           {INVITE_ROLE_OPTIONS.map((opt) => (
             <label key={opt.value} className="block cursor-pointer">
@@ -229,9 +229,9 @@ function InviteForm({
                 onChange={() => setRole(opt.value)}
                 className="peer sr-only"
               />
-              <span className="block h-full rounded-xl border border-[#D4C0EA] bg-white p-3 transition-colors peer-checked:border-[#927AAC] peer-checked:bg-[#ECE6F4] peer-focus-visible:ring-2 peer-focus-visible:ring-[#927AAC]">
-                <span className="block text-sm font-medium text-[#102D28]">{opt.label}</span>
-                <span className="mt-0.5 block text-xs text-[#586C64]">{opt.description}</span>
+              <span className="block h-full rounded-xl border border-line-strong bg-raised p-3 transition-colors peer-checked:border-lilac peer-checked:bg-lilac-soft peer-focus-visible:ring-2 peer-focus-visible:ring-lilac">
+                <span className="block text-sm font-medium text-ink-strong">{opt.label}</span>
+                <span className="mt-0.5 block text-xs text-ink-muted">{opt.description}</span>
               </span>
             </label>
           ))}
@@ -256,21 +256,21 @@ function CreatedInvite({
   const [manual, setManual] = React.useState(false);
   const link = inviteLink(created.token);
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-[#D4C0EA] bg-[#ECE6F4] p-4" role="status">
-      <p className="text-sm text-[#26413C]">
+    <div className="flex flex-col gap-3 rounded-xl border border-line-strong bg-lilac-soft p-4" role="status">
+      <p className="text-sm text-ink">
         <span className="font-medium">Invitación creada.</span> Comparte este enlace con{" "}
         <span className="break-all font-medium">{created.email}</span> por WhatsApp, correo o como prefieras. Podrá
         aceptarla tras crear una cuenta o iniciar sesión.
       </p>
       <LinkField link={link} autoSelect={manual} label="Enlace de invitación" />
       <div className="flex flex-wrap items-center gap-2">
-        <CopyLinkButton link={link} onFallback={() => setManual(true)} className="bg-white" />
+        <CopyLinkButton link={link} onFallback={() => setManual(true)} className="bg-raised" />
         <button
           type="button"
           onClick={onAnother}
           className={cn(
             FOCUS,
-            "h-9 rounded-full px-3 text-sm font-medium text-[#26413C] underline decoration-[#927AAC] decoration-2 underline-offset-4 hover:opacity-80"
+            "h-9 rounded-full px-3 text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80"
           )}
         >
           Invitar a otra persona
@@ -330,13 +330,13 @@ function TeamBody({
                 <li key={m.userId} className={cn(ROW, "flex items-center gap-3")}>
                   <Avatar label={name} index={i} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-[#102D28]">
+                    <p className="truncate text-sm font-medium text-ink-strong">
                       {name}
                       {m.userId === currentUserId && name !== "Tú" && (
-                        <span className="font-normal text-[#586C64]"> (tú)</span>
+                        <span className="font-normal text-ink-muted"> (tú)</span>
                       )}
                     </p>
-                    {email && <p className="truncate text-xs text-[#586C64]">{email}</p>}
+                    {email && <p className="truncate text-xs text-ink-muted">{email}</p>}
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       <RoleChip role={m.role} />
                       <StatusChip pending={m.status === "pending"} />
@@ -375,15 +375,15 @@ function TeamBody({
             <CreatedInvite created={created} onAnother={() => setCreated(null)} />
           ) : (
             <>
-              <p className="text-sm text-[#586C64]">
+              <p className="text-sm text-ink-muted">
                 Genera un enlace para que tu pareja o tu wedding planner vean y editen el plan contigo.
               </p>
               <InviteForm planId={planId} planTitle={planTitle} onCreated={setCreated} />
             </>
           )
         ) : (
-          <p className="flex items-start gap-2.5 rounded-xl bg-[#ECE6F4] p-3.5 text-sm text-[#26413C]">
-            <LockIcon className="mt-0.5 size-4 shrink-0 text-[#474755]" aria-hidden="true" />
+          <p className="flex items-start gap-2.5 rounded-xl bg-lilac-soft p-3.5 text-sm text-ink">
+            <LockIcon className="mt-0.5 size-4 shrink-0 text-ink-on-tint" aria-hidden="true" />
             <span>
               Solo la persona dueña del plan puede enviar invitaciones. Si quieres sumar a alguien, coméntaselo y lo
               invitará encantada.
@@ -432,16 +432,16 @@ export function TeamDialog({ open, onOpenChange, returnFocusRef, ...body }: Team
           }
         }}
         className={cn(
-          "max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg gap-5 rounded-2xl border-[#E5DDEC] bg-[#F8F5F1] p-5 text-[#102D28] sm:p-6",
-          "[&>button]:right-3 [&>button]:top-3 [&>button]:rounded-full [&>button]:p-2 [&>button]:text-[#26413C] [&>button]:opacity-80",
-          "[&>button]:focus:ring-[#927AAC] [&>button]:focus:ring-offset-[#F8F5F1]"
+          "max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg gap-5 rounded-2xl border-line bg-surface p-5 text-ink-strong sm:p-6",
+          "[&>button]:right-3 [&>button]:top-3 [&>button]:rounded-full [&>button]:p-2 [&>button]:text-ink [&>button]:opacity-80",
+          "[&>button]:focus:ring-lilac [&>button]:focus:ring-offset-surface"
         )}
       >
         <div className="flex flex-col gap-1.5 pr-8">
-          <DialogTitle className="font-display text-2xl font-semibold leading-tight text-[#26413C]">
+          <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink">
             Equipo
           </DialogTitle>
-          <DialogDescription className="text-sm text-[#586C64]">
+          <DialogDescription className="text-sm text-ink-muted">
             Las personas que organizan esta boda contigo.
           </DialogDescription>
         </div>

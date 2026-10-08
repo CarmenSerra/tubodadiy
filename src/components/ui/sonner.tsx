@@ -15,27 +15,27 @@ const Toaster = ({ toastOptions, style, ...props }: ToasterProps) => {
       className="toaster group"
       style={
         {
-          "--normal-bg": "#F8F5F1",
-          "--normal-text": "#26413C",
-          "--normal-border": "#E5DDEC",
+          "--normal-bg": "var(--surface)",
+          "--normal-text": "var(--ink)",
+          "--normal-border": "var(--line)",
           "--border-radius": "1rem",
           fontFamily: "var(--font-body), system-ui, sans-serif",
           ...style,
         } as React.CSSProperties
       }
       icons={{
-        success: <CircleCheckIcon aria-hidden="true" className="size-5 text-[#3F5C4A]" />,
-        error: <CircleAlertIcon aria-hidden="true" className="size-5 text-[#9F3A38]" />,
-        info: <InfoIcon aria-hidden="true" className="size-5 text-[#927AAC]" />,
-        warning: <TriangleAlertIcon aria-hidden="true" className="size-5 text-[#4E6A5A]" />,
-        loading: <Loader2Icon aria-hidden="true" className="size-5 animate-spin text-[#927AAC]" />,
+        success: <CircleCheckIcon aria-hidden="true" className="size-5 text-deep" />,
+        error: <CircleAlertIcon aria-hidden="true" className="size-5 text-danger" />,
+        info: <InfoIcon aria-hidden="true" className="size-5 text-lilac" />,
+        warning: <TriangleAlertIcon aria-hidden="true" className="size-5 text-green" />,
+        loading: <Loader2Icon aria-hidden="true" className="size-5 animate-spin text-lilac" />,
       }}
       toastOptions={{
         ...toastOptions,
         style: { boxShadow: "none", ...toastOptions?.style },
         classNames: {
-          toast: "!rounded-2xl !border !border-[#E5DDEC] !bg-[#F8F5F1] !text-[#26413C] !text-sm !font-medium",
-          description: "!text-[#586C64]",
+          toast: "!rounded-2xl !border !border-line !bg-surface !text-ink !text-sm !font-medium",
+          description: "!text-ink-muted",
           ...toastOptions?.classNames,
         },
       }}

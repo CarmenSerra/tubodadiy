@@ -27,11 +27,11 @@ export function WelcomeWave({ className }: { className?: string }) {
     >
       <path
         d="M0 40 C 150 10, 300 10, 450 34 S 750 62, 900 36 S 1100 14, 1200 30 L1200 80 L0 80Z"
-        fill="#D2D7CB"
+        style={{ fill: "var(--deco-sage-soft)" }}
       />
       <path
         d="M0 58 C 200 28, 380 32, 560 54 S 900 74, 1200 42 L1200 80 L0 80Z"
-        fill="#E5DDEC"
+        style={{ fill: "var(--deco-lilac-soft)" }}
       />
     </svg>
   );
@@ -43,7 +43,7 @@ export function WelcomePebble({ className }: { className?: string }) {
     <svg viewBox="0 0 200 170" aria-hidden="true" className={cn(BASE, className)}>
       <path
         d="M20 76 C 8 28, 60 2, 108 12 C 156 24, 184 72, 156 114 C 128 156, 62 166, 32 128 C 22 116, 22 96, 20 76Z"
-        fill="#DECDF1"
+        style={{ fill: "var(--deco-lilac)" }}
       />
     </svg>
   );
@@ -53,7 +53,7 @@ export function WelcomePebble({ className }: { className?: string }) {
 export function WelcomeDisc({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" aria-hidden="true" className={cn(BASE, className)}>
-      <circle cx="50" cy="50" r="50" fill="#D2D7CB" />
+      <circle cx="50" cy="50" r="50" style={{ fill: "var(--deco-sage-soft)" }} />
     </svg>
   );
 }
@@ -63,7 +63,7 @@ export function WelcomeDisc({ className }: { className?: string }) {
 /* ------------------------------------------------------------------ */
 
 /** Dos alianzas entrelazadas. `gap` debe ser el color del fondo sobre el que se dibujen. */
-export function Rings({ className, gap = "#ECE6F4" }: { className?: string; gap?: string }) {
+export function Rings({ className, gap = "var(--lilac-soft)" }: { className?: string; gap?: string }) {
   return (
     <svg
       viewBox="0 0 120 100"
@@ -75,18 +75,18 @@ export function Rings({ className, gap = "#ECE6F4" }: { className?: string; gap?
       className={cn(BASE, className)}
     >
       {/* Brillo sobre las alianzas */}
-      <g stroke="#A38ED2" strokeWidth="1.5">
+      <g strokeWidth="1.5" style={{ stroke: "var(--deco-line-bright)" }}>
         <path d="M52 6 L52 13" />
         <path d="M40 10 L44 16" />
         <path d="M64 10 L60 16" />
       </g>
-      <circle cx="44" cy="58" r="28" stroke="#927AAC" />
-      <circle cx="76" cy="58" r="28" stroke="#4E6A5A" />
+      <circle cx="44" cy="58" r="28" style={{ stroke: "var(--deco-line)" }} />
+      <circle cx="76" cy="58" r="28" style={{ stroke: "var(--deco-green)" }} />
       {/* Cruces: arriba pasa la lila por encima, abajo la verde */}
-      <path d="M54.03 31.86 A28 28 0 0 1 65.13 39.63" stroke={gap} strokeWidth="6" />
-      <path d="M54.03 31.86 A28 28 0 0 1 65.13 39.63" stroke="#927AAC" />
-      <path d="M65.97 84.14 A28 28 0 0 1 54.87 76.37" stroke={gap} strokeWidth="6" />
-      <path d="M65.97 84.14 A28 28 0 0 1 54.87 76.37" stroke="#4E6A5A" />
+      <path d="M54.03 31.86 A28 28 0 0 1 65.13 39.63" strokeWidth="6" style={{ stroke: gap }} />
+      <path d="M54.03 31.86 A28 28 0 0 1 65.13 39.63" style={{ stroke: "var(--deco-line)" }} />
+      <path d="M65.97 84.14 A28 28 0 0 1 54.87 76.37" strokeWidth="6" style={{ stroke: gap }} />
+      <path d="M65.97 84.14 A28 28 0 0 1 54.87 76.37" style={{ stroke: "var(--deco-green)" }} />
     </svg>
   );
 }
@@ -103,12 +103,12 @@ export function Envelope({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn(BASE, className)}
     >
-      <rect x="6" y="12" width="108" height="68" rx="8" fill="#F8F5F0" stroke="#927AAC" />
-      <path d="M7 20 L60 54 L113 20" stroke="#927AAC" />
-      <path d="M8 78 L47 46" stroke="#927AAC" />
-      <path d="M112 78 L73 46" stroke="#927AAC" />
+      <rect x="6" y="12" width="108" height="68" rx="8" style={{ fill: "var(--surface-alt)", stroke: "var(--deco-line)" }} />
+      <path d="M7 20 L60 54 L113 20" style={{ stroke: "var(--deco-line)" }} />
+      <path d="M8 78 L47 46" style={{ stroke: "var(--deco-line)" }} />
+      <path d="M112 78 L73 46" style={{ stroke: "var(--deco-line)" }} />
       <g transform="translate(60 54) scale(1.25)">
-        <path d={HEART} fill="#D4C0EA" stroke="#A38ED2" strokeWidth="1.4" />
+        <path d={HEART} strokeWidth="1.4" style={{ fill: "var(--deco-heart)", stroke: "var(--deco-line-bright)" }} />
       </g>
     </svg>
   );
@@ -131,11 +131,11 @@ export function Floret({ className }: { className?: string }) {
           key={r}
           d="M0 -5 C -10 -11, -9 -25, 0 -27 C 9 -25, 10 -11, 0 -5Z"
           transform={`translate(30 30) rotate(${r})`}
-          stroke="#A38ED2"
+          style={{ stroke: "var(--deco-line-bright)" }}
         />
       ))}
-      <circle cx="30" cy="30" r="4" stroke="#8FAF8A" />
-      <circle cx="30" cy="30" r="1" fill="#8FAF8A" stroke="none" />
+      <circle cx="30" cy="30" r="4" style={{ stroke: "var(--deco-sage-line)" }} />
+      <circle cx="30" cy="30" r="1" stroke="none" style={{ fill: "var(--deco-sage-line)" }} />
     </svg>
   );
 }
@@ -199,18 +199,18 @@ export function Eucalyptus({ className }: { className?: string }) {
     <svg
       viewBox="0 0 120 190"
       fill="none"
-      stroke="#4E6A5A"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
       className={cn(BASE, className)}
+      style={{ stroke: "var(--deco-green)" }}
     >
       <path d={`M${STEM[0]} C ${STEM[1]}, ${STEM[2]}, ${STEM[3]}`} />
       {EUCALYPTUS.map((l) => (
         <g key={l.key}>
           <path d={l.stem} />
-          <circle cx={l.cx} cy={l.cy} r={l.r} fill="#D2D7CB" />
+          <circle cx={l.cx} cy={l.cy} r={l.r} style={{ fill: "var(--deco-sage-soft)" }} />
           <path
             d={`M${f(l.cx - l.r * 0.45)} ${f(l.cy + l.r * 0.2)} Q ${l.cx} ${f(l.cy - l.r * 0.1)} ${f(l.cx + l.r * 0.45)} ${f(l.cy - l.r * 0.2)}`}
             strokeWidth="1"
@@ -218,7 +218,7 @@ export function Eucalyptus({ className }: { className?: string }) {
           />
         </g>
       ))}
-      <circle cx={EUCALYPTUS_TIP.cx} cy={EUCALYPTUS_TIP.cy} r={EUCALYPTUS_TIP.r} fill="#D2D7CB" />
+      <circle cx={EUCALYPTUS_TIP.cx} cy={EUCALYPTUS_TIP.cy} r={EUCALYPTUS_TIP.r} style={{ fill: "var(--deco-sage-soft)" }} />
     </svg>
   );
 }
@@ -229,33 +229,33 @@ export function JourneyPath({ className }: { className?: string }) {
     <svg
       viewBox="0 0 160 160"
       fill="none"
-      stroke="#A38ED2"
       strokeWidth="2"
       strokeLinecap="round"
       aria-hidden="true"
       className={cn(BASE, className)}
+      style={{ stroke: "var(--deco-line-bright)" }}
     >
       <path d="M10 152 C 6 104, 66 124, 78 76 S 118 30, 142 30" strokeDasharray="0.5 9" />
-      <circle cx="10" cy="153" r="3" fill="#A38ED2" stroke="none" />
+      <circle cx="10" cy="153" r="3" stroke="none" style={{ fill: "var(--deco-line-bright)" }} />
       <g transform="translate(144 22)">
-        <path d={HEART} fill="#D4C0EA" strokeWidth="1.5" />
+        <path d={HEART} strokeWidth="1.5" style={{ fill: "var(--deco-heart)" }} />
       </g>
     </svg>
   );
 }
 
 /** Corazoncito suelto (confeti). */
-export function Heart({ className, tone = "#A38ED2" }: { className?: string; tone?: string }) {
+export function Heart({ className, tone = "var(--deco-line-bright)" }: { className?: string; tone?: string }) {
   return (
     <svg
       viewBox="-9 -9 18 18"
       fill="none"
-      stroke={tone}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
       className={cn(BASE, className)}
+      style={{ stroke: tone }}
     >
       <path d={HEART} />
     </svg>
@@ -263,10 +263,10 @@ export function Heart({ className, tone = "#A38ED2" }: { className?: string; ton
 }
 
 /** Punto de confeti. */
-export function Dot({ className, tone = "#D4C0EA" }: { className?: string; tone?: string }) {
+export function Dot({ className, tone = "var(--deco-heart)" }: { className?: string; tone?: string }) {
   return (
     <svg viewBox="0 0 10 10" aria-hidden="true" className={cn(BASE, className)}>
-      <circle cx="5" cy="5" r="4" fill={tone} />
+      <circle cx="5" cy="5" r="4" style={{ fill: tone }} />
     </svg>
   );
 }
@@ -325,8 +325,8 @@ export function Flourish({ className }: { className?: string }) {
     >
       <path
         d={`M${SPRIG_STEM[0]} C ${SPRIG_STEM[1]}, ${SPRIG_STEM[2]}, ${SPRIG_STEM[3]}`}
-        stroke="#8FAF8A"
         strokeWidth="1.25"
+        style={{ stroke: "var(--deco-sage-line)" }}
       />
       {SPRIG_LEAF_SHAPES.map((l) => (
         <ellipse
@@ -336,15 +336,14 @@ export function Flourish({ className }: { className?: string }) {
           rx={l.len / 2}
           ry={l.ry}
           transform={`translate(${l.x} ${l.y}) rotate(${l.angle})`}
-          fill="#BCC7B5"
+          style={{ fill: "var(--deco-sage)" }}
         />
       ))}
       <path
         d="M0 0 C 0.6 -2.6, 5 -3, 7.5 0 C 5 3, 0.6 2.6, 0 0Z"
         transform={`translate(${tip[0]} ${tip[1]}) rotate(${SPRIG_BUD_ANGLE})`}
-        fill="#D4C0EA"
-        stroke="#A38ED2"
         strokeWidth="1.1"
+        style={{ fill: "var(--deco-heart)", stroke: "var(--deco-line-bright)" }}
       />
     </svg>
   );

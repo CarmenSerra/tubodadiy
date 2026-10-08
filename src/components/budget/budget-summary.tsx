@@ -14,10 +14,10 @@ function UsageBar({ value, label }: { value: number; label: string }) {
     <div
       role="img"
       aria-label={label}
-      className="h-3 w-full overflow-hidden rounded-full bg-[#E5DDEC]"
+      className="h-3 w-full overflow-hidden rounded-full bg-track"
     >
       <div
-        className="h-full rounded-full bg-[#927AAC] transition-[width] duration-500 motion-reduce:transition-none"
+        className="h-full rounded-full bg-lilac transition-[width] duration-500 motion-reduce:transition-none"
         style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
       />
     </div>
@@ -47,19 +47,19 @@ export function BudgetSummary({
       <div className={cn(CARD, "flex flex-col gap-4 p-5 sm:p-6")}>
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
           <div>
-            <p className="text-sm text-[#586C64]">{over ? "Por encima del total" : "Te queda"}</p>
+            <p className="text-sm text-ink-muted">{over ? "Por encima del total" : "Te queda"}</p>
             <p
-              className="font-display text-3xl font-semibold leading-tight text-[#26413C] sm:text-4xl"
+              className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl"
               data-testid="budget-remaining"
             >
               {hasTotal ? formatMoney(over ? t.over : t.remaining) : "—"}
             </p>
           </div>
           {hasTotal && (
-            <p className="pb-1 text-sm text-[#586C64]">
+            <p className="pb-1 text-sm text-ink-muted">
               de{" "}
               {plan ? (
-                <PlanBudgetEditor plan={plan} className="font-medium text-[#26413C]" />
+                <PlanBudgetEditor plan={plan} className="font-medium text-ink" />
               ) : (
                 `${formatMoney(budgetTotal)} `
               )}
@@ -74,10 +74,10 @@ export function BudgetSummary({
               value={t.spentRatio}
               label={`Has gastado el ${t.spentPercent}% del presupuesto total`}
             />
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-[#586C64]">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-ink-muted">
               <span>
-                Gastado <span className="font-medium text-[#26413C]">{formatMoney(t.spent)}</span> ·{" "}
-                <span className="font-medium text-[#26413C]">{t.spentPercent}%</span> del total
+                Gastado <span className="font-medium text-ink">{formatMoney(t.spent)}</span> ·{" "}
+                <span className="font-medium text-ink">{t.spentPercent}%</span> del total
               </span>
               <span>
                 {over
@@ -89,7 +89,7 @@ export function BudgetSummary({
             </div>
           </>
         ) : (
-          <p className="text-sm text-[#586C64]">
+          <p className="text-sm text-ink-muted">
             Aún no has fijado un presupuesto total.{" "}
             {plan && <PlanBudgetEditor plan={plan} />}
           </p>

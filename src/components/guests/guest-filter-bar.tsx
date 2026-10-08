@@ -41,7 +41,7 @@ export function GuestFilterBar({
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative min-w-0 flex-1">
           <SearchIcon
-            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#586C64]"
+            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
             aria-hidden="true"
           />
           <Input
@@ -59,7 +59,7 @@ export function GuestFilterBar({
               aria-label="Borrar búsqueda"
               onClick={() => onChange({ ...filters, query: "" })}
               className={cn(
-                "absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-[#586C64] hover:bg-[#ECE6F4]",
+                "absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-muted hover:bg-lilac-soft",
                 ROW_FOCUS
               )}
             >
@@ -105,8 +105,8 @@ export function GuestFilterBar({
                   "inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-sm transition-colors sm:h-9",
                   ROW_FOCUS,
                   active
-                    ? "border-[#927AAC] bg-[#DECDF1] font-semibold text-[#26413C]"
-                    : "border-[#D4C0EA] bg-white font-medium text-[#586C64] hover:bg-[#ECE6F4]"
+                    ? "border-lilac bg-lilac-mid font-semibold text-ink"
+                    : "border-line-strong bg-raised font-medium text-ink-muted hover:bg-lilac-soft"
                 )}
               >
                 {active && <CheckIcon className="size-3.5" aria-hidden="true" />}
@@ -115,11 +115,11 @@ export function GuestFilterBar({
             );
           })}
         </div>
-        <p className="flex items-center gap-3 text-sm text-[#586C64]" aria-live="polite">
+        <p className="flex items-center gap-3 text-sm text-ink-muted" aria-live="polite">
           <span>
             {filtering ? (
               <>
-                <span className="font-medium text-[#26413C]">{shown}</span> de {total}{" "}
+                <span className="font-medium text-ink">{shown}</span> de {total}{" "}
                 {total === 1 ? "invitado" : "invitados"}
               </>
             ) : (

@@ -50,8 +50,8 @@ function revealStep(stepId: string) {
 function SummaryItem({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
-      <dt className="text-xs text-[#586C64]">{label}</dt>
-      <dd className="font-display text-base font-semibold leading-snug text-[#26413C]">
+      <dt className="text-xs text-ink-muted">{label}</dt>
+      <dd className="font-display text-base font-semibold leading-snug text-ink">
         {children}
       </dd>
     </div>
@@ -173,13 +173,13 @@ function PlanOverview() {
 
       {loading ? (
         <div className="flex flex-col gap-3" role="status" aria-label="Cargando secciones">
-          <Bone className="h-[4.25rem] w-full rounded-2xl bg-[#ECE6F4]" />
+          <Bone className="h-[4.25rem] w-full rounded-2xl bg-lilac-soft" />
           {[0, 1, 2].map((i) => (
             <StepCardSkeleton key={i} />
           ))}
         </div>
       ) : tabs.length === 0 ? (
-        <p className={`${CARD} p-5 text-sm text-[#586C64] sm:p-6`}>
+        <p className={`${CARD} p-5 text-sm text-ink-muted sm:p-6`}>
           Este plan todavía no tiene secciones.
         </p>
       ) : (

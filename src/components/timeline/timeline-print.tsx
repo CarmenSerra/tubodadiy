@@ -36,8 +36,8 @@ function PrintRow({ item }: { item: TimelineItem }) {
   ].filter(Boolean);
 
   return (
-    <li className="grid break-inside-avoid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-5 border-b border-[#26413C]/25 py-3 sm:grid-cols-[8rem_minmax(0,1fr)]">
-      <div className="text-[#26413C]">
+    <li className="grid break-inside-avoid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-5 border-b border-ink/25 py-3 sm:grid-cols-[8rem_minmax(0,1fr)]">
+      <div className="text-ink">
         <p className="font-display text-xl font-semibold tabular-nums leading-7">
           {formatClock(item.startMin)}
           <DayMark day={startDay} />
@@ -50,17 +50,17 @@ function PrintRow({ item }: { item: TimelineItem }) {
         )}
       </div>
       <div className="min-w-0">
-        <p className="font-display text-lg font-semibold leading-7 text-[#102D28]">
+        <p className="font-display text-lg font-semibold leading-7 text-ink-strong">
           {item.title}
           {item.highlight && (
-            <span className="ml-2 align-middle font-sans text-xs font-medium uppercase tracking-wide text-[#26413C]">
+            <span className="ml-2 align-middle font-sans text-xs font-medium uppercase tracking-wide text-ink">
               ● Momento clave
             </span>
           )}
         </p>
-        {meta.length > 0 && <p className="text-sm text-[#26413C]">{meta.join("  ·  ")}</p>}
+        {meta.length > 0 && <p className="text-sm text-ink">{meta.join("  ·  ")}</p>}
         {item.notes.trim() && (
-          <p className="mt-0.5 whitespace-pre-line break-words text-sm text-[#102D28]">
+          <p className="mt-0.5 whitespace-pre-line break-words text-sm text-ink-strong">
             {item.notes.trim()}
           </p>
         )}
@@ -100,14 +100,14 @@ function PrintDocument() {
   if (loading || itemsLoading) {
     return (
       <div role="status" aria-label="Preparando el cronograma" className="flex justify-center py-24">
-        <Loader2 className="size-6 animate-spin text-[#586C64]" />
+        <Loader2 className="size-6 animate-spin text-ink-muted" />
       </div>
     );
   }
 
   if (!plan || !isMember) {
     return (
-      <p className="mx-auto max-w-md px-4 py-24 text-center text-sm text-[#26413C]">
+      <p className="mx-auto max-w-md px-4 py-24 text-center text-sm text-ink">
         No tienes acceso a este plan.
       </p>
     );
@@ -117,15 +117,15 @@ function PrintDocument() {
   const backHref = `/plan/${planId}?cronograma=1`;
 
   return (
-    <div className="min-h-screen bg-white text-[#102D28]">
-      <div className="print:hidden border-b border-[#E5DDEC] bg-white">
+    <div data-theme="light" className="min-h-screen bg-panel text-ink-strong">
+      <div className="print:hidden border-b border-line bg-panel">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-8">
           <Link href={backHref} className={CTA_SECONDARY}>
             <ArrowLeftIcon aria-hidden="true" className="size-4" />
             Volver al cronograma
           </Link>
           <div className="flex items-center gap-3">
-            <p className="hidden text-sm text-[#586C64] sm:block">
+            <p className="hidden text-sm text-ink-muted sm:block">
               Para guardarlo como PDF, elige «Guardar como PDF» al imprimir.
             </p>
             <button type="button" onClick={() => window.print()} className={CTA_PRIMARY}>
@@ -137,22 +137,22 @@ function PrintDocument() {
       </div>
 
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-8 print:max-w-none print:p-0">
-        <header className="border-b-2 border-[#26413C] pb-4">
-          <h1 className="font-display text-3xl font-semibold leading-tight text-[#26413C] sm:text-4xl">
+        <header className="border-b-2 border-ink pb-4">
+          <h1 className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">
             Cronograma del día
           </h1>
-          <p className="mt-1 font-display text-lg text-[#102D28]">
+          <p className="mt-1 font-display text-lg text-ink-strong">
             {weddingName(plan.title)}
             {date ? ` · ${date}` : ""}
           </p>
         </header>
 
         {error ? (
-          <p role="alert" className="py-8 text-sm text-[#26413C]">
+          <p role="alert" className="py-8 text-sm text-ink">
             No se ha podido cargar el cronograma.
           </p>
         ) : items.length === 0 ? (
-          <p className="py-8 text-sm text-[#26413C]">
+          <p className="py-8 text-sm text-ink">
             Todavía no hay momentos en el cronograma. Vuelve al plan para añadirlos.
           </p>
         ) : (
@@ -163,7 +163,7 @@ function PrintDocument() {
               ))}
             </ol>
             {items.some((i) => dayIndex(endMin(i)) > 0) && (
-              <p className="mt-4 text-sm text-[#26413C]">+1: ya de madrugada, del día siguiente.</p>
+              <p className="mt-4 text-sm text-ink">+1: ya de madrugada, del día siguiente.</p>
             )}
           </>
         )}

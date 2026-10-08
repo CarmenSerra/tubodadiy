@@ -37,7 +37,7 @@ export function EditPlanDialog({ plan }: { plan: WeddingPlan }) {
         <Button
           variant="ghost"
           size="sm"
-          className="h-10 rounded-full px-3.5 text-sm font-medium text-[#26413C] shadow-none hover:bg-[#ECE6F4] hover:text-[#26413C] focus-visible:ring-[#927AAC] focus-visible:ring-offset-[#F8F5F1]"
+          className="h-10 rounded-full px-3.5 text-sm font-medium text-ink shadow-none hover:bg-lilac-soft hover:text-ink focus-visible:ring-lilac focus-visible:ring-offset-surface"
         >
           <PencilIcon />
           Editar

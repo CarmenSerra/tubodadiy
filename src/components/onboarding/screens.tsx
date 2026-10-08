@@ -80,7 +80,7 @@ function fieldA11y(id: string, errors: Record<string, string>, describedBy?: str
   };
 }
 
-const ERROR_BORDER = "border-[#9F3A38] focus-visible:border-[#9F3A38] focus-visible:ring-[#9F3A38]";
+const ERROR_BORDER = "border-danger focus-visible:border-danger focus-visible:ring-danger";
 
 /* ------------------------------------------------------------------ */
 /* Nombre y forma de empezar                                          */
@@ -215,7 +215,7 @@ export function BudgetScreen({ answers, set, errors }: ScreenProps) {
         />
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xl text-[#586C64]"
+          className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xl text-ink-muted"
         >
           €
         </span>
@@ -304,7 +304,7 @@ export function VenueScreen({ answers, set }: ScreenProps) {
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="onb-venue-location" className={WIZ_LABEL}>
-          Dónde está <span className="font-normal text-[#586C64]">(opcional)</span>
+          Dónde está <span className="font-normal text-ink-muted">(opcional)</span>
         </Label>
         <Input
           id="onb-venue-location"
@@ -359,7 +359,7 @@ export function GuestsScreen({ answers, set }: ScreenProps) {
           spellCheck={false}
           aria-describedby="onb-guests-help onb-guests-preview"
           placeholder={"Ana García; Familia de la novia\nLuis Pérez; Amigos\nMaría López"}
-          className="min-h-44 rounded-xl border-[#D4C0EA] bg-white p-4 text-base text-[#102D28] shadow-none placeholder:text-[#677775] focus-visible:border-[#927AAC] focus-visible:ring-[#927AAC] focus-visible:ring-offset-0"
+          className="min-h-44 rounded-xl border-line-strong bg-field p-4 text-base text-ink-strong shadow-none placeholder:text-ink-placeholder focus-visible:border-lilac focus-visible:ring-lilac focus-visible:ring-offset-0"
         />
         <p id="onb-guests-help" className={WIZ_HELP}>
           Un invitado por línea. Si pegáis desde Excel o Google Sheets, la primera columna es el nombre y la segunda,
@@ -370,14 +370,14 @@ export function GuestsScreen({ answers, set }: ScreenProps) {
       <div id="onb-guests-preview" aria-live="polite" className="flex flex-col gap-2">
         {total > 0 && (
           <>
-            <p className="font-display text-xl font-semibold text-[#26413C]">
+            <p className="font-display text-xl font-semibold text-ink">
               Vamos a añadir {formatCount(total)} {total === 1 ? "invitado" : "invitados"}
             </p>
             <div className={cn(CARD, "overflow-hidden")}>
               <table className="w-full table-fixed text-left text-sm">
                 <caption className="sr-only">Primeros invitados de la lista</caption>
                 <thead>
-                  <tr className="bg-[#ECE6F4] text-[#26413C]">
+                  <tr className="bg-lilac-soft text-ink">
                     <th scope="col" className="w-1/2 px-3 py-2 font-medium">
                       Nombre
                     </th>
@@ -388,15 +388,15 @@ export function GuestsScreen({ answers, set }: ScreenProps) {
                 </thead>
                 <tbody>
                   {rows.map((guest, i) => (
-                    <tr key={i} className="border-t border-[#E5DDEC]">
-                      <td className="break-words px-3 py-2 text-[#102D28]">{guest.name}</td>
-                      <td className="break-words px-3 py-2 text-[#586C64]">{guest.groupName || "Sin grupo"}</td>
+                    <tr key={i} className="border-t border-line">
+                      <td className="break-words px-3 py-2 text-ink-strong">{guest.name}</td>
+                      <td className="break-words px-3 py-2 text-ink-muted">{guest.groupName || "Sin grupo"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {total > rows.length && (
-                <p className="border-t border-[#E5DDEC] px-3 py-2 text-sm text-[#586C64]">
+                <p className="border-t border-line px-3 py-2 text-sm text-ink-muted">
                   … y {formatCount(total - rows.length)} más
                 </p>
               )}
@@ -440,7 +440,7 @@ export function VendorsScreen({ answers, set, errors }: ScreenProps) {
               <div className="grid gap-3 px-3.5 pb-4 sm:grid-cols-[minmax(0,1fr)_10rem] sm:px-4">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor={nameId} className={WIZ_LABEL}>
-                    Nombre <span className="font-normal text-[#586C64]">(opcional)</span>
+                    Nombre <span className="font-normal text-ink-muted">(opcional)</span>
                   </Label>
                   <Input
                     id={nameId}
@@ -453,7 +453,7 @@ export function VendorsScreen({ answers, set, errors }: ScreenProps) {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor={priceId} className={WIZ_LABEL}>
-                    Precio <span className="font-normal text-[#586C64]">(opcional)</span>
+                    Precio <span className="font-normal text-ink-muted">(opcional)</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -469,7 +469,7 @@ export function VendorsScreen({ answers, set, errors }: ScreenProps) {
                     />
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-base text-[#586C64]"
+                      className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-base text-ink-muted"
                     >
                       €
                     </span>
@@ -524,10 +524,10 @@ const SUMMARY_ICON: Record<SummaryKind, React.ComponentType<{ className?: string
 export function SummaryScreen({ title, lines }: { title: string; lines: SummaryLine[] }) {
   return (
     <div className={cn(CARD, "p-5 sm:p-6")}>
-      <p className="text-sm text-[#586C64]">Vuestro plan</p>
-      <p className="font-display text-2xl font-semibold text-[#26413C]">{title}</p>
+      <p className="text-sm text-ink-muted">Vuestro plan</p>
+      <p className="font-display text-2xl font-semibold text-ink">{title}</p>
       {lines.length > 0 ? (
-        <dl className="mt-4 flex flex-col gap-3.5 border-t border-[#E5DDEC] pt-4">
+        <dl className="mt-4 flex flex-col gap-3.5 border-t border-line pt-4">
           {lines.map((line, i) => {
             const Icon = SUMMARY_ICON[line.kind];
             return (
@@ -536,15 +536,15 @@ export function SummaryScreen({ title, lines }: { title: string; lines: SummaryL
                   <Icon />
                 </IconCircle>
                 <div className="min-w-0">
-                  <dt className="text-sm text-[#586C64]">{line.label}</dt>
-                  <dd className="break-words font-medium text-[#102D28]">{line.value}</dd>
+                  <dt className="text-sm text-ink-muted">{line.label}</dt>
+                  <dd className="break-words font-medium text-ink-strong">{line.value}</dd>
                 </div>
               </div>
             );
           })}
         </dl>
       ) : (
-        <p className="mt-4 border-t border-[#E5DDEC] pt-4 text-[#26413C]">
+        <p className="mt-4 border-t border-line pt-4 text-ink">
           Empezáis con el lienzo en blanco: os guiamos paso a paso por las 13 secciones del plan.
         </p>
       )}
@@ -562,21 +562,21 @@ export function CreatingScreen({
   return (
     <ul aria-live="polite" className={cn(CARD, "flex flex-col gap-3 p-5 sm:p-6")}>
       {stages.map((stage) => (
-        <li key={stage.key} className="flex items-center gap-3 text-[#26413C]">
+        <li key={stage.key} className="flex items-center gap-3 text-ink">
           <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center">
             {stage.state === "done" ? (
-              <span className="flex size-6 items-center justify-center rounded-full bg-[#8FAF8A] text-[#26413C]">
+              <span className="flex size-6 items-center justify-center rounded-full bg-sage text-on-sage">
                 <CheckIcon className="size-3.5" strokeWidth={3} />
               </span>
             ) : stage.state === "active" ? (
-              <Loader2 className="size-5 animate-spin text-[#927AAC] motion-reduce:animate-none" />
+              <Loader2 className="size-5 animate-spin text-lilac motion-reduce:animate-none" />
             ) : stage.state === "failed" ? (
-              <AlertCircleIcon className="size-5 text-[#9F3A38]" />
+              <AlertCircleIcon className="size-5 text-danger" />
             ) : (
-              <span className="size-3 rounded-full border-2 border-[#D4C0EA]" />
+              <span className="size-3 rounded-full border-2 border-line-strong" />
             )}
           </span>
-          <span className={cn(stage.state === "pending" && "text-[#586C64]")}>
+          <span className={cn(stage.state === "pending" && "text-ink-muted")}>
             {stage.label}
             <span className="sr-only">
               {stage.state === "done" ? " (hecho)" : stage.state === "failed" ? " (no se ha podido)" : ""}

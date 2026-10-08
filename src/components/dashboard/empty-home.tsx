@@ -39,7 +39,7 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
     <div className="flex flex-col gap-10">
       <section
         aria-labelledby="home-greeting"
-        className="relative overflow-hidden rounded-3xl bg-[#ECE6F4] px-5 py-14 sm:px-10 sm:py-20"
+        className="relative overflow-hidden rounded-3xl bg-lilac-soft px-5 py-14 sm:px-10 sm:py-20"
       >
         {/* Blobs: guijarro arriba-izquierda, disco arriba-derecha y ola inferior */}
         <WelcomePebble className="-left-10 -top-9 h-24 w-28 sm:-left-14 sm:-top-12 sm:h-36 sm:w-44 lg:h-44 lg:w-52" />
@@ -75,24 +75,24 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
           <div className="relative inline-block px-12 sm:px-16">
             <Flourish className="left-0 top-1/2 -translate-y-1/2" />
             <Flourish className="right-0 top-1/2 -translate-y-1/2 -scale-x-100" />
-            <span className="text-script-accent" aria-hidden="true" style={{ color: "#A38ED2" }}>
+            <span className="text-script-accent" aria-hidden="true" style={{ color: "var(--lilac-bright)" }}>
               tubodadiy
             </span>
           </div>
           <h1
             id="home-greeting"
-            className="mt-1 text-balance text-3xl text-[#26413C] sm:text-4xl"
+            className="mt-1 text-balance text-3xl text-ink sm:text-4xl"
           >
             {greetingName ? `Hola, ${greetingName}` : "Te damos la bienvenida"}
           </h1>
-          <p className="max-w-md text-balance text-base text-[#586C64] sm:text-lg">
+          <p className="max-w-md text-balance text-base text-ink-muted sm:text-lg">
             Aún no tienes ningún plan de boda. Crea el primero y empieza por lo bonito: tu fecha, tu
             presupuesto y todo lo que quieres vivir ese día.
           </p>
           <div className="mt-4">
             <NewPlanButton />
           </div>
-          <p className="mt-2 text-balance text-sm text-[#586C64]">
+          <p className="mt-2 text-balance text-sm text-ink-muted">
             ¿Te han invitado a un plan? Abre el enlace de invitación que te enviaron.
           </p>
         </div>
@@ -101,7 +101,7 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
       <section aria-labelledby="first-steps-title">
         <h2
           id="first-steps-title"
-          className="mb-4 text-center font-display text-xl font-semibold text-[#26413C] sm:text-2xl"
+          className="mb-4 text-center font-display text-xl font-semibold text-ink sm:text-2xl"
         >
           Así empieza todo
         </h2>
@@ -111,11 +111,11 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
               <IconCircle tone={i % 2 === 0 ? "lilac" : "sage"}>
                 <step.icon />
               </IconCircle>
-              <h3 className="mt-1 font-display text-base font-semibold text-[#102D28]">
+              <h3 className="mt-1 font-display text-base font-semibold text-ink-strong">
                 <span className="sr-only">Paso {i + 1}: </span>
                 {step.title}
               </h3>
-              <p className="text-sm text-[#586C64]">{step.text}</p>
+              <p className="text-sm text-ink-muted">{step.text}</p>
             </li>
           ))}
         </ol>

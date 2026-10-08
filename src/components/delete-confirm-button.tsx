@@ -28,7 +28,7 @@ export function DeleteConfirmButton({ itemLabel, onConfirm }: DeleteConfirmButto
           type="button"
           aria-label={`Eliminar ${itemLabel}`}
           title={`Eliminar ${itemLabel}`}
-          className="inline-flex size-10 items-center justify-center rounded-full text-[#586C64] transition-colors outline-none hover:bg-[#ECE6F4] hover:text-[#26413C] focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5F1] sm:size-9"
+          className="inline-flex size-10 items-center justify-center rounded-full text-ink-muted transition-colors outline-none hover:bg-lilac-soft hover:text-ink focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:size-9"
         >
           <TrashIcon aria-hidden="true" className="size-4" />
         </button>
@@ -43,7 +43,7 @@ export function DeleteConfirmButton({ itemLabel, onConfirm }: DeleteConfirmButto
           {/* Único elemento rojo: es la acción realmente destructiva. */}
           <AlertDialogAction
             onClick={() => onConfirm()}
-            className="bg-[#9F3A38] text-white focus-visible:ring-[#9F3A38]"
+            className="bg-danger-solid text-on-solid focus-visible:ring-danger"
           >
             Eliminar
           </AlertDialogAction>

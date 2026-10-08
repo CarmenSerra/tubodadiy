@@ -411,12 +411,12 @@ export function OnboardingFlow() {
               ref={headingRef}
               tabIndex={-1}
               aria-describedby="onb-progress"
-              className="text-balance font-display text-3xl font-semibold text-[#26413C] outline-none sm:text-4xl"
+              className="text-balance font-display text-3xl font-semibold text-ink outline-none sm:text-4xl"
             >
               {copy.title}
             </h1>
             {copy.description && (
-              <p className="mx-auto mt-2.5 max-w-md text-balance text-base text-[#586C64]">{copy.description}</p>
+              <p className="mx-auto mt-2.5 max-w-md text-balance text-base text-ink-muted">{copy.description}</p>
             )}
           </header>
 
@@ -448,7 +448,7 @@ export function OnboardingFlow() {
             )}
           </form>
           {creating && (
-            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-[#586C64]" role="status">
+            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-ink-muted" role="status">
               <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
               No cerréis esta página hasta que terminemos.
             </p>

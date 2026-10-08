@@ -187,7 +187,7 @@ function BudgetItemForm({
             />
           </div>
         </div>
-        <label className="flex min-h-10 cursor-pointer items-center gap-3 text-sm text-[#102D28]">
+        <label className="flex min-h-10 cursor-pointer items-center gap-3 text-sm text-ink-strong">
           <Checkbox checked={paid} onCheckedChange={(v) => setPaid(Boolean(v))} className={CHECKBOX} />
           Pagado
         </label>

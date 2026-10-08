@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, HeartIcon } from "lucide-react";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,14 +16,14 @@ import { getFirebaseErrorMessage } from "@/lib/firebase/errors";
 
 // Colores de marca fijos (misma línea visual que la landing).
 const AUTH_INPUT =
-  "h-11 rounded-xl border-[#D4C0EA] bg-white px-3.5 text-[#26413C] shadow-none placeholder:text-[#677775] focus-visible:border-[#927AAC] focus-visible:ring-[#927AAC] focus-visible:ring-offset-0";
-const AUTH_LABEL = "text-[#26413C]";
+  "h-11 rounded-xl border-line-strong bg-field px-3.5 text-ink shadow-none placeholder:text-ink-placeholder focus-visible:border-lilac focus-visible:ring-lilac focus-visible:ring-offset-0";
+const AUTH_LABEL = "text-ink";
 const AUTH_CTA =
-  "mt-1 h-11 rounded-full bg-[#927AAC] px-8 text-white shadow-none hover:bg-[#927AAC] hover:opacity-90 focus-visible:ring-[#927AAC]";
+  "mt-1 h-11 rounded-full bg-cta px-8 text-on-cta shadow-none hover:bg-cta hover:opacity-90 focus-visible:ring-lilac";
 // Enlaces: #927AAC sobre #F8F5F1 no llega a 4.5:1, así que el texto va en
 // verde oscuro con subrayado lila.
 const AUTH_LINK =
-  "font-medium text-[#26413C] underline decoration-[#927AAC] decoration-2 underline-offset-4 hover:opacity-80";
+  "font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80";
 
 /**
  * Fondo de las páginas de login/registro: crema con los blobs y ramas
@@ -30,7 +31,7 @@ const AUTH_LINK =
  */
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#F4F1EB] px-4 py-12 sm:py-16">
+    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-page px-4 py-12 sm:py-16">
       <svg
         viewBox="0 0 200 300"
         preserveAspectRatio="none"
@@ -39,7 +40,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
       >
         <path
           d="M0 20 C 50 -10, 130 30, 150 90 C 170 150, 210 170, 190 230 C 175 280, 90 300, 0 300 Z"
-          fill="#E5DDEC"
+          style={{ fill: "var(--deco-lilac-soft)" }}
         />
       </svg>
       <svg
@@ -48,11 +49,12 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         aria-hidden="true"
         className="pointer-events-none absolute right-0 top-[55%] h-[35%] w-[5%] sm:top-[30%] sm:h-[50%] sm:w-[10%]"
       >
-        <path d="M100 0 C 70 10, 30 50, 25 100 C 20 150, 60 185, 100 200 Z" fill="#BCC7B5" />
+        <path d="M100 0 C 70 10, 30 50, 25 100 C 20 150, 60 185, 100 200 Z" style={{ fill: "var(--deco-sage)" }} />
       </svg>
       {/* Ramas solo en pantallas anchas, para no rozar la tarjeta */}
       <Branch className="bottom-0 left-[2%] hidden h-[44%] max-h-[26rem] w-auto lg:block" />
       <Branch className="bottom-0 right-[1%] hidden h-[40%] max-h-[24rem] w-auto -scale-x-100 lg:block" />
+      <ThemeToggle className="absolute right-3 top-3 z-20 sm:right-6 sm:top-4" />
       <div className="relative z-10 flex w-full justify-center">{children}</div>
     </main>
   );
@@ -93,21 +95,21 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <Card className="w-full max-w-sm gap-5 rounded-2xl border-[#E5DDEC] bg-[#F8F5F1] py-8 text-[#102D28] shadow-none">
+    <Card className="w-full max-w-sm gap-5 rounded-2xl border-line bg-surface py-8 text-ink-strong shadow-none">
       <CardHeader className="items-center text-center">
         <div className="relative mb-1 px-10">
           <Sparkles className="left-0 top-0 size-8 sm:size-8" />
           <Sparkles className="right-0 top-0 size-8 sm:size-8 -scale-x-100" />
           <Link
             href="/"
-            className="flex items-center gap-2 py-1 text-[#907AB2] outline-none focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2"
+            className="flex items-center gap-2 py-1 text-brand outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2"
           >
             <HeartIcon className="size-5 fill-current" />
             <span className="font-display text-xl font-semibold">tubodadiy</span>
           </Link>
         </div>
-        <CardTitle className="text-2xl font-semibold text-[#26413C]">{mode === "login" ? "Inicia sesión" : "Crea tu cuenta"}</CardTitle>
-        <CardDescription className="text-[#586C64]">
+        <CardTitle className="text-2xl font-semibold text-ink">{mode === "login" ? "Inicia sesión" : "Crea tu cuenta"}</CardTitle>
+        <CardDescription className="text-ink-muted">
           {mode === "login"
             ? "Accede para seguir organizando tu boda."
             : "Empieza a organizar tu boda paso a paso."}
@@ -115,7 +117,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       </CardHeader>
       <CardContent>
         {!firebaseReady && (
-          <p className="mb-4 rounded-xl bg-[#ECE6F4] p-3 text-sm text-[#26413C]">
+          <p className="mb-4 rounded-xl bg-lilac-soft p-3 text-sm text-ink">
             Firebase no está configurado todavía. Añade las variables de entorno descritas en
             <code className="mx-1">.env.example</code> para poder iniciar sesión.
           </p>
@@ -171,7 +173,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             {mode === "login" ? "Entrar" : "Crear cuenta"}
           </Button>
         </form>
-        <p className="mt-5 text-center text-sm text-[#586C64]">
+        <p className="mt-5 text-center text-sm text-ink-muted">
           {mode === "login" ? (
             <>
               ¿No tienes cuenta?{" "}

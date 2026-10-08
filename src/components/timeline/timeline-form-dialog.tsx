@@ -53,7 +53,7 @@ const CUSTOM = "custom";
 const MAX_DURATION_MIN = 24 * 60;
 
 /** Texto de error de campo (sin rojo: el rojo es solo para confirmar borrados). */
-const ERROR_TEXT = "text-sm font-medium text-[#26413C]";
+const ERROR_TEXT = "text-sm font-medium text-ink";
 
 interface TimelineFormDialogProps {
   planId: string;
@@ -283,7 +283,7 @@ function MomentForm({
                 {error.text}
               </p>
             )}
-            <label className="flex min-h-8 cursor-pointer items-center gap-2.5 text-sm text-[#102D28]">
+            <label className="flex min-h-8 cursor-pointer items-center gap-2.5 text-sm text-ink-strong">
               <Checkbox
                 checked={nextDay}
                 onCheckedChange={(v) => setNextDay(Boolean(v))}
@@ -343,7 +343,7 @@ function MomentForm({
                   aria-describedby={error?.field === "duration" ? `${durationId}-error` : undefined}
                   className={cn(FIELD, "w-28 tabular-nums")}
                 />
-                <span className="text-sm text-[#586C64]">minutos</span>
+                <span className="text-sm text-ink-muted">minutos</span>
               </div>
             )}
             {error?.field === "duration" && (
@@ -393,11 +393,11 @@ function MomentForm({
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Algo que tengan que saber los proveedores o la familia…"
             rows={3}
-            className="min-h-20 rounded-xl border-[#D4C0EA] bg-white text-base text-[#102D28] shadow-none placeholder:text-[#677775] focus-visible:ring-[#927AAC] focus-visible:ring-offset-0 sm:text-sm"
+            className="min-h-20 rounded-xl border-line-strong bg-field text-base text-ink-strong shadow-none placeholder:text-ink-placeholder focus-visible:ring-lilac focus-visible:ring-offset-0 sm:text-sm"
           />
         </div>
 
-        <label className="flex min-h-10 cursor-pointer items-start gap-3 text-sm text-[#102D28]">
+        <label className="flex min-h-10 cursor-pointer items-start gap-3 text-sm text-ink-strong">
           <Checkbox
             checked={highlight}
             onCheckedChange={(v) => setHighlight(Boolean(v))}
@@ -405,7 +405,7 @@ function MomentForm({
           />
           <span>
             Momento clave
-            <span className="block text-[#586C64]">Se marca con un punto destacado en el cronograma.</span>
+            <span className="block text-ink-muted">Se marca con un punto destacado en el cronograma.</span>
           </span>
         </label>
       </div>
@@ -419,7 +419,7 @@ function MomentForm({
               <button
                 type="button"
                 className={cn(
-                  "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-[#586C64] transition-colors hover:bg-[#ECE6F4] hover:text-[#26413C] sm:mr-auto",
+                  "inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink sm:mr-auto",
                   ROW_FOCUS
                 )}
               >

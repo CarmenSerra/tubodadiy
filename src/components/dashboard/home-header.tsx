@@ -21,11 +21,11 @@ import { FOCUS, Skeleton } from "./ui";
 
 const QUIET_BUTTON = cn(
   FOCUS,
-  "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none"
+  "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-ink transition-colors hover:bg-lilac-soft motion-reduce:transition-none"
 );
 
 /** Editor de fecha dentro de la cuenta atrás: sobre el fondo lila el hover pasa a #E5DDEC. */
-const COUNTDOWN_EDITOR = "text-[#26413C] sm:hover:bg-[#E5DDEC] sm:data-[state=open]:bg-[#E5DDEC]";
+const COUNTDOWN_EDITOR = "text-ink sm:hover:bg-track sm:data-[state=open]:bg-track";
 
 /** Cuenta atrás tranquila: número grande y la fecha en pequeño. */
 function Countdown({ plan, className }: { plan: WeddingPlan; className?: string }) {
@@ -35,8 +35,8 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
   if (days === null) {
     body = (
       <>
-        <p className="font-display text-2xl font-medium text-[#26413C]">Aún sin fecha</p>
-        <p className="mt-1 text-sm text-[#586C64]">
+        <p className="font-display text-2xl font-medium text-ink">Aún sin fecha</p>
+        <p className="mt-1 text-sm text-ink-muted">
           <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
         </p>
       </>
@@ -44,8 +44,8 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
   } else if (days === 0) {
     body = (
       <>
-        <p className="font-display text-3xl font-medium text-[#26413C]">¡Hoy es el gran día!</p>
-        <p className="mt-1 text-sm text-[#586C64]">
+        <p className="font-display text-3xl font-medium text-ink">¡Hoy es el gran día!</p>
+        <p className="mt-1 text-sm text-ink-muted">
           <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
         </p>
       </>
@@ -53,8 +53,8 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
   } else if (days < 0) {
     body = (
       <>
-        <p className="font-display text-2xl font-medium text-[#26413C]">Vuestro gran día</p>
-        <p className="mt-1 text-sm text-[#586C64]">
+        <p className="font-display text-2xl font-medium text-ink">Vuestro gran día</p>
+        <p className="mt-1 text-sm text-ink-muted">
           fue el <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
         </p>
       </>
@@ -63,12 +63,12 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
     body = (
       <>
         <p className="flex items-baseline gap-2 sm:justify-end">
-          <span className="font-display text-6xl font-medium leading-none tabular-nums text-[#26413C] sm:text-7xl">
+          <span className="font-display text-6xl font-medium leading-none tabular-nums text-ink sm:text-7xl">
             {days}
           </span>
-          <span className="font-display text-xl text-[#26413C]">{days === 1 ? "día" : "días"}</span>
+          <span className="font-display text-xl text-ink">{days === 1 ? "día" : "días"}</span>
         </p>
-        <p className="mt-2 text-sm text-[#586C64]">
+        <p className="mt-2 text-sm text-ink-muted">
           hasta el <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
         </p>
       </>
@@ -80,7 +80,7 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
       {/* Decoración muy tenue que abraza la cuenta atrás (solo en pantallas anchas). */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden rounded-[2.5rem] bg-[#ECE6F4] sm:block"
+        className="pointer-events-none absolute inset-0 hidden rounded-[2.5rem] bg-lilac-soft sm:block"
       />
       <div className="relative sm:px-9 sm:py-6">{body}</div>
     </div>
@@ -141,15 +141,15 @@ function TeamButton({
             <span
               key={m.userId}
               className={cn(
-                "-ml-2 flex size-8 items-center justify-center rounded-full border-2 border-[#F4F1EB] text-xs font-semibold text-[#474755] first:ml-0",
-                i % 2 === 0 ? "bg-[#DECDF1]" : "bg-[#D2D7CB]"
+                "-ml-2 flex size-8 items-center justify-center rounded-full border-2 border-page text-xs font-semibold text-ink-on-tint first:ml-0",
+                i % 2 === 0 ? "bg-lilac-mid" : "bg-sage-pale"
               )}
             >
               {initials(memberLabel(m, currentUserId, userName))}
             </span>
           ))}
           {extra > 0 && (
-            <span className="-ml-2 flex size-8 items-center justify-center rounded-full border-2 border-[#F4F1EB] bg-[#ECE6F4] text-xs font-semibold text-[#26413C]">
+            <span className="-ml-2 flex size-8 items-center justify-center rounded-full border-2 border-page bg-lilac-soft text-xs font-semibold text-ink">
               +{extra}
             </span>
           )}
@@ -184,15 +184,15 @@ function PlanSwitcher({
 }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={cn(QUIET_BUTTON, "data-[state=open]:bg-[#ECE6F4]")}>
+      <DropdownMenuTrigger className={cn(QUIET_BUTTON, "data-[state=open]:bg-lilac-soft")}>
         Tus planes
         <ChevronDownIcon className="size-4" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-72 max-w-[calc(100vw-2rem)] rounded-xl border-[#E5DDEC] bg-[#F8F5F1] p-1.5 text-[#26413C] shadow-none"
+        className="w-72 max-w-[calc(100vw-2rem)] rounded-xl border-line bg-surface p-1.5 text-ink shadow-none"
       >
-        <DropdownMenuLabel className="px-2 py-1.5 text-sm font-medium text-[#586C64]">
+        <DropdownMenuLabel className="px-2 py-1.5 text-sm font-medium text-ink-muted">
           Elige qué plan ver
         </DropdownMenuLabel>
         <DropdownMenuRadioGroup value={selectedId} onValueChange={onSelect}>
@@ -200,10 +200,10 @@ function PlanSwitcher({
             <DropdownMenuRadioItem
               key={plan.id}
               value={plan.id}
-              className="flex-col items-start gap-0 rounded-lg py-2 pl-8 focus:bg-[#ECE6F4] focus:text-[#26413C]"
+              className="flex-col items-start gap-0 rounded-lg py-2 pl-8 focus:bg-lilac-soft focus:text-ink"
             >
               <span className="w-full truncate font-medium">{plan.title}</span>
-              <span className="text-xs text-[#586C64]">
+              <span className="text-xs text-ink-muted">
                 {plan.weddingDate ? formatDate(plan.weddingDate) : "Sin fecha todavía"}
               </span>
             </DropdownMenuRadioItem>
@@ -243,13 +243,13 @@ export function HomeHeader({
       <div className="min-w-0 sm:col-start-1">
         <h1
           id="home-greeting"
-          className="font-display text-2xl font-semibold leading-tight text-[#26413C] sm:text-3xl"
+          className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl"
         >
           {greetingName ? `Hola, ${greetingName}` : "Hola"}
         </h1>
         <p
           className="text-script-accent mt-1 text-balance break-words text-[1.75rem] sm:text-4xl"
-          style={{ color: "#26413C" }}
+          style={{ color: "var(--ink)" }}
         >
           {plan.title}
         </p>

@@ -82,7 +82,7 @@ export function GuestsList({ planId }: { planId: string }) {
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <div>
         <h2 className={SECTION_TITLE}>Lista de invitados</h2>
-        <p className="mt-1 text-sm text-[#586C64]">Quién viene, quién falta por contestar y qué necesita cada persona.</p>
+        <p className="mt-1 text-sm text-ink-muted">Quién viene, quién falta por contestar y qué necesita cada persona.</p>
       </div>
       {!loading && guests.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
@@ -110,10 +110,10 @@ export function GuestsList({ planId }: { planId: string }) {
           <IconCircle tone="sage" className="size-12 [&_svg]:size-6">
             <UsersIcon />
           </IconCircle>
-          <h3 className="mt-4 font-display text-xl font-semibold text-[#26413C]">
+          <h3 className="mt-4 font-display text-xl font-semibold text-ink">
             Tu lista de invitados empieza aquí
           </h3>
-          <p className="mt-2 max-w-sm text-sm text-[#586C64]">
+          <p className="mt-2 max-w-sm text-sm text-ink-muted">
             Añade a las personas que no pueden faltar y ve apuntando quién confirma, quién lleva
             acompañante y qué necesita cada uno. Sin prisa.
           </p>
@@ -151,10 +151,10 @@ export function GuestsList({ planId }: { planId: string }) {
           <IconCircle tone="lilac" className="size-12 [&_svg]:size-6">
             <SearchXIcon />
           </IconCircle>
-          <h3 className="mt-4 font-display text-xl font-semibold text-[#26413C]">
+          <h3 className="mt-4 font-display text-xl font-semibold text-ink">
             No encontramos a nadie con esos filtros
           </h3>
-          <p className="mt-2 max-w-sm text-sm text-[#586C64]">
+          <p className="mt-2 max-w-sm text-sm text-ink-muted">
             Prueba con otro nombre o quita algún filtro para volver a ver tu lista completa.
           </p>
           <button type="button" onClick={clearFilters} className={cn(CTA_SECONDARY, "mt-6")}>
@@ -169,10 +169,10 @@ export function GuestsList({ planId }: { planId: string }) {
               <li key={guest.id} className={cn(CARD, "flex flex-col gap-3 p-4")}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="break-words font-display text-lg font-semibold leading-snug text-[#102D28]">
+                    <p className="break-words font-display text-lg font-semibold leading-snug text-ink-strong">
                       {guest.name}
                     </p>
-                    <p className="mt-0.5 text-sm text-[#586C64]">{guest.groupName || "Sin grupo"}</p>
+                    <p className="mt-0.5 text-sm text-ink-muted">{guest.groupName || "Sin grupo"}</p>
                   </div>
                   <div className="-mr-2 -mt-1 flex shrink-0">
                     <GuestFormDialog
@@ -189,9 +189,9 @@ export function GuestsList({ planId }: { planId: string }) {
                   </div>
                 </div>
                 {(guest.plusOne || guest.dietaryNotes || guest.notes) && (
-                  <div className="flex flex-col gap-1.5 text-sm text-[#586C64]">
+                  <div className="flex flex-col gap-1.5 text-sm text-ink-muted">
                     {guest.plusOne && (
-                      <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#ECE6F4] px-2.5 py-0.5 text-xs font-medium text-[#26413C]">
+                      <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-lilac-soft px-2.5 py-0.5 text-xs font-medium text-ink">
                         <UserPlusIcon className="size-3.5" aria-hidden="true" />
                         Lleva acompañante
                       </span>
@@ -221,7 +221,7 @@ export function GuestsList({ planId }: { planId: string }) {
           <div className={cn(CARD, "hidden overflow-hidden md:block")}>
             <table className="w-full text-sm">
               <caption className="sr-only">Lista de invitados</caption>
-              <thead className="bg-[#F4F1EB] text-left text-xs font-medium text-[#586C64]">
+              <thead className="bg-page text-left text-xs font-medium text-ink-muted">
                 <tr>
                   <th scope="col" className="px-5 py-3 font-medium">
                     Nombre
@@ -245,16 +245,16 @@ export function GuestsList({ planId }: { planId: string }) {
               </thead>
               <tbody>
                 {visible.map((guest) => (
-                  <tr key={guest.id} className="border-t border-[#E5DDEC] transition-colors hover:bg-[#F4F1EB]/60">
+                  <tr key={guest.id} className="border-t border-line transition-colors hover:bg-page/60">
                     <td className="max-w-64 px-5 py-3 align-middle">
-                      <p className="break-words font-medium text-[#102D28]">{guest.name}</p>
+                      <p className="break-words font-medium text-ink-strong">{guest.name}</p>
                       {guest.notes && (
-                        <p className="mt-0.5 line-clamp-1 break-words text-xs text-[#586C64]" title={guest.notes}>
+                        <p className="mt-0.5 line-clamp-1 break-words text-xs text-ink-muted" title={guest.notes}>
                           {guest.notes}
                         </p>
                       )}
                     </td>
-                    <td className="px-3 py-3 align-middle text-[#586C64]">
+                    <td className="px-3 py-3 align-middle text-ink-muted">
                       {guest.groupName || <span aria-label="Sin grupo">—</span>}
                     </td>
                     <td className="px-3 py-3 align-middle">
@@ -264,8 +264,8 @@ export function GuestsList({ planId }: { planId: string }) {
                         onChange={(status) => handleRsvpChange(guest, status)}
                       />
                     </td>
-                    <td className="px-3 py-3 align-middle text-[#586C64]">{guest.plusOne ? "Sí" : "No"}</td>
-                    <td className="max-w-56 px-3 py-3 align-middle text-[#586C64]">
+                    <td className="px-3 py-3 align-middle text-ink-muted">{guest.plusOne ? "Sí" : "No"}</td>
+                    <td className="max-w-56 px-3 py-3 align-middle text-ink-muted">
                       {guest.dietaryNotes ? (
                         <span className="break-words">{guest.dietaryNotes}</span>
                       ) : (

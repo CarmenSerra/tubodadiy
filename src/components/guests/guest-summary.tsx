@@ -32,13 +32,13 @@ export function StatTile({
         <IconCircle tone={tone} className="size-9 sm:size-10">
           {icon}
         </IconCircle>
-        <h3 className="min-w-0 flex-1 font-display text-base font-semibold leading-snug text-[#102D28]">{label}</h3>
+        <h3 className="min-w-0 flex-1 font-display text-base font-semibold leading-snug text-ink-strong">{label}</h3>
       </div>
-      <span className="block break-words font-display text-2xl font-semibold leading-tight text-[#26413C] sm:text-3xl">
+      <span className="block break-words font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
         {value}
       </span>
       {bar !== undefined && <MiniBar value={bar} tone={barTone} />}
-      <span className="block text-sm text-[#586C64]">{detail}</span>
+      <span className="block text-sm text-ink-muted">{detail}</span>
     </div>
   );
 }

@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 // Estilos de marca compartidos por la home (misma paleta que landing/login).
 
 /** Tarjeta base: crema clara, borde lila suave, sin sombra. */
-export const CARD = "rounded-2xl border border-[#E5DDEC] bg-[#F8F5F1] text-[#102D28] shadow-none";
+export const CARD = "rounded-2xl border border-line bg-surface text-ink-strong shadow-none";
 
 /** Foco visible común a enlaces y botones de la home. */
 export const FOCUS =
-  "outline-none focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F1EB]";
+  "outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
 /** Hover de las piezas clicables (igual que la landing). */
 export const LIFT =
@@ -19,22 +19,22 @@ export const LIFT =
 
 /** Píldora principal: lila con texto blanco. */
 export const CTA_PRIMARY = cn(
-  "inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#927AAC] px-6 text-sm font-medium text-white transition-opacity hover:opacity-90",
+  "inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-cta px-6 text-sm font-medium text-on-cta transition-opacity hover:opacity-90",
   FOCUS
 );
 
 /** Píldora secundaria: lila claro con texto oscuro. */
 export const CTA_SECONDARY = cn(
-  "inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#D4C0EA] px-5 text-sm font-medium text-[#38384D] transition-opacity hover:opacity-90",
+  "inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-btn-soft px-5 text-sm font-medium text-ink-on-lilac transition-opacity hover:opacity-90",
   FOCUS
 );
 
 /** Enlace de texto: verde oscuro con subrayado lila (el lila solo no contrasta). */
 export const LINK =
-  "font-medium text-[#26413C] underline decoration-[#927AAC] decoration-2 underline-offset-4 hover:opacity-80";
+  "font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80";
 
 /** Título de sección. */
-export const SECTION_TITLE = "font-display text-xl font-semibold text-[#26413C] sm:text-2xl";
+export const SECTION_TITLE = "font-display text-xl font-semibold text-ink sm:text-2xl";
 
 /** Ruta del flujo a pantalla completa para crear un plan. */
 export const NEW_PLAN_HREF = "/nuevo-plan";
@@ -60,7 +60,7 @@ export function Skeleton({ className }: { className?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={cn("block animate-pulse rounded-full bg-[#E5DDEC] motion-reduce:animate-none", className)}
+      className={cn("block animate-pulse rounded-full bg-track motion-reduce:animate-none", className)}
     />
   );
 }
@@ -79,8 +79,8 @@ export function IconCircle({
     <span
       aria-hidden="true"
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-full text-[#474755] [&_svg]:size-5",
-        tone === "lilac" ? "bg-[#DECDF1]" : "bg-[#D2D7CB]",
+        "flex size-10 shrink-0 items-center justify-center rounded-full text-ink-on-tint [&_svg]:size-5",
+        tone === "lilac" ? "bg-lilac-mid" : "bg-sage-pale",
         className
       )}
     >
@@ -92,9 +92,9 @@ export function IconCircle({
 /** Barra de avance decorativa (el valor siempre va también en texto). */
 export function MiniBar({ value, tone = "lilac" }: { value: number; tone?: "lilac" | "sage" }) {
   return (
-    <div aria-hidden="true" className="h-1.5 w-full overflow-hidden rounded-full bg-[#E5DDEC]">
+    <div aria-hidden="true" className="h-1.5 w-full overflow-hidden rounded-full bg-track">
       <div
-        className={cn("h-full rounded-full", tone === "lilac" ? "bg-[#927AAC]" : "bg-[#8FAF8A]")}
+        className={cn("h-full rounded-full", tone === "lilac" ? "bg-lilac" : "bg-sage")}
         style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
       />
     </div>

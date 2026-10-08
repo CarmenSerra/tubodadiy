@@ -1,11 +1,79 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-:root {
+:root,
+[data-theme="light"] {
   --radius: 0.75rem;
+  color-scheme: light;
 
+  /*
+   * Colores de marca por ROL (no por hex): superficies, tintas, líneas,
+   * acentos y decoración. Los componentes usan las utilidades de Tailwind
+   * generadas abajo (bg-surface, text-ink, border-line, bg-cta…). Este bloque
+   * es el tema claro; el oscuro vive en html[data-theme="dark"] (más abajo) y
+   * sobrescribe estas mismas variables. `[data-theme="light"]` también sirve
+   * para fijar una zona en claro dentro de un tema oscuro (página de impresión).
+   */
+  /* Superficies */
+  --page: #f4f1eb; /* fondo de página */
+  --surface: #f8f5f1; /* tarjetas, diálogos, menús */
+  --surface-alt: #f8f5f0; /* cabecera, calendario, papel del sobre */
+  --field: #ffffff; /* fondo de inputs y casillas */
+  --panel: #ffffff; /* panel grande claro sobre la página (Proveedores) */
+  --raised: #ffffff; /* chip, fila o tarjeta clara DENTRO de otra superficie */
+  /* Rellenos suaves */
+  --lilac-soft: #ece6f4; /* banda/relleno lila suave, hover de filas */
+  --lilac-mid: #decdf1; /* avatar, icono, chip lila */
+  --btn-soft: #d4c0ea; /* botón secundario y su hover */
+  --track: #e5ddec; /* carriles de progreso, esqueletos */
+  --rail: #d4c0ea; /* línea del cronograma, puntos inactivos */
+  --sage-pale: #d2d7cb; /* chip salvia, hover claro */
+  --sage-light: #bcc7b5; /* borde salvia */
+  --scrim: color-mix(in oklab, #26413c 40%, transparent); /* velo tras diálogos */
+  /* Líneas */
+  --line: #e5ddec; /* bordes y separadores */
+  --line-strong: #d4c0ea; /* bordes de campos y chips */
+  /* Tintas */
+  --ink: #26413c; /* texto principal */
+  --ink-strong: #102d28; /* texto sobre tarjetas, títulos */
+  --ink-muted: #586c64; /* texto secundario */
+  --ink-placeholder: #677775; /* placeholders */
+  --ink-ghost: #5e696b; /* enlace fantasma de la cabecera (landing) */
+  --ink-on-tint: #474755; /* iconos/iniciales sobre rellenos lila/salvia */
+  --ink-on-lilac: #38384d; /* texto sobre botón suave y chips activos */
+  --on-sage: #26413c; /* texto sobre rellenos salvia */
+  /* Acentos */
+  --lilac: #927aac; /* iconos, bordes y subrayados lila */
+  --lilac-bright: #a38ed2; /* lila vivo: foco, puntos, trazo del logo */
+  --brand: #907ab2; /* logotipo */
+  --cta: #927aac; /* botón principal */
+  --on-cta: #ffffff; /* texto sobre botón principal */
+  --green: #4e6a5a; /* verde de texto, trazo y enlaces */
+  --green-solid: #4e6a5a; /* relleno verde (casilla marcada, paso hecho) */
+  --deep: #3f5c4a; /* verde profundo: "Elegida", icono de éxito */
+  --sage: #8faf8a; /* salvia: confirmado, progreso completado */
+  --on-solid: #ffffff; /* texto sobre rellenos verdes y destructivo */
+  --danger: #9f3a38; /* texto, borde y foco destructivos */
+  --danger-solid: #9f3a38; /* fondo del botón destructivo */
+  /* Decoración (landing, bienvenida, onboarding) */
+  --deco-lilac-soft: #e5ddec;
+  --deco-lilac: #decdf1;
+  --deco-sage-soft: #d2d7cb;
+  --deco-sage: #bcc7b5;
+  --deco-heart: #d4c0ea;
+  --deco-line: #927aac;
+  --deco-line-bright: #a38ed2;
+  --deco-green: #4e6a5a;
+  --deco-sage-line: #8faf8a;
+  --script-accent: #6b7c5e;
+  /* Sombras */
+  --shadow-pop-value: 0 4px 16px rgba(38, 65, 60, 0.06);
+  --shadow-lift-value: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-float-value: 0 12px 32px rgba(0, 0, 0, 0.06);
+
+  /* Tokens shadcn heredados (componentes de src/components/ui). */
   /* Neutros fijos: no cambian entre estaciones, solo entre temas claro/oscuro. */
   --background: #f1efe8;
   --foreground: #2e3d34;
@@ -55,34 +123,137 @@
   --state-chosen-foreground: #ffffff;
 }
 
-/* Paleta heredada (rosas/crema): sin tema oscuro activo en la app todavía
-   (no hay toggle ni next-themes), así que esta clase nunca se aplica hoy.
-   Se deja sin tocar para no inventar valores oscuros que nadie ha pedido;
-   revisar y re-derivar de la paleta lila/salvia si se activa el modo oscuro. */
-.dark {
-  --background: oklch(0.2 0.015 30);
-  --foreground: oklch(0.95 0.01 40);
-  --card: oklch(0.24 0.02 30);
-  --card-foreground: oklch(0.95 0.01 40);
-  --popover: oklch(0.24 0.02 30);
-  --popover-foreground: oklch(0.95 0.01 40);
-  --primary: oklch(0.72 0.12 15);
-  --primary-foreground: oklch(0.2 0.015 30);
-  --secondary: oklch(0.3 0.02 30);
-  --secondary-foreground: oklch(0.95 0.01 40);
-  --muted: oklch(0.3 0.02 30);
-  --muted-foreground: oklch(0.7 0.015 40);
-  --accent: oklch(0.34 0.03 30);
-  --accent-foreground: oklch(0.95 0.01 40);
-  --destructive: oklch(0.65 0.2 27);
-  --destructive-foreground: oklch(0.2 0.015 30);
-  --border: oklch(0.34 0.02 30);
-  --input: oklch(0.34 0.02 30);
-  --ring: oklch(0.72 0.12 15);
-  --success: oklch(0.7 0.13 145);
-  --success-foreground: oklch(0.2 0.015 30);
-  --warning: oklch(0.78 0.13 75);
-  --warning-foreground: oklch(0.2 0.015 30);
+/*
+ * TEMA OSCURO ("modo noche"). Solo colores de la paleta de marca. Se activa con
+ * <html data-theme="dark">; el botón de la cabecera lo cambia y un script en
+ * el <head> (layout.tsx) lo fija antes de pintar. TEMPORAL: dos variantes
+ * candidatas para que el cliente elija, en <html data-dark="forest|plum">
+ * (por defecto "forest"; ?oscuro=bosque / ?oscuro=ciruela las cambia).
+ * Al elegir una, se borra la otra y este bloque se funde con el de abajo.
+ */
+
+/* Común a las dos variantes */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ink: #f4f1eb;
+  --ink-strong: #f8f5f0;
+  --ink-on-tint: #f4f1eb;
+  --ink-on-lilac: #f4f1eb;
+  --on-sage: #102d28;
+  --lilac: #d4c0ea;
+  --lilac-bright: #d4c0ea;
+  --brand: #d4c0ea;
+  --cta: #d4c0ea;
+  --green: #bcc7b5;
+  --green-solid: #8faf8a;
+  --deep: #8faf8a;
+  --sage: #8faf8a;
+  --on-solid: #102d28;
+  --danger: #f2adaa; /* #9F3A38 aclarado para contrastar sobre fondo oscuro */
+  --danger-solid: #f2adaa;
+  --scrim: color-mix(in oklab, #102d28 70%, transparent);
+  /* Decoración: los trazos conservan los lilas/verdes de la paleta (contraste medio),
+     los rellenos grandes bajan a tonos oscuros. */
+  --deco-heart: #927aac;
+  --deco-line: #927aac;
+  --deco-line-bright: #a38ed2;
+  --deco-green: #4e6a5a;
+  --deco-sage-line: #8faf8a;
+  --script-accent: #8faf8a;
+  --shadow-pop-value: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lift-value: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-float-value: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* A · Verde bosque (por defecto) */
+html[data-theme="dark"]:not([data-dark="plum"]) {
+  --page: #102d28;
+  --surface: #26413c;
+  --surface-alt: #26413c;
+  --field: #102d28;
+  --panel: #26413c;
+  --raised: #26413c;
+  --lilac-soft: #38384d;
+  --lilac-mid: #474755;
+  --btn-soft: #3f5c4a;
+  --track: #3f5c4a;
+  --rail: #4e6a5a;
+  --sage-pale: #3f5c4a;
+  --sage-light: #4e6a5a;
+  --line: #3f5c4a;
+  --line-strong: #4e6a5a;
+  --ink-muted: #bcc7b5;
+  --ink-placeholder: #bcc7b5;
+  --ink-ghost: #bcc7b5;
+  --on-cta: #102d28;
+  --deco-lilac-soft: #38384d;
+  --deco-lilac: #38384d;
+  --deco-sage-soft: #26413c;
+  --deco-sage: #3f5c4a;
+}
+
+/* B · Gris ciruela */
+html[data-theme="dark"][data-dark="plum"] {
+  --page: #38384d;
+  --surface: #474755;
+  --surface-alt: #474755;
+  --field: #38384d;
+  --panel: #474755;
+  --raised: #38384d;
+  --lilac-soft: #474755;
+  --lilac-mid: #586c64;
+  --btn-soft: #586c64;
+  --track: #586c64;
+  --rail: #586c64;
+  --sage-pale: #586c64;
+  --sage-light: #586c64;
+  --line: #586c64;
+  --line-strong: #586c64;
+  --ink-muted: #d2d7cb;
+  --ink-placeholder: #d2d7cb;
+  --ink-ghost: #d2d7cb;
+  --on-cta: #38384d;
+  --deco-lilac-soft: #474755;
+  --deco-lilac: #474755;
+  --deco-sage-soft: #474755;
+  --deco-sage: #4e6a5a;
+  --scrim: color-mix(in oklab, #38384d 85%, transparent);
+}
+
+/* Tokens shadcn heredados, derivados de los de rol en el tema oscuro. */
+html[data-theme="dark"] {
+  --background: var(--page);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --muted: var(--lilac-soft);
+  --muted-foreground: var(--ink-muted);
+  --border: var(--line);
+  --input: var(--line-strong);
+  --primary: var(--cta);
+  --primary-foreground: var(--on-cta);
+  --secondary: var(--lilac-soft);
+  --secondary-foreground: var(--ink);
+  --accent: var(--lilac-soft);
+  --accent-foreground: var(--ink);
+  --success: var(--sage);
+  --success-foreground: var(--on-solid);
+  --warning: var(--primary);
+  --warning-foreground: var(--primary-foreground);
+  --ring: var(--cta);
+  --destructive: var(--danger-solid);
+  --destructive-foreground: var(--on-solid);
+  --state-exploring: var(--card);
+  --state-exploring-foreground: var(--card-foreground);
+  --state-visited: var(--primary);
+  --state-visited-foreground: var(--primary-foreground);
+  --state-favorite: var(--success);
+  --state-favorite-foreground: var(--success-foreground);
+  --state-chosen: var(--deep);
+  --state-chosen-foreground: var(--on-solid);
 }
 
 @keyframes accordion-down {
@@ -106,6 +277,47 @@
 @theme inline {
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  /* Colores de marca por rol (valores en :root / html[data-theme="dark"]) */
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-field: var(--field);
+  --color-panel: var(--panel);
+  --color-raised: var(--raised);
+  --color-lilac-soft: var(--lilac-soft);
+  --color-lilac-mid: var(--lilac-mid);
+  --color-btn-soft: var(--btn-soft);
+  --color-track: var(--track);
+  --color-rail: var(--rail);
+  --color-sage-pale: var(--sage-pale);
+  --color-sage-light: var(--sage-light);
+  --color-scrim: var(--scrim);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-placeholder: var(--ink-placeholder);
+  --color-ink-ghost: var(--ink-ghost);
+  --color-ink-on-tint: var(--ink-on-tint);
+  --color-ink-on-lilac: var(--ink-on-lilac);
+  --color-on-sage: var(--on-sage);
+  --color-lilac: var(--lilac);
+  --color-lilac-bright: var(--lilac-bright);
+  --color-brand: var(--brand);
+  --color-cta: var(--cta);
+  --color-on-cta: var(--on-cta);
+  --color-green: var(--green);
+  --color-green-solid: var(--green-solid);
+  --color-deep: var(--deep);
+  --color-sage: var(--sage);
+  --color-on-solid: var(--on-solid);
+  --color-danger: var(--danger);
+  --color-danger-solid: var(--danger-solid);
+  --color-deco-lilac: var(--deco-lilac);
+  --shadow-pop: var(--shadow-pop-value);
+  --shadow-lift: var(--shadow-lift-value);
+  --shadow-float: var(--shadow-float-value);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -182,13 +394,27 @@
   /*
    * Decorative script accent (Birthstone). For couple's-names-style
    * moments and section openers only — never UI copy. Enforces the
-   * ~36px floor from the design tokens doc; add text-[#2E3D34] to swap
+   * ~36px floor from the design tokens doc; add text-ink to swap
    * the darker of the two approved colors in for the default sage.
    */
   .text-script-accent {
     font-family: var(--font-script);
     font-size: clamp(2.25rem, 2rem + 1vw, 3rem);
     line-height: 1.1;
-    color: #6b7c5e;
+    color: var(--script-accent);
+  }
+}
+
+/* Decoración del onboarding: los anillos se dibujan sobre el fondo de página,
+   así que su "hueco" (pensado para el banner lila) usa el color de página. */
+html[data-theme="dark"] .rings-on-page {
+  --lilac-soft: var(--page);
+}
+
+/* La página imprimible es siempre clara: nunca tiñe el papel con el tema oscuro. */
+@media print {
+  html[data-theme="dark"],
+  html[data-theme="dark"] body {
+    background: #ffffff;
   }
 }

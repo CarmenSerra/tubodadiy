@@ -27,7 +27,7 @@ function DayMark({ day }: { day: number }) {
   if (day <= 0) return null;
   return (
     <span
-      className="ml-0.5 inline-flex items-center rounded-full bg-[#ECE6F4] px-1 py-px align-middle font-sans text-xs font-medium leading-4 text-[#26413C]"
+      className="ml-0.5 inline-flex items-center rounded-full bg-lilac-soft px-1 py-px align-middle font-sans text-xs font-medium leading-4 text-ink"
       title={day === 1 ? "Día siguiente" : `${day} días después`}
     >
       <span aria-hidden="true">+{day}</span>
@@ -37,8 +37,8 @@ function DayMark({ day }: { day: number }) {
 }
 
 const NUDGE_BUTTON = cn(
-  "inline-flex h-8 min-w-12 items-center justify-center rounded-full border border-[#D4C0EA] bg-white px-2.5 text-sm font-medium text-[#26413C] transition-colors",
-  "hover:bg-[#D2D7CB] disabled:pointer-events-none disabled:opacity-40 pointer-coarse:h-10 pointer-coarse:min-w-14",
+  "inline-flex h-8 min-w-12 items-center justify-center rounded-full border border-line-strong bg-raised px-2.5 text-sm font-medium text-ink transition-colors",
+  "hover:bg-sage-pale disabled:pointer-events-none disabled:opacity-40 pointer-coarse:h-10 pointer-coarse:min-w-14",
   ROW_FOCUS
 );
 
@@ -65,8 +65,8 @@ function MomentCard({
   return (
     <article
       className={cn(
-        "group/card grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 rounded-2xl border bg-[#F8F5F1] px-4 py-3.5 transition-colors motion-reduce:transition-none",
-        item.highlight ? "border-[#D4C0EA]" : "border-[#E5DDEC] hover:border-[#D4C0EA]"
+        "group/card grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 rounded-2xl border bg-surface px-4 py-3.5 transition-colors motion-reduce:transition-none",
+        item.highlight ? "border-line-strong" : "border-line hover:border-line-strong"
       )}
     >
       <button
@@ -76,15 +76,15 @@ function MomentCard({
         className={cn("col-span-2 -m-1 min-w-0 rounded-xl p-1 text-left sm:col-span-1 sm:col-start-1 sm:row-start-1", ROW_FOCUS)}
       >
         <span className="flex items-start gap-2">
-          <span className="min-w-0 break-words font-display text-lg font-semibold leading-7 text-[#26413C]">
+          <span className="min-w-0 break-words font-display text-lg font-semibold leading-7 text-ink">
             {item.title}
           </span>
           <PencilIcon
             aria-hidden="true"
-            className="mt-2 size-3.5 shrink-0 text-[#927AAC] transition-opacity motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100 pointer-fine:group-focus-within/card:opacity-100"
+            className="mt-2 size-3.5 shrink-0 text-lilac transition-opacity motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100 pointer-fine:group-focus-within/card:opacity-100"
           />
         </span>
-        <span className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-sm text-[#586C64]">
+        <span className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-sm text-ink-muted">
           <span>{formatDuration(item.durationMin)}</span>
           {item.location.trim() && (
             <span className="inline-flex min-w-0 items-center gap-1">
@@ -104,7 +104,7 @@ function MomentCard({
       </button>
 
       {notes && (
-        <div className="col-span-2 text-sm text-[#586C64]">
+        <div className="col-span-2 text-sm text-ink-muted">
           <p
             id={notesId}
             className={cn("break-words", expanded ? "whitespace-pre-line" : "line-clamp-1")}
@@ -118,7 +118,7 @@ function MomentCard({
               aria-controls={notesId}
               onClick={() => setExpanded((v) => !v)}
               className={cn(
-                "-mx-1 mt-0.5 rounded-md px-1 py-0.5 font-medium text-[#26413C] underline decoration-[#927AAC] decoration-2 underline-offset-4",
+                "-mx-1 mt-0.5 rounded-md px-1 py-0.5 font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4",
                 ROW_FOCUS
               )}
             >
@@ -129,7 +129,7 @@ function MomentCard({
       )}
 
       {coincidences.length > 0 && (
-        <p className="col-span-2 flex items-start gap-1.5 text-sm text-[#4E6A5A]">
+        <p className="col-span-2 flex items-start gap-1.5 text-sm text-green">
           <Layers2Icon aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
           <span>Coincide con {joinTitles(coincidences)}</span>
         </p>
@@ -177,7 +177,7 @@ function Rail({ first, last, node }: { first?: boolean; last?: boolean; node?: "
     <div aria-hidden="true" className="relative">
       {!(first && last) && (
         <span
-          className="absolute left-1/2 w-0.5 -translate-x-1/2 bg-[#D4C0EA]"
+          className="absolute left-1/2 w-0.5 -translate-x-1/2 bg-btn-soft"
           style={
             last
               ? { top: 0, height: NODE_CENTER }
@@ -188,8 +188,8 @@ function Rail({ first, last, node }: { first?: boolean; last?: boolean; node?: "
       {node && (
         <span
           className={cn(
-            "absolute left-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#927AAC]",
-            node === "filled" ? "bg-[#927AAC]" : "bg-[#F8F5F1]"
+            "absolute left-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-lilac",
+            node === "filled" ? "bg-lilac" : "bg-surface"
           )}
           style={{ top: NODE_CENTER }}
         />
@@ -249,7 +249,7 @@ export function TimelineRoadmap({
                   <div />
                   <Rail />
                   <p className="pb-3 pt-0.5">
-                    <span className="inline-block rounded-full border border-dashed border-[#D4C0EA] px-3 py-1 text-sm text-[#586C64]">
+                    <span className="inline-block rounded-full border border-dashed border-line-strong px-3 py-1 text-sm text-ink-muted">
                       Hueco de {formatDuration(gap)}
                     </span>
                   </p>
@@ -257,12 +257,12 @@ export function TimelineRoadmap({
               )}
               <div className={ROW_GRID}>
                 <div className="pr-1.5 pt-[0.75rem]">
-                  <p className="font-display text-xl font-semibold leading-8 tabular-nums text-[#26413C] sm:text-2xl">
+                  <p className="font-display text-xl font-semibold leading-8 tabular-nums text-ink sm:text-2xl">
                     <time>{formatClock(item.startMin)}</time>
                     <DayMark day={startDay} />
                   </p>
                   {item.durationMin > 0 && (
-                    <p className="text-sm tabular-nums text-[#586C64]">
+                    <p className="text-sm tabular-nums text-ink-muted">
                       <span aria-hidden="true">→ </span>
                       <span className="sr-only">hasta las </span>
                       {formatClock(end)}
@@ -298,7 +298,7 @@ export function TimelineRoadmap({
           type="button"
           onClick={onAdd}
           className={cn(
-            "flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D4C0EA] text-sm font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none",
+            "flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line-strong text-sm font-medium text-ink transition-colors hover:bg-lilac-soft motion-reduce:transition-none",
             ROW_FOCUS
           )}
         >

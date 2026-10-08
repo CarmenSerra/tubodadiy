@@ -10,8 +10,8 @@ Paleta lila + verde salvia (sustituye a la anterior de rosas/crema, que se
 parecía demasiado a Bodas.net). Definida como variables CSS en `:root`
 dentro de `globals.css`, mapeadas a los tokens de Tailwind
 (`--color-primary`, `--color-background`, etc.) vía `@theme inline`.
-Ningún componente usa un hex suelto: todos consumen estos tokens
-(`bg-primary`, `text-muted-foreground`, `bg-state-favorite`, etc.).
+Los componentes consumen tokens, no hex (`bg-primary`,
+`text-muted-foreground`, `bg-state-favorite`… y los de rol de más abajo).
 
 `globals.css` separa los neutros fijos (fondo, texto, superficie, bordes —
 no cambian con el tema de la app) de los acentos (primary, secondary,
@@ -86,13 +86,28 @@ punto de luminosidad distinto — y por eso `--state-visited` (que alias a
 `--primary`) también queda en 5.06:1 en vez del 4.22:1 original. El resto
 de combinaciones ya cumplían con los hex exactos que diste.
 
-### Color heredado sin tocar
+### Tokens de rol y modo noche
 
-`.dark` sigue con la paleta vieja de rosas (oklch). No hay ningún toggle
-de tema oscuro ni `next-themes` integrado en la app — esa clase no se
-aplica nunca hoy — así que no se han inventado valores oscuros para la
-paleta lila/salvia sin que me los pidieras. Si se activa el modo oscuro,
-hay que re-derivar `.dark` a partir de esta paleta.
+Los componentes ya no llevan hex sueltos: usan variables CSS por **rol**
+(`--page`, `--surface`, `--ink`, `--ink-muted`, `--line`, `--cta`,
+`--lilac-soft`…) expuestas a Tailwind en `@theme inline`
+(`bg-surface`, `text-ink`, `border-line`, `bg-cta text-on-cta`…). Los
+valores del tema claro viven en `:root` de `globals.css`; el modo noche
+los sobrescribe en `html[data-theme="dark"]`. El script del `<head>`
+(`src/lib/theme.ts`) lo fija antes de pintar según `localStorage`
+(`tubodadiy-theme`); el botón luna/sol de las cabeceras lo cambia. No sigue
+la preferencia del sistema. Para SVG se usa `style={{ fill: "var(--…)" }}`
+(`var()` no vale en atributos de presentación). `[data-theme="light"]` en un
+contenedor lo fija en claro dentro del tema oscuro (página de impresión).
+
+Mientras el cliente elige, hay dos variantes: `data-dark="forest"` (Verde
+bosque, por defecto) y `data-dark="plum"` (Gris ciruela); `?oscuro=bosque` /
+`?oscuro=ciruela` activa el modo noche con esa variante y la guarda. Al elegir
+una, se borra la otra.
+
+Los tokens shadcn de arriba (`--background`, `--card`, `--primary`…) siguen
+en uso por `src/components/ui/*`; en modo noche se derivan de los de rol.
+El antiguo bloque `.dark` (rosas, oklch) se eliminó.
 
 ## Tipografía
 

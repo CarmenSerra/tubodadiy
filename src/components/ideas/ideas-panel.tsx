@@ -28,12 +28,12 @@ export interface IdeasPanelContext {
 
 /** Botón discreto: sin relleno, texto salvia; solo se marca al pasar el ratón. */
 const TRIGGER =
-  "inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-medium text-[#4E6A5A] transition-colors hover:bg-[#D2D7CB] hover:text-[#26413C] data-[state=open]:bg-[#D2D7CB] data-[state=open]:text-[#26413C] sm:h-9 motion-reduce:transition-none";
+  "inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-medium text-green transition-colors hover:bg-sage-pale hover:text-ink data-[state=open]:bg-sage-pale data-[state=open]:text-ink sm:h-9 motion-reduce:transition-none";
 
 /** Marca en el botón «Ideas» que el panel se cierra para ceder el paso a otro diálogo. */
 const HANDOFF_ATTR = "data-ideas-handoff";
 
-const TITLE = "font-display text-lg font-semibold leading-tight text-[#26413C]";
+const TITLE = "font-display text-lg font-semibold leading-tight text-ink";
 
 interface IdeasPanelProps {
   /** Título serif del panel: «Ideas para Papelería». */
@@ -106,7 +106,7 @@ export function IdeasPanel({
         {children(ctx)}
       </div>
       {footer && (
-        <div className="shrink-0 border-t border-[#E5DDEC] px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3">
+        <div className="shrink-0 border-t border-line px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3">
           {footer(ctx)}
         </div>
       )}
@@ -134,13 +134,13 @@ export function IdeasPanel({
           onCloseAutoFocus={keepFocusForHandoff}
           onWheel={(event) => event.stopPropagation()}
           onTouchMove={(event) => event.stopPropagation()}
-          className="z-[60] flex max-h-[min(60vh,var(--radix-popover-content-available-height))] w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border-[#D4C0EA] bg-[#F8F5F1] p-0 text-[#102D28] shadow-none"
+          className="z-[60] flex max-h-[min(60vh,var(--radix-popover-content-available-height))] w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border-line-strong bg-surface p-0 text-ink-strong shadow-none"
         >
           <div className="shrink-0 px-5 pb-3 pt-4">
             <h2 id={titleId} className={TITLE}>
               {title}
             </h2>
-            {description && <p className="mt-1 text-[13px] leading-snug text-[#586C64]">{description}</p>}
+            {description && <p className="mt-1 text-[13px] leading-snug text-ink-muted">{description}</p>}
           </div>
           {body}
         </PopoverContent>
@@ -155,7 +155,7 @@ export function IdeasPanel({
         onCloseAutoFocus={keepFocusForHandoff}
         {...(description ? {} : { "aria-describedby": undefined })}
         // Hoja inferior: pegada abajo, a todo el ancho, con esquinas redondeadas arriba.
-        className="top-auto bottom-0 left-0 flex max-h-[85dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-b-none rounded-t-2xl border-x-0 border-b-0 border-[#D4C0EA] p-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-100"
+        className="top-auto bottom-0 left-0 flex max-h-[85dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-b-none rounded-t-2xl border-x-0 border-b-0 border-line-strong p-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-100"
       >
         <div className="shrink-0 px-5 pb-3 pt-5 pr-14">
           <DialogTitle className={TITLE}>{title}</DialogTitle>

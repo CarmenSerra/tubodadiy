@@ -23,35 +23,35 @@ import { cn } from "@/lib/utils";
 
 /** Contenido de diálogo: crema, esquinas redondeadas, sin sombra. */
 export const DIALOG_CONTENT =
-  "w-[calc(100%-2rem)] max-w-lg gap-0 rounded-2xl border-[#E5DDEC] bg-[#F8F5F1] p-5 text-[#102D28] shadow-none sm:p-7";
+  "w-[calc(100%-2rem)] max-w-lg gap-0 rounded-2xl border-line bg-surface p-5 text-ink-strong shadow-none sm:p-7";
 
 /** Título serif de diálogo. */
-export const DIALOG_TITLE = "font-display text-xl font-semibold leading-tight text-[#26413C] sm:text-2xl";
+export const DIALOG_TITLE = "font-display text-xl font-semibold leading-tight text-ink sm:text-2xl";
 
 /** Etiqueta de campo. */
-export const FIELD_LABEL = "text-sm font-medium leading-none text-[#26413C]";
+export const FIELD_LABEL = "text-sm font-medium leading-none text-ink";
 
 /** Campo de texto: blanco, borde lila y foco #927AAC (igual que StepCard). */
 export const FIELD =
-  "h-11 rounded-xl border-[#D4C0EA] bg-white text-base text-[#102D28] shadow-none placeholder:text-[#677775] focus-visible:ring-[#927AAC] focus-visible:ring-offset-0 sm:text-sm";
+  "h-11 rounded-xl border-line-strong bg-field text-base text-ink-strong shadow-none placeholder:text-ink-placeholder focus-visible:ring-lilac focus-visible:ring-offset-0 sm:text-sm";
 
 /** Casilla de formulario / lista. */
 export const CHECKBOX =
-  "size-5 rounded-md border-[#927AAC] bg-white shadow-none focus-visible:ring-[#927AAC] focus-visible:ring-offset-0 data-[state=checked]:border-[#4E6A5A] data-[state=checked]:bg-[#4E6A5A] data-[state=checked]:text-white";
+  "size-5 rounded-md border-lilac bg-field shadow-none focus-visible:ring-lilac focus-visible:ring-offset-0 data-[state=checked]:border-green data-[state=checked]:bg-green-solid data-[state=checked]:text-on-solid";
 
 /** Desplegable (Select) de marca. */
 export const SELECT_TRIGGER =
-  "h-11 rounded-xl border-[#D4C0EA] bg-white text-base text-[#102D28] shadow-none focus:ring-[#927AAC] sm:text-sm";
-export const SELECT_CONTENT = "rounded-xl border-[#E5DDEC] bg-[#F8F5F1] text-[#102D28] shadow-md";
-export const SELECT_ITEM = "rounded-lg focus:bg-[#ECE6F4] focus:text-[#26413C]";
+  "h-11 rounded-xl border-line-strong bg-field text-base text-ink-strong shadow-none focus:ring-lilac sm:text-sm";
+export const SELECT_CONTENT = "rounded-xl border-line bg-surface text-ink-strong shadow-md";
+export const SELECT_ITEM = "rounded-lg focus:bg-lilac-soft focus:text-ink";
 
 /** Foco de teclado de los controles de fila sobre fondo crema. */
 export const ROW_FOCUS =
-  "outline-none focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5F1]";
+  "outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 
 /** Botón de icono de fila (editar / eliminar): neutro, objetivo táctil de 40px. */
 export const ICON_BUTTON = cn(
-  "inline-flex size-10 items-center justify-center rounded-full text-[#586C64] transition-colors hover:bg-[#ECE6F4] hover:text-[#26413C] sm:size-9",
+  "inline-flex size-10 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink sm:size-9",
   "[&_svg]:size-4",
   ROW_FOCUS
 );
@@ -97,7 +97,7 @@ export function ConfirmDeleteButton({
       <AlertDialogContent className={cn(DIALOG_CONTENT, "max-w-md gap-4 sm:p-7")}>
         <AlertDialogHeader>
           <AlertDialogTitle className={DIALOG_TITLE}>¿Eliminar {itemLabel}?</AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-[#586C64]">
+          <AlertDialogDescription className="text-sm text-ink-muted">
             Esta acción no se puede deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -105,14 +105,14 @@ export function ConfirmDeleteButton({
           <AlertDialogCancel
             className={cn(
               CTA_SECONDARY,
-              "border-transparent shadow-none hover:bg-[#D4C0EA] hover:text-[#38384D] hover:opacity-90"
+              "border-transparent shadow-none hover:bg-btn-soft hover:text-ink-on-lilac hover:opacity-90"
             )}
           >
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => onConfirm()}
-            className="inline-flex h-10 items-center justify-center rounded-full bg-[#9F3A38] px-5 text-sm font-medium text-white shadow-none transition-opacity hover:bg-[#9F3A38] hover:opacity-90 focus-visible:ring-[#9F3A38] focus-visible:ring-offset-[#F8F5F1]"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-danger-solid px-5 text-sm font-medium text-on-solid shadow-none transition-opacity hover:bg-danger-solid hover:opacity-90 focus-visible:ring-danger focus-visible:ring-offset-surface"
           >
             Eliminar
           </AlertDialogAction>

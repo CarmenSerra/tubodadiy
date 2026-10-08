@@ -10,16 +10,16 @@ import { cn } from "@/lib/utils";
 
 /** Foco de teclado sobre el fondo crema del panel. */
 const ROW_FOCUS =
-  "outline-none focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5F1]";
+  "outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 
 /** Chip de filtro o de elección (también lo usa el panel de invitados). */
 export const IDEA_CHIP = cn(
-  "inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[#D4C0EA] bg-white px-3 py-1 text-[13px] font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none",
+  "inline-flex min-h-8 items-center gap-1.5 rounded-full border border-line-strong bg-raised px-3 py-1 text-[13px] font-medium text-ink transition-colors hover:bg-lilac-soft motion-reduce:transition-none",
   ROW_FOCUS
 );
-const CHIP_ON = "border-[#927AAC] bg-[#DECDF1] hover:bg-[#DECDF1]";
+const CHIP_ON = "border-lilac bg-lilac-mid hover:bg-lilac-mid";
 
-const PILL = "rounded-full bg-[#ECE6F4] px-2 py-0.5 text-[11px] font-medium leading-4 text-[#26413C]";
+const PILL = "rounded-full bg-lilac-soft px-2 py-0.5 text-[11px] font-medium leading-4 text-ink";
 
 export interface IdeaItem {
   /** Identidad estable de la idea (también sirve para recordar que se ha añadido). */
@@ -137,7 +137,7 @@ export function IdeasList({
           role="group"
           aria-label={groupsLabel}
           // Los filtros se quedan arriba mientras se desplaza la lista.
-          className="sticky top-0 z-10 -mx-5 flex flex-wrap gap-1.5 bg-[#F8F5F1] px-5 pb-2 pt-1"
+          className="sticky top-0 z-10 -mx-5 flex flex-wrap gap-1.5 bg-surface px-5 pb-2 pt-1"
         >
           <button
             type="button"
@@ -162,7 +162,7 @@ export function IdeasList({
       )}
 
       {visible.length === 0 ? (
-        <p className="py-6 text-center text-sm text-[#586C64]">{emptyText}</p>
+        <p className="py-6 text-center text-sm text-ink-muted">{emptyText}</p>
       ) : (
         <ul>
           {visible.map((item) => {
@@ -171,18 +171,18 @@ export function IdeasList({
             return (
               <li
                 key={item.key}
-                className="flex items-start gap-3 border-b border-[#E5DDEC] py-3 last:border-b-0"
+                className="flex items-start gap-3 border-b border-line py-3 last:border-b-0"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium leading-snug text-[#102D28]">
+                  <p className="text-sm font-medium leading-snug text-ink-strong">
                     {item.title}
                     {item.tag && (
-                      <span className="ml-2 inline-block rounded-full bg-[#D2D7CB] px-2 py-0.5 align-middle text-[11px] font-medium leading-4 text-[#26413C]">
+                      <span className="ml-2 inline-block rounded-full bg-sage-pale px-2 py-0.5 align-middle text-[11px] font-medium leading-4 text-ink">
                         {item.tag}
                       </span>
                     )}
                   </p>
-                  {item.hint && <p className="mt-0.5 text-[13px] leading-snug text-[#586C64]">{item.hint}</p>}
+                  {item.hint && <p className="mt-0.5 text-[13px] leading-snug text-ink-muted">{item.hint}</p>}
                   {item.pills && item.pills.length > 0 && (
                     <p className="mt-1.5 flex flex-wrap gap-1.5">
                       {item.pills.map((pill) => (
@@ -195,7 +195,7 @@ export function IdeasList({
                 </div>
 
                 {isExisting(item) ? (
-                  <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-[#586C64]">
+                  <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-ink-muted">
                     <CheckIcon aria-hidden="true" className="size-4" />
                     {copy.present}
                   </span>
@@ -206,7 +206,7 @@ export function IdeasList({
                     aria-disabled="true"
                     aria-label={`«${item.title}» ${copy.added.toLowerCase()}`}
                     className={cn(
-                      "mt-0.5 inline-flex h-9 shrink-0 cursor-default items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-[#4E6A5A]",
+                      "mt-0.5 inline-flex h-9 shrink-0 cursor-default items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-green",
                       ROW_FOCUS
                     )}
                   >
@@ -220,7 +220,7 @@ export function IdeasList({
                     aria-busy={isAdding || undefined}
                     onClick={() => void handleAdd(item)}
                     className={cn(
-                      "inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-[#DECDF1] text-[#26413C] transition-colors hover:bg-[#D4C0EA] sm:size-9 motion-reduce:transition-none",
+                      "inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-lilac-mid text-ink transition-colors hover:bg-btn-soft sm:size-9 motion-reduce:transition-none",
                       isAdding && "pointer-events-none opacity-70",
                       ROW_FOCUS
                     )}
@@ -244,7 +244,7 @@ export function IdeasList({
             type="button"
             onClick={() => setShowExisting((v) => !v)}
             className={cn(
-              "rounded-md py-1 text-[13px] font-medium text-[#26413C] underline decoration-[#927AAC] decoration-2 underline-offset-4 hover:opacity-80",
+              "rounded-md py-1 text-[13px] font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80",
               ROW_FOCUS
             )}
           >

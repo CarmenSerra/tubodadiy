@@ -42,7 +42,7 @@ const STYLE = {
 } as const;
 
 const ARROW = cn(
-  "absolute top-full left-0 z-40 mt-3 inline-flex size-11 items-center justify-center rounded-full bg-[#927AAC] text-white transition-opacity hover:opacity-90",
+  "absolute top-full left-0 z-40 mt-3 inline-flex size-11 items-center justify-center rounded-full bg-cta text-on-cta transition-opacity hover:opacity-90",
   "md:top-1/2 md:mt-0 md:size-11 md:-translate-y-1/2",
   ROW_FOCUS
 );
@@ -144,7 +144,7 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
       onKeyDown={onKeyDown}
       className={cn(
         "relative -mx-5 rounded-xl outline-none sm:-mx-8",
-        "focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-inset"
+        "focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-inset"
       )}
     >
       {/* Los keyframes solo animan las tarjetas que "saltan" al otro extremo del círculo. */}
@@ -243,7 +243,7 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
                 aria-hidden="true"
                 className={cn(
                   "rounded-full transition-all duration-300 motion-reduce:transition-none",
-                  index === active ? "size-3 bg-[#927AAC]" : "size-2.5 bg-[#D4C0EA] group-hover/dot:bg-[#A38ED2]"
+                  index === active ? "size-3 bg-lilac" : "size-2.5 bg-btn-soft group-hover/dot:bg-lilac-bright"
                 )}
               />
             </button>

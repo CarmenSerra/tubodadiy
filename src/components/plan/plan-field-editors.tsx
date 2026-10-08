@@ -18,16 +18,16 @@ import { cn, formatCurrency, formatDate } from "@/lib/utils";
 
 /** Disparador: valor clicable con fondo lila suave al pasar el ratón. */
 const TRIGGER =
-  "group/editor -mx-1.5 inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-0.5 text-left align-baseline transition-colors hover:bg-[#ECE6F4] data-[state=open]:bg-[#ECE6F4] motion-reduce:transition-none";
+  "group/editor -mx-1.5 inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-0.5 text-left align-baseline transition-colors hover:bg-lilac-soft data-[state=open]:bg-lilac-soft motion-reduce:transition-none";
 
 /** Estado vacío: invitación en forma de enlace verde con subrayado lila. */
-const EMPTY_LINK = "font-medium sm:whitespace-nowrap text-[#4E6A5A] underline decoration-[#927AAC] decoration-2 underline-offset-4";
+const EMPTY_LINK = "font-medium sm:whitespace-nowrap text-green underline decoration-lilac decoration-2 underline-offset-4";
 
 /** Estado vacío: "+ Añadir …" como enlace; el texto puede partirse en dos líneas en móvil. */
 function AddPrompt({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-baseline gap-1">
-      <PlusIcon aria-hidden="true" className="size-3.5 shrink-0 translate-y-0.5 text-[#4E6A5A]" />
+      <PlusIcon aria-hidden="true" className="size-3.5 shrink-0 translate-y-0.5 text-green" />
       <span className={EMPTY_LINK}>{children}</span>
     </span>
   );
@@ -39,7 +39,7 @@ function EditHint() {
     <PencilIcon
       aria-hidden="true"
       className={cn(
-        "size-3.5 shrink-0 text-[#927AAC] transition-opacity motion-reduce:transition-none",
+        "size-3.5 shrink-0 text-lilac transition-opacity motion-reduce:transition-none",
         "pointer-fine:opacity-0 pointer-fine:group-hover/editor:opacity-100 pointer-fine:group-focus-visible/editor:opacity-100 pointer-fine:group-data-[state=open]/editor:opacity-100"
       )}
     />
@@ -147,7 +147,7 @@ function BudgetForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void })
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="plan-budget-editor" className="text-sm font-medium leading-none text-[#26413C]">
+        <label htmlFor="plan-budget-editor" className="text-sm font-medium leading-none text-ink">
           Presupuesto total
         </label>
         <div className="relative">
@@ -168,18 +168,18 @@ function BudgetForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void })
             className={cn(
               PLAN_FIELD,
               "pr-9",
-              error && "border-[#9F3A38] focus-visible:ring-[#9F3A38]"
+              error && "border-danger focus-visible:ring-danger"
             )}
           />
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-base text-[#586C64] sm:text-sm"
+            className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-base text-ink-muted sm:text-sm"
           >
             €
           </span>
         </div>
         {error && (
-          <p id="plan-budget-error" role="alert" className="text-xs font-medium text-[#9F3A38]">
+          <p id="plan-budget-error" role="alert" className="text-xs font-medium text-danger">
             {error}
           </p>
         )}

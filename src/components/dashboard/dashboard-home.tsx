@@ -48,7 +48,7 @@ export function DashboardHome({
   if (loadingPlans) {
     return (
       <div className="flex justify-center py-24" role="status" aria-label="Cargando tu panel">
-        <Loader2 className="size-6 animate-spin text-[#927AAC] motion-reduce:animate-none" aria-hidden="true" />
+        <Loader2 className="size-6 animate-spin text-lilac motion-reduce:animate-none" aria-hidden="true" />
       </div>
     );
   }
@@ -94,7 +94,7 @@ export function DashboardHome({
           href={NEW_PLAN_HREF}
           className={cn(
             FOCUS,
-            "-mr-3 inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none"
+            "-mr-3 inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink transition-colors hover:bg-lilac-soft motion-reduce:transition-none"
           )}
         >
           <PlusIcon className="size-4" aria-hidden="true" />

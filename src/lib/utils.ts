@@ -1,5 +1,12 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// Las sombras de marca (shadow-pop/lift/float, definidas en globals.css) deben
+// competir con shadow-none/shadow-sm como cualquier otra sombra; sin esto
+// tailwind-merge las toma por un color de sombra y no resuelve el conflicto.
+const twMerge = extendTailwindMerge({
+  extend: { theme: { shadow: ["pop", "lift", "float"] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

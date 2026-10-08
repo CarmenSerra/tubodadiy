@@ -11,6 +11,7 @@ import {
   CalendarClockIcon,
 } from "lucide-react";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Branch, Sparkles } from "@/components/brand/hero-decorations";
@@ -23,10 +24,10 @@ import { cn } from "@/lib/utils";
 // específicamente para esta página.
 // Botón principal (hero): píldora lila con texto blanco.
 const BRAND_CTA =
-  "rounded-full bg-[#927AAC] px-8 text-white shadow-none hover:bg-[#927AAC] hover:opacity-90";
+  "rounded-full bg-cta px-8 text-on-cta shadow-none hover:bg-cta hover:opacity-90";
 // Botón de cabecera: píldora lila clara con texto oscuro.
 const HEADER_PILL =
-  "rounded-full bg-[#D4C0EA] px-4 text-[#38384D] shadow-none hover:bg-[#D4C0EA] hover:opacity-90";
+  "rounded-full bg-btn-soft px-4 text-ink-on-lilac shadow-none hover:bg-btn-soft hover:opacity-90";
 
 const FEATURES = [
   {
@@ -69,20 +70,21 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="bg-[#F8F5F0]">
+      <header className="bg-surface-alt">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2 text-[#907AB2]">
+          <div className="flex items-center gap-2 text-brand">
             <HeartIcon className="size-5 fill-current" />
             <span className="font-display text-lg font-semibold">tubodadiy</span>
           </div>
           <nav className="flex items-center gap-2">
+            <ThemeToggle />
             {!loading && user ? (
               <Button asChild size="sm" className={HEADER_PILL}>
                 <Link href="/dashboard">Ir a mi panel</Link>
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" size="sm" className="text-[#5E696B] hover:bg-transparent hover:text-[#5E696B] hover:opacity-80">
+                <Button asChild variant="ghost" size="sm" className="text-ink-ghost hover:bg-transparent hover:text-ink-ghost hover:opacity-80">
                   <Link href="/login">Iniciar sesión</Link>
                 </Button>
                 <Button asChild size="sm" className={HEADER_PILL}>
@@ -94,7 +96,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-[#F4F1EB] px-4 py-16 sm:py-24">
+      <section className="relative overflow-hidden bg-page px-4 py-16 sm:py-24">
         {/* Decoración: blobs orgánicos y ramas, siempre detrás del contenido */}
         <svg
           viewBox="0 0 200 300"
@@ -104,7 +106,7 @@ export default function LandingPage() {
         >
           <path
             d="M0 20 C 50 -10, 130 30, 150 90 C 170 150, 210 170, 190 230 C 175 280, 90 300, 0 300 Z"
-            fill="#E5DDEC"
+            style={{ fill: "var(--deco-lilac-soft)" }}
           />
         </svg>
         <svg
@@ -115,7 +117,7 @@ export default function LandingPage() {
         >
           <path
             d="M100 0 C 70 10, 30 50, 25 100 C 20 150, 60 185, 100 200 Z"
-            fill="#BCC7B5"
+            style={{ fill: "var(--deco-sage)" }}
           />
         </svg>
         <Branch className="bottom-0 left-[2%] hidden h-[48%] w-auto sm:block" />
@@ -125,12 +127,12 @@ export default function LandingPage() {
           <div className="relative inline-block px-10 sm:px-14">
             <Sparkles className="left-0 top-0" />
             <Sparkles className="right-0 top-0 -scale-x-100" />
-            <span className="text-script-accent" aria-hidden="true" style={{ color: "#A38ED2" }}>
+            <span className="text-script-accent" aria-hidden="true" style={{ color: "var(--lilac-bright)" }}>
               tubodadiy
             </span>
           </div>
-          <h1 className="mt-2 text-[#26413C]">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
-          <p className="max-w-xl text-balance font-sans text-base not-italic text-[#586C64] sm:text-lg">
+          <h1 className="mt-2 text-ink">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
+          <p className="max-w-xl text-balance font-sans text-base not-italic text-ink-muted sm:text-lg">
             A diferencia de los directorios de proveedores, tubodadiy centraliza presupuesto,
             invitados, proveedores, cronograma y tareas — con seguimiento real de tu progreso.
           </p>
@@ -145,27 +147,27 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="w-full bg-[#ECE6F4] px-4 py-16">
+      <section className="w-full bg-lilac-soft px-4 py-16">
         <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature, i) => (
             <Card
               key={feature.title}
-              className="relative rounded-2xl border-[#F8F5F1] bg-[#F8F5F1] text-[#102D28] shadow-none transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:scale-[1.05] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] motion-reduce:transition-none motion-reduce:hover:scale-100"
+              className="relative rounded-2xl border-surface bg-surface text-ink-strong shadow-none dark:border-line dark:bg-raised transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:scale-[1.05] hover:shadow-float motion-reduce:transition-none motion-reduce:hover:scale-100"
             >
               <CardHeader>
                 <div
                   className={cn(
                     "flex size-11 items-center justify-center rounded-full",
-                    i % 2 === 0 ? "bg-[#DECDF1]" : "bg-[#D2D7CB]"
+                    i % 2 === 0 ? "bg-lilac-mid" : "bg-sage-pale"
                   )}
                 >
-                  <feature.icon className="size-5 text-[#474755]" />
+                  <feature.icon className="size-5 text-ink-on-tint" />
                 </div>
-                <CardTitle className="mt-2 font-display text-base font-semibold text-[#102D28]">
+                <CardTitle className="mt-2 font-display text-base font-semibold text-ink-strong">
                   {feature.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-[#677775]">
+              <CardContent className="text-sm text-ink-placeholder">
                 {feature.description}
               </CardContent>
             </Card>

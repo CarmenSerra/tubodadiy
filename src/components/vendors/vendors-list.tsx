@@ -11,14 +11,14 @@ import { vendorsQuery, mapVendor } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { cn } from "@/lib/utils";
 
-const PANEL = "rounded-2xl border border-[#E5DDEC] bg-white p-5 sm:p-8";
+const PANEL = "rounded-2xl border border-line bg-panel p-5 sm:p-8";
 
 function SectionSkeleton() {
   return (
     <div className={cn(PANEL, "flex flex-col gap-6")}>
       <Skeleton className="h-7 w-44" />
-      <div className={cn("mx-auto overflow-hidden rounded-2xl border border-[#E5DDEC] bg-white", SLIDE_WIDTH)}>
-        <Skeleton className="aspect-[4/3] w-full rounded-none bg-[#ECE6F4]" />
+      <div className={cn("mx-auto overflow-hidden rounded-2xl border border-line bg-panel", SLIDE_WIDTH)}>
+        <Skeleton className="aspect-[4/3] w-full rounded-none bg-lilac-soft" />
         <div className="flex flex-col gap-3 p-4">
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-4 w-1/3" />
@@ -54,11 +54,11 @@ export function VendorsList({ planId }: { planId: string }) {
             <div className="flex min-w-0 items-baseline gap-3">
               <h3
                 id={`vendors-section-${index}`}
-                className="font-display text-lg font-semibold text-[#26413C] sm:text-xl"
+                className="font-display text-lg font-semibold text-ink sm:text-xl"
               >
                 {category}
               </h3>
-              <span className="text-sm text-[#586C64]">
+              <span className="text-sm text-ink-muted">
                 {options.length === 0
                   ? "Sin opciones aún"
                   : options.length === 1
@@ -73,7 +73,7 @@ export function VendorsList({ planId }: { planId: string }) {
                 trigger={
                   <button
                     type="button"
-                    className="inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-[#26413C] outline-none transition-colors hover:bg-[#ECE6F4] focus-visible:ring-2 focus-visible:ring-[#927AAC] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink outline-none transition-colors hover:bg-lilac-soft focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                   >
                     <PlusIcon className="size-4" aria-hidden="true" />
                     Añadir otra
