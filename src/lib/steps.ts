@@ -1,9 +1,17 @@
+import type { StepTaskAuto } from "@/lib/types";
+
+/** Tarea sugerida: un título o, si se marca sola desde el plan, título + `auto`. */
+export type SuggestedTask = string | { title: string; auto: StepTaskAuto };
+
 export interface StepDefinition {
   category: string;
   title: string;
   description: string;
-  suggestedTasks: string[];
+  suggestedTasks: SuggestedTask[];
 }
+
+export const DATE_TASK_TITLE = "Elegir una fecha objetivo";
+export const BUDGET_TASK_TITLE = "Definir el presupuesto total";
 
 export const STEP_DEFINITIONS: StepDefinition[] = [
   {
@@ -11,8 +19,8 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     title: "Fecha y presupuesto",
     description: "Fecha objetivo, presupuesto total y desglose por categoría.",
     suggestedTasks: [
-      "Elegir una fecha objetivo",
-      "Definir el presupuesto total",
+      { title: DATE_TASK_TITLE, auto: "date" },
+      { title: BUDGET_TASK_TITLE, auto: "budget" },
       "Repartir el presupuesto por categorías",
     ],
   },

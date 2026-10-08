@@ -13,8 +13,10 @@ import {
 } from "firebase/firestore";
 
 import { getFirebaseDb } from "@/lib/firebase/client";
+import { isBudgetSet, isDateSet } from "@/lib/auto-tasks";
 import { STEP_DEFINITIONS } from "@/lib/steps";
 import type {
+  StepTask,
   WeddingPlan,
   PlanStep,
   PlanMember,
@@ -191,18 +193,24 @@ export async function createWeddingPlan(
 
   STEP_DEFINITIONS.forEach((def, index) => {
     const stepRef = doc(collection(db, "weddingPlans", planRef.id, "steps"));
+    const tasks: StepTask[] = def.suggestedTasks.map((suggested) => {
+      if (typeof suggested === "string") {
+        return { id: crypto.randomUUID(), title: suggested, done: false };
+      }
+      const done =
+        suggested.auto === "date"
+          ? isDateSet(input.weddingDate)
+          : isBudgetSet(input.budgetTotal);
+      return { id: crypto.randomUUID(), title: suggested.title, done, auto: suggested.auto };
+    });
     followUpBatch.set(stepRef, {
       category: def.category,
       title: def.title,
       description: def.description,
-      status: "pending",
+      status: tasks.some((t) => t.done) ? "in_progress" : "pending",
       sortOrder: index,
       notes: "",
-      tasks: def.suggestedTasks.map((title) => ({
-        id: crypto.randomUUID(),
-        title,
-        done: false,
-      })),
+      tasks,
     });
   });
 

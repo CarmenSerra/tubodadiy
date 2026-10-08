@@ -5,10 +5,15 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
+  query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
+import { AUTO_TASKS_CATEGORY, statusAfterTaskSync, syncAutoTasks } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import type {
   BudgetItem,
@@ -30,6 +35,49 @@ export async function updatePlanDetails(
   data: Partial<{ title: string; weddingDate: string | null; budgetTotal: number }>
 ) {
   await updateDoc(plan(planId), data);
+
+  if (data.weddingDate !== undefined || data.budgetTotal !== undefined) {
+    try {
+      await syncAutoTaskStep(planId, data);
+    } catch (error) {
+      // La fecha/presupuesto ya se guardaron; no fallar por la sincronización.
+      console.warn("No se pudieron sincronizar las tareas de «Fecha y presupuesto»", error);
+    }
+  }
+}
+
+/**
+ * Marca (o desmarca) las tareas automáticas del paso "Fecha y presupuesto"
+ * según la fecha y el presupuesto recién guardados. No toca pasos completados
+ * u omitidos, ni completa nunca el paso.
+ */
+async function syncAutoTaskStep(
+  planId: string,
+  data: { weddingDate?: string | null; budgetTotal?: number }
+) {
+  const db = getFirebaseDb();
+  const found = await getDocs(
+    query(
+      collection(db, "weddingPlans", planId, "steps"),
+      where("category", "==", AUTO_TASKS_CATEGORY)
+    )
+  );
+  const stepRef = found.docs[0]?.ref;
+  if (!stepRef) return;
+
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(stepRef);
+    if (!snap.exists()) return;
+    const status: StepStatus = snap.data().status ?? "pending";
+    if (status === "completed" || status === "skipped") return;
+
+    const current: StepTask[] = snap.data().tasks ?? [];
+    const { tasks, changed } = syncAutoTasks(current, data);
+    if (!changed) return;
+
+    const nextStatus = statusAfterTaskSync(status, tasks);
+    tx.update(stepRef, nextStatus === status ? { tasks } : { tasks, status: nextStatus });
+  });
 }
 
 // ---- Steps ----

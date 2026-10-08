@@ -25,10 +25,17 @@ export interface WeddingPlan {
 
 export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
 
+/**
+ * Tarea que se marca sola a partir de los datos del plan: "date" cuando hay
+ * fecha de boda y "budget" cuando el presupuesto total es mayor que cero.
+ */
+export type StepTaskAuto = "date" | "budget";
+
 export interface StepTask {
   id: string;
   title: string;
   done: boolean;
+  auto?: StepTaskAuto;
   dueDate?: string | null;
   notes?: string;
 }
