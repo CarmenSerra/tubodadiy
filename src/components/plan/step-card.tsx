@@ -1,15 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDownIcon, PlusIcon, XIcon } from "lucide-react";
+import { ChevronDownIcon, ClockIcon, PlusIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FOCUS } from "@/components/dashboard/ui";
+import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
 import { STATUS_LABEL, StepStatusControl } from "@/components/plan/step-status";
+import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import {
   addTaskToStep,
   removeTaskFromStep,
@@ -17,6 +18,7 @@ import {
   toggleTaskInStep,
   updateStepNotes,
 } from "@/lib/firebase/mutations";
+import { TIMELINE_CATEGORY } from "@/lib/steps";
 import type { PlanStep } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +55,9 @@ export function StepCard({
   const doneCount = step.tasks.filter((t) => t.done).length;
   const bodyId = `step-body-${step.id}`;
   const muted = step.status === "completed" || step.status === "skipped";
+  // El paso del cronograma tiene su propia herramienta (un diálogo).
+  const timeline = useTimelineLauncher();
+  const openTimeline = step.category === TIMELINE_CATEGORY ? timeline?.open : undefined;
 
   React.useEffect(() => {
     // Keep the editable textarea in sync with real-time updates from other
@@ -172,11 +177,38 @@ export function StepCard({
             )}
           />
         </button>
+        {openTimeline && !open && (
+          <button
+            type="button"
+            onClick={openTimeline}
+            aria-label="Abrir cronograma"
+            className={cn(
+              "inline-flex size-10 shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-medium text-[#586C64] transition-colors hover:bg-[#ECE6F4] hover:text-[#26413C] sm:w-auto sm:px-3",
+              FOCUS,
+              "focus-visible:ring-offset-[#F8F5F1]"
+            )}
+          >
+            <ClockIcon aria-hidden="true" className="size-4" />
+            <span aria-hidden="true" className="hidden sm:inline">
+              Abrir
+            </span>
+          </button>
+        )}
       </div>
 
       <div id={bodyId} hidden={!open}>
         {open && (
           <div className="flex flex-col gap-5 px-4 pb-5 pt-1 sm:pl-[4.25rem] sm:pr-6">
+            {openTimeline && (
+              <button
+                type="button"
+                onClick={openTimeline}
+                className={cn(CTA_SECONDARY, "self-start", "focus-visible:ring-offset-[#F8F5F1]")}
+              >
+                <ClockIcon aria-hidden="true" className="size-4" />
+                Abrir cronograma
+              </button>
+            )}
             <div className="flex flex-col gap-2">
               <span className="text-sm font-medium text-[#586C64]">Tareas</span>
               {step.tasks.length > 0 && (

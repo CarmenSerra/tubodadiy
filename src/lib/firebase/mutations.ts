@@ -13,8 +13,14 @@ import {
   where,
 } from "firebase/firestore";
 
-import { AUTO_TASKS_CATEGORY, statusAfterTaskSync, syncAutoTasks } from "@/lib/auto-tasks";
+import {
+  AUTO_TASKS_CATEGORY,
+  statusAfterTaskSync,
+  syncAutoTasks,
+  type AutoTaskInput,
+} from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
+import { TIMELINE_CATEGORY } from "@/lib/steps";
 import type {
   BudgetItem,
   Guest,
@@ -38,7 +44,7 @@ export async function updatePlanDetails(
 
   if (data.weddingDate !== undefined || data.budgetTotal !== undefined) {
     try {
-      await syncAutoTaskStep(planId, data);
+      await syncAutoTaskStep(planId, AUTO_TASKS_CATEGORY, data);
     } catch (error) {
       // La fecha/presupuesto ya se guardaron; no fallar por la sincronización.
       console.warn("No se pudieron sincronizar las tareas de «Fecha y presupuesto»", error);
@@ -47,19 +53,16 @@ export async function updatePlanDetails(
 }
 
 /**
- * Marca (o desmarca) las tareas automáticas del paso "Fecha y presupuesto"
- * según la fecha y el presupuesto recién guardados. No toca pasos completados
- * u omitidos, ni completa nunca el paso.
+ * Aplica `data` a las tareas automáticas del paso de esa categoría (p. ej.
+ * "Fecha y presupuesto" con la fecha y el presupuesto recién guardados). No
+ * toca pasos completados u omitidos, ni completa nunca el paso.
  */
-async function syncAutoTaskStep(
-  planId: string,
-  data: { weddingDate?: string | null; budgetTotal?: number }
-) {
+async function syncAutoTaskStep(planId: string, category: string, data: AutoTaskInput) {
   const db = getFirebaseDb();
   const found = await getDocs(
     query(
       collection(db, "weddingPlans", planId, "steps"),
-      where("category", "==", AUTO_TASKS_CATEGORY)
+      where("category", "==", category)
     )
   );
   const stepRef = found.docs[0]?.ref;
@@ -78,6 +81,23 @@ async function syncAutoTaskStep(
     const nextStatus = statusAfterTaskSync(status, tasks);
     tx.update(stepRef, nextStatus === status ? { tasks } : { tasks, status: nextStatus });
   });
+}
+
+/**
+ * Avanza el paso "Cronograma del día": "draft" al crear el primer momento,
+ * "share" al copiar o imprimir. Nunca falla hacia fuera: el cronograma ya se
+ * ha guardado y esto es solo el progreso del paso.
+ */
+export async function markTimelineProgress(planId: string, milestone: "draft" | "share") {
+  try {
+    await syncAutoTaskStep(
+      planId,
+      TIMELINE_CATEGORY,
+      milestone === "draft" ? { timelineDraft: true } : { timelineShare: true }
+    );
+  } catch (error) {
+    console.warn("No se pudo actualizar el progreso del cronograma", error);
+  }
 }
 
 // ---- Steps ----

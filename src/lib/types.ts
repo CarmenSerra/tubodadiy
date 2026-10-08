@@ -27,9 +27,11 @@ export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
 
 /**
  * Tarea que se marca sola a partir de los datos del plan: "date" cuando hay
- * fecha de boda y "budget" cuando el presupuesto total es mayor que cero.
+ * fecha de boda, "budget" cuando el presupuesto total es mayor que cero,
+ * "timeline-draft" al crear el primer momento del cronograma y
+ * "timeline-share" al copiar o imprimir el cronograma.
  */
-export type StepTaskAuto = "date" | "budget";
+export type StepTaskAuto = "date" | "budget" | "timeline-draft" | "timeline-share";
 
 export interface StepTask {
   id: string;
@@ -105,5 +107,24 @@ export interface PlanInvite {
   role: PlanRole;
   status: InviteStatus;
   invitedByUid: string;
+  createdAt: number | null;
+}
+
+/**
+ * Un momento del cronograma del día. Las horas se guardan como minutos desde
+ * las 00:00 del día de la boda; pueden pasar de 1440 (madrugada del día
+ * siguiente, p. ej. 1560 = 02:00 del día después).
+ */
+export interface TimelineItem {
+  id: string;
+  title: string;
+  startMin: number;
+  /** Duración en minutos; 0 para un momento puntual. */
+  durationMin: number;
+  location: string;
+  responsible: string;
+  notes: string;
+  /** Momento clave: se marca con un punto destacado en el cronograma. */
+  highlight: boolean;
   createdAt: number | null;
 }

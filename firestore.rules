@@ -67,6 +67,10 @@ service cloud.firestore {
       match /budgetItems/{itemId} {
         allow read, write: if isPlanMember(planId);
       }
+
+      match /timelineItems/{itemId} {
+        allow read, write: if isPlanMember(planId);
+      }
     }
 
     // ---- Invites ----

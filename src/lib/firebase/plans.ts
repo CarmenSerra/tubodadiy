@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 
 import { getFirebaseDb } from "@/lib/firebase/client";
-import { isBudgetSet, isDateSet } from "@/lib/auto-tasks";
+import { initialAutoDone } from "@/lib/auto-tasks";
 import { STEP_DEFINITIONS } from "@/lib/steps";
 import type {
   StepTask,
@@ -24,6 +24,7 @@ import type {
   Vendor,
   VendorStatus,
   BudgetItem,
+  TimelineItem,
 } from "@/lib/types";
 
 function toMillis(value: unknown): number | null {
@@ -127,6 +128,20 @@ export function mapBudgetItem(id: string, data: DocumentData): BudgetItem {
   };
 }
 
+export function mapTimelineItem(id: string, data: DocumentData): TimelineItem {
+  return {
+    id,
+    title: data.title ?? "",
+    startMin: typeof data.startMin === "number" ? data.startMin : 0,
+    durationMin: typeof data.durationMin === "number" ? data.durationMin : 0,
+    location: data.location ?? "",
+    responsible: data.responsible ?? "",
+    notes: data.notes ?? "",
+    highlight: Boolean(data.highlight),
+    createdAt: toMillis(data.createdAt),
+  };
+}
+
 export function myPlansQuery(uid: string) {
   const db = getFirebaseDb();
   return query(collection(db, "weddingPlans"), where("memberIds", "array-contains", uid));
@@ -165,6 +180,13 @@ export function budgetItemsQuery(planId: string) {
   );
 }
 
+export function timelineItemsQuery(planId: string) {
+  return query(
+    collection(getFirebaseDb(), "weddingPlans", planId, "timelineItems"),
+    orderBy("startMin")
+  );
+}
+
 export async function createWeddingPlan(
   uid: string,
   input: { title: string; weddingDate: string | null; budgetTotal: number }
@@ -197,10 +219,7 @@ export async function createWeddingPlan(
       if (typeof suggested === "string") {
         return { id: crypto.randomUUID(), title: suggested, done: false };
       }
-      const done =
-        suggested.auto === "date"
-          ? isDateSet(input.weddingDate)
-          : isBudgetSet(input.budgetTotal);
+      const done = initialAutoDone(suggested.auto, input);
       return { id: crypto.randomUUID(), title: suggested.title, done, auto: suggested.auto };
     });
     followUpBatch.set(stepRef, {

@@ -10,6 +10,7 @@ import { PhasePanel } from "@/components/plan/phase-panel";
 import { PhaseTabs, type PhaseTab } from "@/components/plan/phase-tabs";
 import { Bone, StepCardSkeleton } from "@/components/plan/plan-shell";
 import { stepElementId, stepTriggerId } from "@/components/plan/step-card";
+import { TimelineLauncherProvider } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { computePhases, isStepDone, recommendedStep } from "@/lib/phases";
 import { useCollection } from "@/lib/hooks/use-collection";
@@ -225,10 +226,12 @@ function PlanOverview() {
 }
 
 export default function PlanOverviewPage() {
-  // useSearchParams (?fase=) pide un límite de Suspense.
+  // useSearchParams (?fase=, ?cronograma=) pide un límite de Suspense.
   return (
     <React.Suspense fallback={null}>
-      <PlanOverview />
+      <TimelineLauncherProvider>
+        <PlanOverview />
+      </TimelineLauncherProvider>
     </React.Suspense>
   );
 }

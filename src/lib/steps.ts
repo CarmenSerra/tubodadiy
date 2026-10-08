@@ -12,6 +12,9 @@ export interface StepDefinition {
 
 export const DATE_TASK_TITLE = "Elegir una fecha objetivo";
 export const BUDGET_TASK_TITLE = "Definir el presupuesto total";
+export const TIMELINE_CATEGORY = "timeline";
+export const TIMELINE_DRAFT_TASK_TITLE = "Borrador del cronograma";
+export const TIMELINE_SHARE_TASK_TITLE = "Compartir cronograma con proveedores";
 
 export const STEP_DEFINITIONS: StepDefinition[] = [
   {
@@ -72,10 +75,13 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     suggestedTasks: ["Elegir tipo de ceremonia", "Confirmar oficiante"],
   },
   {
-    category: "timeline",
+    category: TIMELINE_CATEGORY,
     title: "Cronograma del día",
     description: "Cronograma hora a hora del gran día.",
-    suggestedTasks: ["Borrador del cronograma", "Compartir cronograma con proveedores"],
+    suggestedTasks: [
+      { title: TIMELINE_DRAFT_TASK_TITLE, auto: "timeline-draft" },
+      { title: TIMELINE_SHARE_TASK_TITLE, auto: "timeline-share" },
+    ],
   },
   {
     category: "alojamiento_transporte",
