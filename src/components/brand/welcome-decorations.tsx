@@ -271,26 +271,81 @@ export function Dot({ className, tone = "#D4C0EA" }: { className?: string; tone?
   );
 }
 
+// Ramita del "tubodadiy": tallo fino que sube hacia la palabra, hojitas
+// redondeadas alternas (de mayor a menor) y un capullo lila en la punta.
+const SPRIG_STEM: [number, number][] = [
+  [2, 21],
+  [15, 24],
+  [28, 20],
+  [42, 12],
+];
+
+// [t sobre el tallo, lado (+1 arriba / -1 abajo), largo de la hoja]
+const SPRIG_LEAVES: [number, 1 | -1, number][] = [
+  [0.2, 1, 7],
+  [0.36, -1, 7],
+  [0.52, 1, 6.4],
+  [0.68, -1, 5.6],
+  [0.82, 1, 4.8],
+];
+
+// Punto y ángulo (grados) del tallo en t; el tallo avanza hacia la punta.
+function sprigAt(t: number) {
+  const [p0, p1, p2, p3] = SPRIG_STEM;
+  const u = 1 - t;
+  const at = (i: 0 | 1) =>
+    u ** 3 * p0[i] + 3 * u * u * t * p1[i] + 3 * u * t * t * p2[i] + t ** 3 * p3[i];
+  const d = (i: 0 | 1) =>
+    3 * u * u * (p1[i] - p0[i]) + 6 * u * t * (p2[i] - p1[i]) + 3 * t * t * (p3[i] - p2[i]);
+  return { x: f(at(0)), y: f(at(1)), angle: (Math.atan2(d(1), d(0)) * 180) / Math.PI };
+}
+
+const SPRIG_LEAF_SHAPES = SPRIG_LEAVES.map(([t, side, len]) => {
+  const { x, y, angle } = sprigAt(t);
+  return { key: t, len, ry: f(len * 0.32), x, y, angle: f(angle - side * 48) };
+});
+
+const SPRIG_BUD_ANGLE = f(sprigAt(1).angle - 8);
+
 /**
- * Florituras junto al "tubodadiy" (sustituyen a los destellos de la landing):
- * una voluta fina que remata en un corazón. Espejar con -scale-x-100.
+ * Ramita fina a cada lado del "tubodadiy" (sustituye a los destellos de la
+ * landing): tallo salvia, cinco hojitas redondeadas y un capullo lila que
+ * apunta a la palabra. Espejar con -scale-x-100.
  */
 export function Flourish({ className }: { className?: string }) {
+  const [, , , tip] = SPRIG_STEM;
   return (
     <svg
-      viewBox="0 0 48 28"
+      viewBox="0 0 56 28"
       fill="none"
-      stroke="#A38ED2"
-      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className={cn(BASE, "h-6 w-10 sm:h-7 sm:w-12", className)}
+      className={cn(BASE, "h-6 w-12 sm:h-7 sm:w-14", className)}
     >
-      <path d="M2 18 C 8 8, 16 8, 20 14 S 30 20, 33 13" />
-      <g transform="translate(40 11) scale(0.8)">
-        <path d={HEART} fill="#D4C0EA" />
-      </g>
+      <path
+        d={`M${SPRIG_STEM[0]} C ${SPRIG_STEM[1]}, ${SPRIG_STEM[2]}, ${SPRIG_STEM[3]}`}
+        stroke="#8FAF8A"
+        strokeWidth="1.25"
+      />
+      {SPRIG_LEAF_SHAPES.map((l) => (
+        <ellipse
+          key={l.key}
+          cx={l.len / 2}
+          cy="0"
+          rx={l.len / 2}
+          ry={l.ry}
+          transform={`translate(${l.x} ${l.y}) rotate(${l.angle})`}
+          fill="#BCC7B5"
+        />
+      ))}
+      <path
+        d="M0 0 C 0.6 -2.6, 5 -3, 7.5 0 C 5 3, 0.6 2.6, 0 0Z"
+        transform={`translate(${tip[0]} ${tip[1]}) rotate(${SPRIG_BUD_ANGLE})`}
+        fill="#D4C0EA"
+        stroke="#A38ED2"
+        strokeWidth="1.1"
+      />
     </svg>
   );
 }

@@ -72,7 +72,7 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
         <Dot className="right-[5%] bottom-[18%] hidden size-1.5 sm:block lg:hidden" />
 
         <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-3 text-center">
-          <div className="relative inline-block px-10 sm:px-14">
+          <div className="relative inline-block px-12 sm:px-16">
             <Flourish className="left-0 top-1/2 -translate-y-1/2" />
             <Flourish className="right-0 top-1/2 -translate-y-1/2 -scale-x-100" />
             <span className="text-script-accent" aria-hidden="true" style={{ color: "#A38ED2" }}>
