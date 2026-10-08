@@ -80,7 +80,7 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
       {/* Decoración muy tenue que abraza la cuenta atrás (solo en pantallas anchas). */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden rounded-[2.5rem] bg-lilac-soft sm:block"
+        className="pointer-events-none absolute inset-0 hidden rounded-[2.5rem] bg-lilac-soft ring-1 ring-lilac-edge sm:block"
       />
       <div className="relative sm:px-9 sm:py-6">{body}</div>
     </div>
@@ -149,7 +149,7 @@ function TeamButton({
             </span>
           ))}
           {extra > 0 && (
-            <span className="-ml-2 flex size-8 items-center justify-center rounded-full border-2 border-page bg-lilac-soft text-xs font-semibold text-ink">
+            <span className="-ml-2 flex size-8 items-center justify-center rounded-full border-2 border-page bg-lilac-flat text-xs font-semibold text-ink">
               +{extra}
             </span>
           )}

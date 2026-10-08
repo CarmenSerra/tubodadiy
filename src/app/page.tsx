@@ -147,12 +147,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="w-full bg-lilac-soft px-4 py-16">
+      <section className="w-full bg-lilac-soft ring-1 ring-lilac-edge px-4 py-16">
         <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature, i) => (
             <Card
               key={feature.title}
-              className="relative rounded-2xl border-surface bg-surface text-ink-strong shadow-none dark:border-line dark:bg-raised transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:scale-[1.05] hover:shadow-float motion-reduce:transition-none motion-reduce:hover:scale-100"
+              className="relative rounded-2xl border-surface bg-surface text-ink-strong shadow-none ring-1 ring-lilac-edge transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:scale-[1.05] hover:shadow-float motion-reduce:transition-none motion-reduce:hover:scale-100"
             >
               <CardHeader>
                 <div

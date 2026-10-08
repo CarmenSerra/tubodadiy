@@ -117,7 +117,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       </CardHeader>
       <CardContent>
         {!firebaseReady && (
-          <p className="mb-4 rounded-xl bg-lilac-soft p-3 text-sm text-ink">
+          <p className="mb-4 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge p-3 text-sm text-ink">
             Firebase no está configurado todavía. Añade las variables de entorno descritas en
             <code className="mx-1">.env.example</code> para poder iniciar sesión.
           </p>

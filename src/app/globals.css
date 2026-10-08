@@ -25,6 +25,8 @@
   --raised: #ffffff; /* chip, fila o tarjeta clara DENTRO de otra superficie */
   /* Rellenos suaves */
   --lilac-soft: #ece6f4; /* banda/relleno lila suave, hover de filas */
+  --lilac-flat: #ece6f4; /* = --lilac-soft, siempre opaco (huecos SVG, avatares solapados) */
+  --lilac-edge: transparent; /* borde fino de las zonas lilas grandes (solo en oscuro) */
   --lilac-mid: #decdf1; /* avatar, icono, chip lila */
   --btn-soft: #d4c0ea; /* botón secundario y su hover */
   --track: #e5ddec; /* carriles de progreso, esqueletos */
@@ -124,20 +126,43 @@
 }
 
 /*
- * TEMA OSCURO ("modo noche"). Solo colores de la paleta de marca. Se activa con
- * <html data-theme="dark">; el botón de la cabecera lo cambia y un script en
- * el <head> (layout.tsx) lo fija antes de pintar. TEMPORAL: dos variantes
- * candidatas para que el cliente elija, en <html data-dark="forest|plum">
- * (por defecto "forest"; ?oscuro=bosque / ?oscuro=ciruela las cambia).
- * Al elegir una, se borra la otra y este bloque se funde con el de abajo.
+ * TEMA OSCURO ("modo noche", gris ciruela). Solo colores de la paleta de marca.
+ * Se activa con <html data-theme="dark">; el botón de la cabecera lo cambia y
+ * un script en el <head> (layout.tsx) lo fija antes de pintar.
+ *
+ * Las zonas lilas (bandas, avisos suaves, chips, hover de filas) no pueden ser
+ * un gris opaco igual que las tarjetas (#474755), así que en oscuro --lilac-soft
+ * es #D4C0EA translúcido: sobre la página da #4B4860 y sobre una tarjeta
+ * #585667, siempre con matiz lila. Donde se necesita un relleno opaco (huecos
+ * de dibujos SVG, avatares que se solapan) está --lilac-flat. --lilac-edge es
+ * el borde fino de las zonas lilas grandes (transparente en claro).
  */
-
-/* Común a las dos variantes */
 html[data-theme="dark"] {
   color-scheme: dark;
 
+  --page: #38384d;
+  --surface: #474755;
+  --surface-alt: #474755;
+  --field: #38384d;
+  --panel: #474755;
+  --raised: #38384d;
+  --lilac-soft: rgb(212 192 234 / 0.12);
+  --lilac-flat: #4b4860; /* --lilac-soft sobre --page, opaco */
+  --lilac-edge: rgb(146 122 172 / 0.5);
+  --lilac-mid: #586c64;
+  --btn-soft: #586c64;
+  --track: #586c64;
+  --rail: #586c64;
+  --sage-pale: #586c64;
+  --sage-light: #586c64;
+  --scrim: color-mix(in oklab, #38384d 85%, transparent);
+  --line: #586c64;
+  --line-strong: #586c64;
   --ink: #f4f1eb;
   --ink-strong: #f8f5f0;
+  --ink-muted: #d2d7cb;
+  --ink-placeholder: #d2d7cb;
+  --ink-ghost: #d2d7cb;
   --ink-on-tint: #f4f1eb;
   --ink-on-lilac: #f4f1eb;
   --on-sage: #102d28;
@@ -145,6 +170,7 @@ html[data-theme="dark"] {
   --lilac-bright: #d4c0ea;
   --brand: #d4c0ea;
   --cta: #d4c0ea;
+  --on-cta: #38384d;
   --green: #bcc7b5;
   --green-solid: #8faf8a;
   --deep: #8faf8a;
@@ -152,9 +178,12 @@ html[data-theme="dark"] {
   --on-solid: #102d28;
   --danger: #f2adaa; /* #9F3A38 aclarado para contrastar sobre fondo oscuro */
   --danger-solid: #f2adaa;
-  --scrim: color-mix(in oklab, #102d28 70%, transparent);
   /* Decoración: los trazos conservan los lilas/verdes de la paleta (contraste medio),
      los rellenos grandes bajan a tonos oscuros. */
+  --deco-lilac-soft: #474755;
+  --deco-lilac: #474755;
+  --deco-sage-soft: #474755;
+  --deco-sage: #586c64;
   --deco-heart: #927aac;
   --deco-line: #927aac;
   --deco-line-bright: #a38ed2;
@@ -164,61 +193,6 @@ html[data-theme="dark"] {
   --shadow-pop-value: 0 4px 16px rgba(0, 0, 0, 0.35);
   --shadow-lift-value: 0 8px 24px rgba(0, 0, 0, 0.35);
   --shadow-float-value: 0 12px 32px rgba(0, 0, 0, 0.4);
-}
-
-/* A · Verde bosque (por defecto) */
-html[data-theme="dark"]:not([data-dark="plum"]) {
-  --page: #102d28;
-  --surface: #26413c;
-  --surface-alt: #26413c;
-  --field: #102d28;
-  --panel: #26413c;
-  --raised: #26413c;
-  --lilac-soft: #38384d;
-  --lilac-mid: #474755;
-  --btn-soft: #3f5c4a;
-  --track: #3f5c4a;
-  --rail: #4e6a5a;
-  --sage-pale: #3f5c4a;
-  --sage-light: #4e6a5a;
-  --line: #3f5c4a;
-  --line-strong: #4e6a5a;
-  --ink-muted: #bcc7b5;
-  --ink-placeholder: #bcc7b5;
-  --ink-ghost: #bcc7b5;
-  --on-cta: #102d28;
-  --deco-lilac-soft: #38384d;
-  --deco-lilac: #38384d;
-  --deco-sage-soft: #26413c;
-  --deco-sage: #3f5c4a;
-}
-
-/* B · Gris ciruela */
-html[data-theme="dark"][data-dark="plum"] {
-  --page: #38384d;
-  --surface: #474755;
-  --surface-alt: #474755;
-  --field: #38384d;
-  --panel: #474755;
-  --raised: #38384d;
-  --lilac-soft: #474755;
-  --lilac-mid: #586c64;
-  --btn-soft: #586c64;
-  --track: #586c64;
-  --rail: #586c64;
-  --sage-pale: #586c64;
-  --sage-light: #586c64;
-  --line: #586c64;
-  --line-strong: #586c64;
-  --ink-muted: #d2d7cb;
-  --ink-placeholder: #d2d7cb;
-  --ink-ghost: #d2d7cb;
-  --on-cta: #38384d;
-  --deco-lilac-soft: #474755;
-  --deco-lilac: #474755;
-  --deco-sage-soft: #474755;
-  --deco-sage: #4e6a5a;
-  --scrim: color-mix(in oklab, #38384d 85%, transparent);
 }
 
 /* Tokens shadcn heredados, derivados de los de rol en el tema oscuro. */
@@ -285,6 +259,8 @@ html[data-theme="dark"] {
   --color-panel: var(--panel);
   --color-raised: var(--raised);
   --color-lilac-soft: var(--lilac-soft);
+  --color-lilac-flat: var(--lilac-flat);
+  --color-lilac-edge: var(--lilac-edge);
   --color-lilac-mid: var(--lilac-mid);
   --color-btn-soft: var(--btn-soft);
   --color-track: var(--track);
@@ -408,7 +384,7 @@ html[data-theme="dark"] {
 /* Decoración del onboarding: los anillos se dibujan sobre el fondo de página,
    así que su "hueco" (pensado para el banner lila) usa el color de página. */
 html[data-theme="dark"] .rings-on-page {
-  --lilac-soft: var(--page);
+  --lilac-flat: var(--page);
 }
 
 /* La página imprimible es siempre clara: nunca tiñe el papel con el tema oscuro. */

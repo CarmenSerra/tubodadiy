@@ -30,7 +30,7 @@ export const RSVP_CONFIG: Record<RsvpStatus, { label: string; badge: string; act
   },
   declined: {
     label: "No asiste",
-    badge: "border-transparent bg-lilac-soft text-ink-muted",
+    badge: "border-transparent bg-lilac-soft text-ink-muted dark:text-ink",
     active: "border-line-strong bg-lilac-soft text-ink-on-lilac",
   },
 };

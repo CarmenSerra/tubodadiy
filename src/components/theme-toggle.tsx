@@ -28,9 +28,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   // se recuperan aquí, antes de pintar. En producción no hace nada.
   React.useLayoutEffect(() => {
     const stored = readStoredTheme();
-    if (document.documentElement.getAttribute("data-theme") !== stored.theme) {
-      applyTheme(stored.theme, stored.variant);
-    }
+    if (document.documentElement.getAttribute("data-theme") !== stored) applyTheme(stored);
   }, []);
 
   return (

@@ -52,7 +52,7 @@ export function PhaseTabs({
         ref={listRef}
         aria-label="Fases del plan"
         className={cn(
-          "h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-lilac-soft p-1.5",
+          "h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-lilac-soft p-1.5 ring-1 ring-lilac-edge",
           "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         )}
       >

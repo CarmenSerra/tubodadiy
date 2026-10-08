@@ -105,7 +105,7 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
             )}
           </ul>
         ) : (
-          <p className="mt-6 rounded-xl bg-lilac-soft px-4 py-3.5 text-sm text-ink">
+          <p className="mt-6 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge px-4 py-3.5 text-sm text-ink">
             Todavía no has guardado datos de contacto de esta opción. Edítala con el lápiz de la
             tarjeta para añadir la dirección, el correo electrónico o el teléfono.
           </p>

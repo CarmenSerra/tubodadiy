@@ -51,7 +51,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // data-theme / data-dark los fija THEME_INIT_SCRIPT antes del primer pintado
+    // data-theme lo fija THEME_INIT_SCRIPT antes del primer pintado
     // (según la elección guardada), por eso suppressHydrationWarning.
     <html
       lang="es"

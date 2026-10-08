@@ -63,7 +63,7 @@ export function WelcomeDisc({ className }: { className?: string }) {
 /* ------------------------------------------------------------------ */
 
 /** Dos alianzas entrelazadas. `gap` debe ser el color del fondo sobre el que se dibujen. */
-export function Rings({ className, gap = "var(--lilac-soft)" }: { className?: string; gap?: string }) {
+export function Rings({ className, gap = "var(--lilac-flat)" }: { className?: string; gap?: string }) {
   return (
     <svg
       viewBox="0 0 120 100"

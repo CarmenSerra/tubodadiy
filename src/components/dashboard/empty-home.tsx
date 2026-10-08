@@ -39,7 +39,7 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
     <div className="flex flex-col gap-10">
       <section
         aria-labelledby="home-greeting"
-        className="relative overflow-hidden rounded-3xl bg-lilac-soft px-5 py-14 sm:px-10 sm:py-20"
+        className="relative overflow-hidden rounded-3xl bg-lilac-soft ring-1 ring-lilac-edge px-5 py-14 sm:px-10 sm:py-20"
       >
         {/* Blobs: guijarro arriba-izquierda, disco arriba-derecha y ola inferior */}
         <WelcomePebble className="-left-10 -top-9 h-24 w-28 sm:-left-14 sm:-top-12 sm:h-36 sm:w-44 lg:h-44 lg:w-52" />

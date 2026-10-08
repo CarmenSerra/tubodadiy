@@ -91,23 +91,113 @@ de combinaciones ya cumplían con los hex exactos que diste.
 Los componentes ya no llevan hex sueltos: usan variables CSS por **rol**
 (`--page`, `--surface`, `--ink`, `--ink-muted`, `--line`, `--cta`,
 `--lilac-soft`…) expuestas a Tailwind en `@theme inline`
-(`bg-surface`, `text-ink`, `border-line`, `bg-cta text-on-cta`…). Los
-valores del tema claro viven en `:root` de `globals.css`; el modo noche
-los sobrescribe en `html[data-theme="dark"]`. El script del `<head>`
-(`src/lib/theme.ts`) lo fija antes de pintar según `localStorage`
-(`tubodadiy-theme`); el botón luna/sol de las cabeceras lo cambia. No sigue
-la preferencia del sistema. Para SVG se usa `style={{ fill: "var(--…)" }}`
-(`var()` no vale en atributos de presentación). `[data-theme="light"]` en un
-contenedor lo fija en claro dentro del tema oscuro (página de impresión).
-
-Mientras el cliente elige, hay dos variantes: `data-dark="forest"` (Verde
-bosque, por defecto) y `data-dark="plum"` (Gris ciruela); `?oscuro=bosque` /
-`?oscuro=ciruela` activa el modo noche con esa variante y la guarda. Al elegir
-una, se borra la otra.
+(`bg-surface`, `text-ink`, `border-line`, `bg-cta text-on-cta`…). Hay dos
+temas: el claro vive en `:root` de `globals.css` y el oscuro ("Gris
+ciruela") en `html[data-theme="dark"]`, que sobrescribe las mismas variables.
+El script del `<head>` (`src/lib/theme.ts`) fija `data-theme` antes de pintar
+según `localStorage` (`tubodadiy-theme`: `"dark"` o ausente/cualquier otro valor
+= claro); el botón luna/sol de las cabeceras lo cambia. No sigue la
+preferencia del sistema. Cualquier otra clave antigua en `localStorage` se
+ignora. Para SVG se usa `style={{ fill: "var(--…)" }}` (`var()` no vale en
+atributos de presentación). `[data-theme="light"]` en un contenedor lo fija en
+claro dentro del tema oscuro (página de impresión).
 
 Los tokens shadcn de arriba (`--background`, `--card`, `--primary`…) siguen
 en uso por `src/components/ui/*`; en modo noche se derivan de los de rol.
 El antiguo bloque `.dark` (rosas, oklch) se eliminó.
+
+#### Zonas lilas en oscuro
+
+En claro, `--lilac-soft` (#ECE6F4) se distingue de las tarjetas (#F8F5F1). En
+oscuro, un gris opaco igual que `--surface` (#474755) no destacaría, así que
+`--lilac-soft` es **#D4C0EA translúcido al 12 %**: sobre la página da #4B4860 y
+sobre una tarjeta #585667, siempre con matiz lila (y sirve igual para bandas,
+avisos suaves, chips y el hover de filas). Dos tokens acompañan:
+
+- `--lilac-flat`: el mismo relleno pero **opaco** (claro: `#ECE6F4`; oscuro:
+  `#4B4860`). Para huecos de dibujos SVG (`Rings`) y avatares que se solapan,
+  donde la transparencia dejaría ver lo de detrás.
+- `--lilac-edge`: borde fino de las zonas lilas grandes (`ring-1 ring-lilac-edge`:
+  banda de la landing y sus tarjetas, cuenta atrás, pestañas de fases, avisos
+  suaves). Claro: `transparent`; oscuro: `#927AAC` al 50 %. Es un `ring`
+  (box-shadow), no un `border`, para no cambiar el tamaño en claro.
+
+El marcador de posición de proveedor usa `bg-lilac-soft`, por lo que en
+oscuro se ve lila sobre el panel gris del proveedor.
+
+#### Valores por tema
+
+| Token | Claro | Oscuro | Rol |
+|---|---|---|---|
+| `--page` | `#F4F1EB` | `#38384D` | fondo de página |
+| `--surface` | `#F8F5F1` | `#474755` | tarjetas, diálogos, menús |
+| `--surface-alt` | `#F8F5F0` | `#474755` | cabecera, calendario, papel del sobre |
+| `--field` | `#FFFFFF` | `#38384D` | fondo de inputs y casillas |
+| `--panel` | `#FFFFFF` | `#474755` | panel grande claro sobre la página (Proveedores) |
+| `--raised` | `#FFFFFF` | `#38384D` | chip, fila o tarjeta clara DENTRO de otra superficie |
+| `--lilac-soft` | `#ECE6F4` | `rgb(212 192 234 / 0.12)` | banda/relleno lila suave, hover de filas |
+| `--lilac-flat` | `#ECE6F4` | `#4B4860` | = --lilac-soft, siempre opaco (huecos SVG, avatares solapados) |
+| `--lilac-edge` | `transparent` | `rgb(146 122 172 / 0.5)` | borde fino de las zonas lilas grandes (solo en oscuro) |
+| `--lilac-mid` | `#DECDF1` | `#586C64` | avatar, icono, chip lila |
+| `--btn-soft` | `#D4C0EA` | `#586C64` | botón secundario y su hover |
+| `--track` | `#E5DDEC` | `#586C64` | carriles de progreso, esqueletos |
+| `--rail` | `#D4C0EA` | `#586C64` | línea del cronograma, puntos inactivos |
+| `--sage-pale` | `#D2D7CB` | `#586C64` | chip salvia, hover claro |
+| `--sage-light` | `#BCC7B5` | `#586C64` | borde salvia |
+| `--scrim` | `color-mix(in oklab, #26413c 40%, transparent)` | `color-mix(in oklab, #38384d 85%, transparent)` | velo tras diálogos |
+| `--line` | `#E5DDEC` | `#586C64` | bordes y separadores |
+| `--line-strong` | `#D4C0EA` | `#586C64` | bordes de campos y chips |
+| `--ink` | `#26413C` | `#F4F1EB` | texto principal |
+| `--ink-strong` | `#102D28` | `#F8F5F0` | texto sobre tarjetas, títulos |
+| `--ink-muted` | `#586C64` | `#D2D7CB` | texto secundario |
+| `--ink-placeholder` | `#677775` | `#D2D7CB` | placeholders |
+| `--ink-ghost` | `#5E696B` | `#D2D7CB` | enlace fantasma de la cabecera (landing) |
+| `--ink-on-tint` | `#474755` | `#F4F1EB` | iconos/iniciales sobre rellenos lila/salvia |
+| `--ink-on-lilac` | `#38384D` | `#F4F1EB` | texto sobre botón suave y chips activos |
+| `--on-sage` | `#26413C` | `#102D28` | texto sobre rellenos salvia |
+| `--lilac` | `#927AAC` | `#D4C0EA` | iconos, bordes y subrayados lila |
+| `--lilac-bright` | `#A38ED2` | `#D4C0EA` | lila vivo: foco, puntos, trazo del logo |
+| `--brand` | `#907AB2` | `#D4C0EA` | logotipo |
+| `--cta` | `#927AAC` | `#D4C0EA` | botón principal |
+| `--on-cta` | `#FFFFFF` | `#38384D` | texto sobre botón principal |
+| `--green` | `#4E6A5A` | `#BCC7B5` | verde de texto, trazo y enlaces |
+| `--green-solid` | `#4E6A5A` | `#8FAF8A` | relleno verde (casilla marcada, paso hecho) |
+| `--deep` | `#3F5C4A` | `#8FAF8A` | verde profundo: "Elegida", icono de éxito |
+| `--sage` | `#8FAF8A` | `#8FAF8A` | salvia: confirmado, progreso completado |
+| `--on-solid` | `#FFFFFF` | `#102D28` | texto sobre rellenos verdes y destructivo |
+| `--danger` | `#9F3A38` | `#F2ADAA` | texto, borde y foco destructivos |
+| `--danger-solid` | `#9F3A38` | `#F2ADAA` | fondo del botón destructivo |
+
+Decoración (landing, bienvenida, onboarding):
+
+| Token | Claro | Oscuro |
+|---|---|---|
+| `--deco-lilac-soft` | `#E5DDEC` | `#474755` |
+| `--deco-lilac` | `#DECDF1` | `#474755` |
+| `--deco-sage-soft` | `#D2D7CB` | `#474755` |
+| `--deco-sage` | `#BCC7B5` | `#586C64` |
+| `--deco-heart` | `#D4C0EA` | `#927AAC` |
+| `--deco-line` | `#927AAC` | `#927AAC` |
+| `--deco-line-bright` | `#A38ED2` | `#A38ED2` |
+| `--deco-green` | `#4E6A5A` | `#4E6A5A` |
+| `--deco-sage-line` | `#8FAF8A` | `#8FAF8A` |
+| `--script-accent` | `#6B7C5E` | `#8FAF8A` |
+
+#### Contraste del tema oscuro (texto normal ≥ 4,5:1)
+
+| Combinación | Ratio |
+|---|---|
+| `--ink` #F4F1EB sobre `--page` / `--surface` | 10,12 / 8,10 |
+| `--ink` sobre `--lilac-soft` (sobre página #4B4860 / sobre tarjeta #585667) | 7,78 / 6,33 |
+| `--ink-strong` sobre `--lilac-soft` sobre página | 8,06 |
+| `--ink-muted` #D2D7CB sobre `--lilac-soft` sobre página / sobre tarjeta | 5,98 / 4,87 |
+| `--ink` sobre `--lilac-soft` apilado (fila con hover + chip, #676377) | 5,13 |
+| `--ink-muted` sobre `--lilac-soft` apilado | 3,95 — por eso la insignia «No asiste» usa `dark:text-ink` |
+| `--ink` sobre `--lilac-flat` (+N de avatares) | 7,78 |
+| `--ink-muted` / `--ink-strong` sobre `--surface` (tarjetas de la landing) | 6,23 / 8,39 |
+
+Los trazos decorativos (icono del marcador de proveedor, anillos) solo
+necesitan 3:1 y no son texto.
 
 ## Tipografía
 

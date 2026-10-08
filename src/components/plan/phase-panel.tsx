@@ -49,7 +49,7 @@ export function PhasePanel({
       {softNote && (
         <div
           role="note"
-          className="flex items-start gap-3 rounded-xl bg-lilac-soft py-2.5 pl-4 pr-2 text-sm text-ink"
+          className="flex items-start gap-3 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge py-2.5 pl-4 pr-2 text-sm text-ink"
         >
           <p className="flex-1 py-1">
             Te recomendamos terminar «{softNote}» primero, pero puedes avanzar aquí cuando quieras.

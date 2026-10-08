@@ -382,7 +382,7 @@ function TeamBody({
             </>
           )
         ) : (
-          <p className="flex items-start gap-2.5 rounded-xl bg-lilac-soft p-3.5 text-sm text-ink">
+          <p className="flex items-start gap-2.5 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge p-3.5 text-sm text-ink">
             <LockIcon className="mt-0.5 size-4 shrink-0 text-ink-on-tint" aria-hidden="true" />
             <span>
               Solo la persona dueña del plan puede enviar invitaciones. Si quieres sumar a alguien, coméntaselo y lo
