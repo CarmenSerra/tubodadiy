@@ -8,6 +8,9 @@ import type {
   WeddingPlan,
 } from "@/lib/types";
 
+/** Plan elegido por la persona en este navegador (solo una comodidad). */
+export const SELECTED_PLAN_KEY = "tubodadiy:home-plan";
+
 /**
  * Datos de la boda destacada. Se pasan como props simples para que la home
  * sea presentacional (y se pueda pintar con datos de ejemplo).

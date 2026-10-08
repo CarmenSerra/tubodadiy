@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { AlertCircleIcon, ArrowRightIcon, Loader2, PlusIcon } from "lucide-react";
 
-import { CreatePlanDialog } from "@/components/plan/create-plan-dialog";
 import type { WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { EmptyHome } from "./empty-home";
@@ -9,7 +8,7 @@ import { GlanceRow } from "./glance-row";
 import { firstName, type FeaturedPlanData } from "./helpers";
 import { HomeHeader } from "./home-header";
 import { NowCard } from "./now-card";
-import { FOCUS, LINK } from "./ui";
+import { FOCUS, LINK, NEW_PLAN_HREF } from "./ui";
 
 export interface DashboardHomeProps {
   /** displayName de Firebase Auth (puede venir vacío). */
@@ -91,20 +90,16 @@ export function DashboardHome({
           Ver todo el plan
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </Link>
-        <CreatePlanDialog
-          trigger={
-            <button
-              type="button"
-              className={cn(
-                FOCUS,
-                "-mr-3 inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none"
-              )}
-            >
-              <PlusIcon className="size-4" aria-hidden="true" />
-              Nuevo plan de boda
-            </button>
-          }
-        />
+        <Link
+          href={NEW_PLAN_HREF}
+          className={cn(
+            FOCUS,
+            "-mr-3 inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none"
+          )}
+        >
+          <PlusIcon className="size-4" aria-hidden="true" />
+          Nuevo plan de boda
+        </Link>
       </footer>
     </div>
   );

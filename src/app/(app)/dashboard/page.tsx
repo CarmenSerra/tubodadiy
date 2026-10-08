@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { DashboardHome } from "@/components/dashboard/dashboard-home";
-import { rankPlans, type FeaturedPlanData } from "@/components/dashboard/helpers";
+import { SELECTED_PLAN_KEY, rankPlans, type FeaturedPlanData } from "@/components/dashboard/helpers";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useCollection } from "@/lib/hooks/use-collection";
 import type { WeddingPlan } from "@/lib/types";
@@ -21,9 +21,6 @@ import {
   stepsQuery,
   vendorsQuery,
 } from "@/lib/firebase/plans";
-
-/** Plan elegido por la persona en este navegador (solo una comodidad). */
-const SELECTED_PLAN_KEY = "tubodadiy:home-plan";
 
 function readSelectedPlan(): string | null {
   try {

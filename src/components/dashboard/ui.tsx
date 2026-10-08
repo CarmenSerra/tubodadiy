@@ -1,6 +1,7 @@
 import * as React from "react";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
-import { CreatePlanDialog } from "@/components/plan/create-plan-dialog";
 import { cn } from "@/lib/utils";
 
 // Estilos de marca compartidos por la home (misma paleta que landing/login).
@@ -35,12 +36,10 @@ export const LINK =
 /** Título de sección. */
 export const SECTION_TITLE = "font-display text-xl font-semibold text-[#26413C] sm:text-2xl";
 
-/**
- * Botón "Nuevo plan de boda" con la marca de la home. CreatePlanDialog usa el
- * <Button> por defecto como disparador y no admite estilos, así que se
- * reestiliza desde fuera con selectores sobre el único <button> del
- * wrapper (el contenido del diálogo va en un portal y no se ve afectado).
- */
+/** Ruta del flujo a pantalla completa para crear un plan. */
+export const NEW_PLAN_HREF = "/nuevo-plan";
+
+/** Enlace "Nuevo plan de boda" con la marca de la home: lleva al flujo de inicio. */
 export function NewPlanButton({
   variant = "primary",
   className,
@@ -49,17 +48,10 @@ export function NewPlanButton({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "inline-flex [&_button]:rounded-full [&_button]:shadow-none [&_button]:transition-opacity [&_button:hover]:opacity-90",
-        variant === "primary"
-          ? "[&_button]:h-11 [&_button]:bg-[#927AAC] [&_button]:px-6 [&_button]:text-white"
-          : "[&_button]:h-10 [&_button]:bg-[#D4C0EA] [&_button]:px-5 [&_button]:text-[#38384D]",
-        className
-      )}
-    >
-      <CreatePlanDialog />
-    </div>
+    <Link href={NEW_PLAN_HREF} className={cn(variant === "primary" ? CTA_PRIMARY : CTA_SECONDARY, className)}>
+      <PlusIcon aria-hidden="true" className="size-4" />
+      Nuevo plan de boda
+    </Link>
   );
 }
 
