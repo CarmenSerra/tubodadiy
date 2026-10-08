@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { ChevronDownIcon } from "lucide-react";
 
+import { PlanDateEditor } from "@/components/plan/plan-field-editors";
 import { TeamDialog } from "@/components/members/team-dialog";
 import { ROLE_LABEL } from "@/components/members/roles";
 import {
@@ -17,12 +17,15 @@ import {
 import { cn, daysUntil, formatDate, initials } from "@/lib/utils";
 import type { PlanMember, WeddingPlan } from "@/lib/types";
 import type { FeaturedPlanData } from "./helpers";
-import { FOCUS, LINK, Skeleton } from "./ui";
+import { FOCUS, Skeleton } from "./ui";
 
 const QUIET_BUTTON = cn(
   FOCUS,
   "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-[#26413C] transition-colors hover:bg-[#ECE6F4] motion-reduce:transition-none"
 );
+
+/** Editor de fecha dentro de la cuenta atrás: sobre el fondo lila el hover pasa a #E5DDEC. */
+const COUNTDOWN_EDITOR = "text-[#26413C] sm:hover:bg-[#E5DDEC] sm:data-[state=open]:bg-[#E5DDEC]";
 
 /** Cuenta atrás tranquila: número grande y la fecha en pequeño. */
 function Countdown({ plan, className }: { plan: WeddingPlan; className?: string }) {
@@ -34,19 +37,26 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
       <>
         <p className="font-display text-2xl font-medium text-[#26413C]">Aún sin fecha</p>
         <p className="mt-1 text-sm text-[#586C64]">
-          <Link href={`/plan/${plan.id}`} className={LINK}>
-            Ponle fecha a tu boda
-          </Link>
+          <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
         </p>
       </>
     );
   } else if (days === 0) {
-    body = <p className="font-display text-3xl font-medium text-[#26413C]">¡Hoy es el gran día!</p>;
+    body = (
+      <>
+        <p className="font-display text-3xl font-medium text-[#26413C]">¡Hoy es el gran día!</p>
+        <p className="mt-1 text-sm text-[#586C64]">
+          <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
+        </p>
+      </>
+    );
   } else if (days < 0) {
     body = (
       <>
         <p className="font-display text-2xl font-medium text-[#26413C]">Vuestro gran día</p>
-        <p className="mt-1 text-sm text-[#586C64]">fue el {formatDate(plan.weddingDate)}</p>
+        <p className="mt-1 text-sm text-[#586C64]">
+          fue el <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
+        </p>
       </>
     );
   } else {
@@ -58,7 +68,9 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
           </span>
           <span className="font-display text-xl text-[#26413C]">{days === 1 ? "día" : "días"}</span>
         </p>
-        <p className="mt-2 text-sm text-[#586C64]">hasta el {formatDate(plan.weddingDate)}</p>
+        <p className="mt-2 text-sm text-[#586C64]">
+          hasta el <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
+        </p>
       </>
     );
   }

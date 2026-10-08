@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { budgetItemsQuery, mapBudgetItem } from "@/lib/firebase/plans";
 import { deleteBudgetItem, updateBudgetItem } from "@/lib/firebase/mutations";
-import type { BudgetItem } from "@/lib/types";
+import type { BudgetItem, WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 function PaidToggle({
@@ -77,7 +77,8 @@ function BudgetSkeleton() {
   );
 }
 
-export function BudgetList({ planId, budgetTotal }: { planId: string; budgetTotal: number }) {
+export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan | null }) {
+  const budgetTotal = plan?.budgetTotal ?? 0;
   const { data: stored, loading } = useCollection(budgetItemsQuery(planId), mapBudgetItem);
   // Cambios de "pagado" aún sin confirmar por Firestore: se ven al instante.
   const [pendingPaid, setPendingPaid] = React.useState<Record<string, boolean>>({});
@@ -136,7 +137,7 @@ export function BudgetList({ planId, budgetTotal }: { planId: string; budgetTota
   return (
     <div className="flex flex-col gap-5">
       {header}
-      <BudgetSummary planId={planId} budgetTotal={budgetTotal} items={items} />
+      <BudgetSummary plan={plan} budgetTotal={budgetTotal} items={items} />
 
       {items.length === 0 ? (
         <div className={cn(CARD, "flex flex-col items-center px-6 py-12 text-center sm:py-14")}>

@@ -6,5 +6,5 @@ import { BudgetList } from "@/components/budget/budget-list";
 export default function BudgetPage() {
   const { planId, plan } = usePlanContext();
 
-  return <BudgetList planId={planId} budgetTotal={plan?.budgetTotal ?? 0} />;
+  return <BudgetList planId={planId} plan={plan} />;
 }

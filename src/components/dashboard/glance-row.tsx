@@ -1,37 +1,36 @@
+"use client";
+
 import Link from "next/link";
 import { StoreIcon, UsersIcon, WalletIcon, type LucideIcon } from "lucide-react";
 
 import { computeTotals, formatMoney } from "@/components/budget/budget-math";
+import { PlanBudgetPopover } from "@/components/plan/plan-field-editors";
 import type { WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { summarizeGuests, summarizeVendors, type FeaturedPlanData } from "./helpers";
 import { CARD, FOCUS, Skeleton } from "./ui";
 
-function Stat({
-  href,
+const STAT_CARD = cn(
+  CARD,
+  FOCUS,
+  "group block p-4 transition-colors hover:bg-[#F8F5F0] hover:border-[#D4C0EA] motion-reduce:transition-none sm:p-5"
+);
+
+function StatBody({
   label,
   icon: Icon,
   loading,
   value,
-  muted = false,
+  muted,
 }: {
-  href: string;
   label: string;
   icon: LucideIcon;
   loading: boolean;
   value: string;
-  /** Estado vacío: invitación en voz baja, no un dato. */
-  muted?: boolean;
+  muted: boolean;
 }) {
   return (
-    <Link
-      href={href}
-      className={cn(
-        CARD,
-        FOCUS,
-        "group block p-4 transition-colors hover:bg-[#F8F5F0] hover:border-[#D4C0EA] motion-reduce:transition-none sm:p-5"
-      )}
-    >
+    <>
       <span className="flex items-center gap-2 text-sm text-[#586C64]">
         <Icon className="size-4 shrink-0 text-[#474755]" aria-hidden="true" />
         {label}
@@ -50,6 +49,29 @@ function Stat({
           {value}
         </span>
       )}
+    </>
+  );
+}
+
+function Stat({
+  href,
+  label,
+  icon,
+  loading,
+  value,
+  muted = false,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  loading: boolean;
+  value: string;
+  /** Estado vacío: invitación en voz baja, no un dato. */
+  muted?: boolean;
+}) {
+  return (
+    <Link href={href} className={STAT_CARD}>
+      <StatBody label={label} icon={icon} loading={loading} value={value} muted={muted} />
     </Link>
   );
 }
@@ -85,14 +107,22 @@ export function GlanceRow({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
         De un vistazo
       </h2>
       <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-        <Stat
-          href={`/plan/${plan.id}/budget`}
-          label="Presupuesto"
-          icon={WalletIcon}
-          loading={data.loading && data.budgetItems.length === 0 && hasBudget}
-          value={budgetValue}
-          muted={!hasBudget}
-        />
+        {hasBudget ? (
+          <Stat
+            href={`/plan/${plan.id}/budget`}
+            label="Presupuesto"
+            icon={WalletIcon}
+            loading={data.loading && data.budgetItems.length === 0}
+            value={budgetValue}
+          />
+        ) : (
+          // Sin presupuesto: en vez de ir a la pestaña vacía, se escribe aquí mismo.
+          <PlanBudgetPopover plan={plan}>
+            <button type="button" aria-haspopup="dialog" className={cn(STAT_CARD, "w-full text-left")}>
+              <StatBody label="Presupuesto" icon={WalletIcon} loading={false} value={budgetValue} muted />
+            </button>
+          </PlanBudgetPopover>
+        )}
         <Stat
           href={`/plan/${plan.id}/guests`}
           label="Invitados"

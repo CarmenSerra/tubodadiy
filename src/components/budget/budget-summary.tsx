@@ -1,11 +1,11 @@
-import Link from "next/link";
 import { BadgeCheckIcon, CalculatorIcon, ReceiptIcon, WalletIcon } from "lucide-react";
 
-import { CARD, LINK } from "@/components/dashboard/ui";
+import { CARD } from "@/components/dashboard/ui";
 import { Bone } from "@/components/plan/plan-shell";
+import { PlanBudgetEditor } from "@/components/plan/plan-field-editors";
 import { StatTile } from "@/components/guests/guest-summary";
 import { cn } from "@/lib/utils";
-import type { BudgetItem } from "@/lib/types";
+import type { BudgetItem, WeddingPlan } from "@/lib/types";
 import { computeTotals, formatMoney } from "./budget-math";
 
 /** Barra de uso del presupuesto: la misma que MiniBar, pero más gruesa por ser la protagonista. */
@@ -25,11 +25,12 @@ function UsageBar({ value, label }: { value: number; label: string }) {
 }
 
 export function BudgetSummary({
-  planId,
+  plan,
   budgetTotal,
   items,
 }: {
-  planId: string;
+  /** Plan completo, para poder editar el presupuesto total en el sitio. */
+  plan: WeddingPlan | null;
   budgetTotal: number;
   items: BudgetItem[];
 }) {
@@ -56,7 +57,13 @@ export function BudgetSummary({
           </div>
           {hasTotal && (
             <p className="pb-1 text-sm text-[#586C64]">
-              de {formatMoney(budgetTotal)} de presupuesto total
+              de{" "}
+              {plan ? (
+                <PlanBudgetEditor plan={plan} className="font-medium text-[#26413C]" />
+              ) : (
+                `${formatMoney(budgetTotal)} `
+              )}
+              de presupuesto total
             </p>
           )}
         </div>
@@ -84,10 +91,7 @@ export function BudgetSummary({
         ) : (
           <p className="text-sm text-[#586C64]">
             Aún no has fijado un presupuesto total.{" "}
-            <Link href={`/plan/${planId}`} className={LINK}>
-              Defínelo en el Resumen
-            </Link>{" "}
-            para ver cuánto te queda.
+            {plan && <PlanBudgetEditor plan={plan} />}
           </p>
         )}
       </div>
@@ -97,7 +101,15 @@ export function BudgetSummary({
           icon={<WalletIcon />}
           tone="lilac"
           label="Presupuesto total"
-          value={hasTotal ? formatMoney(budgetTotal) : "Por definir"}
+          value={
+            plan ? (
+              <PlanBudgetEditor plan={plan} className={cn("text-left", !hasTotal && "text-lg")} />
+            ) : hasTotal ? (
+              formatMoney(budgetTotal)
+            ) : (
+              "Por definir"
+            )
+          }
           detail="tu techo de gasto"
         />
         <StatTile
