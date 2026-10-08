@@ -4,7 +4,11 @@ import type { StepTaskAuto } from "@/lib/types";
 export type TaskTarget =
   | { kind: "href"; href: string; label: string }
   | { kind: "edit-plan"; label: string }
-  | { kind: "timeline"; label: string };
+  | { kind: "timeline"; label: string }
+  | { kind: "tool"; tool: PlanTool; label: string };
+
+/** Herramientas de la app que se abren en un diálogo desde la flecha de una tarea. */
+export type PlanTool = "ceremony" | "legal-docs" | "gift";
 
 /** Parámetro de Proveedores que abre «Nuevo proveedor» con esa categoría. */
 export const NEW_VENDOR_PARAM = "nuevo";
@@ -49,6 +53,14 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
     case "timeline-draft":
     case "timeline-share":
       return { kind: "timeline", label: "Ir al cronograma" };
+    case "ceremony-type":
+      return { kind: "tool", tool: "ceremony", label: "Elegir el tipo de ceremonia" };
+    case "legal-start":
+    case "legal-docs":
+      return { kind: "tool", tool: "legal-docs", label: "Ver la guía de documentos legales" };
+    case "gift-decide":
+    case "gift-data":
+      return { kind: "tool", tool: "gift", label: "Abrir los datos del regalo" };
     default:
       return null;
   }

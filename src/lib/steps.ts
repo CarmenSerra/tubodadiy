@@ -73,7 +73,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     title: "Ceremonia",
     description: "Tipo (civil, religiosa, simbólica), oficiante y estructura.",
     suggestedTasks: [
-      "Elegir tipo de ceremonia",
+      { title: "Elegir tipo de ceremonia", auto: "ceremony-type" },
       { title: "Confirmar oficiante", auto: "vendor-officiant" },
     ],
   },
@@ -102,13 +102,19 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     category: "documentos_legales",
     title: "Documentos legales",
     description: "Expediente matrimonial y otros trámites legales.",
-    suggestedTasks: ["Iniciar expediente matrimonial", "Reunir documentación"],
+    suggestedTasks: [
+      { title: "Iniciar expediente matrimonial", auto: "legal-start" },
+      { title: "Reunir documentación", auto: "legal-docs" },
+    ],
   },
   {
     category: "lista_regalos",
-    title: "Lista de regalos",
-    description: "Lista de regalos o alternativas (luna de miel, donativo, etc.).",
-    suggestedTasks: ["Decidir tipo de lista de regalos", "Crear la lista"],
+    title: "Regalo",
+    description: "Recibir el regalo en dinero: cuenta bancaria o Bizum, y el mensaje para invitados.",
+    suggestedTasks: [
+      { title: "Decidir cómo recibir el regalo", auto: "gift-decide" },
+      { title: "Añadir los datos para el regalo", auto: "gift-data" },
+    ],
   },
   {
     category: "tareas_generales",
@@ -127,9 +133,30 @@ const AUTO_BY_CATEGORY_AND_TITLE = new Map<string, StepTaskAuto>(
 );
 
 /**
+ * Tareas base cuyo título ya no existe: los planes creados antes del cambio
+ * las guardaron con el texto antiguo. Se leen como la tarea vigente.
+ */
+const LEGACY_TASKS = new Map<string, { title: string; auto: StepTaskAuto }>([
+  [
+    "lista_regalos|Decidir tipo de lista de regalos",
+    { title: "Decidir cómo recibir el regalo", auto: "gift-decide" },
+  ],
+  [
+    "lista_regalos|Crear la lista",
+    { title: "Añadir los datos para el regalo", auto: "gift-data" },
+  ],
+]);
+
+/**
  * Clave `auto` de una tarea base guardada sin ella (los planes anteriores a
  * las herramientas enlazadas), según su paso y su título original.
  */
 export function baseTaskAuto(category: string, title: string): StepTaskAuto | undefined {
-  return AUTO_BY_CATEGORY_AND_TITLE.get(`${category}|${title}`);
+  const key = `${category}|${title}`;
+  return AUTO_BY_CATEGORY_AND_TITLE.get(key) ?? LEGACY_TASKS.get(key)?.auto;
+}
+
+/** Título vigente de una tarea base guardada con un título antiguo (o `undefined`). */
+export function legacyTaskTitle(category: string, title: string): string | undefined {
+  return LEGACY_TASKS.get(`${category}|${title}`)?.title;
 }

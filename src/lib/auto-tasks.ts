@@ -3,6 +3,7 @@ import { canonicalCategory, categoryKey } from "@/components/vendors/vendor-mode
 import { baseTaskAuto } from "@/lib/steps";
 import type {
   BudgetItem,
+  CeremonyType,
   Guest,
   StepStatus,
   StepTask,
@@ -14,6 +15,8 @@ export const AUTO_TASKS_CATEGORY = "fecha_presupuesto";
 export const GUESTS_CATEGORY = "invitados";
 export const VENDORS_CATEGORY = "proveedores";
 export const CEREMONY_CATEGORY = "ceremonia";
+export const LEGAL_DOCS_CATEGORY = "documentos_legales";
+export const GIFT_CATEGORY = "lista_regalos";
 
 /** Qué tareas automáticas hay que (re)evaluar y con qué datos del plan. */
 export interface AutoTaskInput {
@@ -25,6 +28,12 @@ export interface AutoTaskInput {
   timelineDraft?: boolean;
   /** `true`: se acaba de copiar o imprimir el cronograma. */
   timelineShare?: boolean;
+  /** Si viene definido, se sincroniza «Elegir tipo de ceremonia» (en los dos sentidos). */
+  ceremonyType?: CeremonyType | null;
+  /** Si viene definido, se sincroniza «Reunir documentación» (en los dos sentidos). */
+  legalDocsComplete?: boolean;
+  /** Si viene definido, se sincroniza «Añadir los datos para el regalo» (en los dos sentidos). */
+  giftSet?: boolean;
   /**
    * Tareas cuyo hito se cumple ahora mismo según los datos de una herramienta
    * (invitados, proveedores, gastos). Solo se marcan: nunca se desmarcan solas,
@@ -72,6 +81,13 @@ export function syncAutoTasks(
     let done = task.done;
     if (auto === "date" && input.weddingDate !== undefined) done = isDateSet(input.weddingDate);
     if (auto === "budget" && input.budgetTotal !== undefined) done = isBudgetSet(input.budgetTotal);
+    if (auto === "ceremony-type" && input.ceremonyType !== undefined) {
+      done = input.ceremonyType !== null;
+    }
+    if (auto === "legal-docs" && input.legalDocsComplete !== undefined) {
+      done = input.legalDocsComplete;
+    }
+    if (auto === "gift-data" && input.giftSet !== undefined) done = input.giftSet;
     if (auto === "timeline-draft" && input.timelineDraft) done = true;
     if (auto === "timeline-share" && input.timelineShare) done = true;
     if (auto && input.reached?.includes(auto)) done = true;

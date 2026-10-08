@@ -4,6 +4,7 @@ import * as React from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
+import { AgendaProviders } from "@/components/appointments/agenda-providers";
 import { CARD } from "@/components/dashboard/ui";
 import { EditPlanDialog } from "@/components/plan/edit-plan-dialog";
 import { EditPlanLauncherProvider } from "@/components/plan/edit-plan-launcher";
@@ -11,6 +12,7 @@ import { PhasePanel } from "@/components/plan/phase-panel";
 import { PhaseTabs, type PhaseTab } from "@/components/plan/phase-tabs";
 import { Bone, StepCardSkeleton } from "@/components/plan/plan-shell";
 import { stepElementId, stepTriggerId } from "@/components/plan/step-card";
+import { PlanToolsProvider } from "@/components/plan-tools/plan-tools-launcher";
 import { TimelineLauncherProvider } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { computePhases, isStepDone, planProgress, recommendedStep } from "@/lib/phases";
@@ -261,7 +263,11 @@ export default function PlanOverviewPage() {
     <React.Suspense fallback={null}>
       <EditPlanLauncherProvider>
         <TimelineLauncherProvider>
-          <PlanOverview />
+          <PlanToolsProvider>
+            <AgendaProviders>
+              <PlanOverview />
+            </AgendaProviders>
+          </PlanToolsProvider>
         </TimelineLauncherProvider>
       </EditPlanLauncherProvider>
     </React.Suspense>

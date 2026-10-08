@@ -60,9 +60,16 @@ export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
  *    hay un proveedor elegido de esa categoría;
  *  - "venue-ceremony" / "venue-banquet": solo enlace a «Finca». Ceremonia y
  *    banquete comparten categoría, así que no se pueden distinguir y no se
- *    marcan solas.
- * Las que se marcan por datos del plan nunca se desmarcan solas, salvo
- * "date" y "budget".
+ *    marcan solas;
+ *  - "ceremony-type": el plan tiene tipo de ceremonia (en los dos sentidos);
+ *  - "legal-start": solo enlace a la guía de documentos legales;
+ *  - "legal-docs": están marcados todos los documentos que aplican (en los
+ *    dos sentidos);
+ *  - "gift-decide": solo enlace a los datos del regalo;
+ *  - "gift-data": el regalo tiene IBAN o Bizum (en los dos sentidos).
+ * Las que se marcan por datos de otras herramientas nunca se desmarcan solas;
+ * las del plan ("date", "budget", "ceremony-type", "legal-docs", "gift-data")
+ * siguen al dato en los dos sentidos.
  */
 export type StepTaskAuto =
   | "date"
@@ -77,7 +84,12 @@ export type StepTaskAuto =
   | "vendor-music"
   | "vendor-officiant"
   | "venue-ceremony"
-  | "venue-banquet";
+  | "venue-banquet"
+  | "ceremony-type"
+  | "legal-start"
+  | "legal-docs"
+  | "gift-decide"
+  | "gift-data";
 
 export interface StepTask {
   id: string;

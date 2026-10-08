@@ -8,6 +8,7 @@ import { GlanceRow } from "./glance-row";
 import { firstName, type FeaturedPlanData } from "./helpers";
 import { HomeHeader } from "./home-header";
 import { NowCard } from "./now-card";
+import { UpcomingAppointments } from "./upcoming-appointments";
 import { FOCUS, LINK, NEW_PLAN_HREF } from "./ui";
 
 export interface DashboardHomeProps {
@@ -28,10 +29,11 @@ export interface DashboardHomeProps {
 
 /**
  * Home personal del usuario. Componente presentacional: recibe datos planos y
- * no toca Firebase, de modo que se puede pintar con datos de ejemplo.
+ * no toca Firebase, de modo que se puede pintar con datos de ejemplo (salvo la
+ * tarjeta «Próximas citas», que se suscribe sola a la agenda del plan).
  *
- * Tres bloques, en este orden: cabecera (saludo + cuenta atrás), "Ahora toca"
- * (la única acción principal) y "De un vistazo" (tres datos con enlace).
+ * Cuatro bloques, en este orden: cabecera (saludo + cuenta atrás), "Ahora toca"
+ * (la única acción principal), "Próximas citas" y "De un vistazo" (tres datos con enlace).
  */
 export function DashboardHome({
   userName,
@@ -82,6 +84,8 @@ export function DashboardHome({
       />
 
       <NowCard plan={featured} data={data} />
+
+      <UpcomingAppointments planId={featured.id} />
 
       <GlanceRow plan={featured} data={data} />
 

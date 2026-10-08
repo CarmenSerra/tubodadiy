@@ -212,6 +212,60 @@ quedar por debajo de las tarjetas (`bg-surface`). Bajo contraste a propósito:
 Los trazos decorativos (icono del marcador de proveedor, anillos) solo
 necesitan 3:1 y no son texto.
 
+## Tema «Luna de miel» (tropical)
+
+La ruta `/plan/[planId]/honeymoon` tiene su propia piel: azules de mar, verdes de
+palmera y blanco roto (claro) o noche tropical de mar profundo (oscuro). No es un
+tema nuevo de la app, sino un **ámbito**: la clase `.theme-honeymoon` redefine los
+**mismos tokens de rol** (`--page`, `--surface`, `--ink`, `--cta`, `--lilac`…), así que
+cabecera, pestañas, diálogos, avisos y los componentes existentes se re-visten solos.
+
+- **Dónde vive:** bloque delimitado «LUNA DE MIEL (tema tropical)» en `src/app/globals.css`
+  (antes de `@theme inline`). `.theme-honeymoon` es el claro; `html[data-theme="dark"] .theme-honeymoon`
+  el oscuro (sigue mandando `tubodadiy-theme` en `localStorage`). Un tercer selector
+  re-deriva los tokens shadcn (`--background`, `--card`, `--primary`, `--ring`…) a partir
+  de los de rol, porque el tema oscuro los resuelve en `<html>` y se heredarían ya calculados.
+- **Quién lo aplica:** `src/components/brand/app-frame.tsx` (montado en `src/app/(app)/layout.tsx`).
+  Por `usePathname` (`isHoneymoonPath`, en `src/lib/honeymoon-model.ts`) pone la clase al
+  contenedor de la app y sustituye `AppBackdrop` por `HoneymoonBackdrop`; el resto de rutas
+  no cambia. También la pone en `<body>` mientras se está en la ruta, para que lo que Radix
+  pinta en un portal (diálogos, desplegables) y los avisos hereden la paleta.
+- **Dibujos:** `src/components/honeymoon/motifs.tsx` (sol/luna, estrellas, nubes, palmera,
+  hojas, hibisco, montañas, olas, avión con estela punteada y escenas para miniaturas) y
+  `honeymoon-backdrop.tsx` (fondo fijo). SVG en línea con tokens `--hm-*`:
+
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `--hm-sky-top` / `-mid` / `-bottom` | `#CFEAF1` / `#E3F3EF` / `#F3F2E9` | `#061A26` / `#0A2A38` / `#0E3A45` | degradado del cielo |
+| `--hm-sun`, `--hm-sun-glow`, `--hm-sun-ray` | `#FFD37A`, ámbar translúcido | luna `#EEF3DC`, rayos transparentes | sol / luna |
+| `--hm-star` | transparente | `rgb(230 245 240 / .75)` | estrellas (solo de noche) |
+| `--hm-cloud` | blanco al 85 % | `rgb(160 205 210 / .12)` | nubes |
+| `--hm-mtn-far`, `-near`, `-shade`, `--hm-hill` | `#B4D8D3`, `#94C9B8`, `#84BBA9`, `#7CC0A2` | `#134552`, `#0F3B46`, `#0C323C`, `#0B3A3B` | relieve |
+| `--hm-sea`, `--hm-sea-deep`, `--hm-foam`, `--hm-sand` | `#9AD8DD`, `#6CC0CC`, blanco 80 %, `#EFE4C6` | `#0F4A58`, `#0B3D4A`, `rgb(160 220 215 / .28)`, `#1C4A4A` | mar y arena |
+| `--hm-palm`, `-palm-dark`, `--hm-trunk`, `--hm-leaf`, `--hm-flower` | `#3B9A72`, `#26785A`, `#B59A6A`, `#5DB487`, `#F08A7E` | `#14604B`, `#0E4A3B`, `#3B4D45`, `#17694F`, `#D9786F` | vegetación |
+| `--hm-trail`, `--hm-plane`, `--hm-plane-edge` | `rgb(11 111 140 / .55)`, `#FFFFFF`, `#0B6F8C` | `rgb(127 224 214 / .55)`, `#EAF6F2`, `#7FE0D6` | avión y estela |
+| `--hm-hero-from` / `-to` | `#D4EEF0` / `#F1F3E4` | `#0F3A47` / `#123F49` | banner (lleva texto) |
+
+Roles de rol que cambian (claro / oscuro): `--page` `#F3F2E9` / `#0A2630`; `--surface` `#FBFAF4` / `#10333F`;
+`--ink` `#0D3B47` / `#F1F6EE`; `--ink-muted` `#44646B` / `#BCD8D5`; `--cta` `#0B6F8C` (texto blanco) / `#5CCFC4`
+(texto `#06262C`); `--lilac` (acento de iconos y foco) `#0E7D97` / `#6FD6CC`; `--green` `#1A6B4C` / `#A4E0B8`;
+`--deep` (destino «Elegido») `#16623F` / `#5FC58E`. En esta piel «lila» significa azul océano: los nombres de rol no cambian.
+
+Contraste (texto normal ≥ 4,5:1; medido con los valores finales):
+
+| Combinación | Claro | Oscuro |
+|---|---|---|
+| `--ink` sobre `--page` / `--surface` | 10,8 / 11,6 | 14,4 / 12,2 |
+| `--ink-muted` sobre `--surface` / `--lilac-soft` / `--lilac-mid` | 6,1 / 5,4 / 4,8 | 8,9 / 6,7 / 5,5 |
+| `--on-cta` sobre `--cta` | 5,7 | 8,5 |
+| `--on-solid` sobre `--green-solid` | 5,3 | 7,9 |
+| `--on-done` / `--on-done-muted` sobre `--done` | 6,2 / 5,5 | 6,2 / 5,6 |
+| `--danger` sobre `--surface` | 6,5 | 7,8 |
+
+Las tarjetas de la página son opacas y el texto nunca se apoya directamente en los dibujos del
+fondo. Las animaciones suaves (`hm-sway`, `hm-drift`, `hm-bob`) solo corren con
+`prefers-reduced-motion: no-preference`.
+
 ## Tipografía
 
 Tres familias, cada una con un rol fijo y sin solaparse:

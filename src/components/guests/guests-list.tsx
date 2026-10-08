@@ -20,6 +20,8 @@ import {
 import { GuestIdeas } from "@/components/ideas/guest-ideas";
 import { GuestSummary, GuestsSkeleton } from "@/components/guests/guest-summary";
 import { RSVP_CONFIG, RsvpMenu, RsvpSegmented } from "@/components/guests/rsvp";
+import { InvitationButton } from "@/components/invitation/invitation-launcher";
+import { InvitationResponses } from "@/components/invitation/invitation-responses";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { guestsQuery, mapGuest } from "@/lib/firebase/plans";
 import { deleteGuest, restoreGuest, updateGuest } from "@/lib/firebase/mutations";
@@ -97,12 +99,15 @@ export function GuestsList({
         <h2 className={SECTION_TITLE}>Lista de invitados</h2>
         <p className="mt-1 text-sm text-ink-muted">Quién viene, quién falta por contestar y qué necesita cada persona.</p>
       </div>
-      {!loading && guests.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <GuestFormDialog planId={planId} groups={groups} />
-          <GuestIdeas planId={planId} groups={groups} align="end" />
-        </div>
-      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <InvitationButton />
+        {!loading && guests.length > 0 && (
+          <>
+            <GuestFormDialog planId={planId} groups={groups} />
+            <GuestIdeas planId={planId} groups={groups} align="end" />
+          </>
+        )}
+      </div>
     </div>
   );
 
@@ -119,6 +124,7 @@ export function GuestsList({
     return (
       <div className="flex flex-col gap-5">
         {header}
+        <InvitationResponses planId={planId} />
         <div className={cn(CARD, "flex flex-col items-center px-6 py-12 text-center sm:py-14")}>
           <IconCircle tone="sage" className="size-12 [&_svg]:size-6">
             <UsersIcon />
@@ -144,6 +150,7 @@ export function GuestsList({
   return (
     <div className="flex flex-col gap-5">
       {header}
+      <InvitationResponses planId={planId} />
       <GuestSummary guests={guests} />
       <GuestFilterBar
         filters={effective}

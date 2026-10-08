@@ -14,7 +14,7 @@ import {
 
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { initialAutoDone, statusAfterTasksChange } from "@/lib/auto-tasks";
-import { STEP_DEFINITIONS, baseTaskAuto } from "@/lib/steps";
+import { STEP_DEFINITIONS, baseTaskAuto, legacyTaskTitle } from "@/lib/steps";
 import type {
   StepTask,
   WeddingPlan,
@@ -68,9 +68,12 @@ export function mapStep(id: string, data: DocumentData): PlanStep {
     // Las tareas base de planes anteriores a las herramientas enlazadas se
     // guardaron sin `auto`: se reconocen por paso + título para darles su flecha.
     tasks: ((data.tasks ?? []) as StepTask[]).map((task) => {
-      if (task.auto) return task;
-      const auto = baseTaskAuto(data.category, task.title);
-      return auto ? { ...task, auto } : task;
+      // Si el título de una tarea base cambió, se lee con el texto vigente
+      // (aunque ya se le hubiera escrito `auto` al sincronizarla).
+      const title = legacyTaskTitle(data.category, task.title) ?? task.title;
+      const auto = task.auto ?? baseTaskAuto(data.category, task.title);
+      if (!auto) return task;
+      return { ...task, title, auto };
     }),
   };
 }

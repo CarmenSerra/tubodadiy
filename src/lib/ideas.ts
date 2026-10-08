@@ -626,56 +626,56 @@ export const STEP_TASK_IDEAS: Record<string, TaskIdea[]> = {
     },
   ],
 
-  // Lista de regalos
+  // Regalo (solo en dinero: cuenta o Bizum, sin lista física)
   lista_regalos: [
     {
-      title: "Hablar de lo que de verdad necesitáis en casa",
-      hint: "Si ya vivís juntos, quizá prefiráis aportación al viaje o a la entrada de un piso.",
-      when: "8–10 meses antes",
-    },
-    {
-      title: "Abrir un número de cuenta para los regalos",
-      hint: "Muchas parejas piden aportación económica con IBAN; usad una cuenta que controléis.",
+      title: "Decidir si queréis cuenta bancaria, Bizum o las dos",
+      hint: "La transferencia vale para todas las edades; el Bizum es rápido para quien tiene la app.",
       when: "6–8 meses antes",
     },
     {
-      title: "Redactar el mensaje para pedir dinero en vez de regalos",
-      hint: "Un texto breve y cariñoso en la invitación o la web funciona bien.",
-      when: "5–6 meses antes",
-    },
-    {
-      title: "Apuntar ideas para una lista de bodas en tienda",
-      hint: "Menaje, textil, electrodomésticos; mezclad precios para que todos puedan elegir.",
+      title: "Elegir una cuenta que controléis los dos",
+      hint: "Puede ser conjunta o una de las vuestras; comprobad que no tiene comisiones por recibir transferencias.",
       when: "6–8 meses antes",
     },
     {
-      title: "Incluir opciones de distinto precio",
-      hint: "Desde detalles pequeños a regalos grandes para que cada invitado encuentre algo.",
+      title: "Decidir para qué queréis destinar el dinero",
+      hint: "Luna de miel, entrada de una casa, reformas o un ahorro común: contarlo ayuda a quien regala.",
+      when: "6–8 meses antes",
+    },
+    {
+      title: "Redactar un mensaje breve y cariñoso para pedir dinero en vez de regalos",
+      hint: "Dos o tres frases, sin presionar: lo importante es que vengan. Mejor en positivo.",
       when: "5–6 meses antes",
     },
     {
-      title: "Preparar una lista de experiencias para luna de miel",
-      hint: "Cenas, excursiones o noches de hotel que los invitados puedan regalar.",
-      when: "5–6 meses antes",
-    },
-    {
-      title: "Decidir cómo recibir los regalos físicos el día de la boda",
-      hint: "Una mesa o caja de sobres vigilada, o una persona de confianza que los custodie.",
-      when: "1–2 meses antes",
-    },
-    {
-      title: "Compartir la lista en la web o en la invitación",
-      hint: "Poned el enlace o el IBAN en un lugar visible y fácil de encontrar.",
+      title: "Revisar el IBAN y el Bizum antes de compartirlos",
+      hint: "Copiad y pegad en lugar de teclear, y pedid a otra persona que lo compruebe.",
       when: "4–6 meses antes",
     },
     {
-      title: "Anotar quién ha regalado qué",
-      hint: "Facilita los agradecimientos y evita olvidos o duplicados.",
+      title: "Decidir dónde se verán los datos",
+      hint: "En la invitación, en la web de la boda o solo a quien pregunte; elegid qué os resulta más cómodo.",
+      when: "4–6 meses antes",
+    },
+    {
+      title: "Preparar una respuesta para quien insista en regalar algo físico",
+      hint: "Una frase amable y lista para repetir: «Lo mejor es vuestra compañía; si queréis, aportación para la luna de miel».",
+      when: "2–3 meses antes",
+    },
+    {
+      title: "Decidir cómo recoger los sobres que lleguen el día de la boda",
+      hint: "Una caja o urna discreta y una persona de confianza que la custodie y la lleve a casa.",
+      when: "1–2 meses antes",
+    },
+    {
+      title: "Anotar quién ha regalado cuánto",
+      hint: "Facilita los agradecimientos y evita olvidos; una nota rápida en el móvil basta.",
       when: "Desde que lleguen",
     },
     {
       title: "Enviar mensajes de agradecimiento personalizados",
-      hint: "Una nota breve y sincera a cada invitado, mejor en las primeras semanas.",
+      hint: "Una nota breve y sincera a cada persona, mejor en las primeras semanas, contando en qué usaréis el dinero.",
       when: "1–2 meses después",
     },
   ],
