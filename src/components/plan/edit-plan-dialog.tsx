@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updatePlanDetails } from "@/lib/firebase/mutations";
@@ -94,11 +95,10 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
           <Label htmlFor="edit-plan-date" className={PLAN_LABEL}>
             Fecha objetivo
           </Label>
-          <Input
+          <DatePicker
             id="edit-plan-date"
-            type="date"
             value={weddingDate}
-            onChange={(e) => setWeddingDate(e.target.value)}
+            onChange={setWeddingDate}
             aria-describedby="edit-plan-date-help"
             className={PLAN_FIELD}
           />
