@@ -143,7 +143,7 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
   return (
     <div className="flex flex-col gap-5">
       {header}
-      <BudgetSummary plan={plan} budgetTotal={budgetTotal} items={items} />
+      <BudgetSummary budgetTotal={budgetTotal} items={items} />
 
       {items.length === 0 ? (
         <div className={cn(CARD, "flex flex-col items-center px-6 py-12 text-center sm:py-14")}>

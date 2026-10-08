@@ -2,10 +2,9 @@ import { BadgeCheckIcon, CalculatorIcon, ReceiptIcon, WalletIcon } from "lucide-
 
 import { CARD } from "@/components/dashboard/ui";
 import { Bone } from "@/components/plan/plan-shell";
-import { PlanBudgetEditor } from "@/components/plan/plan-field-editors";
 import { StatTile } from "@/components/guests/guest-summary";
 import { cn } from "@/lib/utils";
-import type { BudgetItem, WeddingPlan } from "@/lib/types";
+import type { BudgetItem } from "@/lib/types";
 import { computeTotals, formatMoney } from "./budget-math";
 
 /** Barra de uso del presupuesto: la misma que MiniBar, pero más gruesa por ser la protagonista. */
@@ -25,12 +24,9 @@ function UsageBar({ value, label }: { value: number; label: string }) {
 }
 
 export function BudgetSummary({
-  plan,
   budgetTotal,
   items,
 }: {
-  /** Plan completo, para poder editar el presupuesto total en el sitio. */
-  plan: WeddingPlan | null;
   budgetTotal: number;
   items: BudgetItem[];
 }) {
@@ -57,13 +53,8 @@ export function BudgetSummary({
           </div>
           {hasTotal && (
             <p className="pb-1 text-sm text-ink-muted">
-              de{" "}
-              {plan ? (
-                <PlanBudgetEditor plan={plan} className="font-medium text-ink" />
-              ) : (
-                `${formatMoney(budgetTotal)} `
-              )}
-              de presupuesto total
+              de <span className="font-medium text-ink">{formatMoney(budgetTotal)}</span> de presupuesto
+              total
             </p>
           )}
         </div>
@@ -90,8 +81,7 @@ export function BudgetSummary({
           </>
         ) : (
           <p className="text-sm text-ink-muted">
-            Aún no has fijado un presupuesto total.{" "}
-            {plan && <PlanBudgetEditor plan={plan} />}
+            Aún no has fijado un presupuesto total.
           </p>
         )}
       </div>
@@ -101,15 +91,7 @@ export function BudgetSummary({
           icon={<WalletIcon />}
           tone="lilac"
           label="Presupuesto total"
-          value={
-            plan ? (
-              <PlanBudgetEditor plan={plan} className={cn("text-left", !hasTotal && "text-lg")} />
-            ) : hasTotal ? (
-              formatMoney(budgetTotal)
-            ) : (
-              "Por definir"
-            )
-          }
+          value={hasTotal ? formatMoney(budgetTotal) : "Sin definir"}
           detail="tu techo de gasto"
         />
         <StatTile

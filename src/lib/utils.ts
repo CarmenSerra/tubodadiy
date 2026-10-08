@@ -26,6 +26,24 @@ export function formatCurrency(value: number | null | undefined): string {
   }).format(value);
 }
 
+/**
+ * Interpreta un importe escrito a la española: "12.000", "12000,50", "12 000 €",
+ * "12000.5". Devuelve NaN si no es un número.
+ */
+export function parseAmount(raw: string): number {
+  let text = raw.replace(/[\s €]/g, "");
+  if (!text || !/^-?[\d.,]+$/.test(text)) return Number.NaN;
+  if (text.includes(",")) {
+    // La coma es el decimal; los puntos, miles.
+    text = text.replace(/\./g, "").replace(",", ".");
+  } else if (/^-?\d{1,3}(\.\d{3})+$/.test(text)) {
+    // "12.000" o "1.250.000": puntos de miles.
+    text = text.replace(/\./g, "");
+  }
+  if ((text.match(/\./g) ?? []).length > 1) return Number.NaN;
+  return Number(text);
+}
+
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "Sin fecha";
   const date = new Date(value + "T00:00:00");

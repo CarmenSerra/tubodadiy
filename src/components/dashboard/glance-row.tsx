@@ -4,7 +4,6 @@ import Link from "next/link";
 import { StoreIcon, UsersIcon, WalletIcon, type LucideIcon } from "lucide-react";
 
 import { computeTotals, formatMoney } from "@/components/budget/budget-math";
-import { PlanBudgetPopover } from "@/components/plan/plan-field-editors";
 import type { WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { summarizeGuests, summarizeVendors, type FeaturedPlanData } from "./helpers";
@@ -107,22 +106,14 @@ export function GlanceRow({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
         De un vistazo
       </h2>
       <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-        {hasBudget ? (
-          <Stat
-            href={`/plan/${plan.id}/budget`}
-            label="Presupuesto"
-            icon={WalletIcon}
-            loading={data.loading && data.budgetItems.length === 0}
-            value={budgetValue}
-          />
-        ) : (
-          // Sin presupuesto: en vez de ir a la pestaña vacía, se escribe aquí mismo.
-          <PlanBudgetPopover plan={plan}>
-            <button type="button" aria-haspopup="dialog" className={cn(STAT_CARD, "w-full text-left")}>
-              <StatBody label="Presupuesto" icon={WalletIcon} loading={false} value={budgetValue} muted />
-            </button>
-          </PlanBudgetPopover>
-        )}
+        <Stat
+          href={`/plan/${plan.id}/budget`}
+          label="Presupuesto"
+          icon={WalletIcon}
+          loading={data.loading && data.budgetItems.length === 0}
+          value={budgetValue}
+          muted={!hasBudget}
+        />
         <Stat
           href={`/plan/${plan.id}/guests`}
           label="Invitados"

@@ -3,7 +3,6 @@
 import * as React from "react";
 import { ChevronDownIcon } from "lucide-react";
 
-import { PlanDateEditor } from "@/components/plan/plan-field-editors";
 import { TeamDialog } from "@/components/members/team-dialog";
 import { ROLE_LABEL } from "@/components/members/roles";
 import {
@@ -24,30 +23,18 @@ const QUIET_BUTTON = cn(
   "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-ink transition-colors hover:bg-lilac-soft motion-reduce:transition-none"
 );
 
-/** Editor de fecha dentro de la cuenta atrás: sobre el fondo lila el hover pasa a #E5DDEC. */
-const COUNTDOWN_EDITOR = "text-ink sm:hover:bg-track sm:data-[state=open]:bg-track";
-
 /** Cuenta atrás tranquila: número grande y la fecha en pequeño. */
 function Countdown({ plan, className }: { plan: WeddingPlan; className?: string }) {
   const days = daysUntil(plan.weddingDate);
 
   let body: React.ReactNode;
   if (days === null) {
-    body = (
-      <>
-        <p className="font-display text-2xl font-medium text-ink">Aún sin fecha</p>
-        <p className="mt-1 text-sm text-ink-muted">
-          <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
-        </p>
-      </>
-    );
+    body = <p className="font-display text-2xl font-medium text-ink">Aún sin fecha</p>;
   } else if (days === 0) {
     body = (
       <>
         <p className="font-display text-3xl font-medium text-ink">¡Hoy es el gran día!</p>
-        <p className="mt-1 text-sm text-ink-muted">
-          <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
-        </p>
+        <p className="mt-1 text-sm text-ink-muted">{formatDate(plan.weddingDate)}</p>
       </>
     );
   } else if (days < 0) {
@@ -55,7 +42,7 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
       <>
         <p className="font-display text-2xl font-medium text-ink">Vuestro gran día</p>
         <p className="mt-1 text-sm text-ink-muted">
-          fue el <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
+          fue el {formatDate(plan.weddingDate)}
         </p>
       </>
     );
@@ -69,7 +56,7 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
           <span className="font-display text-xl text-ink">{days === 1 ? "día" : "días"}</span>
         </p>
         <p className="mt-2 text-sm text-ink-muted">
-          hasta el <PlanDateEditor plan={plan} className={COUNTDOWN_EDITOR} />
+          hasta el {formatDate(plan.weddingDate)}
         </p>
       </>
     );

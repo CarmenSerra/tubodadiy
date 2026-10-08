@@ -1,4 +1,3 @@
-import { parseAmount } from "@/components/plan/plan-field-editors";
 import type { OnboardingExtras } from "@/lib/firebase/onboarding";
 import {
   CEREMONY_OPTIONS,
@@ -11,7 +10,7 @@ import {
   type OnboardingAnswers,
   type ScreenId,
 } from "@/lib/onboarding-model";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, parseAmount } from "@/lib/utils";
 
 // Del estado del flujo a lo que se crea: datos del plan, extras y resumen.
 // Solo cuentan las respuestas de las pantallas que forman parte del recorrido
