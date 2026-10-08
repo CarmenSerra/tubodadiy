@@ -17,7 +17,7 @@ import {
 
 import {
   AUTO_TASKS_CATEGORY,
-  statusAfterTaskSync,
+  statusAfterTasksChange,
   syncAutoTasks,
   type AutoTaskInput,
 } from "@/lib/auto-tasks";
@@ -65,7 +65,8 @@ export async function unlockPhase(planId: string, phaseId: string) {
 /**
  * Aplica `data` a las tareas automáticas del paso de esa categoría (p. ej.
  * "Fecha y presupuesto" con la fecha y el presupuesto recién guardados). No
- * toca pasos completados u omitidos, ni completa nunca el paso.
+ * no toca pasos omitidos. El estado del paso sigue a sus tareas (completar la
+ * última lo completa; desmarcar una automática de un paso completo lo reabre).
  */
 async function syncAutoTaskStep(planId: string, category: string, data: AutoTaskInput) {
   const db = getFirebaseDb();
@@ -82,13 +83,13 @@ async function syncAutoTaskStep(planId: string, category: string, data: AutoTask
     const snap = await tx.get(stepRef);
     if (!snap.exists()) return;
     const status: StepStatus = snap.data().status ?? "pending";
-    if (status === "completed" || status === "skipped") return;
+    if (status === "skipped") return;
 
     const current: StepTask[] = snap.data().tasks ?? [];
     const { tasks, changed } = syncAutoTasks(current, data);
     if (!changed) return;
 
-    const nextStatus = statusAfterTaskSync(status, tasks);
+    const nextStatus = statusAfterTasksChange(status, current, tasks);
     tx.update(stepRef, nextStatus === status ? { tasks } : { tasks, status: nextStatus });
   });
 }
@@ -120,8 +121,18 @@ export async function updateStepNotes(planId: string, stepId: string, notes: str
   await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "steps", stepId), { notes });
 }
 
-export async function replaceStepTasks(planId: string, stepId: string, tasks: StepTask[]) {
-  await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "steps", stepId), { tasks });
+/**
+ * Guarda las tareas del paso y, en la misma escritura, su estado: la causa de
+ * que un paso con todas las tareas hechas no contara como completado era que
+ * solo se escribía `tasks` y `status` (que leen fases, progreso y home) no se
+ * movía nunca.
+ */
+export async function replaceStepTasks(planId: string, step: PlanStep, tasks: StepTask[]) {
+  const status = statusAfterTasksChange(step.status, step.tasks, tasks);
+  await updateDoc(
+    doc(getFirebaseDb(), "weddingPlans", planId, "steps", step.id),
+    status === step.status ? { tasks } : { tasks, status }
+  );
 }
 
 export function addTaskToStep(step: PlanStep, title: string): StepTask[] {

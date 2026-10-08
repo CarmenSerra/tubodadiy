@@ -55,7 +55,13 @@ export function StepCard({
   const [newTask, setNewTask] = React.useState("");
   const doneCount = step.tasks.filter((t) => t.done).length;
   const bodyId = `step-body-${step.id}`;
-  const muted = step.status === "completed" || step.status === "skipped";
+  const completed = step.status === "completed";
+  const muted = step.status === "skipped";
+  // Texto secundario y foco: sobre el violeta de «completado» cambian de tinta.
+  const soft = completed ? "text-on-done-muted" : "text-ink-muted";
+  const ring = completed
+    ? "focus-visible:ring-on-done focus-visible:ring-offset-done"
+    : "focus-visible:ring-offset-surface";
   // El paso del cronograma tiene su propia herramienta (un diálogo).
   const timeline = useTimelineLauncher();
   const openTimeline = step.category === TIMELINE_CATEGORY ? timeline?.open : undefined;
@@ -78,7 +84,7 @@ export function StepCard({
 
   async function handleToggleTask(taskId: string) {
     try {
-      await replaceStepTasks(planId, step.id, toggleTaskInStep(step, taskId));
+      await replaceStepTasks(planId, step, toggleTaskInStep(step, taskId));
     } catch {
       toast.error("No se ha podido actualizar la tarea.");
     }
@@ -86,7 +92,7 @@ export function StepCard({
 
   async function handleRemoveTask(taskId: string) {
     try {
-      await replaceStepTasks(planId, step.id, removeTaskFromStep(step, taskId));
+      await replaceStepTasks(planId, step, removeTaskFromStep(step, taskId));
     } catch {
       toast.error("No se ha podido eliminar la tarea.");
     }
@@ -98,7 +104,7 @@ export function StepCard({
     if (!title) return;
     setNewTask("");
     try {
-      await replaceStepTasks(planId, step.id, addTaskToStep(step, title));
+      await replaceStepTasks(planId, step, addTaskToStep(step, title));
     } catch {
       toast.error("No se ha podido añadir la tarea.");
     }
@@ -108,182 +114,236 @@ export function StepCard({
     <li
       id={stepElementId(step.id)}
       data-recommended={recommended || undefined}
+      data-completed={completed || undefined}
       className={cn(
-        "scroll-mt-24 overflow-hidden rounded-2xl border bg-surface text-ink-strong transition-colors motion-reduce:transition-none",
-        open ? "border-line-strong" : "border-line hover:border-line-strong",
-        recommended && "border-l-[4px] border-l-lilac hover:border-l-lilac"
+        "scroll-mt-24 flex overflow-hidden rounded-2xl border transition-colors motion-reduce:transition-none",
+        completed
+          ? "border-done bg-done text-on-done"
+          : cn(
+              "bg-surface text-ink-strong",
+              open ? "border-line-strong" : "border-line hover:border-line-strong"
+            ),
+        recommended && !completed && "border-l-[4px] border-l-lilac hover:border-l-lilac"
       )}
     >
-      <div className="flex items-center gap-1 py-1 pl-2 pr-2 sm:pl-3 sm:pr-3">
-        <StepStatusControl
-          planId={planId}
-          stepId={step.id}
-          title={step.title}
-          status={step.status}
-        />
-        <button
-          type="button"
-          id={stepTriggerId(step.id)}
-          aria-expanded={open}
-          aria-controls={bodyId}
-          onClick={() => onOpenChange(!open)}
-          className={cn(
-            "flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 pl-1 text-left",
-            FOCUS,
-            "focus-visible:ring-offset-surface"
-          )}
+      {completed && (
+        // Franja decorativa: el estado ya lo anuncia el control de estado
+        // («Completado»), así que se oculta a los lectores de pantalla. Con
+        // writing-mode vertical + rotate-180 se lee de abajo arriba y el 🎉
+        // queda arriba, al final de la lectura.
+        <div
+          aria-hidden="true"
+          data-testid="completed-strip"
+          className="flex w-9 shrink-0 select-none flex-col items-center justify-between gap-1.5 bg-done-strip py-2.5 text-on-done sm:w-10"
         >
-          <span className="min-w-0 flex-1">
-            {(recommended || step.status === "in_progress" || step.status === "skipped") && (
-              <span className="mb-1 flex flex-wrap items-center gap-1.5">
-                {recommended && (
-                  <span className="rounded-full bg-lilac-soft px-2 py-0.5 text-xs font-medium text-ink">
-                    Siguiente
-                  </span>
-                )}
-                {(step.status === "in_progress" || step.status === "skipped") && (
-                  <span className="text-xs font-medium text-ink-muted">
-                    {STATUS_LABEL[step.status]}
-                  </span>
-                )}
-              </span>
-            )}
-            <span
-              className={cn(
-                "block font-display text-base font-semibold leading-snug sm:text-lg",
-                muted ? "text-ink-muted" : "text-ink-strong",
-                step.status === "skipped" && "line-through decoration-ink-muted/50"
-              )}
-            >
-              {step.title}
-            </span>
-            {step.description && (
-              <span className="mt-0.5 line-clamp-2 block text-sm text-ink-muted sm:line-clamp-1">
-                {step.description}
-              </span>
-            )}
+          <span className="text-base leading-none">🎉</span>
+          <span className="rotate-180 text-[0.7rem] font-bold uppercase leading-none tracking-[0.1em] [writing-mode:vertical-rl]">
+            ¡Completado!
           </span>
-          {step.tasks.length > 0 && (
-            <span className="shrink-0 whitespace-nowrap text-sm text-ink-muted">
-              {doneCount}/{step.tasks.length}
-              <span className="hidden sm:inline"> tareas</span>
-              <span className="sr-only sm:hidden"> tareas</span>
-            </span>
-          )}
-          <ChevronDownIcon
-            aria-hidden="true"
-            className={cn(
-              "size-5 shrink-0 text-ink-muted transition-transform motion-reduce:transition-none",
-              open && "rotate-180"
-            )}
+        </div>
+      )}
+      <div className={cn("min-w-0 flex-1", completed && "flex flex-col justify-center")}>
+        <div className="flex items-center gap-1 py-1 pl-2 pr-2 sm:pl-3 sm:pr-3">
+          <StepStatusControl
+            planId={planId}
+            stepId={step.id}
+            title={step.title}
+            status={step.status}
+            onDone={completed}
           />
-        </button>
-        {openTimeline && !open && (
           <button
             type="button"
-            onClick={openTimeline}
-            aria-label="Abrir cronograma"
+            id={stepTriggerId(step.id)}
+            aria-expanded={open}
+            aria-controls={bodyId}
+            onClick={() => onOpenChange(!open)}
             className={cn(
-              "inline-flex size-10 shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-medium text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink sm:w-auto sm:px-3",
+              "flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 pl-1 text-left",
               FOCUS,
-              "focus-visible:ring-offset-surface"
+              ring
             )}
           >
-            <ClockIcon aria-hidden="true" className="size-4" />
-            <span aria-hidden="true" className="hidden sm:inline">
-              Abrir
-            </span>
-          </button>
-        )}
-      </div>
-
-      <div id={bodyId} hidden={!open}>
-        {open && (
-          <div className="flex flex-col gap-5 px-4 pb-5 pt-1 sm:pl-[4.25rem] sm:pr-6">
-            {openTimeline && (
-              <button
-                type="button"
-                onClick={openTimeline}
-                className={cn(CTA_SECONDARY, "self-start", "focus-visible:ring-offset-surface")}
-              >
-                <ClockIcon aria-hidden="true" className="size-4" />
-                Abrir cronograma
-              </button>
-            )}
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-ink-muted">Tareas</span>
-              {step.tasks.length > 0 && (
-                <ul className="flex flex-col">
-                  {step.tasks.map((task) => (
-                    <li key={task.id} className="group flex items-center gap-3 py-1.5">
-                      <Checkbox
-                        checked={task.done}
-                        onCheckedChange={() => handleToggleTask(task.id)}
-                        aria-label={task.title}
-                        className="size-5 rounded-md border-lilac bg-field shadow-none focus-visible:ring-lilac data-[state=checked]:border-lilac data-[state=checked]:bg-cta data-[state=checked]:text-on-cta"
-                      />
-                      <span
-                        className={cn(
-                          "flex-1 text-sm text-ink-strong",
-                          task.done && "text-ink-muted line-through"
-                        )}
-                      >
-                        {task.title}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Eliminar tarea: ${task.title}`}
-                        className="size-8 rounded-full text-ink-muted hover:bg-lilac-soft hover:text-ink focus-visible:ring-lilac"
-                        onClick={() => handleRemoveTask(task.id)}
-                      >
-                        <XIcon className="size-4" />
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
+            <span className="min-w-0 flex-1">
+              {(recommended || step.status === "in_progress" || step.status === "skipped") && (
+                <span className="mb-1 flex flex-wrap items-center gap-1.5">
+                  {recommended && (
+                    <span className="rounded-full bg-lilac-soft px-2 py-0.5 text-xs font-medium text-ink">
+                      Siguiente
+                    </span>
+                  )}
+                  {(step.status === "in_progress" || step.status === "skipped") && (
+                    <span className={cn("text-xs font-medium", soft)}>
+                      {STATUS_LABEL[step.status]}
+                    </span>
+                  )}
+                </span>
               )}
-              <form onSubmit={handleAddTask} className="flex gap-2">
-                <Input
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  placeholder="Añadir una tarea…"
-                  aria-label="Añadir tarea"
-                  className={cn(FIELD, "h-10")}
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  aria-label="Añadir tarea"
-                  className="size-10 shrink-0 rounded-full bg-cta text-on-cta shadow-none hover:bg-cta hover:opacity-90 focus-visible:ring-lilac focus-visible:ring-offset-surface"
-                >
-                  <PlusIcon className="size-4" />
-                </Button>
-              </form>
-              <StepIdeas
-                planId={planId}
-                step={step}
-                className="-ml-2.5 self-start focus-visible:ring-offset-surface"
-              />
-            </div>
+              <span
+                className={cn(
+                  "block font-display text-base font-semibold leading-snug sm:text-lg",
+                  completed ? "text-on-done" : muted ? "text-ink-muted" : "text-ink-strong",
+                  step.status === "skipped" && "line-through decoration-ink-muted/50"
+                )}
+              >
+                {step.title}
+              </span>
+              {step.description && (
+                <span className={cn("mt-0.5 line-clamp-2 block text-sm sm:line-clamp-1", soft)}>
+                  {step.description}
+                </span>
+              )}
+            </span>
+            {step.tasks.length > 0 && (
+              <span className={cn("shrink-0 whitespace-nowrap text-sm", soft)}>
+                {doneCount}/{step.tasks.length}
+                <span className="hidden sm:inline"> tareas</span>
+                <span className="sr-only sm:hidden"> tareas</span>
+              </span>
+            )}
+            <ChevronDownIcon
+              aria-hidden="true"
+              className={cn(
+                "size-5 shrink-0 transition-transform motion-reduce:transition-none",
+                soft,
+                open && "rotate-180"
+              )}
+            />
+          </button>
+          {openTimeline && !open && (
+            <button
+              type="button"
+              onClick={openTimeline}
+              aria-label="Abrir cronograma"
+              className={cn(
+                "inline-flex size-10 shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-medium transition-colors motion-reduce:transition-none sm:w-auto sm:px-3",
+                completed
+                  ? "text-on-done hover:bg-on-done/15"
+                  : "text-ink-muted hover:bg-lilac-soft hover:text-ink",
+                FOCUS,
+                ring
+              )}
+            >
+              <ClockIcon aria-hidden="true" className="size-4" />
+              <span aria-hidden="true" className="hidden sm:inline">
+                Abrir
+              </span>
+            </button>
+          )}
+        </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={`step-notes-${step.id}`} className="text-sm font-medium text-ink-muted">
-                Notas
-              </label>
-              <Textarea
-                id={`step-notes-${step.id}`}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                onBlur={handleNotesBlur}
-                placeholder="Apunta aquí lo que quieras recordar…"
-                rows={2}
-                className={cn(FIELD, "h-auto min-h-16 py-2.5")}
-              />
+        <div id={bodyId} hidden={!open}>
+          {open && (
+            <div className="flex flex-col gap-5 px-4 pb-5 pt-1 sm:pl-[4.25rem] sm:pr-6">
+              {openTimeline && (
+                <button
+                  type="button"
+                  onClick={openTimeline}
+                  className={cn(
+                    CTA_SECONDARY,
+                    "self-start",
+                    completed && "bg-on-done text-done",
+                    ring
+                  )}
+                >
+                  <ClockIcon aria-hidden="true" className="size-4" />
+                  Abrir cronograma
+                </button>
+              )}
+              <div className="flex flex-col gap-2">
+                <span className={cn("text-sm font-medium", soft)}>Tareas</span>
+                {step.tasks.length > 0 && (
+                  <ul className="flex flex-col">
+                    {step.tasks.map((task) => (
+                      <li key={task.id} className="group flex items-center gap-3 py-1.5">
+                        <Checkbox
+                          checked={task.done}
+                          onCheckedChange={() => handleToggleTask(task.id)}
+                          aria-label={task.title}
+                          className={cn(
+                            "size-5 rounded-md border-lilac bg-field shadow-none focus-visible:ring-lilac data-[state=checked]:border-lilac data-[state=checked]:bg-cta data-[state=checked]:text-on-cta",
+                            completed &&
+                              "border-on-done focus-visible:ring-on-done focus-visible:ring-offset-done data-[state=checked]:border-on-done data-[state=checked]:bg-on-done data-[state=checked]:text-done"
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            "flex-1 text-sm",
+                            completed ? "text-on-done" : "text-ink-strong",
+                            task.done && cn(soft, "line-through")
+                          )}
+                        >
+                          {task.title}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Eliminar tarea: ${task.title}`}
+                          className={cn(
+                            "size-8 rounded-full focus-visible:ring-lilac",
+                            completed
+                              ? "text-on-done-muted hover:bg-on-done/15 hover:text-on-done focus-visible:ring-on-done"
+                              : "text-ink-muted hover:bg-lilac-soft hover:text-ink"
+                          )}
+                          onClick={() => handleRemoveTask(task.id)}
+                        >
+                          <XIcon className="size-4" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <form onSubmit={handleAddTask} className="flex gap-2">
+                  <Input
+                    value={newTask}
+                    onChange={(e) => setNewTask(e.target.value)}
+                    placeholder="Añadir una tarea…"
+                    aria-label="Añadir tarea"
+                    className={cn(FIELD, "h-10")}
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    aria-label="Añadir tarea"
+                    className={cn(
+                      "size-10 shrink-0 rounded-full shadow-none hover:opacity-90 focus-visible:ring-lilac focus-visible:ring-offset-surface",
+                      completed
+                        ? "bg-on-done text-done hover:bg-on-done focus-visible:ring-on-done focus-visible:ring-offset-done"
+                        : "bg-cta text-on-cta hover:bg-cta"
+                    )}
+                  >
+                    <PlusIcon className="size-4" />
+                  </Button>
+                </form>
+                <StepIdeas
+                  planId={planId}
+                  step={step}
+                  className={cn(
+                    "-ml-2.5 self-start",
+                    completed
+                      ? "text-on-done hover:bg-on-done/15 hover:text-on-done data-[state=open]:bg-on-done/15 data-[state=open]:text-on-done focus-visible:ring-on-done focus-visible:ring-offset-done"
+                      : "focus-visible:ring-offset-surface"
+                  )}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={`step-notes-${step.id}`} className={cn("text-sm font-medium", soft)}>
+                  Notas
+                </label>
+                <Textarea
+                  id={`step-notes-${step.id}`}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  onBlur={handleNotesBlur}
+                  placeholder="Apunta aquí lo que quieras recordar…"
+                  rows={2}
+                  className={cn(FIELD, "h-auto min-h-16 py-2.5")}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </li>
   );

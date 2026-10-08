@@ -2,6 +2,7 @@
 
 import { collection, doc, getDocs, Timestamp, writeBatch } from "firebase/firestore";
 
+import { statusAfterTasksChange } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { mapStep, stepsQuery } from "@/lib/firebase/plans";
 import {
@@ -250,7 +251,8 @@ async function writeStepPatches(planId: string, patches: Map<string, StepPatch>)
     if (!p) continue;
     const tick = new Set(p.tick);
     const tasks = step.tasks.map((t) => (tick.has(t.title) ? { ...t, done: true } : t));
-    const status = STATUS_RANK[p.status] > STATUS_RANK[step.status] ? p.status : step.status;
+    const raised = STATUS_RANK[p.status] > STATUS_RANK[step.status] ? p.status : step.status;
+    const status = statusAfterTasksChange(raised, step.tasks, tasks);
     const notes = [step.notes, ...p.notes].filter(Boolean).join("\n");
     batch.update(doc(db, "weddingPlans", planId, "steps", step.id), { tasks, status, notes });
     changes++;

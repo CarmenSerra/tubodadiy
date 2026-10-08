@@ -39,12 +39,12 @@ export function StepIdeas({
         pills: idea.when ? [idea.when] : undefined,
         group: leadGroup(idea.when),
         present: existing.has(ideaKey(idea.title)),
-        // El estado del paso (pendiente, en curso…) no se toca al añadir tareas.
+        // Añadir una tarea a un paso completo (todas hechas) lo reabre; si no, el estado no cambia.
         onAdd: async () => {
           const base = { ...step, tasks: pending.current ?? step.tasks };
           const tasks = addTaskToStep(base, idea.title);
           pending.current = tasks;
-          await replaceStepTasks(planId, step.id, tasks);
+          await replaceStepTasks(planId, base, tasks);
         },
       })),
     [ideas, existing, planId, step]

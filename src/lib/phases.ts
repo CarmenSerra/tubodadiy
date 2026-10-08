@@ -78,6 +78,22 @@ export function isStepDone(step: PlanStep): boolean {
   return step.status === "completed" || step.status === "skipped";
 }
 
+/**
+ * Progreso global del plan (0-100), calculado en cliente con los pasos en vivo.
+ * Cada paso aplicable (no omitido) pesa lo mismo: uno completado vale 1 y el
+ * resto, la fracción de sus tareas hechas. Así sube al marcar cada tarea y
+ * llega a 100 solo cuando todos los pasos están completados.
+ */
+export function planProgress(steps: PlanStep[]): number {
+  const applicable = steps.filter((s) => s.status !== "skipped");
+  if (applicable.length === 0) return 0;
+  const sum = applicable.reduce((acc, s) => {
+    if (s.status === "completed") return acc + 1;
+    return acc + (s.tasks.length > 0 ? s.tasks.filter((t) => t.done).length / s.tasks.length : 0);
+  }, 0);
+  return Math.round((sum / applicable.length) * 100);
+}
+
 /** El paso ya tiene trabajo propio: nunca se oculta. */
 export function hasStepProgress(step: PlanStep): boolean {
   return (

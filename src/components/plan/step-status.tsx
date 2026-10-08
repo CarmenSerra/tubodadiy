@@ -32,7 +32,16 @@ export const STATUS_LABEL: Record<StepStatus, string> = {
 };
 
 /** Círculo de estado: vacío, medio lleno, con check u omitido (discontinuo). */
-export function StatusGlyph({ status, className }: { status: StepStatus; className?: string }) {
+export function StatusGlyph({
+  status,
+  className,
+  onDone = false,
+}: {
+  status: StepStatus;
+  className?: string;
+  /** Sobre la tarjeta violeta de «completado»: círculo claro con el check violeta. */
+  onDone?: boolean;
+}) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -49,13 +58,13 @@ export function StatusGlyph({ status, className }: { status: StepStatus; classNa
       )}
       {status === "completed" && (
         <>
-          <circle cx="12" cy="12" r="10" style={{ fill: "var(--green-solid)" }} />
+          <circle cx="12" cy="12" r="10" style={{ fill: onDone ? "var(--on-done)" : "var(--green-solid)" }} />
           <path
             d="m7.5 12.3 3 3 6-6.3"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ stroke: "var(--on-solid)" }}
+            style={{ stroke: onDone ? "var(--done)" : "var(--on-solid)" }}
           />
         </>
       )}
@@ -79,11 +88,14 @@ export function StepStatusControl({
   stepId,
   title,
   status,
+  onDone = false,
 }: {
   planId: string;
   stepId: string;
   title: string;
   status: StepStatus;
+  /** El paso está en la tarjeta violeta de «completado». */
+  onDone?: boolean;
 }) {
   async function handleChange(next: string) {
     if (next === status) return;
@@ -99,13 +111,17 @@ export function StepStatusControl({
       <DropdownMenuTrigger
         aria-label={`Estado de «${title}»: ${STATUS_LABEL[status]}. Cambiar`}
         className={cn(
-          "flex size-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-lilac-soft sm:size-10",
-          "data-[state=open]:bg-lilac-soft",
+          "flex size-11 shrink-0 items-center justify-center rounded-full transition-colors motion-reduce:transition-none sm:size-10",
+          onDone
+            ? "hover:bg-on-done/15 data-[state=open]:bg-on-done/15"
+            : "hover:bg-lilac-soft data-[state=open]:bg-lilac-soft",
           FOCUS,
-          "focus-visible:ring-offset-surface"
+          onDone
+            ? "focus-visible:ring-on-done focus-visible:ring-offset-done"
+            : "focus-visible:ring-offset-surface"
         )}
       >
-        <StatusGlyph status={status} />
+        <StatusGlyph status={status} onDone={onDone} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"

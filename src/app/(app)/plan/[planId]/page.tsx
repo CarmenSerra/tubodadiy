@@ -12,7 +12,7 @@ import { Bone, StepCardSkeleton } from "@/components/plan/plan-shell";
 import { stepElementId, stepTriggerId } from "@/components/plan/step-card";
 import { TimelineLauncherProvider } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
-import { computePhases, isStepDone, recommendedStep } from "@/lib/phases";
+import { computePhases, isStepDone, planProgress, recommendedStep } from "@/lib/phases";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
 import { unlockPhase } from "@/lib/firebase/mutations";
@@ -64,10 +64,7 @@ function PlanOverview() {
   const searchParams = useSearchParams();
   const { data: steps, loading } = useCollection(stepsQuery(planId), mapStep);
 
-  const completed = steps.filter((s) => s.status === "completed").length;
-  const skipped = steps.filter((s) => s.status === "skipped").length;
-  const applicable = steps.length - skipped;
-  const progress = applicable > 0 ? Math.round((completed / applicable) * 100) : 0;
+  const progress = planProgress(steps);
   const days = plan ? daysUntil(plan.weddingDate) : null;
 
   const unlockedPhaseIds = plan?.unlockedPhaseIds;

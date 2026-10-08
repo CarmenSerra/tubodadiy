@@ -77,3 +77,29 @@ export function syncAutoTasks(
 export function statusAfterTaskSync(status: StepStatus, tasks: StepTask[]): StepStatus {
   return status === "pending" && tasks.some((t) => t.done) ? "in_progress" : status;
 }
+
+/**
+ * Estado de un paso tras cambiar sus tareas (marcar, desmarcar, añadir,
+ * quitar o sincronizar una automática). El estado se guarda en Firestore y es
+ * lo que leen las fases, el progreso y la home, así que tiene que moverse con
+ * las tareas:
+ *  - todas hechas (y hay alguna): completado;
+ *  - estaba completo por tenerlas todas y ya no: vuelve a "en progreso" (o a
+ *    "pendiente" si no queda ninguna hecha);
+ *  - pendiente con alguna hecha: en progreso.
+ * Un paso omitido no se toca. Un paso completado a mano (con tareas sin hacer)
+ * tampoco se revierte al marcar una tarea: solo al pasar de "todas" a "no todas".
+ */
+export function statusAfterTasksChange(
+  status: StepStatus,
+  before: StepTask[],
+  after: StepTask[]
+): StepStatus {
+  if (status === "skipped") return status;
+  const allDone = (tasks: StepTask[]) => tasks.length > 0 && tasks.every((t) => t.done);
+  if (allDone(after)) return "completed";
+  if (status === "completed" && allDone(before)) {
+    return after.some((t) => t.done) ? "in_progress" : "pending";
+  }
+  return statusAfterTaskSync(status, after);
+}

@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 
 import { getFirebaseDb } from "@/lib/firebase/client";
-import { initialAutoDone } from "@/lib/auto-tasks";
+import { initialAutoDone, statusAfterTasksChange } from "@/lib/auto-tasks";
 import { STEP_DEFINITIONS } from "@/lib/steps";
 import type {
   StepTask,
@@ -227,7 +227,7 @@ export async function createWeddingPlan(
       category: def.category,
       title: def.title,
       description: def.description,
-      status: tasks.some((t) => t.done) ? "in_progress" : "pending",
+      status: statusAfterTasksChange("pending", [], tasks),
       sortOrder: index,
       notes: "",
       tasks,

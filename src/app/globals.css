@@ -57,6 +57,12 @@
   --deep: #3f5c4a; /* verde profundo: "Elegida", icono de éxito */
   --sage: #8faf8a; /* salvia: confirmado, progreso completado */
   --on-solid: #ffffff; /* texto sobre rellenos verdes y destructivo */
+  /* Paso completado: violeta profundo de la familia de --cta (#927aac), oscurecido para
+     que el blanco contraste (6,6:1) y el texto suave --on-done-muted (5,4:1). */
+  --done: #68538a; /* fondo de la tarjeta de un paso completado */
+  --done-strip: #523f6c; /* franja vertical «¡COMPLETADO!» (blanco 9,6:1) */
+  --on-done: #ffffff; /* texto e iconos sobre --done */
+  --on-done-muted: #efe6f8; /* texto secundario sobre --done */
   --danger: #9f3a38; /* texto, borde y foco destructivos */
   --danger-solid: #9f3a38; /* fondo del botón destructivo */
   /* Decoración (landing, bienvenida, onboarding) */
@@ -181,6 +187,10 @@ html[data-theme="dark"] {
   --deep: #8faf8a;
   --sage: #8faf8a;
   --on-solid: #102d28;
+  --done: #68538a; /* contra --surface #474755 se distingue por el matiz violeta */
+  --done-strip: #523f6c;
+  --on-done: #ffffff;
+  --on-done-muted: #efe6f8;
   --danger: #f2adaa; /* #9F3A38 aclarado para contrastar sobre fondo oscuro */
   --danger-solid: #f2adaa;
   /* Decoración: los trazos conservan los lilas/verdes de la paleta (contraste medio),
@@ -297,6 +307,10 @@ html[data-theme="dark"] {
   --color-deep: var(--deep);
   --color-sage: var(--sage);
   --color-on-solid: var(--on-solid);
+  --color-done: var(--done);
+  --color-done-strip: var(--done-strip);
+  --color-on-done: var(--on-done);
+  --color-on-done-muted: var(--on-done-muted);
   --color-danger: var(--danger);
   --color-danger-solid: var(--danger-solid);
   --color-deco-lilac: var(--deco-lilac);
