@@ -71,6 +71,35 @@ service cloud.firestore {
       match /timelineItems/{itemId} {
         allow read, write: if isPlanMember(planId);
       }
+
+      // Luna de miel: destinos, itinerario, reservas, maleta… (subcolecciones libres).
+      match /honeymoon/{document=**} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      match /appointments/{appointmentId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      match /designs/{designId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      // Respuestas a la invitación pública: las escribe el servidor (Admin SDK).
+      match /rsvps/{rsvpId} {
+        allow read, update, delete: if isPlanMember(planId);
+        allow create: if false;
+      }
+    }
+
+    // ---- Invitación pública de boda (enlace general para invitados) ----
+    // Cualquiera con el enlace puede leerla; solo los miembros del plan la editan.
+    match /publicInvitations/{slug} {
+      allow read: if true;
+      allow create: if isPlanMember(request.resource.data.planId);
+      allow update: if isPlanMember(resource.data.planId)
+        && request.resource.data.planId == resource.data.planId;
+      allow delete: if isPlanMember(resource.data.planId);
     }
 
     // ---- Invites ----
