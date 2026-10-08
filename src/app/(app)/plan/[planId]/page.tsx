@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 
 import { CARD } from "@/components/dashboard/ui";
 import { EditPlanDialog } from "@/components/plan/edit-plan-dialog";
-import { PlanBudgetEditor, PlanDateEditor } from "@/components/plan/plan-field-editors";
 import { PhasePanel } from "@/components/plan/phase-panel";
 import { PhaseTabs, type PhaseTab } from "@/components/plan/phase-tabs";
 import { Bone, StepCardSkeleton } from "@/components/plan/plan-shell";
@@ -15,7 +14,7 @@ import { usePlanContext } from "@/lib/context/plan-context";
 import { computePhases, isStepDone, recommendedStep } from "@/lib/phases";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
-import { daysUntil } from "@/lib/utils";
+import { daysUntil, formatCurrency, formatDate } from "@/lib/utils";
 
 /** Pestaña de "Siempre a mano" (pasos sin fase). */
 const GENERAL_TAB = "a-mano";
@@ -157,13 +156,13 @@ function PlanOverview() {
           aria-label="Resumen del plan"
           className={`${CARD} flex flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-5`}
         >
-          <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-10">
-            <SummaryItem label="Fecha">
-              <PlanDateEditor plan={plan} />
+          <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+            <SummaryItem label="Fecha">{plan.weddingDate ? formatDate(plan.weddingDate) : "Sin fecha"}</SummaryItem>
+            <SummaryItem label="Quedan">
+              {days !== null && days >= 0 ? (days === 1 ? "1 día" : `${days} días`) : "—"}
             </SummaryItem>
-            {days !== null && days >= 0 && <SummaryItem label="Quedan">{days === 1 ? "1 día" : `${days} días`}</SummaryItem>}
             <SummaryItem label="Presupuesto">
-              <PlanBudgetEditor plan={plan} />
+              {plan.budgetTotal > 0 ? formatCurrency(plan.budgetTotal) : "Sin definir"}
             </SummaryItem>
             <SummaryItem label="Progreso">{progress}%</SummaryItem>
           </dl>

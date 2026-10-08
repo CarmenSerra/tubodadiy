@@ -149,7 +149,7 @@ html[data-theme="dark"] {
   --lilac-soft: rgb(212 192 234 / 0.12);
   --lilac-flat: #4b4860; /* --lilac-soft sobre --page, opaco */
   --lilac-edge: rgb(146 122 172 / 0.5);
-  --lilac-mid: #586c64;
+  --lilac-mid: #5e5275;
   --btn-soft: #586c64;
   --track: #586c64;
   --rail: #586c64;
