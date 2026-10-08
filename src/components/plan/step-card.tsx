@@ -11,10 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
 import { StepIdeas } from "@/components/ideas/step-ideas";
+import { useAppointmentsLauncher } from "@/components/appointments/appointments-launcher";
 import { usePlanToolsLauncher } from "@/components/plan-tools/plan-tools-launcher";
 import { useEditPlanLauncher } from "@/components/plan/edit-plan-launcher";
 import { STATUS_LABEL, StepStatusControl } from "@/components/plan/step-status";
 import { taskTarget } from "@/components/plan/task-links";
+import { useSaveTheDateLauncher } from "@/components/stationery/stationery-launcher";
 import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import {
   addTaskToStep,
@@ -73,6 +75,8 @@ export function StepCard({
   const openTimeline = step.category === TIMELINE_CATEGORY ? timeline?.open : undefined;
   const editPlan = useEditPlanLauncher();
   const tools = usePlanToolsLauncher();
+  const appointments = useAppointmentsLauncher();
+  const saveTheDate = useSaveTheDateLauncher();
 
   // Flecha de una tarea base hacia su herramienta; `null` si no tiene o no se puede abrir aquí.
   function taskArrow(task: PlanStep["tasks"][number]) {
@@ -95,12 +99,23 @@ export function StepCard({
         </Button>
       );
     }
-    const open =
-      target.kind === "timeline"
-        ? timeline?.open
-        : target.kind === "tool"
-          ? tools && (() => tools.open(target.tool))
-          : editPlan?.open;
+    let open: (() => void) | null | undefined;
+    switch (target.kind) {
+      case "timeline":
+        open = timeline?.open;
+        break;
+      case "tool":
+        open = tools && (() => tools.open(target.tool));
+        break;
+      case "agenda":
+        open = appointments && (() => appointments.open({ category: target.category }));
+        break;
+      case "save-the-date":
+        open = saveTheDate?.open;
+        break;
+      default:
+        open = editPlan?.open;
+    }
     if (!open) return null;
     return (
       <Button

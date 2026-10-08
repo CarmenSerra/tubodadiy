@@ -32,7 +32,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     title: "Lugar",
     description: "Ceremonia y banquete (pueden ser el mismo sitio o distintos).",
     suggestedTasks: [
-      "Visitar posibles lugares",
+      { title: "Visitar posibles lugares", auto: "venue-visit" },
       { title: "Reservar lugar de ceremonia", auto: "venue-ceremony" },
       { title: "Reservar lugar de banquete", auto: "venue-banquet" },
     ],
@@ -60,13 +60,19 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     category: "vestuario",
     title: "Vestuario",
     description: "Traje/vestido de los novios, complementos y pruebas.",
-    suggestedTasks: ["Elegir vestido/traje", "Reservar pruebas"],
+    suggestedTasks: [
+      "Elegir vestido/traje",
+      { title: "Reservar pruebas", auto: "outfit-fitting" },
+    ],
   },
   {
     category: "papeleria",
     title: "Papelería",
     description: "Reserva la fecha, invitaciones y tarjetas de mesa.",
-    suggestedTasks: ["Diseñar las tarjetas «reserva la fecha»", "Enviar invitaciones"],
+    suggestedTasks: [
+      { title: "Diseñar las tarjetas «reserva la fecha»", auto: "stationery-save-date" },
+      { title: "Enviar invitaciones", auto: "invitations-send" },
+    ],
   },
   {
     category: "ceremonia",
@@ -96,7 +102,10 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     category: "luna_de_miel",
     title: "Luna de miel",
     description: "Destino, fechas y reservas del viaje de novios.",
-    suggestedTasks: ["Elegir destino", "Reservar vuelos y alojamiento"],
+    suggestedTasks: [
+      { title: "Elegir destino", auto: "honeymoon-destination" },
+      { title: "Reservar vuelos y alojamiento", auto: "honeymoon-book" },
+    ],
   },
   {
     category: "documentos_legales",

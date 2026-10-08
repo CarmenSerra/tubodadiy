@@ -1,3 +1,6 @@
+import { INVITATION_PARAM } from "@/components/invitation/invitation-launcher";
+import { honeymoonHref } from "@/lib/honeymoon-model";
+import type { AppointmentCategory } from "@/lib/firebase/appointments";
 import type { StepTaskAuto } from "@/lib/types";
 
 /** A dónde lleva la flecha de una tarea base. */
@@ -5,7 +8,9 @@ export type TaskTarget =
   | { kind: "href"; href: string; label: string }
   | { kind: "edit-plan"; label: string }
   | { kind: "timeline"; label: string }
-  | { kind: "tool"; tool: PlanTool; label: string };
+  | { kind: "tool"; tool: PlanTool; label: string }
+  | { kind: "agenda"; category: AppointmentCategory; label: string }
+  | { kind: "save-the-date"; label: string };
 
 /** Herramientas de la app que se abren en un diálogo desde la flecha de una tarea. */
 export type PlanTool = "ceremony" | "legal-docs" | "gift";
@@ -50,6 +55,22 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
     case "venue-ceremony":
     case "venue-banquet":
       return vendors(planId, "Finca", "Ir a proveedores de lugar");
+    case "venue-visit":
+      return { kind: "agenda", category: "lugar", label: "Abrir la agenda de visitas" };
+    case "outfit-fitting":
+      return { kind: "agenda", category: "vestuario", label: "Abrir la agenda de pruebas" };
+    case "stationery-save-date":
+      return { kind: "save-the-date", label: "Diseñar la tarjeta «reserva la fecha»" };
+    case "invitations-send":
+      return {
+        kind: "href",
+        href: `/plan/${planId}/guests?${INVITATION_PARAM}=1`,
+        label: "Ir al editor de la invitación",
+      };
+    case "honeymoon-destination":
+      return { kind: "href", href: honeymoonHref(planId), label: "Ir a la luna de miel" };
+    case "honeymoon-book":
+      return { kind: "href", href: honeymoonHref(planId), label: "Ir a las reservas de la luna de miel" };
     case "timeline-draft":
     case "timeline-share":
       return { kind: "timeline", label: "Ir al cronograma" };

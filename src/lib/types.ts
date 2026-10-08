@@ -65,6 +65,11 @@ export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
  *  - "legal-start": solo enlace a la guía de documentos legales;
  *  - "legal-docs": están marcados todos los documentos que aplican (en los
  *    dos sentidos);
+ *  - "venue-visit" / "outfit-fitting": solo enlace a la agenda de citas
+ *    (abre «Nueva cita» de lugar / vestuario);
+ *  - "stationery-save-date": solo enlace al diseñador «Reserva la fecha»;
+ *  - "invitations-send": solo enlace al editor de invitación (Invitados);
+ *  - "honeymoon-destination" / "honeymoon-book": solo enlace a la Luna de miel;
  *  - "gift-decide": solo enlace a los datos del regalo;
  *  - "gift-data": el regalo tiene IBAN o Bizum (en los dos sentidos).
  * Las que se marcan por datos de otras herramientas nunca se desmarcan solas;
@@ -85,6 +90,12 @@ export type StepTaskAuto =
   | "vendor-officiant"
   | "venue-ceremony"
   | "venue-banquet"
+  | "venue-visit"
+  | "outfit-fitting"
+  | "stationery-save-date"
+  | "invitations-send"
+  | "honeymoon-destination"
+  | "honeymoon-book"
   | "ceremony-type"
   | "legal-start"
   | "legal-docs"
