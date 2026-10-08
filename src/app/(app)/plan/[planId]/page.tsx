@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 import { CARD } from "@/components/dashboard/ui";
 import { EditPlanDialog } from "@/components/plan/edit-plan-dialog";
@@ -14,6 +15,7 @@ import { usePlanContext } from "@/lib/context/plan-context";
 import { computePhases, isStepDone, recommendedStep } from "@/lib/phases";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
+import { unlockPhase } from "@/lib/firebase/mutations";
 import { daysUntil, formatCurrency, formatDate } from "@/lib/utils";
 
 /** Pestaña de "Siempre a mano" (pasos sin fase). */
@@ -68,7 +70,8 @@ function PlanOverview() {
   const progress = applicable > 0 ? Math.round((completed / applicable) * 100) : 0;
   const days = plan ? daysUntil(plan.weddingDate) : null;
 
-  const { phases, general, current } = computePhases(steps);
+  const unlockedPhaseIds = plan?.unlockedPhaseIds;
+  const { phases, general, current } = computePhases(steps, unlockedPhaseIds);
   const next = recommendedStep(steps);
 
   const tabs: PhaseTab[] = phases.map((p) => ({
@@ -78,6 +81,7 @@ function PlanOverview() {
     total: p.total,
     complete: p.complete,
     recommended: p.current,
+    locked: p.locked,
   }));
   if (general.length > 0) {
     const done = general.filter(isStepDone).length;
@@ -140,13 +144,27 @@ function PlanOverview() {
     revealStep(stepId);
   }, [loading, steps, phases]);
 
-  // Aviso suave (descartable) al mirar una fase posterior a la recomendada.
+  // Desbloquear una fase posterior (se guarda en el plan y lo ven todos).
+  async function unlock(phaseId: string) {
+    try {
+      await unlockPhase(planId, phaseId);
+      toast.success("Fase desbloqueada");
+    } catch {
+      toast.error("No se ha podido desbloquear la fase.");
+    }
+  }
+
+  // Aviso suave (descartable) al mirar una fase posterior a la recomendada que
+  // ya está abierta pero no por haberla desbloqueado (eso ya lo has decidido
+  // tú); en las bloqueadas lo dice el candado.
   const [dismissedNoteFor, setDismissedNoteFor] = React.useState<string | null>(null);
   const selectedPhase = phases.find((p) => p.id === selected) ?? null;
   const showSoftNote =
     !!current &&
     !!selectedPhase &&
     selectedPhase.index > current.index &&
+    !selectedPhase.locked &&
+    !unlockedPhaseIds?.includes(selectedPhase.id) &&
     dismissedNoteFor !== current.id;
 
   return (
@@ -196,6 +214,8 @@ function PlanOverview() {
               onGoToNext={() => current && selectTab(current.id)}
               softNote={showSoftNote && current ? current.name : null}
               onDismissNote={() => current && setDismissedNoteFor(current.id)}
+              locked={selectedPhase.locked}
+              onUnlock={() => unlock(selectedPhase.id)}
               recommendedId={next?.id ?? null}
               openIds={openIds}
               onOpenChange={setStepOpen}

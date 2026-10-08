@@ -20,6 +20,8 @@ export interface WeddingPlan {
   weddingDate: string | null;
   budgetTotal: number;
   memberIds: string[];
+  /** Fases posteriores a la recomendada que el equipo ya ha desbloqueado. */
+  unlockedPhaseIds: string[];
   createdAt: number | null;
 }
 

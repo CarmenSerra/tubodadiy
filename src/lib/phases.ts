@@ -5,8 +5,9 @@ import type { PlanStep } from "@/lib/types";
  * tiempo realista de una boda en España. Todo se deriva del estado y la
  * categoría de cada paso, sin tocar el esquema de Firestore.
  *
- * Las fases ORDENAN y RECOMIENDAN, nunca bloquean: todas son accesibles
- * siempre. Reglas:
+ * Las fases ORDENAN y RECOMIENDAN. Las posteriores a la actual se muestran
+ * "bloqueadas" (difuminadas) hasta que alguien del plan las desbloquea con un
+ * clic: es una invitación a no adelantarse, no una restricción. Reglas:
  *  - La fase actual (`current`) es la primera sin completar: es la que se
  *    recomienda y se preselecciona.
  *  - Una fase está completa cuando todos sus pasos están completados u
@@ -93,11 +94,11 @@ export interface PhaseState extends PhaseDefinition {
   done: number;
   complete: boolean;
   /**
-   * La fase anterior está completa (o es la primera). Ya no bloquea nada en
-   * la UI; se conserva solo porque `pickNextSteps` (home) lo usa para ordenar
-   * lo pendiente.
+   * Posterior a la actual y aún sin desbloquear: se ve difuminada. Nunca lo
+   * están la fase actual, las completas, las que el plan ya desbloqueó ni las
+   * que ya tienen trabajo (planes anteriores a esta función).
    */
-  unlocked: boolean;
+  locked: boolean;
   /** Primera fase sin completar: donde toca trabajar ahora. */
   current: boolean;
 }
@@ -112,7 +113,10 @@ export interface PhasesSummary {
   current: PhaseState | null;
 }
 
-export function computePhases(steps: PlanStep[]): PhasesSummary {
+export function computePhases(
+  steps: PlanStep[],
+  unlockedPhaseIds: readonly string[] = []
+): PhasesSummary {
   const buckets: PlanStep[][] = PHASES.map(() => []);
   const general: PlanStep[] = [];
 
@@ -129,8 +133,6 @@ export function computePhases(steps: PlanStep[]): PhasesSummary {
   };
 
   const phases: PhaseState[] = [];
-  let previousComplete = true; // la primera fase con pasos no tiene anterior
-
   PHASES.forEach((def, i) => {
     const bucket = buckets[i];
     if (bucket.length === 0) return;
@@ -139,8 +141,6 @@ export function computePhases(steps: PlanStep[]): PhasesSummary {
     );
     const done = ordered.filter(isStepDone).length;
     const complete = done === ordered.length;
-    const unlocked = previousComplete;
-    previousComplete = complete;
     phases.push({
       ...def,
       index: phases.length,
@@ -148,13 +148,22 @@ export function computePhases(steps: PlanStep[]): PhasesSummary {
       total: ordered.length,
       done,
       complete,
-      unlocked,
+      locked: false,
       current: false,
     });
   });
 
   const currentIndex = phases.findIndex((p) => !p.complete);
-  if (currentIndex !== -1) phases[currentIndex].current = true;
+  if (currentIndex !== -1) {
+    phases[currentIndex].current = true;
+    for (const phase of phases) {
+      phase.locked =
+        phase.index > currentIndex &&
+        !phase.complete &&
+        !unlockedPhaseIds.includes(phase.id) &&
+        !phase.steps.some(hasStepProgress);
+    }
+  }
 
   return {
     phases,

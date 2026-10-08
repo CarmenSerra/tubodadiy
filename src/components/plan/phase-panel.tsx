@@ -5,13 +5,16 @@ import { CheckIcon, XIcon } from "lucide-react";
 
 import { TabsContent } from "@/components/ui/tabs";
 import { FOCUS } from "@/components/dashboard/ui";
+import { PhaseLock } from "@/components/plan/phase-lock";
 import { StepCard } from "@/components/plan/step-card";
 import type { PlanStep } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /**
- * Contenido de una pestaña: aviso suave (si te adelantas), mensaje de "listo"
- * (si la fase está completa), la frase de la fase y sus pasos como filas.
+ * Contenido de una pestaña: aviso suave (si te adelantas a una fase ya
+ * desbloqueada), mensaje de "listo" (si la fase está completa), la frase de la
+ * fase y sus pasos como filas. Si la fase está bloqueada, todo eso se ve
+ * difuminado e inerte, con un candado encima que la desbloquea.
  */
 export function PhasePanel({
   planId,
@@ -24,6 +27,8 @@ export function PhasePanel({
   onGoToNext,
   softNote,
   onDismissNote,
+  locked = false,
+  onUnlock,
   recommendedId,
   openIds,
   onOpenChange,
@@ -40,13 +45,24 @@ export function PhasePanel({
   /** Nombre de la fase recomendada sin terminar, si estás viendo una posterior. */
   softNote: string | null;
   onDismissNote: () => void;
+  /** Fase posterior a la recomendada y sin desbloquear. */
+  locked?: boolean;
+  onUnlock?: () => void;
   recommendedId: string | null;
   openIds: string[];
   onOpenChange: (stepId: string, open: boolean) => void;
 }) {
-  return (
-    <TabsContent value={tabId} className={cn("flex flex-col gap-3 rounded-xl", FOCUS)}>
-      {softNote && (
+  // Al desbloquear desaparece el candado que tenía el foco: llévalo al panel.
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const wasLocked = React.useRef(locked);
+  React.useEffect(() => {
+    if (wasLocked.current && !locked) panelRef.current?.focus({ preventScroll: true });
+    wasLocked.current = locked;
+  }, [locked]);
+
+  const body = (
+    <>
+      {softNote && !locked && (
         <div
           role="note"
           className="flex items-start gap-3 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge py-2.5 pl-4 pr-2 text-sm text-ink"
@@ -106,6 +122,32 @@ export function PhasePanel({
           />
         ))}
       </ul>
+    </>
+  );
+
+  return (
+    <TabsContent
+      ref={panelRef}
+      value={tabId}
+      className={cn(locked ? "relative" : "flex flex-col gap-3", "rounded-xl", FOCUS)}
+    >
+      {locked ? (
+        <>
+          {/* inert: ni foco ni clics ni lectores de pantalla dentro de lo difuminado. */}
+          <div className="min-h-[22rem] overflow-hidden rounded-xl">
+            <div
+              inert
+              aria-hidden="true"
+              className="flex select-none flex-col gap-3 opacity-60 blur-[6px]"
+            >
+              {body}
+            </div>
+          </div>
+          <PhaseLock phaseName={name} onUnlock={() => onUnlock?.()} />
+        </>
+      ) : (
+        body
+      )}
     </TabsContent>
   );
 }

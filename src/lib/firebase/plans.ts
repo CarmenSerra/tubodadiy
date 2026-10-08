@@ -40,6 +40,7 @@ export function mapPlan(id: string, data: DocumentData): WeddingPlan {
     weddingDate: data.weddingDate ?? null,
     budgetTotal: data.budgetTotal ?? 0,
     memberIds: data.memberIds ?? [],
+    unlockedPhaseIds: data.unlockedPhaseIds ?? [],
     createdAt: toMillis(data.createdAt),
   };
 }

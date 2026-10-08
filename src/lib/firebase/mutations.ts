@@ -2,6 +2,7 @@
 
 import {
   addDoc,
+  arrayUnion,
   collection,
   deleteDoc,
   doc,
@@ -51,6 +52,14 @@ export async function updatePlanDetails(
       console.warn("No se pudieron sincronizar las tareas de «Fecha y presupuesto»", error);
     }
   }
+}
+
+/**
+ * Desbloquea para siempre una fase posterior a la recomendada. Se guarda en el
+ * plan (arrayUnion, idempotente), así lo ven también quienes colaboran.
+ */
+export async function unlockPhase(planId: string, phaseId: string) {
+  await updateDoc(plan(planId), { unlockedPhaseIds: arrayUnion(phaseId) });
 }
 
 /**

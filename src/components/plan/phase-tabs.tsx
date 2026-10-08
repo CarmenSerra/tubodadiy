@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, LockIcon } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -15,13 +15,15 @@ export interface PhaseTab {
   complete: boolean;
   /** La fase que recomendamos ahora. */
   recommended: boolean;
+  /** Posterior a la recomendada y sin desbloquear (la pestaña sigue activa). */
+  locked?: boolean;
 }
 
 /**
  * Selector de fases en forma de pestañas (role=tablist): nombre, avance
  * "2/3" o un check si está completa y la marca "Recomendado" en la fase
- * sugerida. Flechas ←/→ (y Inicio/Fin) mueven entre pestañas; ninguna está
- * bloqueada. El panel lo pinta quien la usa, como hijo.
+ * sugerida. Flechas ←/→ (y Inicio/Fin) mueven entre pestañas; las fases aún
+ * bloqueadas llevan un candado pero se pueden abrir igualmente. El panel lo pinta quien la usa, como hijo.
  */
 export function PhaseTabs({
   tabs,
@@ -67,7 +69,15 @@ export function PhaseTabs({
               "outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-0"
             )}
           >
-            <span className="text-sm font-semibold sm:text-[0.95rem]">{tab.name}</span>
+            <span className="flex items-center gap-1.5 text-sm font-semibold sm:text-[0.95rem]">
+              {tab.name}
+              {tab.locked && (
+                <>
+                  <LockIcon className="size-3.5 text-ink-muted" aria-hidden="true" />
+                  <span className="sr-only">(bloqueada)</span>
+                </>
+              )}
+            </span>
             <span className="flex items-center gap-1.5 text-xs font-normal text-ink-muted">
               {tab.recommended && (
                 <>
