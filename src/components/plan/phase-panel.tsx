@@ -5,6 +5,7 @@ import { CheckIcon, LockIcon, LockOpenIcon, XIcon } from "lucide-react";
 
 import { TabsContent } from "@/components/ui/tabs";
 import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
+import { PANEL_IN_MS, PANEL_OUT_MS } from "@/components/plan/phase-celebration";
 import { PhaseLock } from "@/components/plan/phase-lock";
 import { StepCard } from "@/components/plan/step-card";
 import type { PlanStep } from "@/lib/types";
@@ -35,6 +36,7 @@ export function PhasePanel({
   openIds,
   onOpenChange,
   animateIn = false,
+  animateOut = false,
 }: {
   planId: string;
   tabId: string;
@@ -59,6 +61,8 @@ export function PhasePanel({
   onOpenChange: (stepId: string, open: boolean) => void;
   /** Entra deslizándose desde la derecha (al pasar a la fase siguiente tras completar una). */
   animateIn?: boolean;
+  /** Sale desvaneciéndose hacia la izquierda (la fase recién completada, antes de cambiar). */
+  animateOut?: boolean;
 }) {
   // Al desbloquear desaparece el candado que tenía el foco: llévalo al panel.
   const panelRef = React.useRef<HTMLDivElement>(null);
@@ -144,10 +148,16 @@ export function PhasePanel({
       value={tabId}
       className={cn(
         "flex flex-col gap-3 rounded-xl",
-        FOCUS,
-        animateIn &&
-          "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-12 motion-safe:duration-700"
+        FOCUS
       )}
+      // Los fotogramas pc-panel-* (phase-celebration.tsx) solo existen sin «reducir movimiento».
+      style={
+        animateIn
+          ? { animation: `pc-panel-in ${PANEL_IN_MS}ms var(--ease-gentle, ease-out) both` }
+          : animateOut
+            ? { animation: `pc-panel-out ${PANEL_OUT_MS}ms ease-in both` }
+            : undefined
+      }
     >
       {locked ? (
         <div className="relative">

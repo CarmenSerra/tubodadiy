@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import { CalendarHeartIcon, ClockIcon, GiftIcon, MapPinIcon, NavigationIcon } from "lucide-react";
+import {
+  CalendarHeartIcon,
+  ClockIcon,
+  ExternalLinkIcon,
+  GiftIcon,
+  MapPinIcon,
+  NavigationIcon,
+} from "lucide-react";
 
 import { CopyButton } from "@/components/invitation/copy-button";
 import {
@@ -15,6 +22,8 @@ import {
   formatTime,
   mapLink,
   placeIsEmpty,
+  type InvitationGift,
+  type InvitationGiftItem,
   type InvitationPlace,
   type InvitationPublicData,
 } from "@/components/invitation/invitation-model";
@@ -70,6 +79,63 @@ function PlaceCard({ kind, place }: { kind: string; place: InvitationPlace }) {
         </a>
       )}
     </li>
+  );
+}
+
+const EURO = new Intl.NumberFormat("es-ES", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+  useGrouping: "always",
+});
+
+function GiftListItem({ item }: { item: InvitationGiftItem }) {
+  return (
+    <li className="inv-giftItem">
+      <div className="inv-giftItemMain">
+        <p className="inv-giftItemName">{item.name}</p>
+        {item.note && <p className="inv-giftItemNote">{item.note}</p>}
+      </div>
+      <div className="inv-giftItemSide">
+        {item.price !== null && (
+          <p className="inv-giftItemPrice">
+            <span className="sr-only">Precio aproximado: </span>
+            <span aria-hidden="true">~ </span>
+            {EURO.format(item.price)}
+          </p>
+        )}
+        {item.link && (
+          <a href={item.link} target="_blank" rel="noopener noreferrer nofollow" className="inv-giftItemLink">
+            Ver
+            <ExternalLinkIcon aria-hidden="true" />
+            <span className="sr-only"> «{item.name}» (se abre en una pestaña nueva)</span>
+          </a>
+        )}
+      </div>
+    </li>
+  );
+}
+
+/** Lista de cosas que la pareja quiere recibir. Solo se ve: no hay reservas. */
+function GiftList({ gift }: { gift: InvitationGift }) {
+  const items = gift.items ?? [];
+  return (
+    <>
+      {gift.message && <p className="inv-giftMessage">{gift.message}</p>}
+      {items.length > 0 && (
+        <>
+          <ul className="inv-giftList" aria-label="Lista de regalos">
+            {items.map((item, i) => (
+              <GiftListItem key={`${i}-${item.name}`} item={item} />
+            ))}
+          </ul>
+          <p className="inv-giftHint">
+            La lista es solo una guía. Si te apetece regalar algo de ella, escríbenos antes para que no se
+            repita.
+          </p>
+        </>
+      )}
+    </>
   );
 }
 
@@ -170,12 +236,15 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
         {data.gift && (
           <section className="inv-section" aria-labelledby="inv-gift">
             <h2 id="inv-gift" className="inv-sectionTitle">
-              Si quieres tener un detalle
+              {data.gift.mode === "list" ? "Lo que nos haría ilusión" : "Si quieres tener un detalle"}
             </h2>
             <div className="inv-gift">
               <GiftIcon aria-hidden="true" className="inv-sealIcon" />
-              {data.gift.message && <p className="inv-giftMessage">{data.gift.message}</p>}
-              {data.gift.iban && (
+              {data.gift.mode === "list" && <GiftList gift={data.gift} />}
+              {data.gift.mode !== "list" && data.gift.message && (
+                <p className="inv-giftMessage">{data.gift.message}</p>
+              )}
+              {data.gift.mode !== "list" && data.gift.iban && (
                 <div className="inv-giftRow">
                   <div className="inv-giftValue">
                     <span className="inv-giftLabel">Transferencia (IBAN)</span>
@@ -184,7 +253,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
                   <CopyButton value={data.gift.iban.replace(/\s+/g, "")} label="IBAN" />
                 </div>
               )}
-              {data.gift.bizum && (
+              {data.gift.mode !== "list" && data.gift.bizum && (
                 <div className="inv-giftRow">
                   <div className="inv-giftValue">
                     <span className="inv-giftLabel">Bizum</span>

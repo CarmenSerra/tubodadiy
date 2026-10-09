@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Branch, Sparkles } from "@/components/brand/hero-decorations";
+import { HomeLink } from "@/components/brand/home-link";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { getFirebaseErrorMessage } from "@/lib/firebase/errors";
 
@@ -100,13 +101,12 @@ export function AuthForm({ mode }: AuthFormProps) {
         <div className="relative mb-1 px-10">
           <Sparkles className="left-0 top-0 size-8 sm:size-8" />
           <Sparkles className="right-0 top-0 size-8 sm:size-8 -scale-x-100" />
-          <Link
-            href="/"
+          <HomeLink
             className="flex items-center gap-2 py-1 text-brand outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2"
           >
             <HeartIcon className="size-5 fill-current" />
             <span className="font-display text-xl font-semibold">tubodadiy</span>
-          </Link>
+          </HomeLink>
         </div>
         <CardTitle className="text-2xl font-semibold text-ink">{mode === "login" ? "Inicia sesión" : "Crea tu cuenta"}</CardTitle>
         <CardDescription className="text-ink-muted">

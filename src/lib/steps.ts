@@ -80,7 +80,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     description: "Tipo (civil, religiosa, simbólica), oficiante y estructura.",
     suggestedTasks: [
       { title: "Elegir tipo de ceremonia", auto: "ceremony-type" },
-      { title: "Confirmar oficiante", auto: "vendor-officiant" },
+      { title: "Confirmar oficiante", auto: "officiant-confirmed" },
     ],
   },
   {
@@ -119,7 +119,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
   {
     category: "lista_regalos",
     title: "Regalo",
-    description: "Recibir el regalo en dinero: cuenta bancaria o Bizum, y el mensaje para invitados.",
+    description: "Elegir cómo recibir el regalo (dinero o lista de cosas) y el mensaje para invitados.",
     suggestedTasks: [
       { title: "Decidir cómo recibir el regalo", auto: "gift-decide" },
       { title: "Añadir los datos para el regalo", auto: "gift-data" },
@@ -155,6 +155,20 @@ const LEGACY_TASKS = new Map<string, { title: string; auto: StepTaskAuto }>([
     { title: "Añadir los datos para el regalo", auto: "gift-data" },
   ],
 ]);
+
+/**
+ * Claves `auto` que ya no existen: los planes antiguos las guardaron en la
+ * tarea y se leen como la clave vigente.
+ */
+const RENAMED_AUTOS: Record<string, StepTaskAuto> = {
+  "vendor-officiant": "officiant-confirmed",
+};
+
+/** Clave `auto` vigente de una tarea (traduce las claves antiguas). */
+export function currentAuto(auto: string | undefined): StepTaskAuto | undefined {
+  if (!auto) return undefined;
+  return RENAMED_AUTOS[auto] ?? (auto as StepTaskAuto);
+}
 
 /**
  * Clave `auto` de una tarea base guardada sin ella (los planes anteriores a

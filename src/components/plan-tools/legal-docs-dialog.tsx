@@ -48,7 +48,7 @@ export function LegalDocsDialog({
   );
 }
 
-function Disclaimer() {
+export function Disclaimer() {
   return (
     <p
       role="note"
@@ -64,7 +64,7 @@ function Disclaimer() {
   );
 }
 
-function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony: () => void }) {
+export function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony: () => void }) {
   const { planId, plan } = usePlanContext();
   const type = plan?.ceremonyType ?? null;
   const done = React.useMemo(() => plan?.legalDocsDone ?? [], [plan?.legalDocsDone]);

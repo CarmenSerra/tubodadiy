@@ -626,12 +626,52 @@ export const STEP_TASK_IDEAS: Record<string, TaskIdea[]> = {
     },
   ],
 
-  // Regalo (solo en dinero: cuenta o Bizum, sin lista física)
+  // Regalo: en dinero (cuenta o Bizum) o en una lista de cosas
   lista_regalos: [
+    {
+      title: "Decidir si preferís recibir dinero o una lista de cosas",
+      hint: "El dinero es lo más habitual y no genera duplicados; la lista es más tradicional y a mucha gente le resulta más cercana. Podéis cambiar de opinión.",
+      when: "6–8 meses antes",
+    },
     {
       title: "Decidir si queréis cuenta bancaria, Bizum o las dos",
       hint: "La transferencia vale para todas las edades; el Bizum es rápido para quien tiene la app.",
       when: "6–8 meses antes",
+    },
+    {
+      title: "Repasar qué os falta en casa antes de montar la lista",
+      hint: "Recorred cocina, baño y dormitorio con una libreta: lo que se rompe, lo que está viejo y lo que nunca habéis tenido.",
+      when: "5–6 meses antes",
+    },
+    {
+      title: "Incluir cosas de distinto precio en la lista",
+      hint: "Mezclad detalles pequeños con otros más grandes para que cada persona encuentre algo a su medida.",
+      when: "4–5 meses antes",
+    },
+    {
+      title: "Añadir un enlace y un precio aproximado a cada cosa de la lista",
+      hint: "Si el invitado lo encuentra en un clic, es más fácil que acierte con el modelo y el color que queréis.",
+      when: "4–5 meses antes",
+    },
+    {
+      title: "Marcar las cosas más importantes de la lista",
+      hint: "Poned prioridad a lo que necesitáis de verdad (electrodomésticos, ropa de cama) y dejad los caprichos para el final.",
+      when: "4–5 meses antes",
+    },
+    {
+      title: "Ir marcando en la lista lo que ya tenéis",
+      hint: "Así la invitación solo enseña lo que sigue pendiente y evitáis recibir dos veces lo mismo.",
+      when: "Desde que lleguen",
+    },
+    {
+      title: "Pedir a los invitados que os avisen antes de comprar algo de la lista",
+      hint: "Una frase en el mensaje basta: «Escribidnos antes de comprar para que no se repita».",
+      when: "3–4 meses antes",
+    },
+    {
+      title: "Guardar los tickets de los regalos para poder cambiarlos",
+      hint: "Pedid el ticket regalo en la tienda y apuntad quién regaló cada cosa para los agradecimientos.",
+      when: "Desde que lleguen",
     },
     {
       title: "Elegir una cuenta que controléis los dos",
@@ -664,8 +704,8 @@ export const STEP_TASK_IDEAS: Record<string, TaskIdea[]> = {
       when: "2–3 meses antes",
     },
     {
-      title: "Decidir cómo recoger los sobres que lleguen el día de la boda",
-      hint: "Una caja o urna discreta y una persona de confianza que la custodie y la lleve a casa.",
+      title: "Decidir cómo recoger los sobres y paquetes que lleguen el día de la boda",
+      hint: "Una caja o urna discreta y una persona de confianza que la custodie y lo lleve todo a casa.",
       when: "1–2 meses antes",
     },
     {
@@ -1132,12 +1172,6 @@ export const VENDOR_TYPE_IDEAS: VendorIdea[] = [
     essential: false,
     hint: "Divierte a los invitados y deja recuerdo; preguntad por impresiones e props.",
     whenToBook: "4–6 meses antes",
-  },
-  {
-    category: "Oficiante",
-    essential: false,
-    hint: "Para ceremonia civil simbólica o con ritual propio; hablad del guion con tiempo.",
-    whenToBook: "6–9 meses antes",
   },
   {
     category: "Wedding planner",

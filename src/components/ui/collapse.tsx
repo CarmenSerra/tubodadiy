@@ -4,8 +4,8 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/** Un poco más que la duración de cierre de globals.css (--dur-close), para desmontar tras la animación. */
-const UNMOUNT_AFTER_MS = 320;
+/** Un poco más que la duración de cierre de globals.css (--dur-close, 380 ms), para desmontar tras la animación. */
+const UNMOUNT_AFTER_MS = 420;
 
 interface CollapseProps extends Omit<React.ComponentProps<"div">, "children"> {
   open: boolean;
@@ -39,7 +39,10 @@ function Collapse({ open, className, innerClassName, children, ...props }: Colla
       className={cn("collapse", className)}
       {...props}
     >
-      <div className={cn("collapse-inner", innerClassName)}>{mounted ? children : null}</div>
+      <div className="collapse-inner">
+        {/* El relleno va en el contenido, no en el contenedor recortado: así cerrado mide 0. */}
+        <div className={cn("collapse-content", innerClassName)}>{mounted ? children : null}</div>
+      </div>
     </div>
   );
 }

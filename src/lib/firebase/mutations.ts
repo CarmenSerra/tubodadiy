@@ -21,7 +21,6 @@ import {
 
 import {
   AUTO_TASKS_CATEGORY,
-  CEREMONY_CATEGORY,
   GUESTS_CATEGORY,
   VENDORS_CATEGORY,
   budgetReached,
@@ -262,9 +261,8 @@ export async function restoreGuest(planId: string, guest: Guest) {
 
 // ---- Vendors ----
 
-// «Contratar…» vive en Proveedores y «Confirmar oficiante» en Ceremonia.
-const syncVendorTasks = (planId: string) =>
-  syncToolTasks(planId, "vendors", [VENDORS_CATEGORY, CEREMONY_CATEGORY]);
+// «Contratar…» vive en Proveedores. El oficiante ya no es un proveedor: tiene su ficha en Ceremonia.
+const syncVendorTasks = (planId: string) => syncToolTasks(planId, "vendors", [VENDORS_CATEGORY]);
 
 export async function addVendor(planId: string, data: Omit<Vendor, "id" | "createdAt">) {
   await addDoc(collection(getFirebaseDb(), "weddingPlans", planId, "vendors"), {

@@ -10,7 +10,6 @@ export const CATEGORY_OPTIONS = [
   ...STARTER_CATEGORIES,
   "Vídeo",
   "Música",
-  "Oficiante",
   "Flores",
   "Pastel",
   "Transporte",

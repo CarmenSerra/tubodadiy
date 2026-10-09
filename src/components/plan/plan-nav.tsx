@@ -11,6 +11,7 @@ export function PlanNav({ planId }: { planId: string }) {
 
   const items = [
     { href: base, label: "Resumen" },
+    { href: `${base}/ceremonia`, label: "Ceremonia" },
     { href: `${base}/guests`, label: "Invitados" },
     { href: `${base}/vendors`, label: "Proveedores" },
     { href: `${base}/budget`, label: "Presupuesto" },

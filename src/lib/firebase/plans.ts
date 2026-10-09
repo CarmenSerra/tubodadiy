@@ -12,12 +12,15 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 
+import { mapGift } from "@/components/plan-tools/gift-model";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { initialAutoDone, statusAfterTasksChange } from "@/lib/auto-tasks";
-import { STEP_DEFINITIONS, baseTaskAuto, legacyTaskTitle } from "@/lib/steps";
+import { STEP_DEFINITIONS, baseTaskAuto, currentAuto, legacyTaskTitle } from "@/lib/steps";
 import type {
   StepTask,
   WeddingPlan,
+  OfficiantKind,
+  PlanOfficiant,
   PlanStep,
   PlanMember,
   Guest,
@@ -32,6 +35,26 @@ function toMillis(value: unknown): number | null {
   return null;
 }
 
+const OFFICIANT_KINDS: OfficiantKind[] = ["juez", "sacerdote", "celebrante", "allegado", "otro"];
+
+function mapOfficiant(raw: unknown): PlanOfficiant | null {
+  if (!raw || typeof raw !== "object") return null;
+  const data = raw as Record<string, unknown>;
+  const text = (value: unknown) => (typeof value === "string" ? value : "");
+  const fee = typeof data.fee === "number" && Number.isFinite(data.fee) && data.fee > 0 ? data.fee : null;
+  return {
+    name: text(data.name),
+    kind: OFFICIANT_KINDS.find((k) => k === data.kind) ?? null,
+    phone: text(data.phone),
+    email: text(data.email),
+    confirmed: data.confirmed === true,
+    fee,
+    feeInBudget: fee !== null && data.feeInBudget === true,
+    budgetItemId: typeof data.budgetItemId === "string" && data.budgetItemId ? data.budgetItemId : null,
+    notes: text(data.notes),
+  };
+}
+
 export function mapPlan(id: string, data: DocumentData): WeddingPlan {
   return {
     id,
@@ -44,7 +67,8 @@ export function mapPlan(id: string, data: DocumentData): WeddingPlan {
     lockedPhaseIds: data.lockedPhaseIds ?? [],
     ceremonyType: data.ceremonyType ?? null,
     legalDocsDone: data.legalDocsDone ?? [],
-    gift: data.gift ?? null,
+    officiant: mapOfficiant(data.officiant),
+    gift: mapGift(data.gift),
     createdAt: toMillis(data.createdAt),
   };
 }
@@ -71,7 +95,7 @@ export function mapStep(id: string, data: DocumentData): PlanStep {
       // Si el título de una tarea base cambió, se lee con el texto vigente
       // (aunque ya se le hubiera escrito `auto` al sincronizarla).
       const title = legacyTaskTitle(data.category, task.title) ?? task.title;
-      const auto = task.auto ?? baseTaskAuto(data.category, task.title);
+      const auto = currentAuto(task.auto) ?? baseTaskAuto(data.category, task.title);
       if (!auto) return task;
       return { ...task, title, auto };
     }),

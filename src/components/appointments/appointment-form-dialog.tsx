@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { TimePicker } from "@/components/ui/time-picker";
 import {
   APPOINTMENT_CATEGORIES,
   createAppointment,
@@ -317,17 +318,16 @@ function AppointmentForm({
             <Label htmlFor={timeId} className={FIELD_LABEL}>
               Hora <span className="font-normal text-ink-muted">(opcional)</span>
             </Label>
-            <Input
+            <TimePicker
               id={timeId}
-              type="time"
               value={time}
-              onChange={(e) => {
-                setTime(e.target.value);
+              onChange={(v) => {
+                setTime(v);
                 clearError("time");
               }}
               aria-invalid={error?.field === "time" || undefined}
               aria-describedby={error?.field === "time" ? `${timeId}-error` : undefined}
-              className={cn(FIELD, "tabular-nums")}
+              className={FIELD}
             />
             {error?.field === "time" && (
               <p id={`${timeId}-error`} role="alert" className={ERROR_TEXT}>

@@ -45,6 +45,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { TimePicker } from "@/components/ui/time-picker";
 import { createTimelineItem, deleteTimelineItem, updateTimelineItem } from "@/lib/firebase/timeline";
 import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -289,18 +290,16 @@ function MomentForm({
             <Label htmlFor={timeId} className={FIELD_LABEL}>
               Hora
             </Label>
-            <Input
+            <TimePicker
               id={timeId}
-              type="time"
               value={time}
-              onChange={(e) => {
-                setTime(e.target.value);
+              onChange={(v) => {
+                setTime(v);
                 clearError("time");
               }}
-              required
               aria-invalid={error?.field === "time" || undefined}
               aria-describedby={error?.field === "time" ? `${timeId}-error` : undefined}
-              className={cn(FIELD, "tabular-nums")}
+              className={FIELD}
             />
             {error?.field === "time" && (
               <p id={`${timeId}-error`} role="alert" className={ERROR_TEXT}>

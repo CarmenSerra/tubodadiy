@@ -17,12 +17,14 @@ import {
 import {
   cleanContent,
   cleanDate,
+  cleanInvitationGift,
   publicGift,
   type InvitationContent,
   type InvitationDoc,
   type InvitationGift,
   type RsvpRecord,
 } from "@/components/invitation/invitation-model";
+import type { GiftItem } from "@/components/plan-tools/gift-model";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import type { PlanGift } from "@/lib/types";
 
@@ -31,7 +33,7 @@ const toMillis = (value: unknown): number | null =>
 
 export function mapInvitation(id: string, data: DocumentData): InvitationDoc {
   const content = cleanContent(data as Partial<InvitationContent>);
-  const gift = data.gift && typeof data.gift === "object" ? (data.gift as InvitationGift) : null;
+  const gift = cleanInvitationGift(data.gift);
   return {
     ...content,
     // `cleanContent` descarta lo que no reconoce; el plazo ya viene saneado.
@@ -60,11 +62,13 @@ export interface SaveInvitationInput {
   content: InvitationContent;
   published: boolean;
   planGift: PlanGift | null;
+  /** La lista de regalos del plan, o `null` si no se ha podido leer (entonces no se toca el regalo publicado). */
+  giftItems: GiftItem[] | null;
   /** `true` si el documento aún no existe. */
   isNew: boolean;
 }
 
-/** Crea o actualiza `publicInvitations/{slug}`, copiando el regalo si procede. */
+/** Crea o actualiza `publicInvitations/{slug}`, copiando el regalo (dinero o lista) si procede. */
 export async function saveInvitation(input: SaveInvitationInput): Promise<void> {
   const content = cleanContent(input.content);
   const ref = doc(getFirebaseDb(), "publicInvitations", input.slug);
@@ -72,7 +76,11 @@ export async function saveInvitation(input: SaveInvitationInput): Promise<void> 
     ...content,
     planId: input.planId,
     published: input.published,
-    gift: publicGift(input.planGift, content.showGift),
+    ...(input.giftItems
+      ? { gift: publicGift(input.planGift, input.giftItems, content.showGift) }
+      : input.isNew
+        ? { gift: null }
+        : {}),
     updatedAt: serverTimestamp(),
   };
   await setDoc(ref, input.isNew ? { ...data, createdAt: serverTimestamp() } : data, { merge: true });

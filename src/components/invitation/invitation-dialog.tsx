@@ -39,6 +39,7 @@ import {
   type PlanFill,
 } from "@/components/invitation/plan-autofill";
 import { InvitationView } from "@/components/invitation/invitation-view";
+import type { GiftItem } from "@/components/plan-tools/gift-model";
 import { RsvpForm } from "@/components/invitation/rsvp-form";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { ignoreToastInteraction } from "@/components/timeline/use-timeline-undo";
@@ -52,6 +53,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { TimePicker } from "@/components/ui/time-picker";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlanContext } from "@/lib/context/plan-context";
 import {
@@ -62,6 +64,7 @@ import {
   syncInvitationGift,
 } from "@/lib/firebase/invitation";
 import { mapSaveTheDate, saveTheDateRef } from "@/lib/firebase/designs";
+import { giftItemsQuery, mapGiftItem } from "@/lib/firebase/gift-list";
 import { mapTimelineItem, mapVendor, timelineItemsQuery, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useDoc } from "@/lib/hooks/use-doc";
@@ -147,7 +150,12 @@ function InvitationBody({
   const { data: vendors, loading: vendorsLoading } = useCollection(vendorsQuery(planId), mapVendor);
   const { data: timeline, loading: timelineLoading } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
   const { data: saveTheDate, loading: designLoading } = useDoc(saveTheDateRef(planId), mapSaveTheDate);
-  const sourcesLoading = vendorsLoading || timelineLoading || designLoading;
+  // La lista de regalos se copia a la invitación: hay que tenerla cargada antes de comparar.
+  const { data: giftItems, loading: giftItemsLoading, error: giftItemsError } = useCollection(
+    giftItemsQuery(planId),
+    mapGiftItem
+  );
+  const sourcesLoading = vendorsLoading || timelineLoading || designLoading || giftItemsLoading;
   const planFill = React.useMemo(
     () => derivePlanFill({ plan, saveTheDate, vendors, timeline }),
     [plan, saveTheDate, vendors, timeline]
@@ -181,6 +189,8 @@ function InvitationBody({
       key={saved?.slug ?? "new"}
       planId={planId}
       planGift={plan.gift}
+      // Si no se pudo leer la lista no se toca el regalo ya publicado.
+      giftItems={giftItemsError ? null : giftItems}
       saved={saved}
       planFill={planFill}
       slug={saved?.slug ?? freshSlug}
@@ -193,6 +203,7 @@ function InvitationBody({
 function Editor({
   planId,
   planGift,
+  giftItems,
   saved,
   planFill,
   slug,
@@ -201,6 +212,7 @@ function Editor({
 }: {
   planId: string;
   planGift: PlanGift | null;
+  giftItems: GiftItem[] | null;
   saved: InvitationDoc | null;
   planFill: PlanFill;
   slug: string;
@@ -230,14 +242,14 @@ function Editor({
     };
   }, [dirty, saved, dirtyRef]);
 
-  const giftAvailable = Boolean(
-    planGift?.showOnInvitation && (planGift.iban.trim() || planGift.bizum.trim() || planGift.message.trim())
-  );
+  const giftList = giftItems ?? [];
+  const giftAvailable = publicGift(planGift, giftList, true) !== null;
+  const giftIsList = planGift?.mode === "list";
 
-  // Si la pareja cambió los datos del regalo en el plan, la copia pública se pone al día.
+  // Si la pareja cambió el regalo (datos o lista) en el plan, la copia pública se pone al día.
   const savedGift = saved?.gift ?? null;
-  const wantedGift = saved ? publicGift(planGift, saved.showGift) : null;
-  const giftOutOfSync = Boolean(saved) && !sameGift(savedGift, wantedGift);
+  const wantedGift = saved ? publicGift(planGift, giftList, saved.showGift) : null;
+  const giftOutOfSync = Boolean(saved) && giftItems !== null && !sameGift(savedGift, wantedGift);
   React.useEffect(() => {
     if (!saved || !giftOutOfSync) return;
     syncInvitationGift(saved.slug, wantedGift).catch(() => {});
@@ -248,8 +260,9 @@ function Editor({
 
   const preview: InvitationPublicData = React.useMemo(() => {
     const { showGift, ...rest } = clean;
-    return { ...rest, gift: publicGift(planGift, showGift) };
-  }, [clean, planGift]);
+    return { ...rest, gift: publicGift(planGift, giftList, showGift) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clean, planGift, giftItems]);
 
   const fromPlan = (Object.keys(filled) as FillKey[]).filter((k) => filled[k] && getField(form, k) === filled[k]);
   const fromPlanLabels = [...new Set(fromPlan.map((k) => FILL_GROUP_LABEL[k]))];
@@ -294,6 +307,7 @@ function Editor({
         content: clean,
         published: nextPublished,
         planGift,
+        giftItems,
         isNew: !saved,
       });
       return true;
@@ -521,10 +535,16 @@ function Editor({
                   </label>
                   <p id="ed-gift-help" className="mt-1 text-sm text-ink-muted">
                     {giftAvailable
-                      ? "Tus invitados verán el IBAN o Bizum que has guardado en el plan."
-                      : planGift
-                        ? "Tienes datos de regalo, pero no están marcados para mostrarse en la invitación. Actívalo en los datos del regalo de tu plan."
-                        : "Aún no has añadido datos de regalo (IBAN o Bizum) en tu plan."}
+                      ? giftIsList
+                        ? "Tus invitados verán la lista de cosas que has guardado en el plan (sin lo que ya tenéis)."
+                        : "Tus invitados verán el IBAN o Bizum que has guardado en el plan."
+                      : planGift?.showOnInvitation
+                        ? giftIsList
+                          ? "Tu lista de regalos aún no tiene nada que enseñar. Añade alguna cosa en los datos del regalo de tu plan."
+                          : "Aún no has añadido un IBAN o un Bizum en los datos del regalo de tu plan."
+                        : planGift
+                          ? "Tienes un regalo preparado, pero no está marcado para mostrarse en la invitación. Actívalo en los datos del regalo de tu plan."
+                          : "Aún no has elegido cómo recibir el regalo (dinero o lista de cosas). Hazlo en el paso «Regalo» de tu plan."}
                   </p>
                 </div>
                 <Switch
@@ -728,11 +748,10 @@ function PlaceFields({
           />
         </Field>
         <Field label="Hora" htmlFor={`${id}-time`}>
-          <Input
+          <TimePicker
             id={`${id}-time`}
-            type="time"
             value={place.time}
-            onChange={(e) => onChange({ time: e.target.value })}
+            onChange={(time) => onChange({ time })}
             className={FIELD}
           />
         </Field>

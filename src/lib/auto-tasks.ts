@@ -1,6 +1,6 @@
 import { listCategories } from "@/components/budget/budget-math";
 import { canonicalCategory, categoryKey } from "@/components/vendors/vendor-model";
-import { baseTaskAuto } from "@/lib/steps";
+import { baseTaskAuto, currentAuto } from "@/lib/steps";
 import type {
   BudgetItem,
   CeremonyType,
@@ -30,8 +30,12 @@ export interface AutoTaskInput {
   timelineShare?: boolean;
   /** Si viene definido, se sincroniza «Elegir tipo de ceremonia» (en los dos sentidos). */
   ceremonyType?: CeremonyType | null;
+  /** Si viene definido, se sincroniza «Confirmar oficiante» (en los dos sentidos). */
+  officiantConfirmed?: boolean;
   /** Si viene definido, se sincroniza «Reunir documentación» (en los dos sentidos). */
   legalDocsComplete?: boolean;
+  /** Si viene definido, se sincroniza «Decidir cómo recibir el regalo» (en los dos sentidos). */
+  giftDecided?: boolean;
   /** Si viene definido, se sincroniza «Añadir los datos para el regalo» (en los dos sentidos). */
   giftSet?: boolean;
   /**
@@ -77,16 +81,20 @@ export function syncAutoTasks(
 ): { tasks: StepTask[]; changed: boolean } {
   let changed = false;
   const next = tasks.map((task) => {
-    const auto = task.auto ?? baseTaskAuto(category, task.title);
+    const auto = currentAuto(task.auto) ?? baseTaskAuto(category, task.title);
     let done = task.done;
     if (auto === "date" && input.weddingDate !== undefined) done = isDateSet(input.weddingDate);
     if (auto === "budget" && input.budgetTotal !== undefined) done = isBudgetSet(input.budgetTotal);
     if (auto === "ceremony-type" && input.ceremonyType !== undefined) {
       done = input.ceremonyType !== null;
     }
+    if (auto === "officiant-confirmed" && input.officiantConfirmed !== undefined) {
+      done = input.officiantConfirmed;
+    }
     if (auto === "legal-docs" && input.legalDocsComplete !== undefined) {
       done = input.legalDocsComplete;
     }
+    if (auto === "gift-decide" && input.giftDecided !== undefined) done = input.giftDecided;
     if (auto === "gift-data" && input.giftSet !== undefined) done = input.giftSet;
     if (auto === "timeline-draft" && input.timelineDraft) done = true;
     if (auto === "timeline-share" && input.timelineShare) done = true;
@@ -113,7 +121,6 @@ const VENDOR_AUTO_CATEGORY: Partial<Record<StepTaskAuto, string>> = {
   "vendor-catering": "Catering",
   "vendor-photo": "Fotógrafo",
   "vendor-music": "Música",
-  "vendor-officiant": "Oficiante",
 };
 
 /**

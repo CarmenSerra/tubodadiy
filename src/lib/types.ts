@@ -31,17 +31,46 @@ export interface WeddingPlan {
   ceremonyType: CeremonyType | null;
   /** Ids de documentos legales ya reunidos (ver checklist por tipo de ceremonia). */
   legalDocsDone: string[];
-  /** Datos para el regalo en dinero (se pueden mostrar en la invitación pública). */
+  /** Ficha del oficiante de la ceremonia (no es un proveedor). */
+  officiant: PlanOfficiant | null;
+  /** Cómo recibir el regalo (dinero o lista de cosas); se puede mostrar en la invitación pública. */
   gift: PlanGift | null;
   createdAt: number | null;
 }
 
 export type CeremonyType = "civil" | "religiosa" | "simbolica";
 
+/** Quién oficia: juez/a o concejal/a, sacerdote/párroco, celebrante, allegado/a u otro. */
+export type OfficiantKind = "juez" | "sacerdote" | "celebrante" | "allegado" | "otro";
+
+/** Ficha del oficiante, guardada en el documento del plan (`officiant`). */
+export interface PlanOfficiant {
+  name: string;
+  kind: OfficiantKind | null;
+  phone: string;
+  email: string;
+  confirmed: boolean;
+  /** Honorarios en euros (opcional). */
+  fee: number | null;
+  /** Si los honorarios están reflejados como gasto pendiente en el presupuesto. */
+  feeInBudget: boolean;
+  /** Id del gasto del presupuesto enlazado (categoría «Ceremonia»), si lo hay. */
+  budgetItemId: string | null;
+  notes: string;
+}
+
+/** Cómo quiere la pareja recibir el regalo: dinero (IBAN/Bizum) o una lista de cosas. */
+export type GiftMode = "money" | "list";
+
 export interface PlanGift {
+  /** Los regalos guardados antes de existir la lista no lo tienen: se leen como dinero. */
+  mode: GiftMode;
   iban: string;
   bizum: string;
+  /** Mensaje para los invitados cuando el regalo es en dinero. */
   message: string;
+  /** Mensaje para los invitados cuando el regalo es una lista (cada modo tiene el suyo). */
+  listMessage: string;
   showOnInvitation: boolean;
 }
 
@@ -56,8 +85,11 @@ export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
  *  - "budget-split": hay gastos en 2 o más categorías;
  *  - "guests-draft": hay al menos un invitado;
  *  - "guests-final": hay invitados y ninguno está pendiente de respuesta;
- *  - "vendor-catering" / "vendor-photo" / "vendor-music" / "vendor-officiant":
- *    hay un proveedor elegido de esa categoría;
+ *  - "vendor-catering" / "vendor-photo" / "vendor-music": hay un proveedor
+ *    elegido de esa categoría;
+ *  - "officiant-confirmed": la ficha del oficiante está marcada como confirmada
+ *    (en los dos sentidos). Los planes antiguos la guardaron como
+ *    "vendor-officiant"; se leen con la clave vigente;
  *  - "venue-ceremony" / "venue-banquet": solo enlace a «Finca». Ceremonia y
  *    banquete comparten categoría, así que no se pueden distinguir y no se
  *    marcan solas;
@@ -70,10 +102,11 @@ export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
  *  - "stationery-save-date": solo enlace al diseñador «Reserva la fecha»;
  *  - "invitations-send": solo enlace al editor de invitación (Invitados);
  *  - "honeymoon-destination" / "honeymoon-book": solo enlace a la Luna de miel;
- *  - "gift-decide": solo enlace a los datos del regalo;
- *  - "gift-data": el regalo tiene IBAN o Bizum (en los dos sentidos).
+ *  - "gift-decide": la pareja ha elegido cómo recibir el regalo (en los dos sentidos);
+ *  - "gift-data": el regalo tiene IBAN o Bizum, o la lista tiene alguna cosa (en los dos sentidos).
  * Las que se marcan por datos de otras herramientas nunca se desmarcan solas;
- * las del plan ("date", "budget", "ceremony-type", "legal-docs", "gift-data")
+ * las del plan ("date", "budget", "ceremony-type", "officiant-confirmed",
+ * "legal-docs", "gift-decide", "gift-data")
  * siguen al dato en los dos sentidos.
  */
 export type StepTaskAuto =
@@ -87,7 +120,7 @@ export type StepTaskAuto =
   | "vendor-catering"
   | "vendor-photo"
   | "vendor-music"
-  | "vendor-officiant"
+  | "officiant-confirmed"
   | "venue-ceremony"
   | "venue-banquet"
   | "venue-visit"

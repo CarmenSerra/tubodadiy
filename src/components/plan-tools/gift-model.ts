@@ -1,8 +1,12 @@
-import type { PlanGift } from "@/lib/types";
+import type { GiftMode, PlanGift } from "@/lib/types";
 
 /** Texto de ejemplo para el mensaje a invitados (sin género). */
 export const GIFT_MESSAGE_EXAMPLE =
   "Vuestra presencia es el mejor regalo. Si queréis tener un detalle con nosotros, lo recibiremos con mucho cariño en forma de aportación para estrenar esta nueva etapa.";
+
+/** Texto de ejemplo para el mensaje cuando el regalo es una lista de cosas. */
+export const GIFT_LIST_MESSAGE_EXAMPLE =
+  "Lo que más ilusión nos hace es compartir este día con vosotros. Si queréis tener un detalle, hemos preparado una lista con cosas que nos vendrán muy bien en casa; no hace falta regalar nada de ella.";
 
 export const GIFT_MESSAGE_MAX = 280;
 
@@ -84,3 +88,108 @@ export function bizumError(value: string): string | null {
 export function giftHasPaymentData(gift: Pick<PlanGift, "iban" | "bizum"> | null | undefined): boolean {
   return Boolean(gift && (gift.iban.trim() || gift.bizum.trim()));
 }
+
+// ---- Modo de regalo (dinero o lista) ----
+
+export const GIFT_MODES: GiftMode[] = ["money", "list"];
+
+/** Regalo vacío del modo elegido: lo que se guarda al decidir cómo recibirlo. */
+export function emptyGift(mode: GiftMode): PlanGift {
+  return { mode, iban: "", bizum: "", message: "", listMessage: "", showOnInvitation: false };
+}
+
+/** Lee el regalo guardado en el plan. Sin `mode` (regalos anteriores a la lista) es dinero. */
+export function mapGift(raw: unknown): PlanGift | null {
+  if (!raw || typeof raw !== "object") return null;
+  const data = raw as Record<string, unknown>;
+  const text = (value: unknown) => (typeof value === "string" ? value : "");
+  return {
+    mode: data.mode === "list" ? "list" : "money",
+    iban: text(data.iban),
+    bizum: text(data.bizum),
+    message: text(data.message),
+    listMessage: text(data.listMessage),
+    showOnInvitation: data.showOnInvitation === true,
+  };
+}
+
+/** ¿Ya han elegido cómo recibir el regalo? Marca «Decidir cómo recibir el regalo». */
+export function giftDecided(gift: PlanGift | null | undefined): boolean {
+  return Boolean(gift);
+}
+
+/**
+ * ¿Hay ya algo que dar a los invitados? Dinero: IBAN o Bizum. Lista: al menos
+ * una cosa. Lo que marca «Añadir los datos para el regalo».
+ */
+export function giftHasData(gift: PlanGift | null | undefined, itemCount: number): boolean {
+  if (!gift) return false;
+  return gift.mode === "list" ? itemCount > 0 : giftHasPaymentData(gift);
+}
+
+// ---- Lista de cosas ----
+
+export type GiftPriority = "high" | "medium" | "low";
+
+export const GIFT_PRIORITIES: { id: GiftPriority; label: string; hint: string }[] = [
+  { id: "high", label: "Imprescindible", hint: "Lo necesitamos pronto" },
+  { id: "medium", label: "Nos vendría bien", hint: "Útil, sin prisa" },
+  { id: "low", label: "Capricho", hint: "Un extra que nos haría ilusión" },
+];
+
+export const isGiftPriority = (value: unknown): value is GiftPriority =>
+  value === "high" || value === "medium" || value === "low";
+
+export const giftPriorityLabel = (priority: GiftPriority) =>
+  GIFT_PRIORITIES.find((p) => p.id === priority)?.label ?? "";
+
+/** Una cosa de la lista de regalos: `weddingPlans/{planId}/giftItems/{id}`. */
+export interface GiftItem {
+  id: string;
+  name: string;
+  /** Enlace http(s) a la tienda o al producto; vacío si no hay. */
+  link: string;
+  /** Precio aproximado en euros. */
+  price: number | null;
+  note: string;
+  priority: GiftPriority | null;
+  /** «Ya lo tenemos»: conseguido (no se enseña a los invitados). */
+  achieved: boolean;
+  createdAt: number | null;
+}
+
+export type GiftItemInput = Omit<GiftItem, "id" | "createdAt" | "achieved">;
+
+export const GIFT_ITEM_LIMITS = { name: 100, link: 400, note: 200, price: 1_000_000 } as const;
+
+/** Orden de la lista: pendientes primero, por prioridad y luego por antigüedad; lo conseguido al final. */
+export function sortGiftItems<T extends Pick<GiftItem, "achieved" | "priority" | "createdAt">>(items: T[]): T[] {
+  const rank = (p: GiftPriority | null) => (p === "high" ? 0 : p === "medium" ? 1 : p === "low" ? 2 : 3);
+  return [...items].sort(
+    (a, b) =>
+      Number(a.achieved) - Number(b.achieved) ||
+      rank(a.priority) - rank(b.priority) ||
+      (a.createdAt ?? Number.MAX_SAFE_INTEGER) - (b.createdAt ?? Number.MAX_SAFE_INTEGER)
+  );
+}
+
+/** Cuántas quedan por conseguir y cuánto sumarían, de forma aproximada. */
+export function giftListSummary(items: Pick<GiftItem, "achieved" | "price">[]) {
+  const pending = items.filter((i) => !i.achieved);
+  return {
+    total: items.length,
+    achieved: items.length - pending.length,
+    pending: pending.length,
+    pendingPrice: pending.reduce((sum, i) => sum + (i.price ?? 0), 0),
+  };
+}
+
+/** Ideas para empezar una lista vacía (rellenan el nombre al añadir). */
+export const GIFT_ITEM_SUGGESTIONS = [
+  "Juego de sábanas",
+  "Set de toallas",
+  "Robot de cocina",
+  "Vajilla",
+  "Cafetera",
+  "Aspirador robot",
+];

@@ -14,6 +14,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HomeLink } from "@/components/brand/home-link";
 import { Branch } from "@/components/brand/hero-decorations";
 import { Flourish } from "@/components/brand/welcome-decorations";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -73,10 +74,10 @@ export default function LandingPage() {
     <div className="flex flex-1 flex-col">
       <header className="bg-surface-alt">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2 text-brand">
-            <HeartIcon className="size-5 fill-current" />
+          <HomeLink className="flex items-center gap-2 rounded-md text-brand outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface-alt">
+            <HeartIcon className="size-5 fill-current" aria-hidden="true" />
             <span className="font-display text-lg font-semibold">tubodadiy</span>
-          </div>
+          </HomeLink>
           <nav className="flex items-center gap-2">
             <ThemeToggle />
             {!loading && user ? (

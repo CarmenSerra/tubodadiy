@@ -4,16 +4,22 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  doc,
+  getDoc,
   getDocs,
+  limit,
   query,
   runTransaction,
+  serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from "firebase/firestore";
 
-import { giftHasPaymentData } from "@/components/plan-tools/gift-model";
+import { emptyGift, giftDecided, giftHasData } from "@/components/plan-tools/gift-model";
 import { legalDocsComplete } from "@/components/plan-tools/legal-docs-model";
 import {
+  AUTO_TASKS_CATEGORY,
   CEREMONY_CATEGORY,
   GIFT_CATEGORY,
   LEGAL_DOCS_CATEGORY,
@@ -22,8 +28,18 @@ import {
   type AutoTaskInput,
 } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
+import { syncPublishedGift } from "@/lib/firebase/gift-list";
+import { syncToolTasks } from "@/lib/firebase/mutations";
 import { mapPlan, planDocRef } from "@/lib/firebase/plans";
-import type { CeremonyType, PlanGift, StepStatus, StepTask, WeddingPlan } from "@/lib/types";
+import type {
+  CeremonyType,
+  GiftMode,
+  PlanGift,
+  PlanOfficiant,
+  StepStatus,
+  StepTask,
+  WeddingPlan,
+} from "@/lib/types";
 
 // Mutaciones de las herramientas del plan (ceremonia, documentos legales y
 // regalo). Cada una guarda el dato en el documento del plan y, después,
@@ -76,13 +92,39 @@ async function syncFromPlan(
 const syncCeremony = (planId: string) =>
   syncFromPlan(planId, CEREMONY_CATEGORY, (plan) => ({ ceremonyType: plan.ceremonyType }));
 
+const syncOfficiant = (planId: string) =>
+  syncFromPlan(planId, CEREMONY_CATEGORY, (plan) => ({
+    officiantConfirmed: Boolean(plan.officiant?.confirmed),
+  }));
+
 const syncLegalDocs = (planId: string) =>
   syncFromPlan(planId, LEGAL_DOCS_CATEGORY, (plan) => ({
     legalDocsComplete: legalDocsComplete(plan.ceremonyType, plan.legalDocsDone),
   }));
 
-const syncGift = (planId: string) =>
-  syncFromPlan(planId, GIFT_CATEGORY, (plan) => ({ giftSet: giftHasPaymentData(plan.gift) }));
+/**
+ * «Decidir cómo recibir el regalo» sigue a que haya modo elegido; «Añadir los
+ * datos» sigue a que haya IBAN/Bizum (dinero) o al menos una cosa en la lista
+ * (lista). Las dos en los dos sentidos. Se exporta para que la lista de regalos
+ * la reevalúe al añadir o quitar cosas.
+ */
+export async function syncGift(planId: string) {
+  let hasItems = false;
+  try {
+    const items = await getDocs(
+      query(collection(getFirebaseDb(), "weddingPlans", planId, "giftItems"), limit(1))
+    );
+    hasItems = !items.empty;
+  } catch (error) {
+    // Sin poder leer la lista no se desmarca nada por error: se deja como está.
+    console.warn("No se pudo leer la lista de regalos", error);
+    return;
+  }
+  await syncFromPlan(planId, GIFT_CATEGORY, (plan) => ({
+    giftDecided: giftDecided(plan.gift),
+    giftSet: giftHasData(plan.gift, hasItems ? 1 : 0),
+  }));
+}
 
 /**
  * Guarda el tipo de ceremonia (`null` lo quita). Cambia la lista de papeles
@@ -104,8 +146,84 @@ export async function setLegalDocChecked(planId: string, id: string, checked: bo
   await syncLegalDocs(planId);
 }
 
-/** Guarda los datos del regalo (`null` si no queda nada) y marca/desmarca la tarea de datos. */
-export async function saveGift(planId: string, gift: PlanGift | null) {
+/**
+ * Guarda el regalo (el modo va dentro) y marca/desmarca las tareas del paso. Si
+ * hay una invitación con el regalo a la vista, también se pone al día su copia.
+ */
+export async function saveGift(planId: string, gift: PlanGift) {
   await updateDoc(planDocRef(planId), { gift });
-  await syncGift(planId);
+  await Promise.all([syncGift(planId), syncPublishedGift(planId)]);
+}
+
+/**
+ * Elige cómo recibir el regalo. Cambiar de modo no borra nada: el IBAN, el
+ * Bizum, el mensaje y la lista siguen guardados por si se vuelve atrás.
+ */
+export async function saveGiftMode(planId: string, current: PlanGift | null, mode: GiftMode) {
+  if (current?.mode === mode) return;
+  await saveGift(planId, { ...(current ?? emptyGift(mode)), mode });
+}
+
+/** Categoría y concepto del gasto que crea la ficha del oficiante en el presupuesto. */
+export const OFFICIANT_BUDGET_CATEGORY = "Ceremonia";
+export const OFFICIANT_BUDGET_CONCEPT = "Honorarios de oficiante";
+
+/**
+ * Guarda la ficha del oficiante (`null` la quita) y mantiene su gasto en el
+ * presupuesto, todo en un mismo lote:
+ *  - con honorarios y «Añadir al presupuesto»: crea un gasto pendiente en
+ *    «Ceremonia» o, si ya hay uno enlazado (`budgetItemId`), solo le cambia el
+ *    importe (conserva su estado y fecha);
+ *  - sin honorarios, sin el interruptor o sin ficha: borra el gasto enlazado.
+ * Después reevalúa «Confirmar oficiante» según `confirmed` (en los dos sentidos).
+ */
+export async function saveOfficiant(
+  planId: string,
+  officiant: Omit<PlanOfficiant, "budgetItemId"> | null
+) {
+  const db = getFirebaseDb();
+  const planSnap = await getDoc(planDocRef(planId));
+  const linkedId = planSnap.exists() ? mapPlan(planSnap.id, planSnap.data()).officiant?.budgetItemId ?? null : null;
+  const itemsPath = collection(db, "weddingPlans", planId, "budgetItems");
+
+  const wantsItem = Boolean(
+    officiant && officiant.fee !== null && officiant.fee > 0 && officiant.feeInBudget
+  );
+  const batch = writeBatch(db);
+  let budgetItemId: string | null = null;
+  let budgetTouched = false;
+
+  if (wantsItem && officiant && officiant.fee !== null) {
+    const existing = linkedId ? await getDoc(doc(itemsPath, linkedId)) : null;
+    if (linkedId && existing?.exists()) {
+      budgetItemId = linkedId;
+      if (existing.data().amount !== officiant.fee) {
+        batch.update(existing.ref, { amount: officiant.fee });
+        budgetTouched = true;
+      }
+    } else {
+      const ref = doc(itemsPath);
+      budgetItemId = ref.id;
+      batch.set(ref, {
+        category: OFFICIANT_BUDGET_CATEGORY,
+        concept: OFFICIANT_BUDGET_CONCEPT,
+        amount: officiant.fee,
+        state: "pending",
+        dueDate: null,
+        createdAt: serverTimestamp(),
+      });
+      budgetTouched = true;
+    }
+  } else if (linkedId) {
+    batch.delete(doc(itemsPath, linkedId));
+    budgetTouched = true;
+  }
+
+  batch.update(planDocRef(planId), {
+    officiant: officiant ? { ...officiant, budgetItemId } : null,
+  });
+  await batch.commit();
+
+  if (budgetTouched) void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
+  await syncOfficiant(planId);
 }

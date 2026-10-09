@@ -1,80 +1,84 @@
-// Marca de tubodadiy para favicon / icono de app: un corazón lila con una ramita de
-// eucalipto salvia que le cruza la base. Una sola definición; generate.mjs la
-// vuelca a SVG/PNG/ICO. Cuadrícula de 64×64, formas grandes y pocos detalles para
-// que se lea a 16 px.
+// Marca de tubodadiy para favicon / icono de app: un círculo blanco con el monograma «tb»
+// en los colores del tema (violeta profundo y lila, en la tipografía de títulos, Newsreader)
+// y una pequeña hoja salvia. Una sola definición; generate.mjs la vuelca a SVG/PNG/ICO.
+// Cuadrícula de 64×64, formas grandes y pocos detalles para que se lea a 16 px.
+//
+// Las letras son trazados (monogram-glyphs.mjs), no texto: se ven igual en cualquier sitio.
+
+import { ROMAN } from "./monogram-glyphs.mjs";
 
 export const PALETTE = {
   light: {
-    tile: "#f8f5f1", // = --surface (claro)
-    edge: "#d4c0ea", // borde fino para que el azulejo no se pierda en pestañas blancas
-    heart: "#927aac", // = --cta
-    stem: "#4e6a5a", // = --green
+    disc: "#ffffff", // círculo blanco
+    ring: "#d4c0ea", // = --lilac-edge: aro fino para que el blanco no se pierda en pestañas blancas
+    t: "#927aac", // = --cta (lila)
+    b: "#68538a", // violeta profundo (familia de --cta)
     leaf: "#8faf8a", // = --sage
-    leafEdge: "#f8f5f1", // contorno de las hojas sobre el corazón
+    bg: "#efe8f6", // fondo del icono de iOS (a sangre); no se usa en el favicon
   },
+  // Noche: el mismo círculo claro (sobre pestañas oscuras se ve mejor que uno oscuro), con las
+  // letras más profundas y un aro lila más marcado.
   dark: {
-    tile: "#38384d", // = --page (oscuro)
-    edge: "#586c64",
-    heart: "#d4c0ea", // = --cta (oscuro)
-    stem: "#bcc7b5",
-    leaf: "#8faf8a",
-    leafEdge: "#38384d",
+    disc: "#fbf9fe",
+    ring: "#a38ed2", // = --lilac-bright
+    t: "#7a62a0",
+    b: "#4d3b73",
+    leaf: "#7fa37b",
+    bg: "#38384d", // = --page (oscuro)
   },
 };
 
-const HEART =
-  "M32 47 C18 37 12 29.5 12 22.5 C12 16.5 16.5 12.5 22 12.5 C26.3 12.5 29.8 15 32 18.8 C34.2 15 37.7 12.5 42 12.5 C47.5 12.5 52 16.5 52 22.5 C52 29.5 46 37 32 47 Z";
+const RING = 2;
+const FONT = ROMAN;
+/** Alto del monograma (de la base a lo alto de la «b») en la cuadrícula de 64. */
+const LETTER_H = 34;
 
-// Tallo en arco bajo el corazón (como una corona abierta) y hojas redondas de eucalipto
-// a ambos lados. Se calculan sobre la curva para que queden regulares.
-const STEM = [
-  [9, 37],
-  [13, 59],
-  [51, 59],
-  [55, 37],
-];
-const bez = (t) => {
-  const u = 1 - t;
-  return STEM[0].map(
-    (_, i) => u * u * u * STEM[0][i] + 3 * u * u * t * STEM[1][i] + 3 * u * t * t * STEM[2][i] + t * t * t * STEM[3][i]
-  );
-};
-const tangent = (t) => {
-  const u = 1 - t;
-  return [0, 1].map(
-    (i) =>
-      3 * u * u * (STEM[1][i] - STEM[0][i]) + 6 * u * t * (STEM[2][i] - STEM[1][i]) + 3 * t * t * (STEM[3][i] - STEM[2][i])
-  );
-};
-const LEAVES = [0.08, 0.26, 0.74, 0.92].flatMap((t, k) => {
-  const [x, y] = bez(t);
-  const [tx, ty] = tangent(t);
-  const len = Math.hypot(tx, ty);
-  // normal hacia fuera del arco (abajo) en las hojas pares, hacia dentro en las impares
-  const nx = ty / len;
-  const ny = -tx / len;
-  const side = k % 2 === 0 ? 1 : -1;
-  const off = 3.6;
-  const rot = (Math.atan2(ny * side, nx * side) * 180) / Math.PI;
-  return [{ cx: +(x + nx * side * off).toFixed(2), cy: +(y + ny * side * off).toFixed(2), rx: 6.2, ry: 3.9, rot: +rot.toFixed(1) }];
-});
-
-/** Cuerpo del icono (sin <svg>), con los colores de una variante. */
-export function markBody(c, { tile = "round" } = {}) {
-  const leaves = LEAVES.map(
-    (l) =>
-      `<ellipse cx="${l.cx}" cy="${l.cy}" rx="${l.rx}" ry="${l.ry}" transform="rotate(${l.rot} ${l.cx} ${l.cy})" fill="${c.leaf}"/>`
-  ).join("");
+/** Letras «t» y «b» centradas en el círculo: devuelve los dos trazados ya colocados. */
+function monogram(c) {
+  const { t, b } = FONT;
+  const yMin = Math.min(t.bounds[1], b.bounds[1]);
+  const yMax = Math.max(t.bounds[3], b.bounds[3]);
+  const s = LETTER_H / (yMax - yMin);
+  const left = t.bounds[0];
+  const right = t.adv + b.bounds[2];
+  const width = (right - left) * s;
+  const x0 = 32 - width / 2 - left * s;
+  // Se centra el cuerpo de las letras (no el asta de la «b») un poco por debajo del centro
+  // para dejar sitio a la hoja, que va arriba a la derecha.
+  const baseline = 32 + (yMax - yMin) * s * 0.5 + yMin * s + 1;
+  const place = (g, dx) =>
+    `transform="translate(${(x0 + dx * s).toFixed(2)} ${baseline.toFixed(2)}) scale(${s.toFixed(5)} ${(-s).toFixed(5)})"`;
   return (
-    (tile === "round"
-      ? `<rect x="1" y="1" width="62" height="62" rx="15" fill="${c.tile}" stroke="${c.edge}" stroke-width="2"/>`
-      : tile === "full"
-        ? `<rect width="64" height="64" fill="${c.tile}"/>`
-        : "") +
-    `<path d="M${STEM[0]} C${STEM[1]} ${STEM[2]} ${STEM[3]}" fill="none" stroke="${c.stem}" stroke-width="2.8" stroke-linecap="round"/>` +
-    leaves +
-    `<path d="${HEART}" transform="translate(32 25) scale(1.1) translate(-32 -28)" fill="${c.heart}" stroke="${c.tile}" stroke-width="2.2" stroke-linejoin="round" paint-order="stroke"/>`
+    `<path ${place(t, 0)} d="${t.d}" fill="${c.t}"/>` + `<path ${place(b, t.adv)} d="${b.d}" fill="${c.b}"/>`
   );
+}
+
+/** Hoja de eucalipto (almendra) en el hueco de arriba a la derecha, con un nervio. */
+function leaf(c) {
+  const body = "M0 0C2.6 -4.4 8 -5.2 12 -1.4C8.6 3.6 3 4.2 0 0Z";
+  return (
+    `<g transform="translate(42.2 20.8) rotate(-40) scale(.88)">` +
+    `<path d="${body}" fill="${c.leaf}"/>` +
+    `<path d="M0.8 -0.2C4 -0.9 7.4 -1.1 10.2 -1" fill="none" stroke="${c.disc}" stroke-opacity=".7" stroke-width=".7" stroke-linecap="round"/>` +
+    `</g>`
+  );
+}
+
+/**
+ * Cuerpo del icono (sin <svg>), con los colores de una variante.
+ * `tile`: "round" (círculo con transparencia alrededor, favicon) o "full" (cuadrado a sangre
+ * con el círculo dentro, para el icono de iOS, que aplica su propia máscara).
+ */
+export function markBody(c, { tile = "round" } = {}) {
+  const full = tile === "full";
+  const scale = full ? 25 / (32 - RING / 2) : 1;
+  const art =
+    `<circle cx="32" cy="32" r="${32 - RING / 2}" fill="${c.disc}" stroke="${c.ring}" stroke-width="${RING}"/>` +
+    monogram(c) +
+    leaf(c);
+  return full
+    ? `<rect width="64" height="64" fill="${c.bg}"/><g transform="translate(32 32) scale(${scale.toFixed(4)}) translate(-32 -32)">${art}</g>`
+    : art;
 }
 
 /** SVG fijo de una variante ("light" | "dark"); `tile` como en markBody. */
@@ -84,15 +88,13 @@ export function svgFor(variant, opts) {
 
 /**
  * SVG que cambia solo con prefers-color-scheme (la pestaña del navegador sigue al
- * sistema). Los colores van en clases para que el modo oscuro los reemplace.
+ * sistema). Los colores van en variables CSS para que el modo oscuro las reemplace.
  */
 export function svgAdaptive() {
   const l = PALETTE.light;
   const d = PALETTE.dark;
-  const keys = ["tile", "edge", "heart", "stem", "leaf"];
-  const body = markBody(
-    Object.fromEntries(keys.map((k) => [k, `var(--${k})`]).concat([["leafEdge", "var(--tile)"]]))
-  );
+  const keys = ["disc", "ring", "t", "b", "leaf"];
+  const body = markBody(Object.fromEntries(keys.map((k) => [k, `var(--${k})`])));
   const decl = (c) => keys.map((k) => `--${k}:${c[k]}`).join(";");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><style>:root{${decl(l)}}@media (prefers-color-scheme:dark){:root{${decl(d)}}}</style>${body}</svg>\n`;
 }

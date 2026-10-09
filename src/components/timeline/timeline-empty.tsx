@@ -12,8 +12,8 @@ import {
   isValidCeremonyStart,
   parseClock,
 } from "@/components/timeline/timeline-model";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TimePicker } from "@/components/ui/time-picker";
 import { cn } from "@/lib/utils";
 
 /**
@@ -65,16 +65,14 @@ export function TimelineEmpty({
             <Label htmlFor={timeId} className={FIELD_LABEL}>
               ¿A qué hora es la ceremonia?
             </Label>
-            <Input
+            <TimePicker
               id={timeId}
-              type="time"
               value={time}
-              onChange={(e) => setTime(e.target.value)}
+              onChange={setTime}
               autoFocus
-              required
               aria-invalid={invalid || undefined}
               aria-describedby={helpId}
-              className={cn(FIELD, "tabular-nums")}
+              className={FIELD}
             />
             <p
               id={helpId}

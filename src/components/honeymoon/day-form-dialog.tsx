@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TimePicker } from "@/components/ui/time-picker";
 import { createDay, updateDay } from "@/lib/firebase/honeymoon";
 import { newActivityId, type DayActivity, type TripDay } from "@/lib/honeymoon-model";
 import { cn } from "@/lib/utils";
@@ -186,10 +187,9 @@ function DayForm({
           <ul className="flex flex-col gap-2.5">
             {activities.map((a, i) => (
               <li key={a.id} className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
-                <Input
-                  type="time"
+                <TimePicker
                   value={a.time}
-                  onChange={(e) => patchActivity(a.id, { time: e.target.value })}
+                  onChange={(time) => patchActivity(a.id, { time })}
                   aria-label={`Hora de la actividad ${i + 1} (opcional)`}
                   className={cn(FIELD, "w-28 shrink-0")}
                 />

@@ -43,6 +43,41 @@ export function PhaseTabs({
   children: React.ReactNode;
 }) {
   const listRef = React.useRef<HTMLDivElement>(null);
+  const markerRef = React.useRef<HTMLSpanElement>(null);
+  const markerReady = React.useRef(false);
+
+  // Marcador de la pestaña activa: un contorno que se desliza de una pestaña a otra
+  // (el relleno de cada pestaña se funde por su cuenta). La primera vez se coloca sin animar.
+  const activeComplete = tabs.find((t) => t.id === value)?.complete ?? false;
+  React.useLayoutEffect(() => {
+    const list = listRef.current;
+    const marker = markerRef.current;
+    const active = list?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    if (!list || !marker || !active) return;
+    const place = () => {
+      marker.style.width = `${active.offsetWidth}px`;
+      marker.style.height = `${active.offsetHeight}px`;
+      marker.style.transform = `translate(${active.offsetLeft}px, ${active.offsetTop}px)`;
+    };
+    if (!markerReady.current) {
+      marker.style.transition = "none";
+      place();
+      void marker.offsetWidth; // aplica el estilo antes de reactivar la transición
+      marker.style.transition = "";
+      markerReady.current = true;
+    } else {
+      place();
+    }
+    marker.style.opacity = "1";
+    const onResize = new ResizeObserver(() => {
+      marker.style.transition = "none";
+      place();
+      void marker.offsetWidth;
+      marker.style.transition = "";
+    });
+    onResize.observe(list);
+    return () => onResize.disconnect();
+  }, [value, tabs.length]);
 
   // En móvil la lista se desplaza en horizontal: mantén a la vista la pestaña activa.
   React.useEffect(() => {
@@ -60,7 +95,7 @@ export function PhaseTabs({
         ref={listRef}
         aria-label="Fases del plan"
         className={cn(
-          "h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-lilac-soft p-1.5 ring-1 ring-lilac-edge",
+          "relative h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-lilac-soft p-1.5 ring-1 ring-lilac-edge",
           "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         )}
       >
@@ -72,19 +107,20 @@ export function PhaseTabs({
             data-unlocking={unlockingId === tab.id || undefined}
             className={cn(
               "relative min-h-14 min-w-[9.5rem] flex-none flex-col sm:flex-1 items-start justify-center gap-0.5 rounded-xl border border-transparent px-3.5 py-2 text-left",
+              "transition-colors duration-[420ms] ease-(--ease-gentle) motion-reduce:transition-none",
               "motion-reduce:transition-none outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-0",
-              "data-[unlocking=true]:[animation:pc-tab-pulse_1400ms_ease-out_150ms_1_both]",
+              "data-[unlocking=true]:[animation:pc-tab-pulse_1400ms_ease-out_1300ms_1_both]",
               tab.complete
                 ? // Completa: salvia (borde y relleno) con tinta oscura en claro / clara en oscuro.
                   cn(
                     "border-sage-light bg-sage-pale text-ink-strong dark:border-green-solid",
                     "hover:border-green-solid hover:bg-sage-light dark:hover:bg-sage-pale",
-                    "data-[state=active]:border-green-solid data-[state=active]:bg-sage-pale data-[state=active]:text-ink-strong data-[state=active]:shadow-none",
-                    "data-[state=active]:ring-2 data-[state=active]:ring-green-solid/70 data-[state=active]:ring-inset"
+                    // El contorno de la activa lo dibuja el marcador deslizante.
+                    "data-[state=active]:border-transparent data-[state=active]:bg-sage-pale data-[state=active]:text-ink-strong data-[state=active]:shadow-none"
                   )
                 : cn(
                     "text-ink hover:bg-track",
-                    "data-[state=active]:border-line-strong data-[state=active]:bg-raised data-[state=active]:text-ink-strong data-[state=active]:shadow-none"
+                    "data-[state=active]:border-transparent data-[state=active]:bg-raised data-[state=active]:text-ink-strong data-[state=active]:shadow-none"
                   )
             )}
           >
@@ -134,6 +170,16 @@ export function PhaseTabs({
             </span>
           </TabsTrigger>
         ))}
+        <span
+          ref={markerRef}
+          aria-hidden="true"
+          data-complete={activeComplete || undefined}
+          className={cn(
+            "phase-tab-marker pointer-events-none absolute top-0 left-0 rounded-xl border opacity-0",
+            "border-line-strong data-[complete=true]:border-green-solid",
+            "data-[complete=true]:ring-2 data-[complete=true]:ring-inset data-[complete=true]:ring-green-solid/70"
+          )}
+        />
       </TabsList>
       {children}
     </Tabs>

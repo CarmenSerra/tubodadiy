@@ -1,4 +1,5 @@
-import type { PlanGift } from "@/lib/types";
+import { sortGiftItems, type GiftItem } from "@/components/plan-tools/gift-model";
+import type { GiftMode, PlanGift } from "@/lib/types";
 
 /**
  * Modelo de la invitación pública. Es lo único que lee la página del enlace
@@ -17,11 +18,27 @@ export interface InvitationPlace {
   time: string;
 }
 
-/** Datos de regalo que se muestran (ya filtrados: solo si la pareja lo permite). */
+/** Una cosa de la lista de regalos tal como la ven los invitados (sin prioridad ni estado). */
+export interface InvitationGiftItem {
+  name: string;
+  /** Enlace http(s) o vacío. */
+  link: string;
+  /** Precio aproximado en euros, si lo hay. */
+  price: number | null;
+  note: string;
+}
+
+/**
+ * Regalo que se muestra (ya filtrado: solo si la pareja lo permite). Sin `mode`
+ * (invitaciones anteriores a la lista) es dinero. En modo lista solo van las
+ * cosas aún por conseguir; no hay reservas: los invitados solo la ven.
+ */
 export interface InvitationGift {
+  mode?: GiftMode;
   iban: string;
   bizum: string;
   message: string;
+  items?: InvitationGiftItem[];
 }
 
 /** Lo que edita la pareja. */
@@ -64,6 +81,10 @@ export const LIMITS = {
   iban: 42,
   bizum: 32,
   giftMessage: 300,
+  giftItems: 60,
+  giftItemName: 100,
+  giftItemNote: 200,
+  giftItemPrice: 1_000_000,
   // Respuestas de los invitados
   guestName: 120,
   plusOneName: 120,
@@ -179,14 +200,45 @@ export function placeIsEmpty(place: InvitationPlace): boolean {
 
 // ---- Regalo ----
 
+/** Lo que se copia de la lista: las cosas aún por conseguir, las más importantes primero. */
+function publicGiftItems(items: GiftItem[]): InvitationGiftItem[] {
+  return sortGiftItems(items.filter((i) => !i.achieved && i.name.trim()))
+    .slice(0, LIMITS.giftItems)
+    .map((i) => ({
+      name: clip(i.name, LIMITS.giftItemName),
+      link: cleanUrl(i.link),
+      price: cleanPrice(i.price),
+      note: clip(i.note, LIMITS.giftItemNote),
+    }));
+}
+
+function cleanPrice(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? Math.min(value, LIMITS.giftItemPrice)
+    : null;
+}
+
 /**
  * Datos de regalo que acaban en el documento público: solo si la pareja lo
  * pidió en la invitación Y en los datos del regalo del plan, y hay algo que
- * mostrar. `null` en cualquier otro caso (no se publica nada).
+ * mostrar. `null` en cualquier otro caso (no se publica nada). En modo lista se
+ * copia una foto saneada de la lista (sin lo conseguido).
  */
-export function publicGift(plan: PlanGift | null | undefined, showGift: boolean): InvitationGift | null {
+export function publicGift(
+  plan: PlanGift | null | undefined,
+  items: GiftItem[],
+  showGift: boolean
+): InvitationGift | null {
   if (!plan || !plan.showOnInvitation || !showGift) return null;
+  if (plan.mode === "list") {
+    const message = clip(plan.listMessage, LIMITS.giftMessage);
+    const list = publicGiftItems(items);
+    return list.length > 0 || message
+      ? { mode: "list", iban: "", bizum: "", message, items: list }
+      : null;
+  }
   const gift: InvitationGift = {
+    mode: "money",
     iban: clip(plan.iban, LIMITS.iban),
     bizum: clip(plan.bizum, LIMITS.bizum),
     message: clip(plan.message, LIMITS.giftMessage),
@@ -194,9 +246,42 @@ export function publicGift(plan: PlanGift | null | undefined, showGift: boolean)
   return gift.iban || gift.bizum || gift.message ? gift : null;
 }
 
+/**
+ * Regalo de un documento público ya leído (cliente o servidor), saneado: no se
+ * fía de lo guardado. `null` si no hay nada que enseñar.
+ */
+export function cleanInvitationGift(raw: unknown): InvitationGift | null {
+  if (!raw || typeof raw !== "object") return null;
+  const g = raw as Record<string, unknown>;
+  const mode: GiftMode = g.mode === "list" ? "list" : "money";
+  const base = {
+    iban: clip(g.iban, LIMITS.iban),
+    bizum: clip(g.bizum, LIMITS.bizum),
+    message: clip(g.message, LIMITS.giftMessage),
+  };
+  if (mode === "money") return base.iban || base.bizum || base.message ? { mode, ...base } : null;
+  const items = (Array.isArray(g.items) ? g.items : [])
+    .filter((i): i is Record<string, unknown> => Boolean(i) && typeof i === "object")
+    .slice(0, LIMITS.giftItems)
+    .map((i) => ({
+      name: clip(i.name, LIMITS.giftItemName),
+      link: cleanUrl(i.link),
+      price: cleanPrice(i.price),
+      note: clip(i.note, LIMITS.giftItemNote),
+    }))
+    .filter((i) => i.name);
+  return items.length > 0 || base.message ? { mode, iban: "", bizum: "", message: base.message, items } : null;
+}
+
 export function sameGift(a: InvitationGift | null, b: InvitationGift | null): boolean {
   if (!a || !b) return a === b;
-  return a.iban === b.iban && a.bizum === b.bizum && a.message === b.message;
+  return (
+    (a.mode ?? "money") === (b.mode ?? "money") &&
+    a.iban === b.iban &&
+    a.bizum === b.bizum &&
+    a.message === b.message &&
+    JSON.stringify(a.items ?? []) === JSON.stringify(b.items ?? [])
+  );
 }
 
 // ---- Fechas ----

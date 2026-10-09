@@ -37,7 +37,7 @@ function PlanShellSkeleton() {
     <div className="flex flex-col gap-6" role="status" aria-label="Cargando tu plan">
       <Bone className="h-10 w-2/3 max-w-sm bg-track" />
       <div className="flex gap-6 border-b border-line pb-3">
-        {[0, 1, 2, 3, 4].map((i) => (
+        {[0, 1, 2, 3, 4, 5].map((i) => (
           <Bone key={i} className="h-4 w-16 bg-track sm:w-20" />
         ))}
       </div>
@@ -93,7 +93,7 @@ function PlanShellInner({ children }: { children: React.ReactNode }) {
           href="/dashboard"
           className={cn(
             FOCUS,
-            "-ml-3 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink motion-reduce:transition-none"
+            "inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-medium text-ink ring-1 ring-line-strong transition-colors hover:bg-lilac-soft hover:text-ink-strong motion-reduce:transition-none"
           )}
         >
           <ArrowLeftIcon aria-hidden="true" className="size-4" />

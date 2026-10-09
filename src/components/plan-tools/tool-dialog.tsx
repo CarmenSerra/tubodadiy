@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { IconCircle } from "@/components/dashboard/ui";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
+import { ignoreToastInteraction } from "@/components/timeline/use-timeline-undo";
 import {
   Dialog,
   DialogContent,
@@ -56,6 +57,8 @@ export function ToolDialog({
           contentRef.current?.focus();
         }}
         onCloseAutoFocus={restoreFocus.onCloseAutoFocus}
+        // Pulsar «Deshacer» en un aviso (fuera del diálogo) no debe cerrarlo.
+        onInteractOutside={ignoreToastInteraction}
       >
         <DialogHeader className="shrink-0 gap-0 px-5 pb-4 pr-14 pt-5 text-left sm:px-8 sm:pt-7">
           <div className="flex items-start gap-3.5">

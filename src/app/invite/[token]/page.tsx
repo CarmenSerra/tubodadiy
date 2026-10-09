@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, HeartIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { HomeLink } from "@/components/brand/home-link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -60,10 +61,10 @@ export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
     <main className="flex flex-1 items-center justify-center bg-secondary/40 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <Link href="/" className="mb-2 flex items-center gap-2 text-primary">
+          <HomeLink className="mb-2 flex items-center gap-2 text-primary">
             <HeartIcon className="size-5 fill-current" />
             <span className="font-display text-xl font-semibold">tubodadiy</span>
-          </Link>
+          </HomeLink>
           <CardTitle>Invitación a un plan de boda</CardTitle>
         </CardHeader>
         <CardContent>

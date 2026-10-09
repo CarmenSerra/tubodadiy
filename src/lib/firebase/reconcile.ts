@@ -3,7 +3,7 @@
 import { doc, runTransaction } from "firebase/firestore";
 import * as React from "react";
 
-import { giftHasPaymentData } from "@/components/plan-tools/gift-model";
+import { giftDecided, giftHasPaymentData } from "@/components/plan-tools/gift-model";
 import { legalDocsComplete } from "@/components/plan-tools/legal-docs-model";
 import {
   AUTO_TASKS_CATEGORY,
@@ -19,6 +19,7 @@ import {
 } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { syncAutoTaskStep, syncToolTasks } from "@/lib/firebase/mutations";
+import { syncGift } from "@/lib/firebase/plan-tools";
 import type { PlanStep, StepStatus, StepTask, StepTaskAuto, WeddingPlan } from "@/lib/types";
 
 /**
@@ -46,12 +47,29 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
         ],
       },
     ],
-    [CEREMONY_CATEGORY, { reached: plan.ceremonyType ? ["ceremony-type"] : [] }],
+    [
+      CEREMONY_CATEGORY,
+      {
+        reached: [
+          ...(plan.ceremonyType ? (["ceremony-type"] as const) : []),
+          ...(plan.officiant?.confirmed ? (["officiant-confirmed"] as const) : []),
+        ],
+      },
+    ],
     [
       LEGAL_DOCS_CATEGORY,
       { reached: legalDocsComplete(plan.ceremonyType, plan.legalDocsDone) ? ["legal-docs"] : [] },
     ],
-    [GIFT_CATEGORY, { reached: giftHasPaymentData(plan.gift) ? ["gift-data"] : [] }],
+    [
+      GIFT_CATEGORY,
+      {
+        reached: [
+          ...(giftDecided(plan.gift) ? (["gift-decide"] as const) : []),
+          // Con lista, «datos» depende de que haya alguna cosa: se lee más abajo.
+          ...(plan.gift?.mode !== "list" && giftHasPaymentData(plan.gift) ? (["gift-data"] as const) : []),
+        ],
+      },
+    ],
   ];
   for (const [category, input] of fromPlan) {
     const step = byCategory.get(category);
@@ -68,14 +86,16 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
     "vendor-catering",
     "vendor-photo",
     "vendor-music",
-    "vendor-officiant",
   ];
-  const vendorCategories = [VENDORS_CATEGORY, CEREMONY_CATEGORY].filter((c) =>
-    pendingAutos(c, vendorAutos)
-  );
-  if (vendorCategories.length > 0) work.push(syncToolTasks(planId, "vendors", vendorCategories));
+  if (pendingAutos(VENDORS_CATEGORY, vendorAutos)) {
+    work.push(syncToolTasks(planId, "vendors", [VENDORS_CATEGORY]));
+  }
   if (pendingAutos(AUTO_TASKS_CATEGORY, ["budget-split"])) {
     work.push(syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]));
+  }
+
+  if (plan.gift?.mode === "list" && pendingAutos(GIFT_CATEGORY, ["gift-data"])) {
+    work.push(syncGift(planId));
   }
 
   // Pasos con todas las tareas hechas y el estado atrasado.

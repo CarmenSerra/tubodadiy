@@ -441,6 +441,47 @@
 .inv-giftValue { display: flex; min-width: 0; flex-direction: column; }
 .inv-giftLabel { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--inv-muted); }
 .inv-giftNumber { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; font-weight: 500; }
+.inv-giftList {
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.inv-giftItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--inv-field);
+  border: 1px solid var(--inv-line);
+  border-radius: 0.85rem;
+  text-align: left;
+}
+.inv-minimal .inv-giftItem { border-radius: 0; }
+.inv-giftItemMain { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 0.15rem; }
+.inv-giftItemName { margin: 0; overflow-wrap: anywhere; font-weight: 500; }
+.inv-giftItemNote { margin: 0; overflow-wrap: anywhere; font-size: 0.9rem; color: var(--inv-muted); }
+.inv-giftItemSide { display: flex; flex: none; flex-direction: column; align-items: flex-end; gap: 0.15rem; }
+.inv-giftItemPrice { margin: 0; font-variant-numeric: tabular-nums; font-size: 0.9rem; color: var(--inv-muted); white-space: nowrap; }
+.inv-giftItemLink {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.25rem;
+  color: var(--inv-accent-ink);
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.inv-giftItemLink svg { width: 0.9rem; height: 0.9rem; }
+.inv-giftItemLink:focus-visible { outline: 3px solid var(--inv-focus); outline-offset: 2px; }
+.inv-giftHint { margin: 0; font-size: 0.85rem; color: var(--inv-muted); }
 .inv-copyBtn {
   display: inline-flex;
   min-height: 2.75rem;

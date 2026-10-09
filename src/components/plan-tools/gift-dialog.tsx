@@ -1,11 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { EyeIcon, EyeOffIcon, GiftIcon, Loader2, PencilIcon } from "lucide-react";
+import {
+  BanknoteIcon,
+  CheckIcon,
+  EyeIcon,
+  EyeOffIcon,
+  GiftIcon,
+  ListChecksIcon,
+  Loader2,
+  PencilIcon,
+  RepeatIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
+import { GIFT_LIST_FORM_ID, GiftListView } from "@/components/plan-tools/gift-list-view";
 import {
   GIFT_MESSAGE_EXAMPLE,
   GIFT_MESSAGE_MAX,
@@ -15,6 +26,7 @@ import {
   ibanError,
   maskIban,
   normalizeBizum,
+  emptyGift,
   normalizeIban,
 } from "@/components/plan-tools/gift-model";
 import { ToolDialog } from "@/components/plan-tools/tool-dialog";
@@ -23,10 +35,19 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlanContext } from "@/lib/context/plan-context";
-import { saveGift } from "@/lib/firebase/plan-tools";
+import { saveGift, saveGiftMode } from "@/lib/firebase/plan-tools";
+import type { GiftMode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const FORM_ID = "gift-form";
+
+type View = "choose" | GiftMode;
+
+const DESCRIPTIONS: Record<View, string> = {
+  choose: "Elegid cómo queréis recibir el regalo. Podéis cambiarlo cuando queráis.",
+  money: "Recibe el regalo en dinero: cuenta bancaria, Bizum o las dos.",
+  list: "Una lista de cosas que os harían falta, para que quien quiera regalar algo sepa por dónde ir.",
+};
 
 export function GiftDialog({
   open,
@@ -35,37 +56,171 @@ export function GiftDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { plan } = usePlanContext();
   const [saving, setSaving] = React.useState(false);
+  // `null`: aún no se ha navegado; se abre en el modo elegido o, si no hay, en la elección.
+  const [picked, setPicked] = React.useState<View | null>(null);
+  const mode = plan?.gift?.mode ?? null;
+  const view: View = picked ?? mode ?? "choose";
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setPicked(null);
+    onOpenChange(next);
+  }
+
   return (
     <ToolDialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       title="Regalo"
-      description="Recibe el regalo en dinero: cuenta bancaria, Bizum o las dos."
+      description={DESCRIPTIONS[view]}
       icon={<GiftIcon />}
       footer={
-        <>
-          <button type="button" onClick={() => onOpenChange(false)} className={CTA_SECONDARY}>
-            Cancelar
+        view === "choose" ? (
+          <button
+            type="button"
+            onClick={() => (mode ? setPicked(mode) : handleOpenChange(false))}
+            className={CTA_SECONDARY}
+          >
+            {mode ? "Volver" : "Cancelar"}
           </button>
-          <button type="submit" form={FORM_ID} disabled={saving} className={cn(CTA_PRIMARY, "disabled:opacity-50")}>
-            {saving && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-            Guardar
-          </button>
-        </>
+        ) : (
+          <>
+            <button type="button" onClick={() => handleOpenChange(false)} className={CTA_SECONDARY}>
+              {view === "list" ? "Cerrar" : "Cancelar"}
+            </button>
+            <button
+              type="submit"
+              form={view === "money" ? FORM_ID : GIFT_LIST_FORM_ID}
+              disabled={saving}
+              className={cn(CTA_PRIMARY, "disabled:opacity-50")}
+            >
+              {saving && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+              Guardar
+            </button>
+          </>
+        )
       }
     >
-      {open && <GiftForm onClose={() => onOpenChange(false)} onSavingChange={setSaving} />}
+      {open && view === "choose" && <GiftChoice onPick={setPicked} />}
+      {open && view === "money" && (
+        <GiftForm
+          onClose={() => handleOpenChange(false)}
+          onSavingChange={setSaving}
+          onChangeMode={() => setPicked("choose")}
+        />
+      )}
+      {open && view === "list" && (
+        <GiftListView
+          onClose={() => handleOpenChange(false)}
+          onSavingChange={setSaving}
+          onChangeMode={() => setPicked("choose")}
+        />
+      )}
     </ToolDialog>
+  );
+}
+
+const CHOICES: {
+  mode: GiftMode;
+  title: string;
+  text: string;
+  points: string[];
+  icon: React.ReactNode;
+}[] = [
+  {
+    mode: "money",
+    title: "Dinero (lo más habitual)",
+    text: "Dais un IBAN, un Bizum o los dos, y cada persona aporta lo que quiere. Sin duplicados ni cambios.",
+    points: ["IBAN y Bizum", "Cómodo para quien viaja"],
+    icon: <BanknoteIcon aria-hidden="true" className="size-6" />,
+  },
+  {
+    mode: "list",
+    title: "Lista de cosas (más tradicional)",
+    text: "Preparáis una lista de lo que os hace falta, con enlaces y precios aproximados, y los invitados la ven.",
+    points: ["Con enlaces y precios", "Marcáis lo que ya tenéis"],
+    icon: <ListChecksIcon aria-hidden="true" className="size-6" />,
+  },
+];
+
+function GiftChoice({ onPick }: { onPick: (view: View) => void }) {
+  const { planId, plan } = usePlanContext();
+  const gift = plan?.gift ?? null;
+  const [busy, setBusy] = React.useState<GiftMode | null>(null);
+
+  async function choose(mode: GiftMode) {
+    setBusy(mode);
+    try {
+      await saveGiftMode(planId, gift, mode);
+      onPick(mode);
+    } catch {
+      toast.error("No se ha podido guardar la elección. Inténtalo de nuevo.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ul className="grid gap-4 sm:grid-cols-2">
+        {CHOICES.map((choice) => {
+          const current = gift?.mode === choice.mode;
+          return (
+            <li key={choice.mode} className="flex">
+              <button
+                type="button"
+                onClick={() => void choose(choice.mode)}
+                disabled={busy !== null}
+                aria-describedby={`gift-choice-${choice.mode}`}
+                className={cn(
+                  "flex w-full flex-col items-start gap-3 rounded-2xl border bg-surface p-5 text-left transition-colors hover:bg-lilac-soft disabled:opacity-60",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+                  current ? "border-lilac-edge bg-lilac-soft" : "border-line-strong"
+                )}
+              >
+                <span className="flex w-full items-start justify-between gap-2">
+                  <span className="inline-flex size-12 items-center justify-center rounded-full bg-btn-soft text-ink-on-lilac">
+                    {busy === choice.mode ? <Loader2 aria-hidden="true" className="size-5 animate-spin" /> : choice.icon}
+                  </span>
+                  {current && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-cta px-2.5 py-0.5 text-xs font-medium text-on-cta">
+                      <CheckIcon aria-hidden="true" className="size-3" />
+                      Lo que tenéis ahora
+                    </span>
+                  )}
+                </span>
+                <span className="font-display text-xl font-semibold leading-tight text-ink">{choice.title}</span>
+                <span id={`gift-choice-${choice.mode}`} className="flex flex-col gap-2 text-sm text-ink-muted">
+                  <span>{choice.text}</span>
+                  <span className="flex flex-wrap gap-1.5">
+                    {choice.points.map((point) => (
+                      <span key={point} className="rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-ink">
+                        {point}
+                      </span>
+                    ))}
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="text-sm text-ink-muted">
+        Si cambiáis de opinión, lo que ya hayáis escrito en la otra no se pierde.
+      </p>
+    </div>
   );
 }
 
 function GiftForm({
   onClose,
   onSavingChange,
+  onChangeMode,
 }: {
   onClose: () => void;
   onSavingChange: (saving: boolean) => void;
+  onChangeMode: () => void;
 }) {
   const { planId, plan } = usePlanContext();
   const gift = plan?.gift ?? null;
@@ -92,6 +247,8 @@ function GiftForm({
       return;
     }
     const clean = {
+      ...(gift ?? emptyGift("money")),
+      mode: "money" as const,
       iban: normalizeIban(iban),
       bizum: normalizeBizum(bizum),
       message: message.trim(),
@@ -100,7 +257,7 @@ function GiftForm({
     const empty = !clean.iban && !clean.bizum && !clean.message;
     onSavingChange(true);
     try {
-      await saveGift(planId, empty ? null : clean);
+      await saveGift(planId, clean);
       toast.success(empty ? "Datos del regalo quitados" : "Datos del regalo guardados");
       onClose();
     } catch {
@@ -114,9 +271,19 @@ function GiftForm({
 
   return (
     <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
-      <p className="rounded-xl border border-line bg-lilac-soft px-3.5 py-3 text-sm text-ink">
-        Muchas parejas dan un IBAN para quien prefiere transferencia y un Bizum para quien quiere hacerlo
-        al momento. Puedes poner uno, otro o los dos.
+      <p className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-line bg-lilac-soft px-3.5 py-3 text-sm text-ink">
+        <span>
+          Muchas parejas dan un IBAN para quien prefiere transferencia y un Bizum para quien quiere hacerlo
+          al momento. Puedes poner uno, otro o los dos.
+        </span>
+        <button
+          type="button"
+          onClick={onChangeMode}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded-full text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+        >
+          <RepeatIcon aria-hidden="true" className="size-3.5" />
+          Cambiar a lista de cosas
+        </button>
       </p>
 
       <div className="flex flex-col gap-2">

@@ -275,9 +275,9 @@ export function StepCard({
             <ChevronDownIcon
               aria-hidden="true"
               className={cn(
-                "size-5 shrink-0 transition-transform motion-reduce:transition-none",
+                "size-5 shrink-0 transition-transform ease-(--ease-gentle) motion-reduce:transition-none",
                 soft,
-                open && "rotate-180"
+                open ? "rotate-180 duration-(--dur-open)" : "duration-(--dur-close)"
               )}
             />
           </button>

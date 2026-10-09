@@ -9,7 +9,8 @@ import { CARD } from "@/components/dashboard/ui";
 import { EditPlanDialog } from "@/components/plan/edit-plan-dialog";
 import { EditPlanLauncherProvider } from "@/components/plan/edit-plan-launcher";
 import {
-  CELEBRATION_MS,
+  CELEBRATION_END_MS,
+  CELEBRATION_LEAVE_MS,
   CELEBRATION_SWITCH_MS,
   PhaseCelebration,
 } from "@/components/plan/phase-celebration";
@@ -157,6 +158,8 @@ function PlanOverview() {
   const completedIds = phases.filter((p) => p.complete).map((p) => p.id);
   const [baseline, setBaseline] = React.useState<string[] | null>(null);
   const [celebration, setCelebration] = React.useState<Celebration | null>(null);
+  // La fase completada ya está saliendo (desvanecida) justo antes del cambio de pestaña.
+  const [leaving, setLeaving] = React.useState(false);
   if (!loading && phases.length > 0) {
     if (baseline === null || !settled) {
       if (!sameIds(baseline, completedIds)) setBaseline(completedIds);
@@ -208,11 +211,19 @@ function PlanOverview() {
       const top = Math.max(0, list.getBoundingClientRect().top + window.scrollY - 24);
       window.scrollTo({ top, behavior: "smooth" });
     }
+    // Guion (ver phase-celebration.tsx): la tarjeta se lee ~3 s; luego el panel de la fase
+    // hecha se desvanece, la pestaña activa se desliza a la siguiente y entra su panel.
+    const toLeave = setTimeout(() => setLeaving(true), CELEBRATION_LEAVE_MS);
     const toSwitch = setTimeout(goNext, CELEBRATION_SWITCH_MS);
-    const toEnd = setTimeout(() => setCelebration(null), CELEBRATION_MS + 100);
+    const toEnd = setTimeout(() => {
+      setLeaving(false);
+      setCelebration(null);
+    }, CELEBRATION_END_MS);
     return () => {
+      clearTimeout(toLeave);
       clearTimeout(toSwitch);
       clearTimeout(toEnd);
+      setLeaving(false);
     };
   }, [celebration]);
 
@@ -357,6 +368,7 @@ function PlanOverview() {
               openIds={openIds}
               onOpenChange={setStepOpen}
               animateIn={celebrating && celebration.toId === selectedPhase.id}
+              animateOut={celebrating && leaving && celebration.fromId === selectedPhase.id}
             />
           ) : selected === GENERAL_TAB ? (
             <PhasePanel

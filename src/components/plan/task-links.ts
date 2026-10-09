@@ -20,6 +20,11 @@ export const NEW_VENDOR_PARAM = "nuevo";
 /** Parámetro de Invitados que filtra por respuesta (p. ej. `pending`). */
 export const GUEST_STATUS_PARAM = "estado";
 
+/** Pestaña Ceremonia; el ancla lleva a su sección. */
+export function ceremonyHref(planId: string, section?: "tipo" | "oficiante" | "documentos" | "cronograma") {
+  return `/plan/${planId}/ceremonia${section ? `#${section}` : ""}`;
+}
+
 function vendors(planId: string, category: string, label: string): TaskTarget {
   const query = new URLSearchParams({ [NEW_VENDOR_PARAM]: category });
   return { kind: "href", href: `/plan/${planId}/vendors?${query}`, label };
@@ -50,8 +55,6 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
       return vendors(planId, "Fotógrafo", "Ir a proveedores de fotografía");
     case "vendor-music":
       return vendors(planId, "Música", "Ir a proveedores de música");
-    case "vendor-officiant":
-      return vendors(planId, "Oficiante", "Ir a proveedores de oficiante");
     case "venue-ceremony":
     case "venue-banquet":
       return vendors(planId, "Finca", "Ir a proveedores de lugar");
@@ -75,10 +78,12 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
     case "timeline-share":
       return { kind: "timeline", label: "Ir al cronograma" };
     case "ceremony-type":
-      return { kind: "tool", tool: "ceremony", label: "Elegir el tipo de ceremonia" };
+      return { kind: "href", href: ceremonyHref(planId, "tipo"), label: "Ir a la pestaña Ceremonia" };
+    case "officiant-confirmed":
+      return { kind: "href", href: ceremonyHref(planId, "oficiante"), label: "Ir a la ficha del oficiante" };
     case "legal-start":
     case "legal-docs":
-      return { kind: "tool", tool: "legal-docs", label: "Ver la guía de documentos legales" };
+      return { kind: "href", href: ceremonyHref(planId, "documentos"), label: "Ver la guía de documentos legales" };
     case "gift-decide":
     case "gift-data":
       return { kind: "tool", tool: "gift", label: "Abrir los datos del regalo" };
