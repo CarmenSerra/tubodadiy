@@ -81,6 +81,11 @@ service cloud.firestore {
         allow read, write: if isPlanMember(planId);
       }
 
+      // Lista de regalos físicos (se muestra, solo lectura, en la invitación pública).
+      match /giftItems/{itemId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
       match /designs/{designId} {
         allow read, write: if isPlanMember(planId);
       }
