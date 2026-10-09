@@ -504,27 +504,186 @@ html[data-theme="dark"] .theme-honeymoon {
 }
 /* ===================== LUNA DE MIEL (tema tropical) — fin ===================== */
 
-@keyframes accordion-down {
+/* ===================== MOVIMIENTO: abrir y cerrar ===================== */
+/*
+ * Una sola curva para todo lo que se despliega (la misma «ease-out» suave que usa el
+ * resto de la app): arranca rápido y se asienta despacio. Entrar ~250 ms, salir un poco
+ * más corto para que no se sienta lento. Con prefers-reduced-motion todo es instantáneo.
+ *
+ *  - Acordeón / Collapsible de Radix: altura + opacidad con las variables que Radix mide
+ *    (--radix-accordion-content-height, --radix-collapsible-content-height).
+ *  - Popover, Select y menús: aparecen deslizándose desde el lado del ancla.
+ *  - Contenido que se monta/desmonta con React (tarjetas de paso…): <Collapse>
+ *    (src/components/ui/collapse.tsx) y las clases .collapse de abajo.
+ */
+:root {
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-open: 250ms;
+  --dur-close: 200ms;
+}
+
+@keyframes ui-accordion-down {
   from {
     height: 0;
+    opacity: 0;
   }
   to {
     height: var(--radix-accordion-content-height);
+    opacity: 1;
   }
 }
 
-@keyframes accordion-up {
+@keyframes ui-accordion-up {
   from {
     height: var(--radix-accordion-content-height);
+    opacity: 1;
   }
   to {
     height: 0;
+    opacity: 0;
   }
 }
+
+@keyframes ui-collapsible-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes ui-collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+/* Popover, Select, menús desplegables (y submenús): entran desde el lado del ancla. */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--pop-x, 0), var(--pop-y, 0)) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--pop-x, 0), var(--pop-y, 0)) scale(0.97);
+  }
+}
+
+[data-slot="popover-content"],
+[data-slot="select-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="dropdown-menu-sub-content"] {
+  transform-origin: var(--radix-popper-transform-origin);
+}
+[data-slot="popover-content"][data-side="bottom"],
+[data-slot="select-content"][data-side="bottom"],
+[data-slot="dropdown-menu-content"][data-side="bottom"],
+[data-slot="dropdown-menu-sub-content"][data-side="bottom"] {
+  --pop-y: -8px;
+}
+[data-slot="popover-content"][data-side="top"],
+[data-slot="select-content"][data-side="top"],
+[data-slot="dropdown-menu-content"][data-side="top"],
+[data-slot="dropdown-menu-sub-content"][data-side="top"] {
+  --pop-y: 8px;
+}
+[data-slot="popover-content"][data-side="left"],
+[data-slot="select-content"][data-side="left"],
+[data-slot="dropdown-menu-content"][data-side="left"],
+[data-slot="dropdown-menu-sub-content"][data-side="left"] {
+  --pop-x: 8px;
+}
+[data-slot="popover-content"][data-side="right"],
+[data-slot="select-content"][data-side="right"],
+[data-slot="dropdown-menu-content"][data-side="right"],
+[data-slot="dropdown-menu-sub-content"][data-side="right"] {
+  --pop-x: -8px;
+}
+/* Sin capa: gana a los utilitarios animate-in/out de tw-animate-css de los componentes. */
+[data-slot="popover-content"][data-state="open"],
+[data-slot="select-content"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-state="open"],
+[data-slot="dropdown-menu-sub-content"][data-state="open"] {
+  animation: pop-in var(--dur-open) var(--ease-soft) both;
+}
+[data-slot="popover-content"][data-state="closed"],
+[data-slot="select-content"][data-state="closed"],
+[data-slot="dropdown-menu-content"][data-state="closed"],
+[data-slot="dropdown-menu-sub-content"][data-state="closed"] {
+  animation: pop-out var(--dur-close) ease-in both;
+}
+
+/*
+ * <Collapse> (ui/collapse.tsx): hueco que se abre con una fila de rejilla de 0fr a 1fr
+ * (anima la altura «auto» sin medirla) más un fundido. Cerrado queda oculto a lectores y
+ * al foco (visibility con retardo = lo que dura el cierre).
+ */
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--dur-close) var(--ease-soft),
+    opacity 150ms ease-in,
+    visibility 0s linear var(--dur-close);
+}
+.collapse[data-state="open"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--dur-open) var(--ease-soft),
+    opacity var(--dur-open) ease-out,
+    visibility 0s;
+}
+.collapse > .collapse-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-open: 0.01ms;
+    --dur-close: 0.01ms;
+  }
+  [data-slot="popover-content"],
+  [data-slot="select-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"] {
+    animation: none !important;
+  }
+  .collapse,
+  .collapse[data-state="open"] {
+    transition: none;
+  }
+}
+/* ===================== MOVIMIENTO — fin ===================== */
 
 @theme inline {
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-accordion-down: ui-accordion-down var(--dur-open) var(--ease-soft);
+  --animate-accordion-up: ui-accordion-up var(--dur-close) var(--ease-soft);
+  --animate-collapsible-down: ui-collapsible-down var(--dur-open) var(--ease-soft);
+  --animate-collapsible-up: ui-collapsible-up var(--dur-close) var(--ease-soft);
   /* Colores de marca por rol (valores en :root / html[data-theme="dark"]) */
   --color-page: var(--page);
   --color-surface: var(--surface);

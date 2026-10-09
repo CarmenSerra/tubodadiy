@@ -34,6 +34,7 @@ export function PhasePanel({
   recommendedId,
   openIds,
   onOpenChange,
+  animateIn = false,
 }: {
   planId: string;
   tabId: string;
@@ -56,6 +57,8 @@ export function PhasePanel({
   recommendedId: string | null;
   openIds: string[];
   onOpenChange: (stepId: string, open: boolean) => void;
+  /** Entra deslizándose desde la derecha (al pasar a la fase siguiente tras completar una). */
+  animateIn?: boolean;
 }) {
   // Al desbloquear desaparece el candado que tenía el foco: llévalo al panel.
   const panelRef = React.useRef<HTMLDivElement>(null);
@@ -136,7 +139,16 @@ export function PhasePanel({
   );
 
   return (
-    <TabsContent ref={panelRef} value={tabId} className={cn("flex flex-col gap-3 rounded-xl", FOCUS)}>
+    <TabsContent
+      ref={panelRef}
+      value={tabId}
+      className={cn(
+        "flex flex-col gap-3 rounded-xl",
+        FOCUS,
+        animateIn &&
+          "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-12 motion-safe:duration-700"
+      )}
+    >
       {locked ? (
         <div className="relative">
           {/* inert: ni foco ni clics ni lectores de pantalla dentro de lo difuminado. */}

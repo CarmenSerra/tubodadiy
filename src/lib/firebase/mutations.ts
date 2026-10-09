@@ -6,6 +6,7 @@ import {
   arrayUnion,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getDocs,
   query,
@@ -93,7 +94,7 @@ export async function lockPhase(planId: string, phaseId: string) {
  * no toca pasos omitidos. El estado del paso sigue a sus tareas (completar la
  * última lo completa; desmarcar una automática de un paso completo lo reabre).
  */
-async function syncAutoTaskStep(planId: string, category: string, data: AutoTaskInput) {
+export async function syncAutoTaskStep(planId: string, category: string, data: AutoTaskInput) {
   const db = getFirebaseDb();
   const found = await getDocs(
     query(
@@ -112,10 +113,14 @@ async function syncAutoTaskStep(planId: string, category: string, data: AutoTask
 
     const current: StepTask[] = snap.data().tasks ?? [];
     const { tasks, changed } = syncAutoTasks(category, current, data);
-    if (!changed) return;
-
+    // Aunque no cambie ninguna tarea, el estado se alinea con ellas: un paso
+    // con todo hecho y el estado atrasado se repara aquí, no se queda así.
     const nextStatus = statusAfterTasksChange(status, current, tasks);
-    tx.update(stepRef, nextStatus === status ? { tasks } : { tasks, status: nextStatus });
+    if (!changed && nextStatus === status) return;
+    const patch: { tasks?: StepTask[]; status?: StepStatus } = {};
+    if (changed) patch.tasks = tasks;
+    if (nextStatus !== status) patch.status = nextStatus;
+    tx.update(stepRef, patch);
   });
 }
 
@@ -142,7 +147,7 @@ export async function markTimelineProgress(planId: string, milestone: "draft" | 
  * no la espera (`void`) para no retrasar el guardado, y nunca falla hacia
  * fuera: el dato ya se ha guardado y esto es solo el progreso del paso.
  */
-async function syncToolTasks(
+export async function syncToolTasks(
   planId: string,
   subcollection: "guests" | "vendors" | "budgetItems",
   categories: string[]
@@ -323,12 +328,22 @@ export async function addBudgetItems(
   void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
 }
 
+/**
+ * Quien llama debe incluir siempre `amount` y `state` (un gasto antiguo no
+ * tiene `amount`, y los campos antiguos se retiran aquí).
+ */
 export async function updateBudgetItem(
   planId: string,
   itemId: string,
   data: Partial<Omit<BudgetItem, "id" | "createdAt">>
 ) {
-  await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "budgetItems", itemId), data);
+  await updateDoc(doc(getFirebaseDb(), "weddingPlans", planId, "budgetItems", itemId), {
+    ...data,
+    // Al guardar con el modelo actual se retiran los campos del antiguo (coste estimado/real).
+    estimatedCost: deleteField(),
+    actualCost: deleteField(),
+    paid: deleteField(),
+  });
   void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
 }
 

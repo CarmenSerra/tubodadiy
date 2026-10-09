@@ -54,14 +54,73 @@ export function filterGuests(guests: Guest[], f: GuestFilters): Guest[] {
       return false;
     }
     if (!q) return true;
-    return normalizeText([g.name, g.groupName, g.notes, g.dietaryNotes].join(" ")).includes(q);
+    return normalizeText([g.name, g.plusOneName, g.groupName, g.notes, g.dietaryNotes].join(" ")).includes(q);
   });
 }
 
-/** Asistentes estimados: confirmados + confirmados que llevan acompañante. */
+/** Un invitado ocupa su cubierto y, si lleva acompañante, otro más. */
+export function seatsOf(guest: Guest): number {
+  return 1 + (guest.plusOne ? 1 : 0);
+}
+
+export interface SeatSummary {
+  /** Cubiertos: confirmados y sus acompañantes (2 por invitado confirmado con +1). */
+  seats: number;
+  /** Invitados con acompañante que no han dicho que no (pendientes o confirmados). */
+  withCompanion: number;
+  /** De ellos, los que ya han confirmado. */
+  withCompanionConfirmed: number;
+  /** Cubiertos extra de acompañantes: uno por invitado en `withCompanion`. */
+  extraSeats: number;
+  /** Cubiertos extra ya confirmados. */
+  extraSeatsConfirmed: number;
+  /** Cubiertos si respondiera que sí toda la lista que no ha dicho que no. */
+  maxSeats: number;
+}
+
+export function summarizeSeats(guests: Guest[]): SeatSummary {
+  let seats = 0;
+  let maxSeats = 0;
+  let withCompanion = 0;
+  let withCompanionConfirmed = 0;
+  for (const g of guests) {
+    if (g.rsvpStatus === "declined") continue;
+    maxSeats += seatsOf(g);
+    if (g.plusOne) withCompanion += 1;
+    if (g.rsvpStatus === "confirmed") {
+      seats += seatsOf(g);
+      if (g.plusOne) withCompanionConfirmed += 1;
+    }
+  }
+  return {
+    seats,
+    withCompanion,
+    withCompanionConfirmed,
+    extraSeats: withCompanion,
+    extraSeatsConfirmed: withCompanionConfirmed,
+    maxSeats,
+  };
+}
+
+/** Cubiertos estimados: confirmados + sus acompañantes. */
 export function estimateAttendees(guests: Guest[]): number {
-  return guests.reduce(
-    (sum, g) => (g.rsvpStatus === "confirmed" ? sum + 1 + (g.plusOne ? 1 : 0) : sum),
-    0
-  );
+  return summarizeSeats(guests).seats;
+}
+
+/** Nombre del acompañante para mostrar: el guardado, o el que la invitación dejó en las notas (datos antiguos). */
+const LEGACY_COMPANION = /^Acompañante \(invitación\): (.+)$/m;
+export function companionName(guest: Guest): string {
+  if (!guest.plusOne) return "";
+  const own = guest.plusOneName.trim();
+  if (own) return own;
+  return LEGACY_COMPANION.exec(guest.notes)?.[1]?.trim() ?? "";
+}
+
+/** Notas sin la línea de acompañante que escribía la invitación (ya se muestra aparte). */
+export function visibleNotes(guest: Guest): string {
+  return guest.notes
+    .split("\n")
+    .filter((l) => !LEGACY_COMPANION.test(l))
+    .join("\n")
+    .trim();
 }

@@ -130,6 +130,8 @@ export interface Guest {
   groupName: string;
   rsvpStatus: RsvpStatus;
   plusOne: boolean;
+  /** Nombre del acompañante (solo tiene sentido si `plusOne`). */
+  plusOneName: string;
   dietaryNotes: string;
   notes: string;
   createdAt: number | null;
@@ -156,13 +158,21 @@ export interface Vendor {
   createdAt: number | null;
 }
 
+/** «Pagado»: ya gastado. «Pendiente»: previsto, aún sin pagar. */
+export type BudgetItemState = "paid" | "pending";
+
+/**
+ * Un gasto: un único importe y un estado. Los documentos antiguos guardaban
+ * `estimatedCost` / `actualCost` / `paid`; `mapBudgetItem` los traduce al leer.
+ */
 export interface BudgetItem {
   id: string;
   category: string;
   concept: string;
-  estimatedCost: number;
-  actualCost: number | null;
-  paid: boolean;
+  amount: number;
+  state: BudgetItemState;
+  /** Fecha límite de pago (yyyy-MM-dd), solo útil mientras esté pendiente. */
+  dueDate: string | null;
   createdAt: number | null;
 }
 

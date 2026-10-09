@@ -142,6 +142,16 @@ export function statusAfterTaskSync(status: StepStatus, tasks: StepTask[]): Step
 }
 
 /**
+ * Estado que le corresponde a un paso con las tareas que tiene AHORA, aunque
+ * ninguna haya cambiado. Repara pasos que se quedaron atrás (tareas ya hechas
+ * con el estado sin mover): las sincronizaciones lo usan en vez de salir
+ * cuando no hay tareas que cambiar.
+ */
+export function statusForTasks(status: StepStatus, tasks: StepTask[]): StepStatus {
+  return statusAfterTasksChange(status, tasks, tasks);
+}
+
+/**
  * Estado de un paso tras cambiar sus tareas (marcar, desmarcar, añadir,
  * quitar o sincronizar una automática). El estado se guarda en Firestore y es
  * lo que leen las fases, el progreso y la home, así que tiene que moverse con

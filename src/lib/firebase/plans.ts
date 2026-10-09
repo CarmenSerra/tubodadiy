@@ -94,6 +94,7 @@ export function mapGuest(id: string, data: DocumentData): Guest {
     groupName: data.groupName ?? "",
     rsvpStatus: data.rsvpStatus ?? "pending",
     plusOne: Boolean(data.plusOne),
+    plusOneName: typeof data.plusOneName === "string" ? data.plusOneName : "",
     dietaryNotes: data.dietaryNotes ?? "",
     notes: data.notes ?? "",
     createdAt: toMillis(data.createdAt),
@@ -130,15 +131,33 @@ export function mapVendor(id: string, data: DocumentData): Vendor {
   };
 }
 
+/**
+ * Gasto guardado → modelo actual. Los documentos antiguos tenían coste
+ * estimado, coste real y «pagado»: con coste real es un gasto pagado por ese
+ * importe; si no, es el estimado, pendiente (o pagado si estaba marcado así).
+ */
 export function mapBudgetItem(id: string, data: DocumentData): BudgetItem {
-  return {
+  const common = {
     id,
-    category: data.category ?? "",
-    concept: data.concept ?? "",
-    estimatedCost: data.estimatedCost ?? 0,
-    actualCost: data.actualCost ?? null,
-    paid: Boolean(data.paid),
+    category: typeof data.category === "string" ? data.category : "",
+    concept: typeof data.concept === "string" ? data.concept : "",
     createdAt: toMillis(data.createdAt),
+  };
+  if (typeof data.amount === "number" && Number.isFinite(data.amount)) {
+    return {
+      ...common,
+      amount: data.amount,
+      state: data.state === "paid" ? "paid" : "pending",
+      dueDate: typeof data.dueDate === "string" && data.dueDate ? data.dueDate : null,
+    };
+  }
+  const actual = typeof data.actualCost === "number" ? data.actualCost : 0;
+  const estimated = typeof data.estimatedCost === "number" ? data.estimatedCost : 0;
+  return {
+    ...common,
+    amount: actual > 0 ? actual : estimated,
+    state: actual > 0 || data.paid === true ? "paid" : "pending",
+    dueDate: null,
   };
 }
 

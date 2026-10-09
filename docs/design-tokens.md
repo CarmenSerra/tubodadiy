@@ -391,3 +391,15 @@ cualquier uso manual:
   ningún texto que se necesite leer con rapidez (listas, texto de estado,
   contenido escaneable). El logotipo de marca en las barras de navegación
   sigue usando Newsreader en tamaño pequeño, no Birthstone.
+
+## Movimiento al abrir y cerrar
+
+Todo lo que se despliega usa la misma curva (`--ease-soft`, `cubic-bezier(0.22, 1, 0.36, 1)`), ~250 ms al abrir (`--dur-open`) y ~200 ms al cerrar (`--dur-close`); con `prefers-reduced-motion` es instantáneo. Está centralizado en `globals.css`:
+
+- `Accordion` (y Radix Collapsible, con `animate-collapsible-down/up`): altura + fundido (`ui-accordion-*`, `ui-collapsible-*`).
+- `Popover`, `Select`, `DropdownMenu` y submenús: `pop-in` / `pop-out`, deslizándose desde el lado del ancla.
+- Contenido que React monta solo al abrir (tarjetas de paso…): `<Collapse open={…}>` de `components/ui/collapse.tsx`.
+
+## Icono de la app
+
+`scripts/icons/mark.mjs` define la marca (corazón lila con ramita de eucalipto en arco) con paleta clara y oscura; `node scripts/icons/generate.mjs [--sheet hoja.png]` genera `src/app/icon1.svg` (cambia con el tema del sistema), `icon2.png`, `apple-icon.png`, `favicon.ico` y las variantes fijas de `public/icons/`, que `components/theme-favicon.tsx` aplica según el tema de la app.

@@ -1,11 +1,11 @@
-import { CheckIcon, ClockIcon, ArmchairIcon, UserXIcon, UsersIcon } from "lucide-react";
+import { ArmchairIcon, CheckIcon, ClockIcon, UserPlusIcon, UserXIcon, UsersIcon } from "lucide-react";
 
 import { CARD, IconCircle, MiniBar } from "@/components/dashboard/ui";
 import { summarizeGuests } from "@/components/dashboard/helpers";
 import { Bone } from "@/components/plan/plan-shell";
 import { cn } from "@/lib/utils";
 import type { Guest } from "@/lib/types";
-import { estimateAttendees } from "./guest-filters";
+import { summarizeSeats } from "./guest-filters";
 
 export function StatTile({
   icon,
@@ -45,50 +45,90 @@ export function StatTile({
 
 export function GuestSummary({ guests }: { guests: Guest[] }) {
   const g = summarizeGuests(guests);
-  const attendees = estimateAttendees(guests);
+  const seats = summarizeSeats(guests);
   return (
-    <section aria-labelledby="guest-summary-title" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+    <section aria-labelledby="guest-summary-title" className="flex flex-col gap-3 sm:gap-4">
       <h2 id="guest-summary-title" className="sr-only">
         Resumen de invitados
       </h2>
-      <StatTile
-        className="col-span-2 lg:col-span-1"
-        icon={<UsersIcon />}
-        tone="lilac"
-        label="Invitados"
-        value={g.total}
-        detail={g.total === 1 ? "persona en tu lista" : "personas en tu lista"}
-      />
-      <StatTile
-        icon={<CheckIcon />}
-        tone="sage"
-        label="Confirmados"
-        value={g.confirmed}
-        detail={`${g.ratio}% de la lista`}
-        bar={g.ratio}
-      />
-      <StatTile
-        icon={<ClockIcon />}
-        tone="lilac"
-        label="Pendientes"
-        value={g.pending}
-        detail="sin respuesta todavía"
-      />
-      <StatTile
-        icon={<UserXIcon />}
-        tone="sage"
-        label="No asisten"
-        value={g.declined}
-        detail={g.declined === 1 ? "no podrá venir" : "no podrán venir"}
-      />
-      <StatTile
-        icon={<ArmchairIcon />}
-        tone="lilac"
-        label="Asistentes"
-        value={attendees}
-        detail="estimados: confirmados y acompañantes"
-      />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+        <StatTile
+          className="col-span-2 lg:col-span-1"
+          icon={<UsersIcon />}
+          tone="lilac"
+          label="Invitados"
+          value={g.total}
+          detail={g.total === 1 ? "persona en tu lista" : "personas en tu lista"}
+        />
+        <StatTile
+          icon={<CheckIcon />}
+          tone="sage"
+          label="Confirmados"
+          value={g.confirmed}
+          detail={`${g.ratio}% de la lista`}
+          bar={g.ratio}
+        />
+        <StatTile
+          icon={<ClockIcon />}
+          tone="lilac"
+          label="Pendientes"
+          value={g.pending}
+          detail="sin respuesta todavía"
+        />
+        <StatTile
+          icon={<UserXIcon />}
+          tone="sage"
+          label="No asisten"
+          value={g.declined}
+          detail={g.declined === 1 ? "no podrá venir" : "no podrán venir"}
+        />
+        <StatTile
+          icon={<ArmchairIcon />}
+          tone="lilac"
+          label="Cubiertos"
+          value={seats.seats}
+          detail={
+            seats.extraSeatsConfirmed > 0
+              ? `${g.confirmed} ${g.confirmed === 1 ? "confirmado" : "confirmados"} + ${seats.extraSeatsConfirmed} ${seats.extraSeatsConfirmed === 1 ? "acompañante" : "acompañantes"}`
+              : "confirmados y sus acompañantes"
+          }
+        />
+      </div>
+      <CompanionSummary seats={seats} />
     </section>
+  );
+}
+
+/** Invitados que llevan acompañante y los cubiertos extra que suponen. */
+function CompanionSummary({ seats }: { seats: ReturnType<typeof summarizeSeats> }) {
+  const n = seats.withCompanion;
+  return (
+    <div className={cn(CARD, "flex min-w-0 items-start gap-3 p-4 sm:items-center sm:gap-4 sm:p-5")}>
+      <IconCircle tone="sage" className="size-9 shrink-0 sm:size-10">
+        <UserPlusIcon />
+      </IconCircle>
+      <div className="min-w-0 flex-1">
+        <h3 className="font-display text-base font-semibold leading-snug text-ink-strong">Con acompañante</h3>
+        {n === 0 ? (
+          <p className="mt-0.5 text-sm text-ink-muted">
+            Ningún invitado lleva acompañante. Márcalo al editar un invitado y se sumará a los cubiertos.
+          </p>
+        ) : (
+          <>
+            <p className="mt-0.5 break-words font-display text-xl font-semibold leading-tight text-ink sm:text-2xl">
+              {n} {n === 1 ? "invitado" : "invitados"}
+              <span aria-hidden="true"> → </span>
+              <span className="sr-only">: </span>
+              {n} {n === 1 ? "cubierto extra" : "cubiertos extra"}
+            </p>
+            <p className="mt-1 text-sm text-ink-muted">
+              {seats.withCompanionConfirmed} {seats.withCompanionConfirmed === 1 ? "ya ha confirmado" : "ya han confirmado"}
+              {" · "}si vienen todos los que no han dicho que no, serían {seats.maxSeats} cubiertos
+            </p>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 

@@ -44,7 +44,11 @@ export type RsvpResult =
   | { ok: false; error: string; field?: "name" | "plusOneName" | "dietary" | "message" };
 
 const GROUP_FROM_INVITATION = "Desde la invitación";
-/** Marca de la línea de `notes` que escribe la invitación (se reemplaza al editar). */
+/**
+ * Marca de la línea de `notes` que escribía la invitación antes de existir el
+ * campo `plusOneName`. Ya no se escribe; se retira al actualizar un invitado
+ * para no duplicar el nombre.
+ */
 const COMPANION_PREFIX = "Acompañante (invitación): ";
 
 // ---- Límite de envíos (en memoria: suave, por instancia) ----
@@ -250,7 +254,7 @@ async function upsertRsvp(
 
     const rsvpRef: DocumentReference = previous ? previous.ref : rsvps.doc();
     const status = answer.attending ? "confirmed" : "declined";
-    const companionLine = answer.plusOne && answer.plusOneName ? `${COMPANION_PREFIX}${answer.plusOneName}` : "";
+    const plusOneName = answer.plusOne ? answer.plusOneName : "";
 
     let guestId: string;
     let guestCreated = false;
@@ -261,8 +265,12 @@ async function upsertRsvp(
       const update: Record<string, unknown> = { rsvpStatus: status };
       if (answer.attending) {
         update.plusOne = answer.plusOne;
+        // Si responde «sí» sin escribir el nombre, se respeta el que ya apuntó la pareja.
+        if (!answer.plusOne || plusOneName) update.plusOneName = plusOneName;
         if (answer.dietary) update.dietaryNotes = answer.dietary;
-        update.notes = withCompanionLine(String(target.data.notes ?? ""), companionLine);
+        const notes = String(target.data.notes ?? "");
+        const cleaned = withoutLegacyCompanionLine(notes);
+        if (cleaned !== notes) update.notes = cleaned;
       }
       if (guestCreated) update.name = answer.name;
       tx.update(target.ref, update);
@@ -275,8 +283,9 @@ async function upsertRsvp(
         groupName: GROUP_FROM_INVITATION,
         rsvpStatus: status,
         plusOne: answer.plusOne,
+        plusOneName,
         dietaryNotes: answer.dietary,
-        notes: companionLine,
+        notes: "",
         createdAt: FieldValue.serverTimestamp(),
       });
     }
@@ -300,14 +309,14 @@ async function upsertRsvp(
   });
 }
 
-/** Sustituye (o quita) la línea de acompañante de la invitación, sin tocar el resto de notas. */
-function withCompanionLine(notes: string, line: string): string {
-  const rest = notes
+/** Quita la línea de acompañante que la invitación escribía en las notas (datos antiguos). */
+function withoutLegacyCompanionLine(notes: string): string {
+  if (!notes.includes(COMPANION_PREFIX)) return notes;
+  return notes
     .split("\n")
     .filter((l) => !l.startsWith(COMPANION_PREFIX))
     .join("\n")
     .trim();
-  return [rest, line].filter(Boolean).join("\n");
 }
 
 // ---- Tareas automáticas del plan (misma lógica que el cliente tras tocar invitados) ----
@@ -330,9 +339,12 @@ async function syncGuestTasks(db: Firestore, planId: string): Promise<void> {
       if (status === "skipped") return;
       const current: StepTask[] = snap.data()?.tasks ?? [];
       const { tasks, changed } = syncAutoTasks(GUESTS_CATEGORY, current, { reached });
-      if (!changed) return;
       const next = statusAfterTasksChange(status, current, tasks);
-      tx.update(stepRef, next === status ? { tasks } : { tasks, status: next });
+      if (!changed && next === status) return;
+      const patch: { tasks?: StepTask[]; status?: StepStatus } = {};
+      if (changed) patch.tasks = tasks;
+      if (next !== status) patch.status = next;
+      tx.update(stepRef, patch);
     });
   } catch (error) {
     // La respuesta ya está guardada: esto es solo el progreso del paso.

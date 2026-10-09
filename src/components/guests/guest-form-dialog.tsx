@@ -34,6 +34,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { companionName, visibleNotes } from "@/components/guests/guest-filters";
+import { GroupSelect } from "@/components/guests/group-select";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -50,7 +52,7 @@ interface GuestFormDialogProps {
   planId: string;
   guest?: Guest;
   trigger?: React.ReactNode;
-  /** Grupos ya usados, para sugerirlos al escribir. */
+  /** Grupos ya usados en el plan, que se ofrecen en el desplegable. */
   groups?: string[];
   /** Grupo con el que arranca un invitado nuevo (p. ej. desde el panel de ideas). */
   defaultGroup?: string;
@@ -140,8 +142,9 @@ function GuestForm({
   const [groupName, setGroupName] = React.useState(guest?.groupName ?? defaultGroup ?? "");
   const [rsvpStatus, setRsvpStatus] = React.useState<RsvpStatus>(guest?.rsvpStatus ?? "pending");
   const [plusOne, setPlusOne] = React.useState(guest?.plusOne ?? false);
+  const [plusOneName, setPlusOneName] = React.useState(guest ? companionName(guest) : "");
   const [dietaryNotes, setDietaryNotes] = React.useState(guest?.dietaryNotes ?? "");
-  const [notes, setNotes] = React.useState(guest?.notes ?? "");
+  const [notes, setNotes] = React.useState(guest ? visibleNotes(guest) : "");
   const [submitting, setSubmitting] = React.useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -149,7 +152,15 @@ function GuestForm({
     if (!name.trim()) return;
     setSubmitting(true);
     try {
-      const data = { name: name.trim(), groupName: groupName.trim(), rsvpStatus, plusOne, dietaryNotes, notes };
+      const data = {
+        name: name.trim(),
+        groupName: groupName.trim(),
+        rsvpStatus,
+        plusOne,
+        plusOneName: plusOne ? plusOneName.trim() : "",
+        dietaryNotes,
+        notes,
+      };
       if (isEdit && guest) {
         await updateGuest(planId, guest.id, data);
         toast.success("Invitado actualizado");
@@ -187,24 +198,9 @@ function GuestForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-group" className={FIELD_LABEL}>
-            Grupo / familia
+            Grupo
           </Label>
-          <Input
-            id="guest-group"
-            value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
-            placeholder="Familia de la novia, amigos..."
-            list={groups.length > 0 ? "guest-group-options" : undefined}
-            autoComplete="off"
-            className={FIELD}
-          />
-          {groups.length > 0 && (
-            <datalist id="guest-group-options">
-              {groups.map((g) => (
-                <option key={g} value={g} />
-              ))}
-            </datalist>
-          )}
+          <GroupSelect id="guest-group" value={groupName} onChange={setGroupName} groups={groups} />
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-rsvp" className={FIELD_LABEL}>
@@ -231,6 +227,22 @@ function GuestForm({
           />
           Lleva acompañante
         </label>
+        {plusOne && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="guest-plusone-name" className={FIELD_LABEL}>
+              Nombre del acompañante
+            </Label>
+            <Input
+              id="guest-plusone-name"
+              value={plusOneName}
+              onChange={(e) => setPlusOneName(e.target.value)}
+              placeholder="Opcional: se puede añadir más tarde"
+              maxLength={120}
+              autoComplete="off"
+              className={FIELD}
+            />
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-diet" className={FIELD_LABEL}>
             Notas dietéticas

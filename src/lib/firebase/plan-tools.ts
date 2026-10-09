@@ -60,10 +60,13 @@ async function syncFromPlan(
       const current: StepTask[] = stepSnap.data().tasks ?? [];
       const input = toInput(mapPlan(planSnap.id, planSnap.data()));
       const { tasks, changed } = syncAutoTasks(category, current, input);
-      if (!changed) return;
-
+      // Aunque no cambie ninguna tarea, el estado se alinea con ellas (repara pasos atrasados).
       const nextStatus = statusAfterTasksChange(status, current, tasks);
-      tx.update(stepRef, nextStatus === status ? { tasks } : { tasks, status: nextStatus });
+      if (!changed && nextStatus === status) return;
+      const patch: { tasks?: StepTask[]; status?: StepStatus } = {};
+      if (changed) patch.tasks = tasks;
+      if (nextStatus !== status) patch.status = nextStatus;
+      tx.update(stepRef, patch);
     });
   } catch (error) {
     console.warn("No se pudieron sincronizar las tareas del plan", error);

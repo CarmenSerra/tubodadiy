@@ -11,10 +11,12 @@ import { GuestFilterBar } from "@/components/guests/guest-filter-bar";
 import {
   GROUP_NONE,
   NO_FILTERS,
+  companionName,
   filterGuests,
   hasUngrouped,
   listGroups,
   normalizeText,
+  visibleNotes,
   type GuestFilters,
 } from "@/components/guests/guest-filters";
 import { GuestIdeas } from "@/components/ideas/guest-ideas";
@@ -207,12 +209,15 @@ export function GuestsList({
                     />
                   </div>
                 </div>
-                {(guest.plusOne || guest.dietaryNotes || guest.notes) && (
+                {(guest.plusOne || guest.dietaryNotes || visibleNotes(guest)) && (
                   <div className="flex flex-col gap-1.5 text-sm text-ink-muted">
                     {guest.plusOne && (
                       <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-lilac-soft px-2.5 py-0.5 text-xs font-medium text-ink">
-                        <UserPlusIcon className="size-3.5" aria-hidden="true" />
-                        Lleva acompañante
+                        <UserPlusIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                        <span className="min-w-0 break-words">
+                          Lleva acompañante
+                          {companionName(guest) && <>: {companionName(guest)}</>}
+                        </span>
                       </span>
                     )}
                     {guest.dietaryNotes && (
@@ -224,7 +229,7 @@ export function GuestsList({
                         </span>
                       </span>
                     )}
-                    {guest.notes && <span className="break-words">{guest.notes}</span>}
+                    {visibleNotes(guest) && <span className="break-words">{visibleNotes(guest)}</span>}
                   </div>
                 )}
                 <RsvpSegmented
@@ -267,9 +272,9 @@ export function GuestsList({
                   <tr key={guest.id} className="border-t border-line transition-colors hover:bg-page/60">
                     <td className="max-w-64 px-5 py-3 align-middle">
                       <p className="break-words font-medium text-ink-strong">{guest.name}</p>
-                      {guest.notes && (
-                        <p className="mt-0.5 line-clamp-1 break-words text-xs text-ink-muted" title={guest.notes}>
-                          {guest.notes}
+                      {visibleNotes(guest) && (
+                        <p className="mt-0.5 line-clamp-1 break-words text-xs text-ink-muted" title={visibleNotes(guest)}>
+                          {visibleNotes(guest)}
                         </p>
                       )}
                     </td>
@@ -283,7 +288,16 @@ export function GuestsList({
                         onChange={(status) => handleRsvpChange(guest, status)}
                       />
                     </td>
-                    <td className="px-3 py-3 align-middle text-ink-muted">{guest.plusOne ? "Sí" : "No"}</td>
+                    <td className="max-w-48 px-3 py-3 align-middle text-ink-muted">
+                      {guest.plusOne ? (
+                        <span className="break-words">
+                          <span className="font-medium text-ink-strong">Sí</span>
+                          {companionName(guest) && <> · {companionName(guest)}</>}
+                        </span>
+                      ) : (
+                        "No"
+                      )}
+                    </td>
                     <td className="max-w-56 px-3 py-3 align-middle text-ink-muted">
                       {guest.dietaryNotes ? (
                         <span className="break-words">{guest.dietaryNotes}</span>

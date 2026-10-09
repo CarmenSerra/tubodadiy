@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Birthstone, DM_Sans, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/lib/hooks/use-auth";
+import { ThemeFavicon } from "@/components/theme-favicon";
 import { Toaster } from "@/components/ui/sonner";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <AuthProvider>{children}</AuthProvider>
         <Toaster position="top-center" />
+        <ThemeFavicon />
       </body>
     </html>
   );

@@ -7,6 +7,8 @@ import {
   ExternalLinkIcon,
   Loader2Icon,
   MessageCircleIcon,
+  RefreshCwIcon,
+  SparklesIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +30,14 @@ import {
   type InvitationPlace,
   type InvitationPublicData,
 } from "@/components/invitation/invitation-model";
+import {
+  FILL_GROUP_LABEL,
+  applyPlanFill,
+  derivePlanFill,
+  getField,
+  type FillKey,
+  type PlanFill,
+} from "@/components/invitation/plan-autofill";
 import { InvitationView } from "@/components/invitation/invitation-view";
 import { RsvpForm } from "@/components/invitation/rsvp-form";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
@@ -51,7 +61,10 @@ import {
   setInvitationPublished,
   syncInvitationGift,
 } from "@/lib/firebase/invitation";
+import { mapSaveTheDate, saveTheDateRef } from "@/lib/firebase/designs";
+import { mapTimelineItem, mapVendor, timelineItemsQuery, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { useDoc } from "@/lib/hooks/use-doc";
 import type { PlanGift } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -129,6 +142,17 @@ function InvitationBody({
   const { data, loading, error } = useCollection(planInvitationQuery(planId), mapInvitation);
   const saved = data[0] ?? null;
 
+  // Lo que la pareja ya ha escrito en el resto del plan, para rellenar la invitación.
+  // Si alguna lectura falla, simplemente no hay autorrelleno de esa parte.
+  const { data: vendors, loading: vendorsLoading } = useCollection(vendorsQuery(planId), mapVendor);
+  const { data: timeline, loading: timelineLoading } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
+  const { data: saveTheDate, loading: designLoading } = useDoc(saveTheDateRef(planId), mapSaveTheDate);
+  const sourcesLoading = vendorsLoading || timelineLoading || designLoading;
+  const planFill = React.useMemo(
+    () => derivePlanFill({ plan, saveTheDate, vendors, timeline }),
+    [plan, saveTheDate, vendors, timeline]
+  );
+
   // El slug se decide una vez: el de la invitación guardada o uno nuevo.
   const [freshSlug] = React.useState(generateSlug);
 
@@ -142,7 +166,7 @@ function InvitationBody({
     );
   }
 
-  if (loading || !plan) {
+  if (loading || sourcesLoading || !plan) {
     return (
       <div role="status" aria-label="Cargando la invitación" className="flex flex-col gap-4 px-5 py-4 sm:px-8">
         <Skeleton className="h-10 w-full rounded-xl" />
@@ -157,8 +181,8 @@ function InvitationBody({
       key={saved?.slug ?? "new"}
       planId={planId}
       planGift={plan.gift}
-      weddingDate={plan.weddingDate}
       saved={saved}
+      planFill={planFill}
       slug={saved?.slug ?? freshSlug}
       dirtyRef={dirtyRef}
       onClose={onClose}
@@ -169,23 +193,29 @@ function InvitationBody({
 function Editor({
   planId,
   planGift,
-  weddingDate,
   saved,
+  planFill,
   slug,
   dirtyRef,
   onClose,
 }: {
   planId: string;
   planGift: PlanGift | null;
-  weddingDate: string | null;
   saved: InvitationDoc | null;
+  planFill: PlanFill;
   slug: string;
   dirtyRef: React.RefObject<boolean>;
   onClose: () => void;
 }) {
-  const [form, setForm] = React.useState<InvitationContent>(() =>
-    saved ? contentOf(saved) : defaultContent(weddingDate)
+  // Una invitación nueva arranca con lo que el plan ya sabe. En una guardada no se rellena
+  // sola (un campo en blanco puede ser a propósito: «si algo no aplica, déjalo vacío»):
+  // se ofrece «Actualizar desde el plan». Lo escrito a mano nunca se pisa.
+  const [initial] = React.useState(() =>
+    saved ? applyPlanFill(contentOf(saved), {}) : applyPlanFill(defaultContent(null), planFill)
   );
+  const [form, setForm] = React.useState<InvitationContent>(initial.content);
+  // Qué valores puso el plan: mientras un campo siga valiendo eso, se puede refrescar.
+  const [filled, setFilled] = React.useState<PlanFill>(initial.filled);
   const [tab, setTab] = React.useState<"edit" | "preview">("edit");
   const [busy, setBusy] = React.useState<"save" | "publish" | null>(null);
   const [copied, setCopied] = React.useState(false);
@@ -220,6 +250,23 @@ function Editor({
     const { showGift, ...rest } = clean;
     return { ...rest, gift: publicGift(planGift, showGift) };
   }, [clean, planGift]);
+
+  const fromPlan = (Object.keys(filled) as FillKey[]).filter((k) => filled[k] && getField(form, k) === filled[k]);
+  const fromPlanLabels = [...new Set(fromPlan.map((k) => FILL_GROUP_LABEL[k]))];
+  const canRefresh = Object.keys(planFill).length > 0;
+
+  function refreshFromPlan() {
+    const result = applyPlanFill(form, planFill, filled);
+    if (result.changed === 0) {
+      toast.info("Tu invitación ya está al día con los datos de tu plan.");
+      return;
+    }
+    setForm(result.content);
+    setFilled(result.filled);
+    toast.success(
+      result.changed === 1 ? "Se ha actualizado 1 campo con los datos de tu plan." : `Se han actualizado ${result.changed} campos con los datos de tu plan.`
+    );
+  }
 
   const set = <K extends keyof InvitationContent>(key: K, value: InvitationContent[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -348,6 +395,31 @@ function Editor({
           aria-labelledby="ed-tab-edit"
         >
           <div className="mx-auto flex max-w-2xl flex-col gap-8">
+            {(fromPlan.length > 0 || canRefresh) && (
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-line bg-raised px-4 py-3">
+                <p className="flex min-w-0 items-start gap-2 text-sm text-ink-muted">
+                  <SparklesIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-lilac" />
+                  <span className="min-w-0">
+                    {fromPlan.length > 0 ? (
+                      <>
+                        <span className="font-medium text-ink">Rellenado con los datos de tu plan</span>
+                        {" "}({fromPlanLabels.join(", ")}). Cámbialo si quieres: lo que escribas no se pisa.
+                      </>
+                    ) : (
+                      "Los campos vacíos se pueden rellenar con los datos de tu plan."
+                    )}
+                  </span>
+                </p>
+                <button
+                  type="button"
+                  onClick={refreshFromPlan}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink outline-none transition-colors hover:bg-lilac-soft focus-visible:ring-2 focus-visible:ring-lilac"
+                >
+                  <RefreshCwIcon aria-hidden="true" className="size-3.5" />
+                  Actualizar desde el plan
+                </button>
+              </div>
+            )}
             <Section title="Estilo">
               <div role="radiogroup" aria-label="Plantilla" className="grid grid-cols-3 gap-2.5">
                 {TEMPLATES.map((t) => {

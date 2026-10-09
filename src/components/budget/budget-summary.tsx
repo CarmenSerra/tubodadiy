@@ -1,26 +1,39 @@
-import { BadgeCheckIcon, CalculatorIcon, ReceiptIcon, WalletIcon } from "lucide-react";
+import { BadgeCheckIcon, CalculatorIcon, HourglassIcon, WalletIcon } from "lucide-react";
 
 import { CARD } from "@/components/dashboard/ui";
 import { Bone } from "@/components/plan/plan-shell";
 import { StatTile } from "@/components/guests/guest-summary";
 import { cn } from "@/lib/utils";
 import type { BudgetItem } from "@/lib/types";
-import { computeTotals, formatMoney } from "./budget-math";
+import { computeTotals, formatDue, formatMoney } from "./budget-math";
 
-/** Barra de uso del presupuesto: la misma que MiniBar, pero más gruesa por ser la protagonista. */
-function UsageBar({ value, label }: { value: number; label: string }) {
+/** Barra de uso del presupuesto en dos tramos: pagado (salvia) y pendiente (lila). */
+function UsageBar({ paid, pending, label }: { paid: number; pending: number; label: string }) {
   return (
-    <div
-      role="img"
-      aria-label={label}
-      className="h-3 w-full overflow-hidden rounded-full bg-track"
-    >
+    <div role="img" aria-label={label} className="flex h-3 w-full overflow-hidden rounded-full bg-track">
       <div
-        className="h-full rounded-full bg-lilac transition-[width] duration-500 motion-reduce:transition-none"
-        style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
+        className="h-full bg-sage transition-[width] duration-500 motion-reduce:transition-none"
+        style={{ width: `${Math.max(0, paid)}%` }}
+      />
+      <div
+        className="h-full bg-lilac transition-[width] duration-500 motion-reduce:transition-none"
+        style={{ width: `${Math.max(0, pending)}%` }}
       />
     </div>
   );
+}
+
+function Dot({ tone }: { tone: "sage" | "lilac" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn("mr-1.5 inline-block size-2.5 rounded-full align-baseline", tone === "sage" ? "bg-sage" : "bg-lilac")}
+    />
+  );
+}
+
+function plural(count: number, one: string, many: string) {
+  return `${count} ${count === 1 ? one : many}`;
 }
 
 export function BudgetSummary({
@@ -62,20 +75,27 @@ export function BudgetSummary({
         {hasTotal ? (
           <>
             <UsageBar
-              value={t.spentRatio}
-              label={`Has gastado el ${t.spentPercent}% del presupuesto total`}
+              paid={t.paidRatio}
+              pending={t.pendingRatio}
+              label={`Pagado: ${formatMoney(t.paid)}. Pendiente: ${formatMoney(t.pending)}. Previsto en total: el ${t.plannedPercent}% del presupuesto.`}
             />
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-ink-muted">
-              <span>
-                Gastado <span className="font-medium text-ink">{formatMoney(t.spent)}</span> ·{" "}
-                <span className="font-medium text-ink">{t.spentPercent}%</span> del total
+              <span className="flex flex-wrap gap-x-4 gap-y-1">
+                <span>
+                  <Dot tone="sage" />
+                  Pagado <span className="font-medium text-ink">{formatMoney(t.paid)}</span>
+                </span>
+                <span>
+                  <Dot tone="lilac" />
+                  Pendiente <span className="font-medium text-ink">{formatMoney(t.pending)}</span>
+                </span>
               </span>
               <span>
                 {over
-                  ? "Te has pasado un poco del total: es buen momento para reajustar partidas con calma."
-                  : t.spent === 0
-                    ? "Aún no hay costes reales apuntados."
-                    : "Vas dentro de tu presupuesto."}
+                  ? "Lo previsto supera el total: es buen momento para reajustar partidas con calma."
+                  : t.planned === 0
+                    ? "Aún no hay gastos apuntados."
+                    : `Lo previsto es el ${t.plannedPercent}% del total. Vas dentro de tu presupuesto.`}
               </span>
             </div>
           </>
@@ -95,25 +115,29 @@ export function BudgetSummary({
           detail="tu techo de gasto"
         />
         <StatTile
-          icon={<CalculatorIcon />}
-          tone="sage"
-          label="Estimado"
-          value={formatMoney(t.estimated)}
-          detail="suma de costes previstos"
-        />
-        <StatTile
-          icon={<ReceiptIcon />}
-          tone="lilac"
-          label="Gastado"
-          value={formatMoney(t.spent)}
-          detail="suma de costes reales"
-        />
-        <StatTile
           icon={<BadgeCheckIcon />}
           tone="sage"
-          label="Pagado"
+          label="Total pagado"
           value={formatMoney(t.paid)}
-          detail={`${t.paidCount} de ${t.itemCount} ${t.itemCount === 1 ? "partida" : "partidas"}, a coste real o estimado`}
+          detail={t.paidCount === 0 ? "aún nada pagado" : plural(t.paidCount, "gasto ya pagado", "gastos ya pagados")}
+        />
+        <StatTile
+          icon={<HourglassIcon />}
+          tone="lilac"
+          label="Pendiente por pagar"
+          value={formatMoney(t.pending)}
+          detail={
+            t.pendingCount === 0
+              ? "nada pendiente"
+              : `${plural(t.pendingCount, "gasto", "gastos")}${t.nextDue ? ` · próximo, el ${formatDue(t.nextDue)}` : ""}`
+          }
+        />
+        <StatTile
+          icon={<CalculatorIcon />}
+          tone="sage"
+          label="Total previsto"
+          value={formatMoney(t.planned)}
+          detail="pagado + pendiente"
         />
       </div>
     </section>

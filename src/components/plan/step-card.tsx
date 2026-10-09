@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Collapse } from "@/components/ui/collapse";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
@@ -302,120 +303,120 @@ export function StepCard({
           )}
         </div>
 
-        <div id={bodyId} hidden={!open}>
-          {open && (
-            <div className="flex flex-col gap-5 px-4 pb-5 pt-1 sm:pl-[4.25rem] sm:pr-6">
-              {openTimeline && (
-                <button
-                  type="button"
-                  onClick={openTimeline}
-                  className={cn(
-                    CTA_SECONDARY,
-                    "self-start",
-                    completed && "bg-on-done text-done",
-                    ring
-                  )}
-                >
-                  <ClockIcon aria-hidden="true" className="size-4" />
-                  Abrir cronograma
-                </button>
+        <Collapse
+          id={bodyId}
+          open={open}
+          innerClassName="flex flex-col gap-5 px-4 pb-5 pt-1 sm:pl-[4.25rem] sm:pr-6"
+        >
+          {openTimeline && (
+            <button
+              type="button"
+              onClick={openTimeline}
+              className={cn(
+                CTA_SECONDARY,
+                "self-start",
+                completed && "bg-on-done text-done",
+                ring
               )}
-              <div className="flex flex-col gap-2">
-                <span className={cn("text-sm font-medium", soft)}>Tareas</span>
-                {step.tasks.length > 0 && (
-                  <ul className="flex flex-col">
-                    {step.tasks.map((task) => (
-                      <li key={task.id} className="group flex items-center gap-3 py-1.5">
-                        <Checkbox
-                          checked={task.done}
-                          onCheckedChange={() => handleToggleTask(task.id)}
-                          aria-label={task.title}
-                          className={cn(
-                            "size-5 rounded-md border-lilac bg-field shadow-none focus-visible:ring-lilac data-[state=checked]:border-lilac data-[state=checked]:bg-cta data-[state=checked]:text-on-cta",
-                            completed &&
-                              "border-on-done focus-visible:ring-on-done focus-visible:ring-offset-done data-[state=checked]:border-on-done data-[state=checked]:bg-on-done data-[state=checked]:text-done"
-                          )}
-                        />
-                        <span
-                          className={cn(
-                            "flex-1 text-sm",
-                            completed ? "text-on-done" : "text-ink-strong",
-                            task.done && cn(soft, "line-through")
-                          )}
-                        >
-                          {task.title}
-                        </span>
-                        {taskArrow(task)}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Eliminar tarea: ${task.title}`}
-                          className={cn(
-                            "size-8 rounded-full focus-visible:ring-lilac",
-                            completed
-                              ? "text-on-done-muted hover:bg-on-done/15 hover:text-on-done focus-visible:ring-on-done"
-                              : "text-ink-muted hover:bg-lilac-soft hover:text-ink"
-                          )}
-                          onClick={() => handleRemoveTask(task.id)}
-                        >
-                          <XIcon className="size-4" />
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <form onSubmit={handleAddTask} className="flex gap-2">
-                  <Input
-                    value={newTask}
-                    onChange={(e) => setNewTask(e.target.value)}
-                    placeholder="Añadir una tarea…"
-                    aria-label="Añadir tarea"
-                    className={cn(FIELD, "h-10")}
-                  />
-                  <Button
-                    type="submit"
-                    size="icon"
-                    aria-label="Añadir tarea"
-                    className={cn(
-                      "size-10 shrink-0 rounded-full shadow-none hover:opacity-90 focus-visible:ring-lilac focus-visible:ring-offset-surface",
-                      completed
-                        ? "bg-on-done text-done hover:bg-on-done focus-visible:ring-on-done focus-visible:ring-offset-done"
-                        : "bg-cta text-on-cta hover:bg-cta"
-                    )}
-                  >
-                    <PlusIcon className="size-4" />
-                  </Button>
-                </form>
-                <StepIdeas
-                  planId={planId}
-                  step={step}
-                  className={cn(
-                    "-ml-2.5 self-start",
-                    completed
-                      ? "text-on-done hover:bg-on-done/15 hover:text-on-done data-[state=open]:bg-on-done/15 data-[state=open]:text-on-done focus-visible:ring-on-done focus-visible:ring-offset-done"
-                      : "focus-visible:ring-offset-surface"
-                  )}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor={`step-notes-${step.id}`} className={cn("text-sm font-medium", soft)}>
-                  Notas
-                </label>
-                <Textarea
-                  id={`step-notes-${step.id}`}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  onBlur={handleNotesBlur}
-                  placeholder="Apunta aquí lo que quieras recordar…"
-                  rows={2}
-                  className={cn(FIELD, "h-auto min-h-16 py-2.5")}
-                />
-              </div>
-            </div>
+            >
+              <ClockIcon aria-hidden="true" className="size-4" />
+              Abrir cronograma
+            </button>
           )}
-        </div>
+          <div className="flex flex-col gap-2">
+            <span className={cn("text-sm font-medium", soft)}>Tareas</span>
+            {step.tasks.length > 0 && (
+              <ul className="flex flex-col">
+                {step.tasks.map((task) => (
+                  <li key={task.id} className="group flex items-center gap-3 py-1.5">
+                    <Checkbox
+                      checked={task.done}
+                      onCheckedChange={() => handleToggleTask(task.id)}
+                      aria-label={task.title}
+                      className={cn(
+                        "size-5 rounded-md border-lilac bg-field shadow-none focus-visible:ring-lilac data-[state=checked]:border-lilac data-[state=checked]:bg-cta data-[state=checked]:text-on-cta",
+                        completed &&
+                          "border-on-done focus-visible:ring-on-done focus-visible:ring-offset-done data-[state=checked]:border-on-done data-[state=checked]:bg-on-done data-[state=checked]:text-done"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "flex-1 text-sm",
+                        completed ? "text-on-done" : "text-ink-strong",
+                        task.done && cn(soft, "line-through")
+                      )}
+                    >
+                      {task.title}
+                    </span>
+                    {taskArrow(task)}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Eliminar tarea: ${task.title}`}
+                      className={cn(
+                        "size-8 rounded-full focus-visible:ring-lilac",
+                        completed
+                          ? "text-on-done-muted hover:bg-on-done/15 hover:text-on-done focus-visible:ring-on-done"
+                          : "text-ink-muted hover:bg-lilac-soft hover:text-ink"
+                      )}
+                      onClick={() => handleRemoveTask(task.id)}
+                    >
+                      <XIcon className="size-4" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <form onSubmit={handleAddTask} className="flex gap-2">
+              <Input
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                placeholder="Añadir una tarea…"
+                aria-label="Añadir tarea"
+                className={cn(FIELD, "h-10")}
+              />
+              <Button
+                type="submit"
+                size="icon"
+                aria-label="Añadir tarea"
+                className={cn(
+                  "size-10 shrink-0 rounded-full shadow-none hover:opacity-90 focus-visible:ring-lilac focus-visible:ring-offset-surface",
+                  completed
+                    ? "bg-on-done text-done hover:bg-on-done focus-visible:ring-on-done focus-visible:ring-offset-done"
+                    : "bg-cta text-on-cta hover:bg-cta"
+                )}
+              >
+                <PlusIcon className="size-4" />
+              </Button>
+            </form>
+            <StepIdeas
+              planId={planId}
+              step={step}
+              className={cn(
+                "-ml-2.5 self-start",
+                completed
+                  ? "text-on-done hover:bg-on-done/15 hover:text-on-done data-[state=open]:bg-on-done/15 data-[state=open]:text-on-done focus-visible:ring-on-done focus-visible:ring-offset-done"
+                  : "focus-visible:ring-offset-surface"
+              )}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={`step-notes-${step.id}`} className={cn("text-sm font-medium", soft)}>
+              Notas
+            </label>
+            <Textarea
+              id={`step-notes-${step.id}`}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              onBlur={handleNotesBlur}
+              placeholder="Apunta aquí lo que quieras recordar…"
+              rows={2}
+              className={cn(FIELD, "h-auto min-h-16 py-2.5")}
+            />
+          </div>
+        </Collapse>
       </div>
     </li>
   );

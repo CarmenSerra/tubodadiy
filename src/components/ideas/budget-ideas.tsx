@@ -17,7 +17,7 @@ type NewItem = Omit<BudgetItem, "id" | "createdAt">;
 
 /** Partida nueva: la categoría da nombre al concepto y el importe es el orientativo. */
 function toBudgetItem(category: string, amount: number): NewItem {
-  return { category, concept: category, estimatedCost: amount, actualCost: null, paid: false };
+  return { category, concept: category, amount, state: "pending", dueDate: null };
 }
 
 /**

@@ -1,53 +1,74 @@
 "use client";
 
 import * as React from "react";
-import { WalletIcon } from "lucide-react";
+import { CheckIcon, WalletIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { CARD, IconCircle, SECTION_TITLE } from "@/components/dashboard/ui";
-import { CHECKBOX, DeleteIconButton } from "@/components/guests/brand-dialog";
+import { CARD, FOCUS, IconCircle, SECTION_TITLE } from "@/components/dashboard/ui";
+import { DeleteIconButton } from "@/components/guests/brand-dialog";
 import {
   BudgetItemFormDialog,
   EditBudgetItemTrigger,
 } from "@/components/budget/budget-item-form-dialog";
 import { BudgetBreakdown } from "@/components/budget/budget-breakdown";
-import { listCategories, UNCATEGORISED, formatMoney } from "@/components/budget/budget-math";
+import { formatDue, formatMoney, isOverdue, listCategories, UNCATEGORISED } from "@/components/budget/budget-math";
 import { BudgetSummary, BudgetSummarySkeleton } from "@/components/budget/budget-summary";
 import { BudgetIdeas } from "@/components/ideas/budget-ideas";
 import { Bone } from "@/components/plan/plan-shell";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { budgetItemsQuery, mapBudgetItem } from "@/lib/firebase/plans";
 import { deleteBudgetItem, restoreBudgetItem, updateBudgetItem } from "@/lib/firebase/mutations";
-import type { BudgetItem, WeddingPlan } from "@/lib/types";
+import type { BudgetItem, BudgetItemState, WeddingPlan } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
-function PaidToggle({
+/** Estado de un gasto: «Pagado», o «Pendiente» con su fecha límite y el botón de marcarlo como pagado. */
+function StateCell({
   item,
-  onToggle,
+  onMarkPaid,
   className,
 }: {
   item: BudgetItem;
-  onToggle: (item: BudgetItem, paid: boolean) => void;
+  onMarkPaid: (item: BudgetItem) => void;
   className?: string;
 }) {
+  if (item.state === "paid") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-full bg-sage-pale px-3 py-1 text-sm font-medium text-ink",
+          className
+        )}
+      >
+        <CheckIcon aria-hidden="true" className="size-4 text-green" />
+        Pagado
+      </span>
+    );
+  }
+  const overdue = item.dueDate ? isOverdue(item.dueDate) : false;
   return (
-    <label
-      className={cn(
-        "inline-flex cursor-pointer items-center gap-2.5 text-sm",
-        item.paid ? "font-medium text-ink" : "text-ink-muted",
-        className
-      )}
-    >
-      <Checkbox
-        checked={item.paid}
-        onCheckedChange={(v) => onToggle(item, v === true)}
+    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1.5", className)}>
+      <div className="flex flex-col">
+        <span className="text-sm font-medium text-ink">Pendiente</span>
+        {item.dueDate && (
+          <span className={cn("text-xs", overdue ? "font-medium text-danger" : "text-ink-muted")}>
+            {overdue ? "Venció el" : "Vence el"} {formatDue(item.dueDate)}
+          </span>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={() => onMarkPaid(item)}
         aria-label={`Marcar «${item.concept}» como pagado`}
-        className={CHECKBOX}
-      />
-      {item.paid ? "Pagado" : "Pendiente"}
-    </label>
+        className={cn(
+          "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full border border-lilac bg-field px-3.5 text-sm font-medium text-ink transition-colors hover:bg-lilac-soft",
+          FOCUS
+        )}
+      >
+        <CheckIcon aria-hidden="true" className="size-4" />
+        Marcar pagado
+      </button>
+    </div>
   );
 }
 
@@ -82,30 +103,45 @@ function BudgetSkeleton() {
 export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan | null }) {
   const budgetTotal = plan?.budgetTotal ?? 0;
   const { data: stored, loading } = useCollection(budgetItemsQuery(planId), mapBudgetItem);
-  // Cambios de "pagado" aún sin confirmar por Firestore: se ven al instante.
-  const [pendingPaid, setPendingPaid] = React.useState<Record<string, boolean>>({});
+  // Cambios de estado aún sin confirmar por Firestore: se ven al instante.
+  const [pendingState, setPendingState] = React.useState<Record<string, BudgetItemState>>({});
   const [announcement, setAnnouncement] = React.useState("");
 
   const items = React.useMemo(
-    () => stored.map((i) => (i.id in pendingPaid ? { ...i, paid: pendingPaid[i.id] } : i)),
-    [stored, pendingPaid]
+    () => stored.map((i) => (i.id in pendingState ? { ...i, state: pendingState[i.id] } : i)),
+    [stored, pendingState]
   );
   const categories = React.useMemo(() => listCategories(items), [items]);
 
-  async function handleTogglePaid(item: BudgetItem, paid: boolean) {
-    setPendingPaid((prev) => ({ ...prev, [item.id]: paid }));
+  /** Cambia el estado de un gasto. Siempre escribe también el importe: así un gasto antiguo pasa al modelo actual. */
+  async function setItemState(item: BudgetItem, state: BudgetItemState) {
+    setPendingState((prev) => ({ ...prev, [item.id]: state }));
     try {
-      await updateBudgetItem(planId, item.id, { paid });
-      setAnnouncement(`«${item.concept}»: ${paid ? "pagado" : "pendiente de pago"}`);
-    } catch {
-      toast.error("No se ha podido actualizar el pago. Inténtalo de nuevo.");
+      await updateBudgetItem(planId, item.id, {
+        amount: item.amount,
+        state,
+        dueDate: item.dueDate,
+      });
     } finally {
-      setPendingPaid((prev) => {
+      setPendingState((prev) => {
         const next = { ...prev };
         delete next[item.id];
         return next;
       });
     }
+  }
+
+  async function handleMarkPaid(item: BudgetItem) {
+    // El gasto tal como está guardado (sin otro cambio de estado aún por confirmar).
+    const original = stored.find((i) => i.id === item.id) ?? item;
+    try {
+      await setItemState(original, "paid");
+    } catch {
+      toast.error("No se ha podido marcar como pagado. Inténtalo de nuevo.");
+      return;
+    }
+    setAnnouncement(`«${item.concept}»: pagado`);
+    toastWithUndo(`«${item.concept}» marcado como pagado`, () => setItemState(original, "pending"));
   }
 
   async function handleDelete(id: string) {
@@ -124,7 +160,7 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <div>
         <h2 className={SECTION_TITLE}>Presupuesto</h2>
-        <p className="mt-1 text-sm text-ink-muted">Lo que has previsto, lo que llevas gastado y lo que ya está pagado.</p>
+        <p className="mt-1 text-sm text-ink-muted">Lo que ya has pagado, lo que te queda por pagar y cuánto presupuesto te sobra.</p>
       </div>
       {!loading && items.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
@@ -158,8 +194,9 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
             Aún no hay gastos apuntados
           </h3>
           <p className="mt-2 max-w-sm text-sm text-ink-muted">
-            Desglosa tu presupuesto por conceptos y compara lo estimado con lo que realmente vas
-            gastando. Puedes empezar por lo más grande: el lugar o el catering.
+            Apunta cada gasto con su importe y márcalo como pagado o pendiente: así sabrás siempre
+            cuánto llevas pagado y cuánto te queda por pagar. Puedes empezar por lo más grande: el
+            lugar o el catering.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <BudgetItemFormDialog planId={planId} />
@@ -204,21 +241,10 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                       />
                     </div>
                   </div>
-                  <dl className="grid grid-cols-2 gap-3 rounded-xl bg-page px-3.5 py-2.5">
-                    <div>
-                      <dt className="text-xs text-ink-muted">Estimado</dt>
-                      <dd className="font-display text-base font-semibold text-ink">
-                        {formatMoney(item.estimatedCost)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-ink-muted">Real</dt>
-                      <dd className="font-display text-base font-semibold text-ink">
-                        {item.actualCost == null ? "—" : formatMoney(item.actualCost)}
-                      </dd>
-                    </div>
-                  </dl>
-                  <PaidToggle item={item} onToggle={handleTogglePaid} className="min-h-10" />
+                  <p className="font-display text-2xl font-semibold leading-tight text-ink">
+                    {formatMoney(item.amount)}
+                  </p>
+                  <StateCell item={item} onMarkPaid={handleMarkPaid} className="min-h-10" />
                 </li>
               ))}
             </ul>
@@ -236,13 +262,10 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                       Categoría
                     </th>
                     <th scope="col" className="px-3 py-3 text-right font-medium">
-                      Estimado
-                    </th>
-                    <th scope="col" className="px-3 py-3 text-right font-medium">
-                      Real
+                      Importe
                     </th>
                     <th scope="col" className="px-3 py-3 font-medium">
-                      Pagado
+                      Estado
                     </th>
                     <th scope="col" className="px-3 py-3 font-medium">
                       <span className="sr-only">Acciones</span>
@@ -257,19 +280,10 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                       </td>
                       <td className="px-3 py-3 align-middle text-ink-muted">{item.category || UNCATEGORISED}</td>
                       <td className="px-3 py-3 text-right align-middle tabular-nums text-ink-strong">
-                        {formatMoney(item.estimatedCost)}
-                      </td>
-                      <td className="px-3 py-3 text-right align-middle tabular-nums text-ink-strong">
-                        {item.actualCost == null ? (
-                          <span className="text-ink-muted" aria-label="Sin coste real">
-                            —
-                          </span>
-                        ) : (
-                          formatMoney(item.actualCost)
-                        )}
+                        {formatMoney(item.amount)}
                       </td>
                       <td className="px-3 py-3 align-middle">
-                        <PaidToggle item={item} onToggle={handleTogglePaid} />
+                        <StateCell item={item} onMarkPaid={handleMarkPaid} />
                       </td>
                       <td className="px-3 py-3 align-middle">
                         <div className="flex justify-end">

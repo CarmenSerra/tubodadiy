@@ -117,6 +117,7 @@ async function writeGuests(planId: string, guests: ParsedGuest[]) {
         groupName: guest.groupName,
         rsvpStatus: "pending",
         plusOne: false,
+        plusOneName: "",
         dietaryNotes: "",
         notes: "",
         createdAt: orderedStamp(base, start + i),
