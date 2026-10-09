@@ -75,11 +75,10 @@
   --deco-line-bright: #a38ed2;
   --deco-green: #4e6a5a;
   --deco-sage-line: #8faf8a;
-  /* Fondo fijo de la app autenticada (AppBackdrop): bajo contraste a propósito */
-  --bd-lilac: rgb(222 205 241 / 0.42);
-  --bd-sage: rgb(188 199 181 / 0.36);
-  --bd-line: rgb(146 122 172 / 0.4);
-  --bd-line-sage: rgb(111 145 106 / 0.5);
+  /* Acuarelas (public/decor, ver docs/design-tokens.md): filtro y opacidad por tema */
+  --decor-filter: none;
+  --decor-wash-filter: none;
+  --decor-opacity: 1;
   --script-accent: #6b7c5e;
   /* Sombras */
   --shadow-pop-value: 0 4px 16px rgba(38, 65, 60, 0.06);
@@ -204,10 +203,11 @@ html[data-theme="dark"] {
   --deco-line-bright: #a38ed2;
   --deco-green: #4e6a5a;
   --deco-sage-line: #8faf8a;
-  --bd-lilac: rgb(212 192 234 / 0.09);
-  --bd-sage: rgb(143 175 138 / 0.09);
-  --bd-line: rgb(163 142 210 / 0.3);
-  --bd-line-sage: rgb(143 175 138 / 0.3);
+  /* Acuarelas sobre ciruela: se aclaran para que no queden turbias; las manchas grandes
+     solo bajan de opacidad (aclararlas resalta el moteado). */
+  --decor-filter: brightness(1.3) saturate(0.9);
+  --decor-wash-filter: none;
+  --decor-opacity: 1;
   --script-accent: #8faf8a;
   --shadow-pop-value: 0 4px 16px rgba(0, 0, 0, 0.35);
   --shadow-lift-value: 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -663,6 +663,35 @@ html[data-theme="dark"] .theme-honeymoon {
    así que su "hueco" (pensado para el banner lila) usa el color de página. */
 html[data-theme="dark"] .rings-on-page {
   --lilac-flat: var(--page);
+}
+
+/* Acuarelas decorativas (src/components/brand/watercolor.tsx, app-backdrop.tsx).
+   --o es la opacidad propia de cada motivo; el tema solo aporta filtro y multiplicador. */
+.decor-img {
+  opacity: calc(var(--o, 1) * var(--decor-opacity));
+  filter: var(--decor-filter);
+}
+.decor-img[data-decor="wash"] {
+  filter: var(--decor-wash-filter);
+}
+.decor-layer {
+  --decor-scale: 1;
+  animation: decor-in 0.9s ease-out both;
+}
+@media (max-width: 639px) {
+  .decor-layer {
+    --decor-scale: 0.62;
+  }
+}
+@keyframes decor-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .decor-layer {
+    animation: none;
+  }
 }
 
 /* La página imprimible es siempre clara: nunca tiñe el papel con el tema oscuro. */

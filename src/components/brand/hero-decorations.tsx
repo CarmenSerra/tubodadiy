@@ -1,46 +1,21 @@
+import { Watercolor } from "@/components/brand/watercolor";
+import type { WatercolorName } from "@/components/brand/watercolor-assets";
 import { cn } from "@/lib/utils";
 
-// Decoraciones de marca compartidas (landing, login, signup): ramas con
-// hojas y destellos. Son puramente ornamentales: aria-hidden y
+// Decoraciones de marca compartidas (landing, login, signup): ramas en acuarela
+// y destellos. Son puramente ornamentales: aria-hidden y
 // pointer-events-none, y el contenedor que las use debe ser `relative`.
 
-// Hojas de las ramas decorativas: [x, y, rotación] sobre el tallo.
-const BRANCH_LEAVES: [number, number, number][] = [
-  [24, 166, -115],
-  [26, 160, -20],
-  [33, 136, -120],
-  [36, 130, -25],
-  [45, 108, -125],
-  [49, 102, -30],
-  [59, 82, -128],
-  [63, 77, -35],
-  [73, 57, -130],
-  [77, 52, -40],
-  [85, 32, -80],
-];
-
-export function Branch({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 200"
-      fill="none"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={cn("pointer-events-none absolute", className)}
-      style={{ stroke: "var(--deco-green)" }}
-    >
-      <path d="M20 200 C 24 150, 50 100, 85 30" />
-      {BRANCH_LEAVES.map(([x, y, r]) => (
-        <path
-          key={`${x}-${y}`}
-          d="M0 0 C 6 -7, 16 -7, 24 0 C 16 7, 6 7, 0 0Z"
-          transform={`translate(${x} ${y}) rotate(${r})`}
-        />
-      ))}
-    </svg>
-  );
+// Rama de acuarela (public/decor): eucalipto de hoja redonda por defecto, o la variante
+// que se indique. Se coloca con las clases del llamador (`h-[48%] w-auto`, `-scale-x-100`...).
+export function Branch({
+  className,
+  name = "branch-eucalyptus-round",
+}: {
+  className?: string;
+  name?: WatercolorName;
+}) {
+  return <Watercolor name={name} className={cn("absolute", className)} />;
 }
 
 export function Sparkles({ className }: { className?: string }) {

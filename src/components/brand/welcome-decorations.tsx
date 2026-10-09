@@ -1,9 +1,9 @@
+import { Watercolor } from "@/components/brand/watercolor";
 import { cn } from "@/lib/utils";
 
 // Decoraciones del banner de bienvenida (home sin planes): "empezar a planear
-// una boda". Trazo fino a mano (1.5-2px, puntas redondas) con alianzas, un
-// sobre, florecillas, eucalipto de hoja redonda, un camino punteado y
-// confeti de corazones. Distinto de la landing (ramas de hoja puntiaguda).
+// una boda". Acuarelas (alianzas, eucalipto de hoja redonda, ramita del logo) junto
+// a dibujos de trazo fino (sobre, florecillas, camino punteado, confeti de corazones).
 // Son puramente ornamentales: aria-hidden y pointer-events-none, y el
 // contenedor que las use debe ser `relative` (y, para los blobs, overflow-hidden).
 
@@ -62,33 +62,9 @@ export function WelcomeDisc({ className }: { className?: string }) {
 /* Motivos de línea                                                    */
 /* ------------------------------------------------------------------ */
 
-/** Dos alianzas entrelazadas. `gap` debe ser el color del fondo sobre el que se dibujen. */
-export function Rings({ className, gap = "var(--lilac-flat)" }: { className?: string; gap?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 100"
-      fill="none"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={cn(BASE, className)}
-    >
-      {/* Brillo sobre las alianzas */}
-      <g strokeWidth="1.5" style={{ stroke: "var(--deco-line-bright)" }}>
-        <path d="M52 6 L52 13" />
-        <path d="M40 10 L44 16" />
-        <path d="M64 10 L60 16" />
-      </g>
-      <circle cx="44" cy="58" r="28" style={{ stroke: "var(--deco-line)" }} />
-      <circle cx="76" cy="58" r="28" style={{ stroke: "var(--deco-green)" }} />
-      {/* Cruces: arriba pasa la lila por encima, abajo la verde */}
-      <path d="M54.03 31.86 A28 28 0 0 1 65.13 39.63" strokeWidth="6" style={{ stroke: gap }} />
-      <path d="M54.03 31.86 A28 28 0 0 1 65.13 39.63" style={{ stroke: "var(--deco-line)" }} />
-      <path d="M65.97 84.14 A28 28 0 0 1 54.87 76.37" strokeWidth="6" style={{ stroke: gap }} />
-      <path d="M65.97 84.14 A28 28 0 0 1 54.87 76.37" style={{ stroke: "var(--deco-green)" }} />
-    </svg>
-  );
+/** Dos alianzas entrelazadas en acuarela (cabe en ~120x100, como el dibujo anterior). */
+export function Rings({ className }: { className?: string; gap?: string }) {
+  return <Watercolor name="rings" className={cn(BASE, className)} />;
 }
 
 /** Sobre cerrado con sello de corazón (la invitación). */
@@ -140,87 +116,9 @@ export function Floret({ className }: { className?: string }) {
   );
 }
 
-// Tallo del eucalipto: curva de Bézier cúbica y hojas redondas alternas.
-const STEM: [number, number][] = [
-  [22, 176],
-  [28, 124],
-  [54, 76],
-  [92, 16],
-];
-
-function stemAt(t: number) {
-  const [p0, p1, p2, p3] = STEM;
-  const u = 1 - t;
-  const x = u ** 3 * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t ** 3 * p3[0];
-  const y = u ** 3 * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t ** 3 * p3[1];
-  const dx =
-    3 * u * u * (p1[0] - p0[0]) + 6 * u * t * (p2[0] - p1[0]) + 3 * t * t * (p3[0] - p2[0]);
-  const dy =
-    3 * u * u * (p1[1] - p0[1]) + 6 * u * t * (p2[1] - p1[1]) + 3 * t * t * (p3[1] - p2[1]);
-  const len = Math.hypot(dx, dy);
-  return { x, y, tx: dx / len, ty: dy / len };
-}
-
-const f = (n: number) => Number(n.toFixed(1));
-
-// [t sobre el tallo, lado (+1/-1), radio de la hoja]
-const EUCALYPTUS_LEAVES: [number, 1 | -1, number][] = [
-  [0.14, -1, 10],
-  [0.27, 1, 10],
-  [0.4, -1, 9],
-  [0.53, 1, 9],
-  [0.66, -1, 8],
-  [0.79, 1, 7.5],
-  [0.9, -1, 6.5],
-].map(([t, s, r]) => [t, s, r] as [number, 1 | -1, number]);
-
-const EUCALYPTUS = EUCALYPTUS_LEAVES.map(([t, side, r]) => {
-  const { x, y, tx, ty } = stemAt(t);
-  const nx = -ty * side;
-  const ny = tx * side;
-  const petiole = 5;
-  return {
-    key: t,
-    r,
-    stem: `M${f(x)} ${f(y)} L${f(x + nx * petiole)} ${f(y + ny * petiole)}`,
-    cx: f(x + nx * (petiole + r)),
-    cy: f(y + ny * (petiole + r)),
-  };
-});
-
-const EUCALYPTUS_TIP = (() => {
-  const { x, y, tx, ty } = stemAt(1);
-  return { cx: f(x + tx * 6), cy: f(y + ty * 6), r: 5.5 };
-})();
-
-/** Ramita de eucalipto con hojas redondas (frente a las hojas puntiagudas de la landing). */
+/** Rama de eucalipto de hoja redonda en acuarela (frente a las hojas puntiagudas de la landing). */
 export function Eucalyptus({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 190"
-      fill="none"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={cn(BASE, className)}
-      style={{ stroke: "var(--deco-green)" }}
-    >
-      <path d={`M${STEM[0]} C ${STEM[1]}, ${STEM[2]}, ${STEM[3]}`} />
-      {EUCALYPTUS.map((l) => (
-        <g key={l.key}>
-          <path d={l.stem} />
-          <circle cx={l.cx} cy={l.cy} r={l.r} style={{ fill: "var(--deco-sage-soft)" }} />
-          <path
-            d={`M${f(l.cx - l.r * 0.45)} ${f(l.cy + l.r * 0.2)} Q ${l.cx} ${f(l.cy - l.r * 0.1)} ${f(l.cx + l.r * 0.45)} ${f(l.cy - l.r * 0.2)}`}
-            strokeWidth="1"
-            opacity="0.7"
-          />
-        </g>
-      ))}
-      <circle cx={EUCALYPTUS_TIP.cx} cy={EUCALYPTUS_TIP.cy} r={EUCALYPTUS_TIP.r} style={{ fill: "var(--deco-sage-soft)" }} />
-    </svg>
-  );
+  return <Watercolor name="branch-eucalyptus-round" className={cn(BASE, "object-contain", className)} />;
 }
 
 /** Camino punteado (el recorrido hasta el gran día), de abajo-izquierda a arriba-derecha. */
@@ -271,80 +169,10 @@ export function Dot({ className, tone = "var(--deco-heart)" }: { className?: str
   );
 }
 
-// Ramita del "tubodadiy": tallo fino que sube hacia la palabra, hojitas
-// redondeadas alternas (de mayor a menor) y un capullo lila en la punta.
-const SPRIG_STEM: [number, number][] = [
-  [2, 21],
-  [15, 24],
-  [28, 20],
-  [42, 12],
-];
-
-// [t sobre el tallo, lado (+1 arriba / -1 abajo), largo de la hoja]
-const SPRIG_LEAVES: [number, 1 | -1, number][] = [
-  [0.2, 1, 7],
-  [0.36, -1, 7],
-  [0.52, 1, 6.4],
-  [0.68, -1, 5.6],
-  [0.82, 1, 4.8],
-];
-
-// Punto y ángulo (grados) del tallo en t; el tallo avanza hacia la punta.
-function sprigAt(t: number) {
-  const [p0, p1, p2, p3] = SPRIG_STEM;
-  const u = 1 - t;
-  const at = (i: 0 | 1) =>
-    u ** 3 * p0[i] + 3 * u * u * t * p1[i] + 3 * u * t * t * p2[i] + t ** 3 * p3[i];
-  const d = (i: 0 | 1) =>
-    3 * u * u * (p1[i] - p0[i]) + 6 * u * t * (p2[i] - p1[i]) + 3 * t * t * (p3[i] - p2[i]);
-  return { x: f(at(0)), y: f(at(1)), angle: (Math.atan2(d(1), d(0)) * 180) / Math.PI };
-}
-
-const SPRIG_LEAF_SHAPES = SPRIG_LEAVES.map(([t, side, len]) => {
-  const { x, y, angle } = sprigAt(t);
-  return { key: t, len, ry: f(len * 0.32), x, y, angle: f(angle - side * 48) };
-});
-
-const SPRIG_BUD_ANGLE = f(sprigAt(1).angle - 8);
-
 /**
- * Ramita fina a cada lado del "tubodadiy" (sustituye a los destellos de la
- * landing): tallo salvia, cinco hojitas redondeadas y un capullo lila que
- * apunta a la palabra. Espejar con -scale-x-100.
+ * Ramita en acuarela a cada lado del "tubodadiy": tallo salvia, hojitas alternas y un
+ * capullo lila que apunta a la palabra. Espejar con -scale-x-100.
  */
 export function Flourish({ className }: { className?: string }) {
-  const [, , , tip] = SPRIG_STEM;
-  return (
-    <svg
-      viewBox="0 0 56 28"
-      fill="none"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={cn(BASE, "h-6 w-12 sm:h-7 sm:w-14", className)}
-    >
-      <path
-        d={`M${SPRIG_STEM[0]} C ${SPRIG_STEM[1]}, ${SPRIG_STEM[2]}, ${SPRIG_STEM[3]}`}
-        strokeWidth="1.25"
-        style={{ stroke: "var(--deco-sage-line)" }}
-      />
-      {SPRIG_LEAF_SHAPES.map((l) => (
-        <ellipse
-          key={l.key}
-          cx={l.len / 2}
-          cy="0"
-          rx={l.len / 2}
-          ry={l.ry}
-          transform={`translate(${l.x} ${l.y}) rotate(${l.angle})`}
-          style={{ fill: "var(--deco-sage)" }}
-        />
-      ))}
-      <path
-        d="M0 0 C 0.6 -2.6, 5 -3, 7.5 0 C 5 3, 0.6 2.6, 0 0Z"
-        transform={`translate(${tip[0]} ${tip[1]}) rotate(${SPRIG_BUD_ANGLE})`}
-        strokeWidth="1.1"
-        style={{ fill: "var(--deco-heart)", stroke: "var(--deco-line-bright)" }}
-      />
-    </svg>
-  );
+  return <Watercolor name="sprig-mini" className={cn(BASE, "h-6 w-12 sm:h-7 sm:w-14", className)} />;
 }

@@ -183,18 +183,40 @@ Decoración (landing, bienvenida, onboarding):
 | `--deco-sage-line` | `#8FAF8A` | `#8FAF8A` |
 | `--script-accent` | `#6B7C5E` | `#8FAF8A` |
 
-Fondo fijo de la app autenticada (`src/components/brand/app-backdrop.tsx`,
-montado en `src/app/(app)/layout.tsx`; no aparece en la landing ni en
-`(print)`). Manchas lila/salvia y dibujos de línea fina con `position: fixed`
-detrás del contenido; son semitransparentes para dejarse ver sobre `--page` y
-quedar por debajo de las tarjetas (`bg-surface`). Bajo contraste a propósito:
+#### Acuarelas decorativas
+
+Las decoraciones (ramas de eucalipto/olivo/helecho, hojas, flores lilas, alianzas,
+corazones y manchas lila/salvia) son **WebP en acuarela** de `public/decor/` (18
+archivos, ≈140 KB en total, ≤ 14 KB cada uno). No se dibujan a mano: las genera
+`scripts/watercolor/` (`node scripts/watercolor/generate.mjs`, ver su cabecera):
+SVG con filtros (`feTurbulence` + `feDisplacementMap` para bordes ondulados, pigmento
+acumulado en el borde, moteado y grano de papel) rasterizados con Chromium y
+comprimidos con sharp. En la app **no hay filtros SVG en ejecución**, solo `<img>`.
+`src/components/brand/watercolor-assets.ts` (generado) lista nombres y tamaños;
+`Watercolor` (`watercolor.tsx`) los pinta (`aria-hidden`, `loading="lazy"`).
+
+- **Fondo de la app** (`app-backdrop.tsx`, montado por `app-frame.tsx` en las rutas
+  autenticadas; no en la landing ni en `(print)` ni en Luna de miel): 6-9 motivos
+  (3-4 más pequeños en móvil) anclados a los márgenes, `position: fixed` detrás del
+  contenido. El reparto lo calcula `src/lib/decor-layout.ts` con semilla = ruta: cada
+  página tiene su composición, estable durante la visita y sin desajustes de hidratación.
+  Opacidad propia de cada motivo (0,5-0,85) para no afectar al contraste del texto.
+- **Landing, login/registro y bienvenida**: `Branch` (hero-decorations), `Flourish`,
+  `Eucalyptus` y `Rings` (welcome-decorations) usan los mismos WebP.
+
+Tokens (en `:root` / `html[data-theme="dark"]` de `globals.css`; los antiguos `--bd-*`
+de los dibujos de línea ya no existen):
 
 | Token | Claro | Oscuro |
 |---|---|---|
-| `--bd-lilac` (mancha) | `rgb(222 205 241 / .42)` | `rgb(212 192 234 / .09)` |
-| `--bd-sage` (mancha) | `rgb(188 199 181 / .36)` | `rgb(143 175 138 / .09)` |
-| `--bd-line` (trazo lila) | `rgb(146 122 172 / .4)` | `rgb(163 142 210 / .3)` |
-| `--bd-line-sage` (trazo salvia) | `rgb(111 145 106 / .5)` | `rgb(143 175 138 / .3)` |
+| `--decor-filter` (motivos) | `none` | `brightness(1.3) saturate(.9)` |
+| `--decor-wash-filter` (manchas grandes) | `none` | `none` |
+| `--decor-opacity` (multiplicador) | `1` | `1` |
+
+En oscuro las ramas y flores se aclaran con un filtro CSS estático (un solo `filter`
+por imagen, sin SVG) para que el verde/lila no se vea turbio sobre la ciruela; las
+manchas no se aclaran porque amplificaría su moteado. `--decor-scale` (1 / .62 en
+<640 px) escala los tamaños en móvil.
 
 #### Contraste del tema oscuro (texto normal ≥ 4,5:1)
 

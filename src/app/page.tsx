@@ -14,7 +14,8 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Branch, Sparkles } from "@/components/brand/hero-decorations";
+import { Branch } from "@/components/brand/hero-decorations";
+import { Flourish } from "@/components/brand/welcome-decorations";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -121,12 +122,12 @@ export default function LandingPage() {
           />
         </svg>
         <Branch className="bottom-0 left-[2%] hidden h-[48%] w-auto sm:block" />
-        <Branch className="bottom-0 right-[1%] hidden h-[45%] w-auto -scale-x-100 sm:block" />
+        <Branch name="branch-olive" className="bottom-0 right-[1%] hidden h-[45%] w-auto -scale-x-100 sm:block" />
 
         <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-2 text-center">
-          <div className="relative inline-block px-10 sm:px-14">
-            <Sparkles className="left-0 top-0" />
-            <Sparkles className="right-0 top-0 -scale-x-100" />
+          <div className="relative inline-block px-12 sm:px-16">
+            <Flourish className="left-0 top-1/2 -translate-y-1/2" />
+            <Flourish className="right-0 top-1/2 -translate-y-1/2 -scale-x-100" />
             <span className="text-script-accent" aria-hidden="true" style={{ color: "var(--lilac-bright)" }}>
               tubodadiy
             </span>
