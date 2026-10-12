@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { AppHeader } from "@/components/app-header";
 import { AppFrame } from "@/components/brand/app-frame";
+import { SiteFooter } from "@/components/brand/site-footer";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <AppFrame>
         <AppHeader />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">{children}</main>
+        <SiteFooter />
       </AppFrame>
     </RequireAuth>
   );

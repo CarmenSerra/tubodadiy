@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HomeLink } from "@/components/brand/home-link";
 import { Branch } from "@/components/brand/hero-decorations";
 import { Flourish } from "@/components/brand/welcome-decorations";
+import { SiteFooter } from "@/components/brand/site-footer";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -177,9 +178,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        tubodadiy — organiza tu boda sin perder de vista el conjunto.
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
