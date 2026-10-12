@@ -253,176 +253,190 @@ html[data-theme="dark"] {
  * ===================== LUNA DE MIEL (tema tropical) — inicio =====================
  * Tema acotado a la ruta /plan/[planId]/honeymoon. `.theme-honeymoon` redefine los MISMOS
  * tokens de rol que usa toda la app (--page, --surface, --ink, --cta…), así que cabecera,
- * pestañas, diálogos, avisos y componentes existentes se re-visten solos: azules de mar,
- * verdes de palmera y blanco roto (claro) / noche tropical de mar profundo (oscuro).
+ * pestañas, diálogos, avisos y componentes existentes se re-visten solos. Mantiene la idea
+ * tropical (agua turquesa, arena, blanco roto y verde palmera) pero en pastel y muy
+ * desaturada, a la par de los lilas/salvias/cremas del resto de la web: crema con un toque
+ * de agua en claro y pizarra azul-verdosa suave (hermana del ciruela) en oscuro.
  * Lo aplica `AppFrame` (src/components/brand/app-frame.tsx) al contenedor de la app y,
  * mientras se está en la ruta, también a <body>, para que lo que Radix pinta en un portal
  * (diálogos, desplegables) y los avisos hereden la paleta. El tema claro/oscuro sigue
  * mandando el <html data-theme>. Documentado en docs/design-tokens.md.
- * Los --hm-* son los colores propios de los dibujos (fondo fijo, banner, miniaturas).
+ * Contraste (WCAG AA) comprobado con las parejas reales: texto normal >= 4,5:1 (tintas
+ * sobre página, tarjeta y rellenos suaves; texto sobre botón, verde, "hecho" y salvia) y
+ * iconos/barras >= 3:1. Por eso el botón principal es agua pastel con texto oscuro (como el
+ * lila pastel con texto oscuro del modo noche) y los verdes de relleno son de tono medio.
+ * Los --hm-* son los colores de las miniaturas de destino, el cielo del fondo y el banner.
+ * Las acuarelas del fondo (public/decor/travel) las pinta `.decor-img` con --decor-*.
  */
 .theme-honeymoon {
   color-scheme: light;
 
   /* Superficies */
-  --page: #f3f2e9;
-  --surface: #fbfaf4;
-  --surface-alt: #fbfaf4;
+  --page: #f3f2ea;
+  --surface: #f8f7f1;
+  --surface-alt: #f8f7f1;
   --field: #ffffff;
   --panel: #ffffff;
   --raised: #ffffff;
   /* Rellenos suaves */
-  --lilac-soft: #dff0ee;
-  --lilac-flat: #dff0ee;
+  --lilac-soft: #e3eeea;
+  --lilac-flat: #e3eeea;
   --lilac-edge: transparent;
-  --lilac-mid: #c4e5e2;
-  --btn-soft: #bfe4e0;
-  --track: #d3e8e5;
-  --rail: #9fd1d0;
-  --sage-pale: #d9ecd9;
-  --sage-light: #a8d2b0;
-  --scrim: color-mix(in oklab, #06303a 40%, transparent);
+  --lilac-mid: #d2e4df;
+  --btn-soft: #c8dcd8;
+  --track: #d5e3dd;
+  --rail: #b9d3ce;
+  --sage-pale: #dce6d7;
+  --sage-light: #bdd3c0;
+  --scrim: color-mix(in oklab, #27464a 40%, transparent);
   /* Líneas */
-  --line: #d2e5e2;
-  --line-strong: #94c4c6;
+  --line: #dce7e2;
+  --line-strong: #a9c9c5;
   /* Tintas */
-  --ink: #0d3b47;
-  --ink-strong: #062a34;
-  --ink-muted: #44646b;
-  --ink-placeholder: #587177;
-  --ink-ghost: #496169;
-  --ink-on-tint: #0f4552;
-  --ink-on-lilac: #08343f;
-  --on-sage: #0d3b47;
+  --ink: #27464a;
+  --ink-strong: #14302f;
+  --ink-muted: #50686a;
+  --ink-placeholder: #587073;
+  --ink-ghost: #586e70;
+  --ink-on-tint: #34494d;
+  --ink-on-lilac: #27464a;
+  --on-sage: #14302f;
   /* Acentos */
-  --lilac: #0e7d97;
-  --lilac-bright: #0e92a8;
-  --brand: #0b7189;
-  --cta: #0b6f8c;
-  --on-cta: #ffffff;
-  --green: #1a6b4c;
-  --green-solid: #1d7a53;
-  --deep: #16623f;
-  --sage: #5cbf8c;
+  --lilac: #458583;
+  --lilac-bright: #4a9290;
+  --brand: #377674;
+  --cta: #8cc4be;
+  --on-cta: #12302f;
+  --green: #3f7058;
+  --green-solid: #4f8068;
+  --deep: #467a5e;
+  --sage: #6aa886;
   --on-solid: #ffffff;
-  --done: #0d6a7d;
-  --done-strip: #0a4f5f;
+  --done: #3a7778;
+  --done-strip: #33696b;
   --on-done: #ffffff;
-  --on-done-muted: #e0f5f2;
-  --danger: #a3352f;
-  --danger-solid: #a3352f;
-  --script-accent: #1a6b4c;
+  --on-done-muted: #f4fcfa;
+  --danger: #a3463f;
+  --danger-solid: #a3463f;
+  --script-accent: #3f7058;
+  /* Acuarelas (public/decor/travel): sin filtro en claro */
+  --decor-filter: none;
+  --decor-wash-filter: none;
+  --decor-opacity: 1;
   /* Sombras */
-  --shadow-pop-value: 0 4px 16px rgba(6, 60, 72, 0.08);
-  --shadow-lift-value: 0 8px 24px rgba(6, 60, 72, 0.1);
-  --shadow-float-value: 0 12px 32px rgba(6, 60, 72, 0.12);
+  --shadow-pop-value: 0 4px 16px rgba(39, 70, 74, 0.06);
+  --shadow-lift-value: 0 8px 24px rgba(39, 70, 74, 0.07);
+  --shadow-float-value: 0 12px 32px rgba(39, 70, 74, 0.08);
 
-  /* Dibujos: cielo, sol, nubes, relieve, mar, palmeras, estela del avión */
-  --hm-sky-top: #cfeaf1;
-  --hm-sky-mid: #e3f3ef;
-  --hm-sky-bottom: #f3f2e9;
-  --hm-sun: #ffd37a;
-  --hm-sun-glow: rgb(255 211 122 / 0.38);
-  --hm-sun-ray: rgb(240 178 60 / 0.55);
-  --hm-star: transparent;
-  --hm-cloud: rgb(255 255 255 / 0.85);
-  --hm-mtn-far: #b4d8d3;
-  --hm-mtn-near: #94c9b8;
-  --hm-mtn-shade: #84bba9;
-  --hm-hill: #7cc0a2;
-  --hm-sea: #9ad8dd;
-  --hm-sea-deep: #6cc0cc;
-  --hm-foam: rgb(255 255 255 / 0.8);
-  --hm-sand: #efe4c6;
-  --hm-palm: #3b9a72;
-  --hm-palm-dark: #26785a;
-  --hm-trunk: #b59a6a;
-  --hm-leaf: #5db487;
-  --hm-flower: #f08a7e;
-  --hm-trail: rgb(11 111 140 / 0.55);
+  /* Cielo del fondo, miniaturas de destino (sol, nubes, relieve, mar, palmeras) y avión */
+  --hm-sky-top: #d9ecee;
+  --hm-sky-mid: #e8f1ec;
+  --hm-sky-bottom: #f3f2ea;
+  --hm-sun: #f7dc9c;
+  --hm-sun-glow: rgb(247 220 156 / 0.4);
+  --hm-cloud: rgb(255 255 255 / 0.8);
+  --hm-mtn-far: #c5dfda;
+  --hm-mtn-near: #aed2c4;
+  --hm-hill: #9ecab4;
+  --hm-sea: #aadcd8;
+  --hm-sea-deep: #8ecbc8;
+  --hm-foam: rgb(255 255 255 / 0.75);
+  --hm-sand: #f1e6cb;
+  --hm-palm: #6fa588;
+  --hm-palm-dark: #568a70;
+  --hm-trunk: #c1aa82;
+  --hm-leaf: #86b99c;
+  --hm-flower: #eaa59a;
+  --hm-trail: rgb(70 133 130 / 0.5);
   --hm-plane: #ffffff;
-  --hm-plane-edge: #0b6f8c;
+  --hm-plane-edge: #4a8886;
   /* Banner de la página (sobre él va texto: se mantiene claro) */
-  --hm-hero-from: #d4eef0;
-  --hm-hero-to: #f1f3e4;
+  --hm-hero-from: #dcefeb;
+  --hm-hero-to: #f3f1e4;
 }
 
 html[data-theme="dark"] .theme-honeymoon {
   color-scheme: dark;
 
-  --page: #0a2630;
-  --surface: #10333f;
-  --surface-alt: #10333f;
-  --field: #0a2630;
-  --panel: #10333f;
-  --raised: #0a2630;
-  --lilac-soft: rgb(120 220 210 / 0.12);
-  --lilac-flat: #173c43; /* --lilac-soft sobre --page, opaco */
-  --lilac-edge: rgb(111 214 205 / 0.4);
-  --lilac-mid: #1d5560;
-  --btn-soft: #1e5a63;
-  --track: #1f525c;
-  --rail: #2b6a73;
-  --sage-pale: #1f5a55;
-  --sage-light: #2f7a6c;
-  --scrim: color-mix(in oklab, #0a2630 85%, transparent);
-  --line: #2a5c66;
-  --line-strong: #3c7a84;
-  --ink: #f1f6ee;
-  --ink-strong: #f8fbf4;
-  --ink-muted: #bcd8d5;
-  --ink-placeholder: #a9c6c4;
-  --ink-ghost: #bcd8d5;
-  --ink-on-tint: #f1f6ee;
-  --ink-on-lilac: #f1f6ee;
-  --on-sage: #052029;
-  --lilac: #6fd6cc;
-  --lilac-bright: #7fe0d6;
-  --brand: #7fe0d6;
-  --cta: #5ccfc4;
-  --on-cta: #06262c;
-  --green: #a4e0b8;
-  --green-solid: #5fc58e;
-  --deep: #5fc58e;
-  --sage: #5fc58e;
-  --on-solid: #052029;
-  --done: #176b77;
-  --done-strip: #12606b;
+  --page: #2e3e45;
+  --surface: #3a4b53;
+  --surface-alt: #3a4b53;
+  --field: #2e3e45;
+  --panel: #3a4b53;
+  --raised: #2e3e45;
+  --lilac-soft: rgb(182 224 218 / 0.12);
+  --lilac-flat: #3e5157; /* --lilac-soft sobre --page, opaco */
+  --lilac-edge: rgb(169 211 207 / 0.35);
+  --lilac-mid: #4b6870;
+  --btn-soft: #4e6f74;
+  --track: #4a666d;
+  --rail: #5f7f85;
+  --sage-pale: #4d6a62;
+  --sage-light: #5d7f72;
+  --scrim: color-mix(in oklab, #2e3e45 85%, transparent);
+  --line: #4d646b;
+  --line-strong: #6a8a90;
+  --ink: #f2f5ef;
+  --ink-strong: #f9fbf6;
+  --ink-muted: #cfdddb;
+  --ink-placeholder: #c3d3d1;
+  --ink-ghost: #cfdddb;
+  --ink-on-tint: #f2f5ef;
+  --ink-on-lilac: #f2f5ef;
+  --on-sage: #16302d;
+  --lilac: #a9d3cf;
+  --lilac-bright: #b9ddd9;
+  --brand: #a9d3cf;
+  --cta: #a9d3cf;
+  --on-cta: #22383c;
+  --green: #bfdcc3;
+  --green-solid: #8fc3a0;
+  --deep: #8fc3a0;
+  --sage: #8fc3a0;
+  --on-solid: #16302d;
+  --done: #37727a;
+  --done-strip: #2e6168;
   --on-done: #ffffff;
-  --on-done-muted: #e6f7f4;
-  --danger: #ffb3a8;
-  --danger-solid: #ffb3a8;
-  --script-accent: #a4e0b8;
-  --shadow-pop-value: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lift-value: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-float-value: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --on-done-muted: #f2fbf8;
+  --danger: #f3b9ae;
+  --danger-solid: #f3b9ae;
+  --script-accent: #bfdcc3;
+  /* Acuarelas sobre pizarra: se aclaran un punto, como en el modo noche de la boda */
+  --decor-filter: brightness(1.2) saturate(0.9);
+  --decor-wash-filter: none;
+  --decor-opacity: 1;
+  --shadow-pop-value: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lift-value: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-float-value: 0 12px 32px rgba(0, 0, 0, 0.35);
 
-  --hm-sky-top: #061a26;
-  --hm-sky-mid: #0a2a38;
-  --hm-sky-bottom: #0e3a45;
-  --hm-sun: #eef3dc; /* luna */
-  --hm-sun-glow: rgb(220 240 235 / 0.16);
-  --hm-sun-ray: transparent;
-  --hm-star: rgb(230 245 240 / 0.75);
-  --hm-cloud: rgb(160 205 210 / 0.12);
-  --hm-mtn-far: #134552;
-  --hm-mtn-near: #0f3b46;
-  --hm-mtn-shade: #0c323c;
-  --hm-hill: #0b3a3b;
-  --hm-sea: #0f4a58;
-  --hm-sea-deep: #0b3d4a;
-  --hm-foam: rgb(160 220 215 / 0.28);
-  --hm-sand: #1c4a4a;
-  --hm-palm: #14604b;
-  --hm-palm-dark: #0e4a3b;
-  --hm-trunk: #3b4d45;
-  --hm-leaf: #17694f;
-  --hm-flower: #d9786f;
-  --hm-trail: rgb(127 224 214 / 0.55);
-  --hm-plane: #eaf6f2;
-  --hm-plane-edge: #7fe0d6;
-  --hm-hero-from: #0f3a47;
-  --hm-hero-to: #123f49;
+  --hm-sky-top: #263740;
+  --hm-sky-mid: #2b3d45;
+  --hm-sky-bottom: #31444b;
+  --hm-sun: #e9efd6; /* luna */
+  --hm-sun-glow: rgb(220 235 228 / 0.16);
+  --hm-cloud: rgb(170 205 205 / 0.14);
+  --hm-mtn-far: #3d5961;
+  --hm-mtn-near: #35505a;
+  --hm-hill: #34524f;
+  --hm-sea: #3c5e66;
+  --hm-sea-deep: #34535b;
+  --hm-foam: rgb(180 220 215 / 0.25);
+  --hm-sand: #4a6360;
+  --hm-palm: #4c7a68;
+  --hm-palm-dark: #3b6455;
+  --hm-trunk: #5b6a60;
+  --hm-leaf: #55866f;
+  --hm-flower: #d49a92;
+  --hm-trail: rgb(169 211 207 / 0.5);
+  --hm-plane: #eaf2ee;
+  --hm-plane-edge: #a9d3cf;
+  --hm-hero-from: #34474f;
+  --hm-hero-to: #3a4e52;
+}
+
+/* Sin animaciones en la Luna de miel: el fondo aparece ya pintado (no hace el fundido). */
+.theme-honeymoon .decor-layer {
+  animation: none;
 }
 
 /* Tokens shadcn derivados de los de rol (como en el tema oscuro de la app): sin esto
@@ -463,45 +477,6 @@ html[data-theme="dark"] .theme-honeymoon {
   --state-chosen-foreground: var(--on-solid);
 }
 
-/* Movimiento suave de los dibujos (solo si la persona no pide reducirlo). */
-@keyframes hm-sway {
-  0%,
-  100% {
-    transform: rotate(-1.2deg);
-  }
-  50% {
-    transform: rotate(1.4deg);
-  }
-}
-@keyframes hm-drift {
-  from {
-    transform: translateX(-12px);
-  }
-  to {
-    transform: translateX(16px);
-  }
-}
-@keyframes hm-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .hm-sway {
-    transform-origin: 50% 100%;
-    animation: hm-sway 7s ease-in-out infinite;
-  }
-  .hm-drift {
-    animation: hm-drift 22s ease-in-out infinite alternate;
-  }
-  .hm-bob {
-    animation: hm-bob 6s ease-in-out infinite;
-  }
-}
 /* ===================== LUNA DE MIEL (tema tropical) — fin ===================== */
 
 /* ===================== MOVIMIENTO: abrir y cerrar ===================== */

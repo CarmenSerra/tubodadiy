@@ -1,10 +1,14 @@
+import type { CSSProperties } from "react";
 import { BriefcaseIcon, CompassIcon, MapIcon, WalletIcon } from "lucide-react";
 
-import { Monstera, Palm, PlaneTrail, Waves } from "@/components/honeymoon/motifs";
+import { TravelWatercolor } from "@/components/honeymoon/travel-watercolor";
 import { HeroStat } from "@/components/honeymoon/ui";
 import { computeBookingTotals, packingProgress } from "@/lib/honeymoon-model";
 import type { HoneymoonData } from "@/components/honeymoon/use-honeymoon";
 import { formatCurrency } from "@/lib/utils";
+
+/** Opacidad de una acuarela (`.decor-img` la combina con la del tema). */
+const o = (v: number) => ({ "--o": v }) as CSSProperties;
 
 /** Banner de la página: paisaje ilustrado, título y cuatro cifras de un vistazo. */
 export function HoneymoonHero({ data }: { data: HoneymoonData }) {
@@ -19,11 +23,11 @@ export function HoneymoonHero({ data }: { data: HoneymoonData }) {
       className="relative isolate overflow-hidden rounded-3xl border border-line shadow-lift"
       style={{ background: "linear-gradient(135deg, var(--hm-hero-from), var(--hm-hero-to))" }}
     >
+      {/* Acuarelas del banner (las mismas del fondo, sin movimiento), a la derecha: el texto va a la izquierda. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <PlaneTrail className="hm-bob absolute right-4 top-3 w-44 sm:right-[26%] sm:top-5 sm:w-72" />
-        <Monstera className="absolute -left-6 bottom-8 hidden size-24 -rotate-12 opacity-70 sm:block" />
-        <Palm className="hm-sway absolute -right-4 bottom-0 hidden h-56 sm:block lg:right-8 lg:h-64" />
-        <Waves className="absolute inset-x-0 bottom-0 h-16 w-full opacity-90" />
+        <TravelWatercolor name="wash-aqua" className="absolute -right-16 -top-16 hidden w-72 sm:block" style={o(0.6)} />
+        <TravelWatercolor name="airplane" className="absolute right-1 top-1 w-28 sm:right-[24%] sm:top-3 sm:w-52" style={o(0.8)} />
+        <TravelWatercolor name="palm" className="absolute -right-2 bottom-28 hidden h-44 w-auto sm:block lg:right-8 lg:h-48" style={o(0.85)} />
       </div>
 
       <div className="px-5 pb-5 pt-7 sm:px-8 sm:pt-9">

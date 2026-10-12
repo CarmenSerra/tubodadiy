@@ -8,8 +8,8 @@ import { WATERCOLOR, type WatercolorKind, type WatercolorName } from "@/componen
 // solo en las esquinas) y se sale un poco de la pantalla, para que el contenido central y
 // los títulos queden libres. Los 4 primeros son los que se ven en móvil.
 
-export type DecorItem = {
-  name: WatercolorName;
+export type DecorItem<N extends string = WatercolorName> = {
+  name: N;
   side: "l" | "r" | "b";
   /** % a lo largo del borde (vertical en l/r, horizontal en b). */
   pos: number;
@@ -23,7 +23,7 @@ export type DecorItem = {
   mobile: boolean;
 };
 
-function hash(str: string): number {
+export function hash(str: string): number {
   let h = 1779033703 ^ str.length;
   for (let i = 0; i < str.length; i++) {
     h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
@@ -34,7 +34,7 @@ function hash(str: string): number {
   return (h ^ (h >>> 16)) >>> 0;
 }
 
-function mulberry32(seed: number) {
+export function mulberry32(seed: number) {
   let a = seed;
   return () => {
     a = (a + 0x6d2b79f5) | 0;
@@ -74,6 +74,32 @@ const OPACITY: Record<WatercolorKind, [number, number]> = {
   mini: [0.7, 0.7],
 };
 
+/** Catálogo y reglas de un reparto (el de la boda, abajo, u otro como el de la Luna de miel). */
+export interface DecorKit<N extends string, K extends string> {
+  catalog: Record<N, { w: number; h: number; kind: K }>;
+  /** Reparto por papeles: manchas, plantas altas (bordes), flores (esquinas de abajo) y detalles. */
+  pools: { wash: readonly N[]; plant: readonly N[]; flower: readonly N[]; small: readonly N[] };
+  /** Ancho en escritorio por familia [mín, máx] y opacidad [mín, máx]. */
+  size: Record<K, [number, number]>;
+  opacity: Record<K, [number, number]>;
+  /** Familia de las manchas grandes (giran más y sobresalen más). */
+  washKind: K;
+  /** Familias de detalles que giran libremente. */
+  free: readonly K[];
+  /** Motivos extra solo de escritorio: `min` + hasta `spread - 1` más, elegidos de `order`. */
+  extra: { min: number; spread: number; order: readonly (keyof DecorKit<N, K>["pools"])[] };
+}
+
+const WEDDING_KIT: DecorKit<WatercolorName, WatercolorKind> = {
+  catalog: WATERCOLOR,
+  pools: POOLS,
+  size: SIZE,
+  opacity: OPACITY,
+  washKind: "wash",
+  free: ["ring", "heart"],
+  extra: { min: 2, spread: 3, order: ["plant", "plant", "flower", "small", "plant", "flower"] },
+};
+
 type Slot = { side: DecorItem["side"]; pos: number };
 // El borde izquierdo no empieza hasta el 44 %: arriba a la izquierda van los títulos.
 const EDGE: Slot[] = [
@@ -90,6 +116,11 @@ const WASH_SLOTS: Slot[] = [
 ];
 
 export function decorLayout(seed: string): DecorItem[] {
+  return buildDecorLayout(seed, WEDDING_KIT);
+}
+
+/** Reparto aleatorio (pero estable) para una semilla y un catálogo dados. */
+export function buildDecorLayout<N extends string, K extends string>(seed: string, kit: DecorKit<N, K>): DecorItem<N>[] {
   const rand = mulberry32(hash(seed));
   const range = (lo: number, hi: number) => lo + (hi - lo) * rand();
   const shuffle = <T,>(arr: readonly T[]) => {
@@ -102,10 +133,10 @@ export function decorLayout(seed: string): DecorItem[] {
   };
 
   const pools = {
-    wash: shuffle(POOLS.wash),
-    plant: shuffle(POOLS.plant),
-    flower: shuffle(POOLS.flower),
-    small: shuffle(POOLS.small),
+    wash: shuffle(kit.pools.wash),
+    plant: shuffle(kit.pools.plant),
+    flower: shuffle(kit.pools.flower),
+    small: shuffle(kit.pools.small),
   };
   const used: Slot[] = [];
   const near = (a: Slot, b: Slot) => a.side === b.side && Math.abs(a.pos - b.pos) < 26;
@@ -115,26 +146,27 @@ export function decorLayout(seed: string): DecorItem[] {
     return free;
   };
 
-  const out: DecorItem[] = [];
-  const add = (name: WatercolorName | undefined, slot: Slot | undefined, mobile: boolean) => {
+  const out: DecorItem<N>[] = [];
+  const add = (name: N | undefined, slot: Slot | undefined, mobile: boolean) => {
     if (!name || !slot) return;
-    const kind = WATERCOLOR[name].kind;
-    const { w, h } = WATERCOLOR[name];
-    const [w0, w1] = SIZE[kind];
+    const { w, h, kind } = kit.catalog[name];
+    const [w0, w1] = kit.size[kind];
+    const [o0, o1] = kit.opacity[kind];
+    const isWash = kind === kit.washKind;
     // Hacia dentro: los motivos del borde izquierdo se inclinan a la derecha y viceversa.
     const lean = slot.side === "l" ? 1 : slot.side === "r" ? -1 : 0;
-    const small = kind === "ring" || kind === "heart";
+    const small = kit.free.includes(kind);
     const rot =
-      kind === "wash" ? range(-25, 25) : slot.side === "b" ? range(-22, 22) : small ? range(-30, 30) : lean * range(4, 22) + range(-5, 5);
+      isWash ? range(-25, 25) : slot.side === "b" ? range(-22, 22) : small ? range(-30, 30) : lean * range(4, 22) + range(-5, 5);
     out.push({
       name,
       side: slot.side,
       pos: Math.min(97, Math.max(3, slot.pos + range(-3, 3))),
       width: Math.round(range(w0, w1)),
-      bleed: kind === "wash" ? range(0.25, 0.42) : slot.side === "b" ? range(0.05, 0.18) * (h / w) : range(0.14, 0.36),
+      bleed: isWash ? range(0.25, 0.42) : slot.side === "b" ? range(0.05, 0.18) * (h / w) : range(0.14, 0.36),
       rot: Math.round(rot),
       flip: rand() < 0.5,
-      opacity: Number(range(...OPACITY[kind]).toFixed(2)),
+      opacity: Number(range(o0, o1).toFixed(2)),
       mobile,
     });
   };
@@ -153,8 +185,8 @@ export function decorLayout(seed: string): DecorItem[] {
 
   // --- Solo escritorio: otra mancha y 3-5 más entre plantas, flores y detalles ---
   add(pools.wash.pop(), take(WASH_SLOTS.slice(2)), false);
-  const extra = 2 + Math.floor(rand() * 3);
-  const order: (keyof typeof pools)[] = shuffle(["plant", "plant", "flower", "small", "plant", "flower"] as const).slice(0, extra);
+  const extra = kit.extra.min + Math.floor(rand() * kit.extra.spread);
+  const order = shuffle(kit.extra.order).slice(0, extra);
   for (const k of order) add(pools[k].pop(), take(EDGE), false);
 
   return out;

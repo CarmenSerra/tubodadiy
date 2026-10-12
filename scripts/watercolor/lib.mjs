@@ -189,6 +189,8 @@ const KINDS = {
   wash: { df: 0.012, disp: 24, soft: 2.5, edge: 7, ek: 2.2, dk: 0.76, mf: 0.008, mean: 0.9, mk: 1.5, grain: 0.03 },
   band: { df: 0.03, disp: 1.5, soft: 0.6, edge: 3, ek: 3, dk: 0.62, mf: 0.02, mean: 0.92, mk: 1.2, grain: 0.1 },
   heart: { df: 0.02, disp: 7, soft: 1.2, edge: 4.5, ek: 3, dk: 0.7, mf: 0.012, mean: 0.9, mk: 1.6, grain: 0.08 },
+  // paper: objetos planos (billetes, mapas, maletas): casi sin moteado para que no se vean agujeros sobre fondos oscuros.
+  paper: { df: 0.03, disp: 3.2, soft: 0.7, edge: 2.6, ek: 3, dk: 0.62, mf: 0.02, mean: 0.97, mk: 0.5, grain: 0.07 },
   tiny: { df: 0.09, disp: 1.8, soft: 0.5, edge: 1.4, ek: 2, dk: 0.7, mf: 0.05, mean: 0.95, mk: 0.6, grain: 0.06 },
   line: { df: 0.07, disp: 1.8, soft: 0.35, edge: 0, ek: 0, dk: 1, mf: 0.05, mean: 1, mk: 0, grain: 0.05 },
 };

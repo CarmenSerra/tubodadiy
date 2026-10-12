@@ -1,6 +1,9 @@
 // Genera los motivos de acuarela de public/decor/*.webp y el manifiesto TS.
 //
-//   node scripts/watercolor/generate.mjs [--only nombre,nombre] [--sheet ruta.png] [--quality 74]
+//   node scripts/watercolor/generate.mjs [--set main|travel] [--only nombre,nombre] [--sheet ruta.png] [--quality 55]
+//
+//   --set main    (por defecto) motivos de la boda -> public/decor + watercolor-assets.ts
+//   --set travel  batería de viaje de la Luna de miel -> public/decor/travel + travel-assets.ts
 //
 // Pinta cada motivo como SVG con filtros (feTurbulence + feDisplacementMap para los
 // bordes, pigmento acumulado, moteado y grano), lo rasteriza con Chromium sobre fondo
@@ -12,10 +15,9 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import sharp from "sharp";
 import { MOTIFS } from "./motifs.mjs";
+import { TRAVEL_MOTIFS } from "./motifs-travel.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const OUT = path.join(ROOT, "public/decor");
-const MANIFEST = path.join(ROOT, "src/components/brand/watercolor-assets.ts");
 
 const arg = (k) => {
   const i = process.argv.indexOf(`--${k}`);
@@ -23,7 +25,47 @@ const arg = (k) => {
 };
 const only = arg("only")?.split(",");
 const sheetPath = arg("sheet");
+const setName = arg("set") ?? "main";
 const quality = Number(arg("quality") ?? 55);
+
+const header = (what, kinds) => `// Generado por scripts/watercolor/generate.mjs: no editar a mano.
+// Dimensiones (px) de los WebP de ${what} y su familia.
+export type ${kinds.type} = ${kinds.union};
+`;
+const entries = (results) => results.map((r) => `  "${r.name}": { w: ${r.w}, h: ${r.h}, kind: "${r.kind}" },`).join("\n");
+
+const SETS = {
+  main: {
+    motifs: MOTIFS,
+    out: path.join(ROOT, "public/decor"),
+    manifest: path.join(ROOT, "src/components/brand/watercolor-assets.ts"),
+    sheetBg: [["#f4f1eb", "#2e3d34"], ["#38384d", "#e8e4f0"]],
+    render: (results) => `${header("public/decor", { type: "WatercolorKind", union: '"branch" | "leaf" | "flower" | "ring" | "heart" | "wash" | "mini"' })}
+export const WATERCOLOR = {
+${entries(results)}
+} as const satisfies Record<string, { w: number; h: number; kind: WatercolorKind }>;
+
+export type WatercolorName = keyof typeof WATERCOLOR;
+`,
+  },
+  travel: {
+    motifs: TRAVEL_MOTIFS,
+    out: path.join(ROOT, "public/decor/travel"),
+    manifest: path.join(ROOT, "src/components/honeymoon/travel-assets.ts"),
+    sheetBg: [["#f3f2ea", "#27464a"], ["#2f3f46", "#eef3ee"]],
+    render: (results) => `${header("public/decor/travel", { type: "TravelKind", union: '"wash" | "tall" | "low" | "small"' })}
+export const TRAVEL = {
+${entries(results)}
+} as const satisfies Record<string, { w: number; h: number; kind: TravelKind }>;
+
+export type TravelName = keyof typeof TRAVEL;
+`,
+  },
+};
+const SET = SETS[setName];
+if (!SET) throw new Error(`--set desconocido: ${setName} (main | travel)`);
+const OUT = SET.out;
+const MANIFEST = SET.manifest;
 
 await mkdir(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
@@ -31,7 +73,7 @@ const page = await browser.newPage({ deviceScaleFactor: 1 });
 
 const results = [];
 let total = 0;
-for (const m of MOTIFS) {
+for (const m of SET.motifs) {
   if (only && !only.includes(m.name)) continue;
   const c = m.build();
   await page.setViewportSize({ width: c.w, height: c.h });
@@ -50,24 +92,7 @@ for (const m of MOTIFS) {
 }
 console.log(`total ${(total / 1024).toFixed(1)} KB`);
 
-if (!only) {
-  const body = results
-    .map((r) => `  "${r.name}": { w: ${r.w}, h: ${r.h}, kind: "${r.kind}" },`)
-    .join("\n");
-  await writeFile(
-    MANIFEST,
-    `// Generado por scripts/watercolor/generate.mjs: no editar a mano.
-// Dimensiones (px) de los WebP de public/decor y su familia.
-export type WatercolorKind = "branch" | "leaf" | "flower" | "ring" | "heart" | "wash" | "mini";
-
-export const WATERCOLOR = {
-${body}
-} as const satisfies Record<string, { w: number; h: number; kind: WatercolorKind }>;
-
-export type WatercolorName = keyof typeof WATERCOLOR;
-`,
-  );
-}
+if (!only) await writeFile(MANIFEST, SET.render(results));
 
 if (sheetPath) {
   const imgs = await Promise.all(results.map(async (r) => (await readFile(path.join(OUT, r.name + ".webp"))).toString("base64")));
@@ -78,7 +103,7 @@ if (sheetPath) {
   const html = `<!doctype html><meta charset="utf-8"><style>
 body{margin:0;font:12px sans-serif}section{padding:16px}.g{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
 figure{margin:0;text-align:center}figcaption{margin-top:4px;opacity:.6}</style>
-${mk("#f4f1eb", "#2e3d34", "")}${mk("#38384d", "#e8e4f0", "")}${mk("#38384d", "#e8e4f0", "filter:brightness(1.35) saturate(.9)")}`;
+${mk(...SET.sheetBg[0], "")}${mk(...SET.sheetBg[1], "")}${mk(...SET.sheetBg[1], "filter:brightness(1.3) saturate(.9)")}`;
   const sp = await browser.newPage({ viewport: { width: 1500, height: 800 } });
   await sp.setContent(html, { waitUntil: "load" });
   await sp.screenshot({ path: sheetPath, fullPage: true });

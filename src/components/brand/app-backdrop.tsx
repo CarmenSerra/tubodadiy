@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 // completa detrás del contenido, sin eventos, y con baja opacidad: es ambiente, no
 // información. En móvil (<640px) solo se ven los 4 primeros motivos, a menor tamaño.
 
-function style(it: DecorItem): CSSProperties {
-  const { w, h } = WATERCOLOR[it.name];
+/** Posición, tamaño y giro de un motivo del reparto (lo reutiliza el fondo de la Luna de miel). */
+export function decorItemStyle(it: DecorItem<string>, { w, h }: { w: number; h: number }): CSSProperties {
   const iw = "var(--iw)";
   const flip = it.flip ? " scaleX(-1)" : "";
   const common = {
@@ -56,7 +56,7 @@ export function AppBackdrop() {
           key={it.name}
           name={it.name}
           className={cn("absolute max-w-none", !it.mobile && "hidden sm:block")}
-          style={style(it)}
+          style={decorItemStyle(it, WATERCOLOR[it.name])}
         />
       ))}
     </div>

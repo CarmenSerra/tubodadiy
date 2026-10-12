@@ -7,7 +7,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const DEG = Math.PI / 180;
 
 /** Pinta una hoja: lavado en degradado, sombreado de media hoja, nervio y nervios laterales. */
-function paintLeaf(c, lf, { pal, op = 0.66, seed, kind = "leaf", vein = true, nVeins = 4, shade = true, tone }) {
+export function paintLeaf(c, lf, { pal, op = 0.66, seed, kind = "leaf", vein = true, nVeins = 4, shade = true, tone }) {
   const r = c.rand;
   const t0 = tone ?? r.range(0, 0.4);
   const c1 = mix(pal[0], pal[1], t0);
@@ -372,7 +372,7 @@ function rings() {
   return c;
 }
 
-const poly = (pts) => "M" + pts.map((p) => `${f(p[0])} ${f(p[1])}`).join("L") + "Z";
+export const poly = (pts) => "M" + pts.map((p) => `${f(p[0])} ${f(p[1])}`).join("L") + "Z";
 
 function ringStone() {
   const r = rng(137);
