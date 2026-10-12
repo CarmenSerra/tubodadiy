@@ -59,7 +59,7 @@ export function VendorCard({
           seed={vendor.placeId ?? vendor.id}
           kind={vendor.placeKind ?? vendor.category}
         />
-        <div className="absolute top-2.5 right-2.5 flex gap-1.5">
+        <div className="absolute top-2 right-2 flex gap-1.5">
           <VendorFormDialog
             planId={planId}
             vendor={vendor}
@@ -75,18 +75,18 @@ export function VendorCard({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 bg-raised p-4">
+      <div className="flex flex-1 flex-col gap-2.5 bg-raised p-3">
         <div className="min-w-0">
-          <h3 className="line-clamp-2 font-display text-lg leading-snug font-semibold text-ink-strong">
+          <h3 className="line-clamp-2 font-display text-base leading-snug font-semibold text-ink-strong">
             {vendor.name}
           </h3>
           {vendor.cost !== null ? (
-            <p className="mt-1 text-base font-medium text-ink">{formatCurrency(vendor.cost)}</p>
+            <p className="mt-0.5 text-sm font-medium text-ink">{formatCurrency(vendor.cost)}</p>
           ) : (
-            <p className="mt-1 text-sm text-ink-muted">Precio por confirmar</p>
+            <p className="mt-0.5 text-sm text-ink-muted">Precio por confirmar</p>
           )}
           {location && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-sm text-ink-muted">
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-muted">
               <MapPinIcon className="size-3.5 shrink-0" aria-hidden="true" />
               <span className="truncate">{location}</span>
             </p>
@@ -124,14 +124,14 @@ export function EmptyVendorCard({ planId, category }: { planId: string; category
             <div className="aspect-[4/3] w-full">
               <VendorPlaceholder category={category} muted />
             </div>
-            <span className="flex flex-col gap-3 p-4">
-              <span className="font-display text-lg leading-snug font-semibold text-ink-strong">
+            <span className="flex flex-col gap-2.5 p-3">
+              <span className="font-display text-base leading-snug font-semibold text-ink-strong">
                 {copy.title}
               </span>
               <span className="text-sm text-ink-muted">
                 Guarda aquí las opciones que estás comparando.
               </span>
-              <span className="inline-flex h-10 w-fit items-center gap-2 rounded-full bg-cta px-5 text-sm font-medium text-on-cta">
+              <span className="inline-flex h-10 w-fit items-center gap-2 rounded-full bg-cta px-4 text-sm font-medium text-on-cta">
                 <PlusIcon className="size-4" aria-hidden="true" />
                 {copy.cta}
               </span>

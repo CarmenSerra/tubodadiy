@@ -15,10 +15,16 @@ export interface CarouselSlide {
 }
 
 /** Ancho de la tarjeta central (también del hueco vacío y del esqueleto). */
-export const SLIDE_WIDTH = "w-[78%] sm:w-[20rem] lg:w-[22.5rem]";
+export const SLIDE_WIDTH = "w-[68%] sm:w-[14.5rem] lg:w-[16.5rem]";
 
+/** Arrastre mínimo (px) para pasar de tarjeta al soltar. */
 const SWIPE_THRESHOLD = 40;
-const DRAG_SUPPRESS_CLICK = 8;
+/** Desde aquí un gesto es un arrastre y no un clic. */
+const DRAG_START = 6;
+/** Tiempo con el cursor encima de una lateral antes de traerla al frente. */
+const HOVER_INTENT_MS = 280;
+/** Fracción del ancho de la tarjeta que separa a las vecinas (también en `--step`). */
+const STEP = 0.74;
 /** Más allá de ±HIDDEN_AT las tarjetas están ocultas. */
 const HIDDEN_AT = 2;
 
@@ -38,6 +44,7 @@ function offsetOf(index: number, active: number, count: number): number {
 const STYLE = {
   center: { scale: 1, opacity: 1 },
   side: { scale: 0.85, opacity: 0.6 },
+  peek: { scale: 0.9, opacity: 0.85 },
   hidden: { scale: 0.7, opacity: 0 },
 } as const;
 
@@ -50,7 +57,8 @@ const ARROW = cn(
 /**
  * Carrusel circular estilo coverflow: la tarjeta activa va en el centro a
  * tamaño completo y las vecinas asoman a los lados, más pequeñas y atenuadas.
- * Solo la tarjeta central es interactiva; pulsar una vecina la centra.
+ * Solo la tarjeta central es interactiva; una vecina pasa al frente al pulsarla o
+ * al dejar el cursor encima un instante. También se arrastra con ratón o dedo.
  */
 export function VendorCarousel({ label, slides }: { label: string; slides: CarouselSlide[] }) {
   const count = slides.length;
@@ -61,8 +69,27 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
   });
   const [announcement, setAnnouncement] = React.useState("");
   const regionRef = React.useRef<HTMLDivElement>(null);
-  const drag = React.useRef<{ x: number; y: number; id: number } | null>(null);
+  const trackRef = React.useRef<HTMLDivElement>(null);
+  const drag = React.useRef<{ x: number; y: number; id: number; started: boolean } | null>(null);
   const dragged = React.useRef(false);
+  const hoverTimer = React.useRef<number | null>(null);
+  // Última posición del cursor y punto desde el que se exige moverlo para volver a armar el hover.
+  const lastPointer = React.useRef<{ x: number; y: number } | null>(null);
+  const hoverLock = React.useRef<{ x: number; y: number } | null>(null);
+  const [peek, setPeek] = React.useState<string | null>(null);
+
+  // Una opción nueva que entra la primera (las listas van de más nueva a más antigua)
+  // se coloca delante. Se ajusta durante el render, sin pasar por un efecto.
+  const keysSignature = slides.map((s) => s.key).join("\u0000");
+  const [seen, setSeen] = React.useState({ signature: keysSignature, keys: slides.map((s) => s.key) });
+  if (seen.signature !== keysSignature) {
+    const keys = slides.map((s) => s.key);
+    setSeen({ signature: keysSignature, keys });
+    if (seen.keys.length > 0 && keys.length > 0 && !seen.keys.includes(keys[0])) {
+      setState({ active: keys[0], prev: state.active ?? seen.keys[0] });
+      setAnnouncement(`Nueva opción: ${slides[0].name}`);
+    }
+  }
 
   const indexOfKey = (key: string | null) => {
     const i = key === null ? -1 : slides.findIndex((s) => s.key === key);
@@ -71,10 +98,26 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
   const active = indexOfKey(state.active);
   const prev = indexOfKey(state.prev);
 
+  function cancelHover() {
+    if (hoverTimer.current !== null) window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = null;
+    setPeek(null);
+  }
+
+  React.useEffect(
+    () => () => {
+      if (hoverTimer.current !== null) window.clearTimeout(hoverTimer.current);
+    },
+    []
+  );
+
   function goTo(index: number) {
     if (count === 0) return;
+    cancelHover();
     const next = ((index % count) + count) % count;
     if (next === active) return;
+    // Mientras las tarjetas se recolocan bajo un cursor quieto no se encadenan más cambios.
+    hoverLock.current = lastPointer.current;
     // Si el foco está dentro de la tarjeta que dejará de ser interactiva, vuelve al carrusel.
     const region = regionRef.current;
     const focused = document.activeElement;
@@ -98,30 +141,50 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
     event.preventDefault();
   }
 
+  function setDragging(on: boolean, dx = 0) {
+    const track = trackRef.current;
+    if (!track) return;
+    if (on) track.dataset.dragging = "true";
+    else delete track.dataset.dragging;
+    track.style.setProperty("--drag", `${dx}px`);
+  }
+
   function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (count < 2 || !event.currentTarget.contains(event.target as Node)) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    // Los botones de la tarjeta (editar, eliminar, contacto) no inician arrastre.
     if ((event.target as HTMLElement).closest("button, a, input, textarea, select")) return;
-    drag.current = { x: event.clientX, y: event.clientY, id: event.pointerId };
+    cancelHover();
+    drag.current = { x: event.clientX, y: event.clientY, id: event.pointerId, started: false };
     dragged.current = false;
   }
 
   function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    lastPointer.current = { x: event.clientX, y: event.clientY };
     const start = drag.current;
     if (!start || start.id !== event.pointerId) return;
-    if (Math.abs(event.clientX - start.x) > DRAG_SUPPRESS_CLICK) dragged.current = true;
+    const dx = event.clientX - start.x;
+    if (!start.started) {
+      if (Math.abs(dx) < DRAG_START || Math.abs(dx) <= Math.abs(event.clientY - start.y)) return;
+      start.started = true;
+      dragged.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    // La tarjeta sigue al dedo hasta, como mucho, la separación entre vecinas.
+    const limit = (trackRef.current?.firstElementChild as HTMLElement | null)?.offsetWidth ?? 240;
+    const max = limit * STEP;
+    setDragging(true, Math.max(-max, Math.min(max, dx)));
   }
 
   function onPointerEnd(event: React.PointerEvent<HTMLDivElement>) {
     const start = drag.current;
     if (!start || start.id !== event.pointerId) return;
     drag.current = null;
+    if (!start.started) return;
+    setDragging(false);
     if (event.type === "pointercancel") return;
     const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
-    if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
-      goTo(dx < 0 ? active + 1 : active - 1);
-    }
+    if (Math.abs(dx) >= SWIPE_THRESHOLD) goTo(dx < 0 ? active + 1 : active - 1);
   }
 
   // Tras arrastrar, el "click" que sigue al soltar no debe centrar la tarjeta que haya debajo.
@@ -130,6 +193,16 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
       dragged.current = false;
       event.stopPropagation();
     }
+  }
+
+  // Cursor un instante sobre una lateral: pasa al frente (no salta al cruzarla de paso).
+  function armHover(index: number, event: React.PointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "mouse" || drag.current || hoverTimer.current !== null) return;
+    const lock = hoverLock.current;
+    if (lock && Math.hypot(event.clientX - lock.x, event.clientY - lock.y) < 10) return;
+    hoverLock.current = null;
+    setPeek(slides[index].key);
+    hoverTimer.current = window.setTimeout(() => goTo(index), HOVER_INTENT_MS);
   }
 
   const single = count < 2;
@@ -151,6 +224,7 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
       <style>{`@media (prefers-reduced-motion: no-preference){@keyframes vendor-carousel-in{from{opacity:0}}}`}</style>
       <div className="relative">
         <div
+          ref={trackRef}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerEnd}
@@ -158,8 +232,8 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
           onClickCapture={onClickCapture}
           onDragStart={(event) => event.preventDefault()}
           className={cn(
-            "grid grid-cols-[minmax(0,1fr)] overflow-x-clip py-4 [--step:74%]",
-            !single && "touch-pan-y select-none"
+            "group/track grid grid-cols-[minmax(0,1fr)] overflow-x-clip py-3 [--step:74%]",
+            !single && "cursor-grab touch-pan-y select-none data-[dragging=true]:cursor-grabbing"
           )}
         >
           {slides.map((slide, index) => {
@@ -167,7 +241,13 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
             const before = offsetOf(index, prev, count);
             const isCenter = offset === 0;
             const isHidden = Math.abs(offset) >= HIDDEN_AT;
-            const look = isCenter ? STYLE.center : isHidden ? STYLE.hidden : STYLE.side;
+            const look = isCenter
+              ? STYLE.center
+              : isHidden
+                ? STYLE.hidden
+                : peek === slide.key
+                  ? STYLE.peek
+                  : STYLE.side;
             const clamped = Math.max(-HIDDEN_AT, Math.min(HIDDEN_AT, offset));
             // Salto de un extremo del círculo al otro: se recoloca al instante y aparece con fundido.
             const jumped = prev !== active && Math.abs(offset - before) > 1;
@@ -182,19 +262,22 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
                 aria-label={`${index + 1} de ${count}`}
                 aria-hidden={isCenter ? undefined : true}
                 onClick={isCenter || isHidden ? undefined : () => goTo(index)}
+                onPointerEnter={isCenter || isHidden ? undefined : (event) => armHover(index, event)}
+                onPointerMove={isCenter || isHidden ? undefined : (event) => armHover(index, event)}
+                onPointerLeave={isCenter || isHidden ? undefined : cancelHover}
                 className={cn(
                   "col-start-1 row-start-1 justify-self-center",
                   SLIDE_WIDTH,
-                  "transition-[transform,opacity] duration-[400ms] ease-out motion-reduce:transition-none",
-                  !isCenter && !isHidden && "cursor-pointer",
+                  "transition-[transform,opacity] duration-[450ms] [transition-timing-function:var(--ease-gentle)] motion-reduce:transition-none",
+                  "group-data-[dragging=true]/track:transition-none",
                   isHidden && "pointer-events-none"
                 )}
                 style={{
-                  transform: `translateX(calc(${clamped} * var(--step))) scale(${look.scale})`,
+                  transform: `translateX(calc(${clamped} * var(--step) + var(--drag, 0px))) scale(${look.scale})`,
                   opacity: look.opacity,
                   zIndex: 30 - Math.abs(clamped) * 10,
                   transition: jumped ? "none" : undefined,
-                  animation: jumped && !isHidden ? "vendor-carousel-in 400ms ease-out" : undefined,
+                  animation: jumped && !isHidden ? "vendor-carousel-in 450ms var(--ease-gentle)" : undefined,
                 }}
               >
                 {/* `inert` anula foco y clics del contenido; el clic llega a la envoltura y centra la tarjeta. */}

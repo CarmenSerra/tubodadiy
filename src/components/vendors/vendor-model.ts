@@ -1,5 +1,5 @@
 import { communityOf } from "@/lib/places/spain";
-import type { Vendor, VendorStatus } from "@/lib/types";
+import type { Vendor } from "@/lib/types";
 
 // Lógica pura de la pestaña Proveedores: categorías, estados, URLs y agrupado.
 
@@ -58,13 +58,18 @@ export interface VendorGroup {
   vendors: Vendor[];
 }
 
-export const STATUS_ORDER: VendorStatus[] = ["chosen", "favorite", "visited", "exploring"];
-
-/** Ordena por estado (elegida, favorita, visitada, explorando); estable dentro de cada uno. */
-export function sortByStatus(vendors: Vendor[]): Vendor[] {
-  return [...vendors].sort(
-    (a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)
-  );
+/**
+ * Ordena de más nueva a más antigua (`createdAt` descendente). Una opción recién
+ * creada llega un instante con `createdAt` a null (serverTimestamp pendiente): se
+ * trata como la más nueva. Estable en los empates.
+ */
+export function sortByNewest(vendors: Vendor[]): Vendor[] {
+  const age = (v: Vendor) => v.createdAt ?? Number.POSITIVE_INFINITY;
+  return [...vendors].sort((a, b) => {
+    const x = age(a);
+    const y = age(b);
+    return x === y ? 0 : x > y ? -1 : 1;
+  });
 }
 
 /**
@@ -90,7 +95,7 @@ export function groupVendors(vendors: Vendor[]): VendorGroup[] {
       const d = rank(a) - rank(b);
       return d !== 0 ? d : a.localeCompare(b, "es");
     })
-    .map(([category, list]) => ({ category, vendors: sortByStatus(list) }));
+    .map(([category, list]) => ({ category, vendors: sortByNewest(list) }));
 }
 
 /** Solo se aceptan enlaces http(s); evita esquemas como javascript:. */

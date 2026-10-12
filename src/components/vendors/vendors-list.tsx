@@ -32,7 +32,7 @@ function SectionSkeleton() {
       <Skeleton className="h-7 w-44" />
       <div className={cn("mx-auto overflow-hidden rounded-2xl border border-line bg-panel", SLIDE_WIDTH)}>
         <Skeleton className="aspect-[4/3] w-full rounded-none bg-lilac-soft" />
-        <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-2.5 p-3">
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-4 w-1/3" />
           <div className="flex items-center justify-between pt-1">
