@@ -88,7 +88,7 @@ export function AppointmentFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         aria-describedby={undefined}
-        className={cn(DIALOG_CONTENT, "max-h-[calc(100dvh-1rem)] overflow-y-auto")}
+        className={cn(DIALOG_CONTENT, "max-h-[calc(100dvh-1rem)]")}
         onOpenAutoFocus={restoreFocus.onOpenAutoFocus}
         onInteractOutside={ignoreToastInteraction}
         onCloseAutoFocus={restoreFocus.onCloseAutoFocus}

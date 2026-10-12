@@ -51,7 +51,14 @@ export function VendorCard({
       )}
     >
       <div className="relative">
-        <VendorPhoto photoUrl={vendor.photoUrl} name={vendor.name} category={vendor.category} />
+        <VendorPhoto
+          photoData={vendor.photoData}
+          photoUrl={vendor.photoUrl}
+          name={vendor.name}
+          category={vendor.category}
+          seed={vendor.placeId ?? vendor.id}
+          kind={vendor.placeKind ?? vendor.category}
+        />
         <div className="absolute top-2.5 right-2.5 flex gap-1.5">
           <VendorFormDialog
             planId={planId}

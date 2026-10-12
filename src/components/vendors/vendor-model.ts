@@ -1,3 +1,4 @@
+import { communityOf } from "@/lib/places/spain";
 import type { Vendor, VendorStatus } from "@/lib/types";
 
 // Lógica pura de la pestaña Proveedores: categorías, estados, URLs y agrupado.
@@ -116,4 +117,75 @@ export function mapsHref(vendor: Pick<Vendor, "mapsUrl" | "location">): string |
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
   }
   return null;
+}
+
+// ---- Fincas y lugar ----
+
+/** ¿Es la categoría «Finca» (descubrir fincas con Google Maps)? */
+export function isVenueCategory(category: string): boolean {
+  return categoryKey(canonicalCategory(category)) === "finca";
+}
+
+/** Provincia y comunidad de un proveedor guardado (la comunidad se deduce de la provincia si falta). */
+export function vendorPlace(vendor: Pick<Vendor, "province" | "community">): {
+  province?: string;
+  community?: string;
+} {
+  const province = vendor.province?.trim() || undefined;
+  const community = vendor.community?.trim() || (province ? communityOf(province) : undefined);
+  return { province, community };
+}
+
+/** Filtro por lugar: una comunidad entera o una provincia concreta. */
+export type LocationFilter = { kind: "community" | "province"; value: string } | null;
+
+const OTHER_PLACES = "Otras ubicaciones";
+
+export interface LocationOptions {
+  /** Comunidades con proveedores guardados, con sus provincias (solo las que tienen proveedores). */
+  communities: { name: string; provinces: string[] }[];
+}
+
+/** Opciones del filtro, construidas SOLO con los lugares de los proveedores guardados. */
+export function locationOptions(vendors: Vendor[]): LocationOptions {
+  const byCommunity = new Map<string, Set<string>>();
+  for (const vendor of vendors) {
+    const { province, community } = vendorPlace(vendor);
+    if (!province && !community) continue;
+    const key = community ?? OTHER_PLACES;
+    const set = byCommunity.get(key) ?? new Set<string>();
+    if (province) set.add(province);
+    byCommunity.set(key, set);
+  }
+  return {
+    communities: [...byCommunity.entries()]
+      .map(([name, provinces]) => ({
+        name,
+        provinces: [...provinces].sort((a, b) => a.localeCompare(b, "es")),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, "es")),
+  };
+}
+
+/** ¿Hay algún lugar por el que filtrar? */
+export function hasLocations(options: LocationOptions): boolean {
+  return options.communities.length > 0;
+}
+
+/** ¿El filtro sigue siendo válido con los proveedores actuales? (si no, se ignora). */
+export function isFilterAvailable(filter: LocationFilter, options: LocationOptions): boolean {
+  if (!filter) return false;
+  return options.communities.some((c) =>
+    filter.kind === "community" ? c.name === filter.value : c.provinces.includes(filter.value)
+  );
+}
+
+export function filterByLocation(vendors: Vendor[], filter: LocationFilter): Vendor[] {
+  if (!filter) return vendors;
+  return vendors.filter((vendor) => {
+    const { province, community } = vendorPlace(vendor);
+    return filter.kind === "community"
+      ? (community ?? OTHER_PLACES) === filter.value
+      : province === filter.value;
+  });
 }

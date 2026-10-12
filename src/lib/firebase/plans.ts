@@ -138,6 +138,31 @@ const VENDOR_STATUS_BY_STORED_VALUE: Record<string, VendorStatus> = {
   declined: "exploring",
 };
 
+const VENDOR_PLACE_FIELDS = [
+  "placeId",
+  "address",
+  "website",
+  "municipality",
+  "province",
+  "community",
+  "country",
+  "photoData",
+  "placeKind",
+] as const;
+
+/**
+ * Campos opcionales de lugar: solo se incluyen si tienen valor (nunca `undefined`,
+ * que Firestore rechaza al volver a guardar, p. ej. al deshacer un borrado).
+ */
+function mapVendorPlaceFields(data: DocumentData): Partial<Pick<Vendor, (typeof VENDOR_PLACE_FIELDS)[number]>> {
+  const out: Partial<Record<(typeof VENDOR_PLACE_FIELDS)[number], string>> = {};
+  for (const key of VENDOR_PLACE_FIELDS) {
+    const value = data[key];
+    if (typeof value === "string" && value.trim()) out[key] = value;
+  }
+  return out;
+}
+
 export function mapVendor(id: string, data: DocumentData): Vendor {
   return {
     id,
@@ -151,6 +176,7 @@ export function mapVendor(id: string, data: DocumentData): Vendor {
     photoUrl: data.photoUrl ?? "",
     location: data.location ?? "",
     mapsUrl: data.mapsUrl ?? "",
+    ...mapVendorPlaceFields(data),
     createdAt: toMillis(data.createdAt),
   };
 }

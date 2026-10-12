@@ -6,6 +6,7 @@ import { ExternalLinkIcon, MailIcon, MapPinIcon, PhoneIcon, StickyNoteIcon } fro
 import { CTA_SECONDARY, IconCircle, LINK } from "@/components/dashboard/ui";
 import { DIALOG_CONTENT, DIALOG_TITLE } from "@/components/vendors/vendor-brand";
 import { mapsHref } from "@/components/vendors/vendor-model";
+import { VendorPhoto } from "@/components/vendors/vendor-photo";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +65,17 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
             {vendor.category} · datos de contacto
           </DialogDescription>
         </DialogHeader>
+
+        <VendorPhoto
+          photoData={vendor.photoData}
+          photoUrl={vendor.photoUrl}
+          name={vendor.name}
+          category={vendor.category}
+          seed={vendor.placeId ?? vendor.id}
+          kind={vendor.placeKind ?? vendor.category}
+          illustrated
+          className="mt-5 aspect-[16/9] rounded-xl"
+        />
 
         {hasAnything ? (
           <ul className="mt-6 flex flex-col gap-5">

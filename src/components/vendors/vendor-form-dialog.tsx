@@ -23,6 +23,8 @@ import {
   isLooseEmail,
 } from "@/components/vendors/vendor-model";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
+import { PhotoUpload } from "@/components/vendors/photo-upload";
+import { PlaceSearch } from "@/components/vendors/place-search";
 import { VENDOR_STATUS_OPTIONS } from "@/components/vendors/vendor-status";
 import {
   Dialog,
@@ -44,6 +46,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { addVendor, updateVendor } from "@/lib/firebase/mutations";
+import { mapsUrlForPlace, siteInfo } from "@/lib/places/client";
+import { PROVINCES, communityOf, normalizeProvince } from "@/lib/places/spain";
+import type { PlaceDetails } from "@/lib/places/types";
 import type { Vendor, VendorStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -90,6 +95,12 @@ export function VendorFormDialog({
       )}
       <DialogContent
         className={DIALOG_CONTENT}
+        // Escape dentro del buscador cierra su lista (o el campo del enlace), no el diálogo.
+        onEscapeKeyDown={(event) => {
+          if ((event.target as HTMLElement | null)?.closest?.('[data-escape-guard="true"]')) {
+            event.preventDefault();
+          }
+        }}
         onOpenAutoFocus={controlled ? restoreFocus.onOpenAutoFocus : undefined}
         onCloseAutoFocus={
           controlled
@@ -117,7 +128,19 @@ export function VendorFormDialog({
   );
 }
 
-type Errors = Partial<Record<"name" | "category" | "email" | "photoUrl" | "mapsUrl" | "cost", string>>;
+type Errors = Partial<
+  Record<"name" | "category" | "email" | "photoUrl" | "mapsUrl" | "cost" | "website", string>
+>;
+
+/** Valor interno de "Sin provincia" en el desplegable (Radix no admite valores vacíos). */
+const NO_PROVINCE = "__none";
+
+/** Añade https:// si la web se escribió sin esquema ("mifinca.es"). */
+function normalizeWebsite(value: string): string {
+  const v = value.trim();
+  if (!v) return "";
+  return /^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : `https://${v}`;
+}
 
 function Field({
   id,
@@ -174,10 +197,63 @@ function VendorForm({
   const [status, setStatus] = React.useState<VendorStatus>(vendor?.status ?? "exploring");
   const [notes, setNotes] = React.useState(vendor?.notes ?? "");
   const [photoUrl, setPhotoUrl] = React.useState(vendor?.photoUrl ?? "");
-  const [location, setLocation] = React.useState(vendor?.location ?? "");
   const [mapsUrl, setMapsUrl] = React.useState(vendor?.mapsUrl ?? "");
+  const [placeId, setPlaceId] = React.useState(vendor?.placeId ?? "");
+  const [placeKind, setPlaceKind] = React.useState(vendor?.placeKind ?? "");
+  const [address, setAddress] = React.useState(vendor?.address ?? vendor?.location ?? "");
+  const [website, setWebsite] = React.useState(vendor?.website ?? "");
+  const [municipality, setMunicipality] = React.useState(vendor?.municipality ?? "");
+  const [province, setProvince] = React.useState(vendor?.province ?? "");
+  const [community, setCommunity] = React.useState(vendor?.community ?? "");
+  const [country, setCountry] = React.useState(vendor?.country ?? "");
+  const [photoData, setPhotoData] = React.useState(vendor?.photoData ?? "");
   const [errors, setErrors] = React.useState<Errors>({});
   const [submitting, setSubmitting] = React.useState(false);
+
+  // Evita que el rastreo en segundo plano de una web antigua rellene un lugar ya cambiado.
+  const siteRequest = React.useRef(0);
+  const mounted = React.useRef(true);
+  React.useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  function applyPlace(place: PlaceDetails) {
+    if (place.name) setName(place.name);
+    if (place.address) setAddress(place.address);
+    if (place.phone) setContactPhone(place.phone);
+    if (place.website) setWebsite(place.website);
+    if (place.municipality) setMunicipality(place.municipality);
+    const normalized = place.province ? (normalizeProvince(place.province) ?? place.province) : "";
+    if (normalized) {
+      setProvince(normalized);
+      setCommunity(communityOf(normalized) ?? place.community ?? "");
+    } else if (place.community) {
+      setCommunity(place.community);
+    }
+    if (place.country) setCountry(place.country);
+    setPlaceId(place.placeId);
+    setPlaceKind(place.primaryType ?? "");
+
+    // Segundo plano: correo y foto enlazada desde su web, solo si siguen vacíos. Si falla, silencio.
+    const request = ++siteRequest.current;
+    if (!place.website || !isHttpUrl(place.website)) return;
+    siteInfo(place.website)
+      .then((info) => {
+        if (!mounted.current || request !== siteRequest.current) return;
+        if (info.email) setContactEmail((cur) => (cur.trim() ? cur : (info.email ?? "")));
+        if (info.image && isHttpUrl(info.image)) setPhotoUrl((cur) => (cur.trim() ? cur : (info.image ?? "")));
+      })
+      .catch(() => {});
+  }
+
+  function handleProvinceChange(value: string) {
+    const next = value === NO_PROVINCE ? "" : value;
+    setProvince(next);
+    setCommunity(next ? (communityOf(next) ?? "") : "");
+  }
 
   function validate(): Errors {
     const next: Errors = {};
@@ -191,7 +267,10 @@ function VendorForm({
     if (photoUrl.trim() && !isHttpUrl(photoUrl)) {
       next.photoUrl = "El enlace debe empezar por http:// o https://.";
     }
-    if (mapsUrl.trim() && !isHttpUrl(mapsUrl)) {
+    if (website.trim() && !isHttpUrl(normalizeWebsite(website))) {
+      next.website = "Escribe una web válida, por ejemplo https://mifinca.es.";
+    }
+    if (!placeId && mapsUrl.trim() && !isHttpUrl(mapsUrl)) {
       next.mapsUrl = "El enlace debe empezar por http:// o https://.";
     }
     if (cost.trim() && (Number.isNaN(Number(cost)) || Number(cost) < 0)) {
@@ -208,17 +287,33 @@ function VendorForm({
 
     setSubmitting(true);
     try {
+      const finalName = name.trim();
+      const finalAddress = address.trim();
+      const finalProvince = province.trim();
+      // Con lugar de Google el enlace se construye solo; sin él, vale el manual.
+      const finalMapsUrl = placeId ? mapsUrlForPlace(placeId, finalName) : mapsUrl.trim();
+      // Siempre cadenas ("" para vaciar): Firestore no admite undefined.
       const data = {
         category: categorySelect === OTHER_CATEGORY ? canonicalCategory(customCategory) : categorySelect,
-        name: name.trim(),
+        name: finalName,
         contactEmail: contactEmail.trim(),
         contactPhone: contactPhone.trim(),
         cost: cost.trim() ? Number(cost) : null,
         status,
         notes,
         photoUrl: photoUrl.trim(),
-        location: location.trim(),
-        mapsUrl: mapsUrl.trim(),
+        // `location` se mantiene igual que `address` para quien aún lea el campo antiguo.
+        location: finalAddress,
+        address: finalAddress,
+        mapsUrl: finalMapsUrl,
+        placeId,
+        placeKind: placeId ? placeKind : "",
+        website: normalizeWebsite(website),
+        municipality: municipality.trim(),
+        province: finalProvince,
+        community: finalProvince ? (communityOf(finalProvince) ?? community.trim()) : community.trim(),
+        country: country.trim(),
+        photoData,
       };
       if (isEdit && vendor) {
         await updateVendor(planId, vendor.id, data);
@@ -248,6 +343,8 @@ function VendorForm({
       </DialogHeader>
 
       <div className="mt-6 flex flex-col gap-5">
+        <PlaceSearch onPlace={applyPlace} />
+
         <Field id="vendor-name" label="Nombre" error={errors.name}>
           <Input
             id="vendor-name"
@@ -323,11 +420,16 @@ function VendorForm({
           </Field>
         </div>
 
+        <div className="flex flex-col gap-2">
+          <span className={FIELD_LABEL}>Foto</span>
+          <PhotoUpload value={photoData} onChange={setPhotoData} />
+        </div>
+
         <Field
           id="vendor-photo"
-          label="Enlace de la foto"
+          label="O enlace de la foto"
           error={errors.photoUrl}
-          hint="Pega el enlace de una imagen. Si no, verás una ilustración."
+          hint="Pega el enlace de una imagen. Si no hay foto, verás una ilustración."
         >
           <Input
             id="vendor-photo"
@@ -342,29 +444,98 @@ function VendorForm({
           />
         </Field>
 
-        <Field id="vendor-location" label="Dirección / ubicación">
+        <Field id="vendor-website" label="Web" error={errors.website}>
           <Input
-            id="vendor-location"
+            id="vendor-website"
+            type="url"
+            inputMode="url"
+            placeholder="https://…"
             className={FIELD}
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            aria-invalid={invalid("website")}
+            aria-describedby={describedBy("website", "vendor-website")}
             autoComplete="off"
           />
         </Field>
 
-        <Field id="vendor-maps" label="Enlace de Google Maps" error={errors.mapsUrl}>
+        <Field id="vendor-address" label="Dirección">
           <Input
-            id="vendor-maps"
-            type="url"
-            inputMode="url"
-            placeholder="https://maps.google.com/…"
+            id="vendor-address"
             className={FIELD}
-            value={mapsUrl}
-            onChange={(e) => setMapsUrl(e.target.value)}
-            aria-invalid={invalid("mapsUrl")}
-            aria-describedby={describedBy("mapsUrl", "vendor-maps")}
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            autoComplete="off"
           />
         </Field>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field id="vendor-municipality" label="Municipio">
+            <Input
+              id="vendor-municipality"
+              className={FIELD}
+              value={municipality}
+              onChange={(e) => setMunicipality(e.target.value)}
+              autoComplete="off"
+            />
+          </Field>
+          <Field
+            id="vendor-province"
+            label="Provincia"
+            hint={community ? `Comunidad: ${community}` : undefined}
+          >
+            <Select value={province} onValueChange={handleProvinceChange}>
+              <SelectTrigger id="vendor-province" className={cn(SELECT_TRIGGER, "w-full")}>
+                <SelectValue placeholder="Elige provincia" />
+              </SelectTrigger>
+              <SelectContent className={SELECT_CONTENT}>
+                <SelectItem value={NO_PROVINCE} className={SELECT_ITEM}>
+                  Sin provincia
+                </SelectItem>
+                {province && !PROVINCES.includes(province) && (
+                  <SelectItem value={province} className={SELECT_ITEM}>
+                    {province}
+                  </SelectItem>
+                )}
+                {PROVINCES.map((p) => (
+                  <SelectItem key={p} value={p} className={SELECT_ITEM}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+
+        {placeId ? (
+          <p className="flex flex-wrap items-center gap-x-2 text-sm text-ink-muted">
+            <span>Enlazado con Google Maps: el enlace se crea automáticamente.</span>
+            <button
+              type="button"
+              onClick={() => {
+                setPlaceId("");
+                setPlaceKind("");
+              }}
+              className="font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-lilac"
+            >
+              Desvincular
+            </button>
+          </p>
+        ) : (
+          <Field id="vendor-maps" label="Enlace de Google Maps" error={errors.mapsUrl}>
+            <Input
+              id="vendor-maps"
+              type="url"
+              inputMode="url"
+              placeholder="https://maps.google.com/…"
+              className={FIELD}
+              value={mapsUrl}
+              onChange={(e) => setMapsUrl(e.target.value)}
+              aria-invalid={invalid("mapsUrl")}
+              aria-describedby={describedBy("mapsUrl", "vendor-maps")}
+            />
+          </Field>
+        )}
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Field id="vendor-email" label="Correo de contacto" error={errors.email}>

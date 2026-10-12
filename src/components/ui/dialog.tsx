@@ -38,24 +38,49 @@ function DialogOverlay({
   );
 }
 
+/**
+ * Clases que describen el INTERIOR del diálogo (relleno, separación y modo de
+ * disposición). `DialogContent` las lleva al envoltorio con scroll: así el
+ * contenedor exterior solo recorta (overflow-hidden + esquinas redondeadas) y la
+ * barra de scroll nunca rompe el redondeo. Los diálogos existentes siguen
+ * escribiendo `p-5`, `gap-0`, `flex flex-col`… en su `className` como siempre.
+ */
+const INNER_CLASS =
+  /^(?:[\w-]+:)*(?:-?p[xytrblse]?-.+|gap(?:-[xy])?-.+|grid|flex|flex-col|flex-row|flex-col-reverse|flex-row-reverse|items-.+|justify-.+|content-.+|grid-cols-.+|grid-rows-.+|auto-rows-.+|text-(?:left|center|right))$/;
+
+function splitDialogClasses(className: string) {
+  const outer: string[] = [];
+  const inner: string[] = [];
+  for (const token of className.split(/\s+/).filter(Boolean)) {
+    (INNER_CLASS.test(token) ? inner : outer).push(token);
+  }
+  return { outer: outer.join(" "), inner: inner.join(" ") };
+}
+
 function DialogContent({
   className,
   children,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
+  const { outer, inner } = splitDialogClasses(
+    cn(
+      "fixed top-[50%] left-[50%] z-50 w-[calc(100%-2rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-line bg-surface text-ink-strong shadow-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 max-h-[90vh]",
+      "grid gap-4 p-6",
+      className
+    )
+  );
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        className={cn(
-          "fixed top-[50%] left-[50%] z-50 grid w-[calc(100%-2rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border border-line bg-surface p-6 text-ink-strong shadow-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 max-h-[90vh] overflow-y-auto",
-          className
-        )}
+        className={cn("flex flex-col overflow-hidden", outer)}
         {...props}
       >
-        {children}
-        <DialogPrimitive.Close className="absolute top-3 right-3 rounded-full p-2 text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus:outline-hidden disabled:pointer-events-none">
+        <div data-slot="dialog-scroll" className={cn("dialog-scroll min-h-0 flex-1 overflow-y-auto", inner)}>
+          {children}
+        </div>
+        <DialogPrimitive.Close className="absolute top-3 right-3 rounded-full bg-surface/85 p-2 text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus:outline-hidden disabled:pointer-events-none">
           <XIcon className="size-4" />
           <span className="sr-only">Cerrar</span>
         </DialogPrimitive.Close>

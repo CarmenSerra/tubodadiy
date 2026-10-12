@@ -188,6 +188,20 @@ export interface Vendor {
   location?: string;
   /** Enlace (http/https) a Google Maps. */
   mapsUrl?: string;
+  /** ID de lugar de Google: lo único de Google que se guarda de forma indefinida. */
+  placeId?: string;
+  /** Dirección completa (si falta, se lee `location`). */
+  address?: string;
+  /** Web del proveedor (http/https). */
+  website?: string;
+  municipality?: string;
+  province?: string;
+  community?: string;
+  country?: string;
+  /** Foto subida por la persona: data URI WebP de ~30 KB. Nunca fotos ni coordenadas de Google. */
+  photoData?: string;
+  /** Tipo principal de Google (p. ej. "wedding_venue"): elige la ilustración. */
+  placeKind?: string;
   createdAt: number | null;
 }
 

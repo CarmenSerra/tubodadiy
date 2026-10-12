@@ -1,15 +1,28 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
+import * as React from "react";
+import { CompassIcon, PlusIcon } from "lucide-react";
 
 import { Skeleton } from "@/components/dashboard/ui";
 import { EmptyVendorCard, VendorCard } from "@/components/vendors/vendor-card";
 import { SLIDE_WIDTH, VendorCarousel } from "@/components/vendors/vendor-carousel";
 import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
-import { groupVendors } from "@/components/vendors/vendor-model";
+import { VendorLocationFilter } from "@/components/vendors/vendor-location-filter";
+import {
+  filterByLocation,
+  groupVendors,
+  isFilterAvailable,
+  isVenueCategory,
+  locationOptions,
+  type LocationFilter,
+} from "@/components/vendors/vendor-model";
+import { VenueDiscovery } from "@/components/vendors/venue-discovery";
 import { vendorsQuery, mapVendor } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { cn } from "@/lib/utils";
+
+const SECTION_ACTION =
+  "inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink outline-none transition-colors hover:bg-lilac-soft focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white";
 
 const PANEL = "rounded-2xl border border-line bg-panel p-5 sm:p-8";
 
@@ -34,6 +47,14 @@ function SectionSkeleton() {
 
 export function VendorsList({ planId }: { planId: string }) {
   const { data: vendors, loading } = useCollection(vendorsQuery(planId), mapVendor);
+  const [locationFilter, setLocationFilter] = React.useState<LocationFilter>(null);
+  const [discoverOpen, setDiscoverOpen] = React.useState(false);
+
+  const existingPlaceIds = React.useMemo(
+    () => new Set(vendors.flatMap((v) => (v.placeId ? [v.placeId] : []))),
+    [vendors]
+  );
+  const options = React.useMemo(() => locationOptions(vendors), [vendors]);
 
   if (loading) {
     return (
@@ -44,10 +65,21 @@ export function VendorsList({ planId }: { planId: string }) {
     );
   }
 
-  const groups = groupVendors(vendors);
+  // Si el lugar elegido ya no existe (se borró el último proveedor de allí), se ignora.
+  const filter = isFilterAvailable(locationFilter, options) ? locationFilter : null;
+  const visible = filterByLocation(vendors, filter);
+  // Filtrando solo se ven las categorías con resultados; sin filtro, también los huecos vacíos.
+  const groups = groupVendors(visible).filter((g) => !filter || g.vendors.length > 0);
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
+      <VendorLocationFilter
+        options={options}
+        value={filter}
+        onChange={setLocationFilter}
+        shown={visible.length}
+        total={vendors.length}
+      />
       {groups.map(({ category, vendors: options }, index) => (
         <section key={category} aria-labelledby={`vendors-section-${index}`} className={cn(PANEL, "flex flex-col gap-6")}>
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
@@ -66,24 +98,32 @@ export function VendorsList({ planId }: { planId: string }) {
                     : `${options.length} opciones`}
               </span>
             </div>
-            {options.length > 0 && (
-              <VendorFormDialog
-                planId={planId}
-                defaultCategory={category}
-                trigger={
-                  <button
-                    type="button"
-                    className="inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink outline-none transition-colors hover:bg-lilac-soft focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-                  >
-                    <PlusIcon className="size-4" aria-hidden="true" />
-                    Añadir otra
-                  </button>
-                }
-              />
-            )}
+            <div className="flex flex-wrap items-center gap-x-1">
+              {isVenueCategory(category) && options.length > 0 && (
+                <button type="button" onClick={() => setDiscoverOpen(true)} className={SECTION_ACTION}>
+                  <CompassIcon className="size-4" aria-hidden="true" />
+                  Descubrir fincas
+                </button>
+              )}
+              {options.length > 0 && (
+                <VendorFormDialog
+                  planId={planId}
+                  defaultCategory={category}
+                  trigger={
+                    <button type="button" className={SECTION_ACTION}>
+                      <PlusIcon className="size-4" aria-hidden="true" />
+                      Añadir otra
+                    </button>
+                  }
+                />
+              )}
+            </div>
           </div>
           {options.length === 0 ? (
-            <EmptyVendorCard planId={planId} category={category} />
+            <>
+              <EmptyVendorCard planId={planId} category={category} />
+              {isVenueCategory(category) && <VenueInvitation onOpen={() => setDiscoverOpen(true)} />}
+            </>
           ) : (
             <VendorCarousel
               label={category}
@@ -96,6 +136,31 @@ export function VendorsList({ planId }: { planId: string }) {
           )}
         </section>
       ))}
+      <VenueDiscovery
+        planId={planId}
+        existingPlaceIds={existingPlaceIds}
+        open={discoverOpen}
+        onOpenChange={setDiscoverOpen}
+      />
+    </div>
+  );
+}
+
+/** Invitación amable cuando todavía no hay ninguna finca guardada. */
+function VenueInvitation({ onOpen }: { onOpen: () => void }) {
+  return (
+    <div className="mx-auto flex max-w-md flex-col items-center gap-3 text-center">
+      <p className="text-sm text-ink-muted">
+        ¿Quieres ver fincas para bodas? Te enseñamos algunas por provincia para que guardes las que te gusten.
+      </p>
+      <button
+        type="button"
+        onClick={onOpen}
+        className="inline-flex h-10 items-center gap-2 rounded-full bg-btn-soft px-5 text-sm font-medium text-ink-on-lilac transition-opacity hover:opacity-90 outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      >
+        <CompassIcon className="size-4" aria-hidden="true" />
+        Ver fincas para bodas
+      </button>
     </div>
   );
 }

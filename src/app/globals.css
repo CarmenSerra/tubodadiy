@@ -892,3 +892,62 @@ html[data-theme="dark"] .rings-on-page {
     background: #ffffff;
   }
 }
+
+/*
+ * Zona de scroll de los diálogos (DialogContent > [data-slot="dialog-scroll"]) y los
+ * cuerpos con scroll propio de los diálogos grandes: barra fina con pulgar lila y pista
+ * salvia muy clara. El contenedor del diálogo recorta (overflow-hidden), así que la
+ * barra nunca rompe el redondeo de las esquinas.
+ */
+.dialog-scroll,
+[data-slot="dialog-content"] :is(.overflow-y-auto, .overflow-auto) {
+  --scroll-thumb: color-mix(in oklab, var(--lilac) 70%, transparent);
+  --scroll-thumb-hover: var(--lilac);
+  --scroll-track: color-mix(in oklab, var(--sage-pale) 38%, transparent);
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+html[data-theme="dark"] .dialog-scroll,
+html[data-theme="dark"] [data-slot="dialog-content"] :is(.overflow-y-auto, .overflow-auto) {
+  --scroll-thumb: color-mix(in oklab, var(--lilac) 55%, transparent);
+  --scroll-thumb-hover: color-mix(in oklab, var(--lilac) 80%, transparent);
+  --scroll-track: color-mix(in oklab, var(--sage-pale) 30%, transparent);
+}
+/* Navegadores sin scrollbar-color (Safari): versión WebKit equivalente. */
+@supports not (scrollbar-color: auto) {
+  .dialog-scroll::-webkit-scrollbar,
+  [data-slot="dialog-content"] :is(.overflow-y-auto, .overflow-auto)::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .dialog-scroll::-webkit-scrollbar-track,
+  [data-slot="dialog-content"] :is(.overflow-y-auto, .overflow-auto)::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+    border-radius: 999px;
+    margin-block: 14px;
+  }
+  .dialog-scroll::-webkit-scrollbar-thumb,
+  [data-slot="dialog-content"] :is(.overflow-y-auto, .overflow-auto)::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: 999px;
+  }
+  .dialog-scroll::-webkit-scrollbar-thumb:hover,
+  [data-slot="dialog-content"] :is(.overflow-y-auto, .overflow-auto)::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+  }
+}
+
+/*
+ * Efecto "ilustrado" de la foto de la web de un proveedor (ficha de contacto): duotono
+ * salvia + lila con posterizado suave. Los filtros SVG los define VendorPhoto; aquí solo
+ * se elige el de cada tema. Es solo visual.
+ */
+:root {
+  --illustrated-filter: url(#vendor-illustrated-light);
+}
+html[data-theme="dark"] {
+  --illustrated-filter: url(#vendor-illustrated-dark);
+}
+.photo-illustrated {
+  filter: var(--illustrated-filter);
+}

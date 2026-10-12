@@ -1,59 +1,16 @@
 "use client";
 
 import * as React from "react";
-import {
-  CakeIcon,
-  CameraIcon,
-  CarIcon,
-  Flower2Icon,
-  MusicIcon,
-  PaletteIcon,
-  SparklesIcon,
-  UtensilsCrossedIcon,
-  VideoIcon,
-} from "lucide-react";
 
-import { categoryKey, isHttpUrl } from "@/components/vendors/vendor-model";
+import { VendorIllustration } from "@/components/vendors/vendor-illustration";
+import { isHttpUrl } from "@/components/vendors/vendor-model";
 import { cn } from "@/lib/utils";
 
-/** Fincas: casa con puerta en arco y un ciprés, a trazo fino. */
-function FincaIllustration({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={className}
-    >
-      <path d="M4 23 18 10l14 13" />
-      <path d="M7 21v19h22V21" />
-      <path d="M14 40V30a4 4 0 0 1 8 0v10" />
-      <path d="M2 40h44" />
-      <path d="M39 40V22" />
-      <path d="M39 12c-4 3-5 8-5 13 0 3 2 5 5 5s5-2 5-5c0-5-1-10-5-13Z" />
-    </svg>
-  );
-}
-
-const CATEGORY_ICON: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
-  catering: UtensilsCrossedIcon,
-  fotografo: CameraIcon,
-  video: VideoIcon,
-  musica: MusicIcon,
-  flores: Flower2Icon,
-  pastel: CakeIcon,
-  transporte: CarIcon,
-  decoracion: PaletteIcon,
-};
-
-// Fondo lila suave o salvia según la categoría; el trazo siempre verde oscuro.
-const SAGE_CATEGORIES = new Set(["catering", "flores", "transporte", "pastel"]);
-
-/** Marcador de posición de marca: icono de trazo fino por categoría. */
+/**
+ * Marcador de posición de marca: la ilustración determinista de la categoría.
+ * (Sin `seed` propio usa la categoría, así que todas las vacías de una misma
+ * categoría se ven igual.)
+ */
 export function VendorPlaceholder({
   category,
   className,
@@ -63,70 +20,122 @@ export function VendorPlaceholder({
   className?: string;
   muted?: boolean;
 }) {
-  const key = categoryKey(category);
-  const sage = SAGE_CATEGORIES.has(key);
-  const iconClass = "size-16 text-green sm:size-[4.5rem]";
-  const Icon = CATEGORY_ICON[key] ?? SparklesIcon;
   return (
     <div
       aria-hidden="true"
-      className={cn(
-        "relative flex h-full w-full items-center justify-center overflow-hidden",
-        sage ? "bg-sage-pale" : "bg-lilac-soft",
-        className
-      )}
+      className={cn("relative h-full w-full overflow-hidden", muted && "opacity-70", className)}
     >
-      <span
-        className={cn(
-          "absolute size-36 rounded-full border border-dashed",
-          sage ? "border-green/25" : "border-lilac/40"
-        )}
-      />
-      <span className={cn("relative", muted && "opacity-70")}>
-        {key === "finca" ? (
-          <FincaIllustration className={iconClass} />
-        ) : (
-          <Icon className={iconClass} strokeWidth={1} />
-        )}
-      </span>
+      <VendorIllustration seed={`categoria:${category}`} kind={category} />
     </div>
   );
 }
 
 /**
+ * Filtros SVG del efecto "ilustrado": desatura, suaviza, posteriza la luminosidad en
+ * 6 niveles y la reparte en un degradado verde salvia → lila → crema (claro) o
+ * ciruela → salvia → lila (oscuro). Es solo visual: la imagen original no se toca.
+ * Cada filtro se elige con la variable `--illustrated-filter` (globals.css).
+ */
+function IllustratedFilterDefs() {
+  const levels = "0 0.2 0.4 0.6 0.8 1";
+  const duotone = (id: string, shadow: [number, number, number], mid: [number, number, number], light: [number, number, number]) => (
+    <filter id={id} colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%">
+      <feGaussianBlur stdDeviation="1.1" />
+      <feColorMatrix type="matrix" values="0.33 0.5 0.17 0 0  0.33 0.5 0.17 0 0  0.33 0.5 0.17 0 0  0 0 0 1 0" />
+      <feComponentTransfer>
+        <feFuncR type="discrete" tableValues={levels} />
+        <feFuncG type="discrete" tableValues={levels} />
+        <feFuncB type="discrete" tableValues={levels} />
+      </feComponentTransfer>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues={`${shadow[0]} ${mid[0]} ${light[0]}`} />
+        <feFuncG type="table" tableValues={`${shadow[1]} ${mid[1]} ${light[1]}`} />
+        <feFuncB type="table" tableValues={`${shadow[2]} ${mid[2]} ${light[2]}`} />
+      </feComponentTransfer>
+    </filter>
+  );
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="0"
+      height="0"
+      style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+    >
+      <defs>
+        {/* #3f5c4a → #b6a5d0 → #f4f1eb */}
+        {duotone("vendor-illustrated-light", [0.247, 0.361, 0.29], [0.714, 0.647, 0.816], [0.957, 0.945, 0.922])}
+        {/* #38384d → #8faf8a → #d4c0ea */}
+        {duotone("vendor-illustrated-dark", [0.22, 0.22, 0.302], [0.561, 0.686, 0.541], [0.831, 0.753, 0.918])}
+      </defs>
+    </svg>
+  );
+}
+
+const PHOTO_DATA_PREFIX = /^data:image\/(?:webp|jpeg|jpg|png);base64,/i;
+
+/**
  * Foto de la opción con zoom suave al pasar el ratón por la tarjeta
  * (el grupo `group/card` lo define la tarjeta). Solo la imagen escala, dentro
  * de un contenedor con overflow-hidden: nada de will-change para no
- * emborronar el texto. Si no hay foto o falla la carga, se muestra el marcador.
+ * emborronar el texto.
+ *
+ * Prioridad: foto subida (`photoData`) → foto enlazada de la web (`photoUrl`,
+ * solo enlazada, nunca copiada; si falla la carga se descarta) → ilustración
+ * determinista (`seed`, `kind`). Con `illustrated` la foto de la web recibe el
+ * efecto duotono; la subida por el usuario se muestra tal cual.
  */
 export function VendorPhoto({
+  photoData,
   photoUrl,
   name,
   category,
+  seed,
+  kind,
+  illustrated = false,
+  className,
 }: {
+  photoData?: string;
   photoUrl?: string;
   name: string;
   category: string;
+  /** Semilla de la ilustración (placeId ?? id). */
+  seed?: string;
+  /** Tipo para el motivo de la ilustración (placeKind ?? category). */
+  kind?: string;
+  /** Aplica el efecto "ilustrado" a la foto enlazada de la web. */
+  illustrated?: boolean;
+  className?: string;
 }) {
+  const data = photoData?.trim() ?? "";
   const url = photoUrl?.trim() ?? "";
-  const [failedUrl, setFailedUrl] = React.useState<string | null>(null);
-  const showImage = isHttpUrl(url) && failedUrl !== url;
+  const [failed, setFailed] = React.useState<string | null>(null);
+  const hasData = PHOTO_DATA_PREFIX.test(data) && failed !== data;
+  const hasUrl = !hasData && isHttpUrl(url) && failed !== url;
+  const src = hasData ? data : hasUrl ? url : "";
+  const imageClass =
+    "h-full w-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-[1.08] motion-reduce:transition-none motion-reduce:group-hover/card:scale-100";
 
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden bg-lilac-soft">
-      {showImage ? (
-        // eslint-disable-next-line @next/next/no-img-element -- dominios remotos libres: no se puede usar next/image
-        <img
-          src={url}
-          alt={name}
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
-          onError={() => setFailedUrl(url)}
-          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-[1.08] motion-reduce:transition-none motion-reduce:group-hover/card:scale-100"
-        />
+    <div className={cn("relative aspect-[4/3] w-full overflow-hidden bg-lilac-soft", className)}>
+      {src ? (
+        <>
+          {hasUrl && illustrated && <IllustratedFilterDefs />}
+          {/* eslint-disable-next-line @next/next/no-img-element -- dominios remotos libres: no se puede usar next/image */}
+          <img
+            src={src}
+            alt={name}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={() => setFailed(src)}
+            className={cn(imageClass, hasUrl && illustrated && "photo-illustrated")}
+          />
+        </>
       ) : (
-        <VendorPlaceholder category={category} />
+        <div aria-hidden="true" className="h-full w-full">
+          <VendorIllustration seed={seed || `categoria:${category}`} kind={kind || category} />
+        </div>
       )}
     </div>
   );

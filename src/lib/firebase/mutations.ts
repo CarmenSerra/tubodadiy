@@ -264,12 +264,14 @@ export async function restoreGuest(planId: string, guest: Guest) {
 // «Contratar…» vive en Proveedores. El oficiante ya no es un proveedor: tiene su ficha en Ceremonia.
 const syncVendorTasks = (planId: string) => syncToolTasks(planId, "vendors", [VENDORS_CATEGORY]);
 
+/** Crea el proveedor y devuelve su id (para completarlo después, p. ej. con datos de su web). */
 export async function addVendor(planId: string, data: Omit<Vendor, "id" | "createdAt">) {
-  await addDoc(collection(getFirebaseDb(), "weddingPlans", planId, "vendors"), {
+  const ref = await addDoc(collection(getFirebaseDb(), "weddingPlans", planId, "vendors"), {
     ...data,
     createdAt: serverTimestamp(),
   });
   void syncVendorTasks(planId);
+  return ref.id;
 }
 
 export async function updateVendor(
