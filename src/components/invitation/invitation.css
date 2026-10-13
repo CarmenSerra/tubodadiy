@@ -28,6 +28,7 @@
   font-family: var(--font-body), system-ui, sans-serif;
   line-height: 1.6;
   overflow-x: clip;
+  isolation: isolate;
   color-scheme: light;
   -webkit-font-smoothing: antialiased;
 }
@@ -79,6 +80,74 @@
     radial-gradient(48rem 24rem at 50% -6rem, #3b3a52 0%, transparent 70%),
     var(--inv-bg);
 }
+
+/* Con paleta propia (las variables --inv-* llegan en línea desde la vista). */
+.inv-root[data-themed] {
+  background:
+    radial-gradient(60rem 28rem at 50% -8rem, color-mix(in oklab, var(--inv-paper) 75%, transparent) 0%, transparent 70%),
+    var(--inv-bg);
+}
+.inv-root[data-themed].inv-elegante {
+  background:
+    radial-gradient(48rem 24rem at 50% -6rem, color-mix(in oklab, var(--inv-accent) 16%, transparent) 0%, transparent 70%),
+    var(--inv-bg);
+}
+
+/* ---------- Fondos (capa detrás del contenido) ---------- */
+
+.inv-bgLayer {
+  --bg-u: calc(var(--bg-k, 1) * var(--bg-m, 0.8));
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-repeat: repeat;
+}
+@media (min-width: 640px) {
+  .inv-bgLayer { --bg-m: 1; }
+}
+.inv-hero, .inv-body, .inv-footer { position: relative; z-index: 1; }
+
+.inv-bgLayer[data-bg="stripes"] { background-size: calc(264px * var(--bg-u)) calc(600px * var(--bg-u)); }
+.inv-bgLayer[data-bg="paper"] { background-size: auto, calc(220px * var(--bg-k, 1)) calc(220px * var(--bg-k, 1)); background-repeat: no-repeat, repeat; }
+.inv-bgLayer[data-bg="dots"] { background-size: calc(36px * var(--bg-u)); }
+.inv-bgLayer[data-bg="gingham"] { background-size: calc(32px * var(--bg-u)); }
+.inv-bgLayer[data-bg="arches"] { background-size: calc(60px * var(--bg-u)) calc(144px * var(--bg-u)); }
+.inv-bgLayer[data-bg="confetti"] { background-size: calc(220px * var(--bg-u)); }
+
+/* Marco floral: una ramita por cada lado, medio fuera de pantalla para no robar ancho. */
+.inv-bgLayer[data-bg="floral"] {
+  background-repeat: repeat-y, repeat-y;
+  background-size: calc(64px * var(--bg-u)) calc(360px * var(--bg-u));
+  background-position:
+    calc(-20px * var(--bg-u)) 0,
+    calc(100% + 20px * var(--bg-u)) 0;
+}
+.inv-bgFrame {
+  position: absolute;
+  inset: 0.6rem;
+  border: 1px solid var(--bg-frame);
+  border-radius: 1.5rem;
+  opacity: 0.8;
+}
+.inv-root[data-bg="floral"] .inv-body { padding-inline: 2.25rem; }
+@media (min-width: 640px) {
+  .inv-root[data-bg="floral"]:not(.inv-preview) .inv-body { padding-inline: 3rem; }
+}
+
+/* Manchas de acuarela en las cuatro esquinas */
+.inv-wash {
+  position: absolute;
+  width: 46%;
+  max-width: 300px;
+  height: auto;
+  filter: blur(2.5px);
+}
+.inv-washTL { top: 0; left: 0; }
+.inv-washTR { top: 0; right: 0; transform: scaleX(-1); }
+.inv-washBL { bottom: 0; left: 0; transform: scaleY(-1); }
+.inv-washBR { bottom: 0; right: 0; transform: scale(-1, -1); }
 
 /* ---------- Adornos SVG ---------- */
 
@@ -741,3 +810,34 @@
 }
 .inv-unavailable .inv-thanksTitle { font-size: 2rem; }
 .inv-unavailable .inv-thanksText { max-width: 26rem; }
+
+/* ---------- Editor: selector de color (react-colorful con los tokens de la app) ---------- */
+
+.inv-picker.react-colorful {
+  width: 100%;
+  height: auto;
+  gap: 0.75rem;
+}
+.inv-picker .react-colorful__saturation {
+  height: 9.5rem;
+  border-radius: 0.9rem;
+  border-bottom: 0;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+}
+.inv-picker .react-colorful__hue {
+  height: 0.9rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+}
+.inv-picker .react-colorful__saturation-pointer,
+.inv-picker .react-colorful__hue-pointer {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25), 0 2px 6px rgb(0 0 0 / 0.25);
+}
+.inv-picker .react-colorful__interactive:focus .react-colorful__pointer {
+  outline: 2px solid var(--lilac);
+  outline-offset: 2px;
+}
+.inv-picker .react-colorful__pointer { transition: none; }

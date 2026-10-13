@@ -182,6 +182,8 @@
       }
     },
     "sections": {
+      "color": "Color",
+      "background": "Fondo",
       "language": "Idioma de la invitación",
       "style": "Estilo",
       "couple": "La pareja",
@@ -265,6 +267,61 @@
       "unpublishFailed": "No se ha podido despublicar. Inténtalo de nuevo.",
       "linkCopied": "Enlace copiado",
       "copyFailed": "No se ha podido copiar. Selecciona el enlace y cópialo a mano."
+    },
+    "color": {
+      "note": "Elige una paleta para toda la invitación. Siempre puedes ajustar cada color.",
+      "paletteLabel": "Paleta de colores",
+      "customize": "Personalizar",
+      "customizeNote": "Pulsa un color para cambiarlo.",
+      "roles": {
+        "primary": "Principal",
+        "dark": "Texto",
+        "accent": "Acento",
+        "soft": "Fondo"
+      },
+      "change": "Cambiar el color {{role}} (actual: {{hex}})",
+      "custom": "Paleta personalizada",
+      "customActive": "Estás usando una paleta personalizada.",
+      "popoverLabel": "Selector de color: {{role}}",
+      "area": "Área de color: saturación y luminosidad",
+      "hue": "Tono",
+      "suggestions": "Sugerencias pastel",
+      "suggestion": "Usar {{hex}}",
+      "hex": "Código HEX",
+      "hexInvalid": "Escribe un color HEX válido, por ejemplo #A28BC4.",
+      "done": "Listo",
+      "adjusted": "El texto y el fondo se parecen demasiado: en la invitación hemos oscurecido o aclarado el texto automáticamente para que se lea bien.",
+      "contrastGood": "Se lee bien",
+      "legacy": "Esta invitación usa los colores de su plantilla. Elige una paleta para cambiarlos."
+    },
+    "background": {
+      "note": "Así se ve cada fondo con tu paleta.",
+      "label": "Tipo de fondo"
     }
+  },
+  "palettes": {
+    "burdeos-oliva": "Burdeos y oliva",
+    "lavanda-salvia": "Lavanda y salvia",
+    "terracota-arena": "Terracota y arena",
+    "azul-marfil": "Azul empolvado y marfil",
+    "botella-oro": "Verde botella y oro viejo",
+    "melocoton-salvia": "Melocotón y salvia",
+    "piedra-rosa": "Gris piedra y rosa",
+    "mediterraneo": "Mediterráneo",
+    "ciruela-albaricoque": "Ciruela y albaricoque",
+    "eucalipto-marfil": "Eucalipto y marfil",
+    "menta-coral": "Menta y coral",
+    "rosa-te-cacao": "Rosa té y cacao"
+  },
+  "backgrounds": {
+    "plain": "Liso pastel",
+    "stripes": "Rayas acuarela",
+    "paper": "Papel",
+    "dots": "Lunares",
+    "gingham": "Vichy",
+    "floral": "Marco floral",
+    "watercolor": "Manchas de acuarela",
+    "arches": "Arcos",
+    "confetti": "Confeti"
   }
 }

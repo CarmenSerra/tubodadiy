@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { TFunction } from "i18next";
 import {
   CalendarHeartIcon,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { CopyButton } from "@/components/invitation/copy-button";
+import { InvitationBackdrop } from "@/components/invitation/invitation-backgrounds";
 import {
   BotanicalCorner,
   DiamondDivider,
@@ -28,6 +29,7 @@ import {
   type InvitationPlace,
   type InvitationPublicData,
 } from "@/components/invitation/invitation-model";
+import { buildTheme, LEGACY_COLORS } from "@/components/invitation/invitation-theme";
 import type { Lang } from "@/lib/i18n/config";
 import { formatMoney } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
@@ -171,12 +173,21 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
   const preview = mode === "preview";
   const Body = preview ? "div" : "main";
 
+  // Con paleta, las variables de color salen de ella; sin paleta (invitaciones anteriores)
+  // mandan los colores de la plantilla. El fondo se dibuja con los colores que toque.
+  const palette = data.palette;
+  const theme = palette || data.background ? buildTheme(palette?.colors ?? LEGACY_COLORS[data.template], data.template) : null;
+
   return (
     <div
       className={cn("inv-root", `inv-${data.template}`, preview && "inv-preview")}
       data-template={data.template}
+      data-themed={palette ? "" : undefined}
+      data-bg={data.background && data.background !== "plain" ? data.background : undefined}
+      style={palette && theme ? (theme.vars as CSSProperties) : undefined}
       lang={lang}
     >
+      {theme && <InvitationBackdrop kind={data.background} theme={theme} />}
       <header className="inv-hero">
         {data.template === "botanico" && (
           <>

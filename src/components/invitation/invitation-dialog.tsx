@@ -42,6 +42,7 @@ import {
   type PlanFill,
 } from "@/components/invitation/plan-autofill";
 import { InvitationView } from "@/components/invitation/invitation-view";
+import { BackgroundEditor, ColorEditor } from "@/components/invitation/palette-picker";
 import type { GiftItem } from "@/components/plan-tools/gift-model";
 import { RsvpForm } from "@/components/invitation/rsvp-form";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
@@ -421,6 +422,23 @@ function Editor({
           aria-labelledby="ed-tab-edit"
         >
           <div className="mx-auto flex max-w-2xl flex-col gap-8">
+            <Section title={t("editor.sections.color")} note={t("editor.color.note")}>
+              <ColorEditor
+                template={form.template}
+                palette={form.palette}
+                onChange={(palette) => set("palette", palette)}
+              />
+            </Section>
+
+            <Section title={t("editor.sections.background")} note={t("editor.background.note")}>
+              <BackgroundEditor
+                template={form.template}
+                palette={form.palette}
+                background={form.background}
+                onChange={(background) => set("background", background)}
+              />
+            </Section>
+
             {(fromPlan.length > 0 || canRefresh) && (
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-line bg-raised px-4 py-3">
                 <p className="flex min-w-0 items-start gap-2 text-sm text-ink-muted">

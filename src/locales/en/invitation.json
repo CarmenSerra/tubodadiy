@@ -182,6 +182,8 @@
       }
     },
     "sections": {
+      "color": "Colour",
+      "background": "Background",
       "language": "Invitation language",
       "style": "Style",
       "couple": "The couple",
@@ -265,6 +267,61 @@
       "unpublishFailed": "We couldn't unpublish it. Please try again.",
       "linkCopied": "Link copied",
       "copyFailed": "We couldn't copy it. Select the link and copy it by hand."
+    },
+    "color": {
+      "note": "Pick a palette for the whole invitation. You can still tweak every colour.",
+      "paletteLabel": "Colour palette",
+      "customize": "Customise",
+      "customizeNote": "Tap a colour to change it.",
+      "roles": {
+        "primary": "Main",
+        "dark": "Text",
+        "accent": "Accent",
+        "soft": "Background"
+      },
+      "change": "Change the {{role}} colour (current: {{hex}})",
+      "custom": "Custom palette",
+      "customActive": "You are using a custom palette.",
+      "popoverLabel": "Colour picker: {{role}}",
+      "area": "Colour area: saturation and lightness",
+      "hue": "Hue",
+      "suggestions": "Pastel suggestions",
+      "suggestion": "Use {{hex}}",
+      "hex": "HEX code",
+      "hexInvalid": "Enter a valid HEX colour, for example #A28BC4.",
+      "done": "Done",
+      "adjusted": "The text and background are too similar: on the invitation we automatically darkened or lightened the text so it stays readable.",
+      "contrastGood": "Easy to read",
+      "legacy": "This invitation uses the colours of its template. Pick a palette to change them."
+    },
+    "background": {
+      "note": "This is how each background looks with your palette.",
+      "label": "Background type"
     }
+  },
+  "palettes": {
+    "burdeos-oliva": "Burgundy & olive",
+    "lavanda-salvia": "Lavender & sage",
+    "terracota-arena": "Terracotta & sand",
+    "azul-marfil": "Dusty blue & ivory",
+    "botella-oro": "Bottle green & antique gold",
+    "melocoton-salvia": "Peach & sage",
+    "piedra-rosa": "Stone grey & rose",
+    "mediterraneo": "Mediterranean",
+    "ciruela-albaricoque": "Plum & apricot",
+    "eucalipto-marfil": "Eucalyptus & ivory",
+    "menta-coral": "Mint & coral",
+    "rosa-te-cacao": "Tea rose & cocoa"
+  },
+  "backgrounds": {
+    "plain": "Plain pastel",
+    "stripes": "Watercolour stripes",
+    "paper": "Paper",
+    "dots": "Polka dots",
+    "gingham": "Gingham",
+    "floral": "Floral frame",
+    "watercolor": "Watercolour washes",
+    "arches": "Arches",
+    "confetti": "Confetti"
   }
 }

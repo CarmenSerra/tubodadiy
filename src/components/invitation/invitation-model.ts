@@ -1,4 +1,12 @@
 import { sortGiftItems, type GiftItem } from "@/components/plan-tools/gift-model";
+import { DEFAULT_BACKGROUND, isBackground, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
+import {
+  COLOR_ROLES,
+  DEFAULT_PALETTE,
+  normalizeHex,
+  type InvitationPalette,
+  type PaletteColors,
+} from "@/components/invitation/invitation-theme";
 import { DEFAULT_LANG, normalizeLang, type Lang } from "@/lib/i18n/config";
 import { dateFormatter } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
@@ -63,6 +71,13 @@ export interface InvitationContent {
   rsvpDeadline: string;
   /** La pareja quiere enseñar los datos del regalo. */
   showGift: boolean;
+  /**
+   * Colores de la invitación (4 roles). Las invitaciones anteriores no lo
+   * tienen: entonces se ven con los colores de su plantilla, como siempre.
+   */
+  palette?: InvitationPalette;
+  /** Tipo de fondo. Sin valor equivale a «liso». */
+  background?: InvitationBackground;
 }
 
 /** Lo que se ve en la página pública. */
@@ -135,6 +150,8 @@ export function defaultContent(weddingDate: string | null, lang: Lang = DEFAULT_
     message: defaultMessage(lang),
     rsvpDeadline: "",
     showGift: true,
+    palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
+    background: DEFAULT_BACKGROUND,
   };
 }
 
@@ -180,7 +197,25 @@ function cleanPlace(value: unknown): InvitationPlace {
 
 const TEMPLATE_IDS = TEMPLATES.map((t) => t.id);
 
+/** Paleta guardada, saneada: `undefined` si falta o algún color no es `#rrggbb`. */
+export function cleanPalette(value: unknown): InvitationPalette | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const raw = value as { id?: unknown; colors?: unknown };
+  if (!raw.colors || typeof raw.colors !== "object") return undefined;
+  const source = raw.colors as Record<string, unknown>;
+  const colors = {} as PaletteColors;
+  for (const role of COLOR_ROLES) {
+    const hex = normalizeHex(source[role]);
+    if (!hex) return undefined;
+    colors[role] = hex;
+  }
+  const id = typeof raw.id === "string" && /^[a-z0-9-]{1,32}$/.test(raw.id) ? raw.id : "custom";
+  return { id, colors };
+}
+
 export function cleanContent(value: Partial<InvitationContent>): InvitationContent {
+  const palette = cleanPalette(value.palette);
+  const background = isBackground(value.background) ? value.background : undefined;
   return {
     template: TEMPLATE_IDS.includes(value.template as InvitationTemplateId)
       ? (value.template as InvitationTemplateId)
@@ -193,6 +228,9 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     message: clip(value.message, LIMITS.message),
     rsvpDeadline: cleanDate(value.rsvpDeadline),
     showGift: Boolean(value.showGift),
+    // Solo si existen: Firestore no admite `undefined` y las invitaciones antiguas no los tienen.
+    ...(palette ? { palette } : {}),
+    ...(background ? { background } : {}),
   };
 }
 
