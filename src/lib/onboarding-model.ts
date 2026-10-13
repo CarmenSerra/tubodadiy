@@ -1,4 +1,7 @@
 import { STEP_DEFINITIONS } from "@/lib/steps";
+import { DEFAULT_LANG, LANGUAGES, type Lang } from "@/lib/i18n/config";
+import { formatNumber } from "@/lib/i18n/format";
+import { getServerT } from "@/lib/i18n/server";
 import type { CATEGORY_OPTIONS } from "@/components/vendors/vendor-model";
 
 // Lógica pura del flujo "Nuevo plan" (sin React ni Firebase): preguntas,
@@ -52,16 +55,24 @@ export interface OnboardingAnswers {
   honeymoonDestination: string;
 }
 
-/** Cantidad con puntos de millar siempre ("1.000"): es-ES no agrupa las de 4 cifras por defecto. */
-export function formatCount(value: number): string {
-  return new Intl.NumberFormat("es-ES", { useGrouping: "always" }).format(value);
+/** Cantidad con millares siempre agrupados ("1.000" / "1,000"), según el idioma. */
+export function formatCount(value: number, lang: Lang = DEFAULT_LANG): string {
+  return formatNumber(value, lang);
 }
 
-export const DEFAULT_PLAN_TITLE = "Nuestra boda";
+/** Título por defecto del plan en un idioma (`onboarding:defaultTitle`). */
+export function defaultPlanTitle(lang: Lang = DEFAULT_LANG): string {
+  return getServerT(lang, "onboarding")("defaultTitle");
+}
 
-export function emptyAnswers(): OnboardingAnswers {
+/** ¿Es el título por defecto de algún idioma? (para cambiarlo al cambiar de idioma). */
+export function isDefaultPlanTitle(title: string): boolean {
+  return LANGUAGES.some((l) => defaultPlanTitle(l.code) === title);
+}
+
+export function emptyAnswers(lang: Lang = DEFAULT_LANG): OnboardingAnswers {
   return {
-    title: DEFAULT_PLAN_TITLE,
+    title: defaultPlanTitle(lang),
     mode: null,
     have: [],
     date: "",
@@ -81,29 +92,32 @@ export function emptyAnswers(): OnboardingAnswers {
 /* Opciones                                                           */
 /* ------------------------------------------------------------------ */
 
-export const HAVE_OPTIONS: { key: HaveKey; label: string; hint: string }[] = [
-  { key: "fecha", label: "Fecha", hint: "Ya sabemos el día" },
-  { key: "presupuesto", label: "Presupuesto", hint: "Tenemos una cifra" },
-  { key: "lugar", label: "Lugar reservado", hint: "Finca, salón o iglesia" },
-  { key: "invitados", label: "Lista de invitados", hint: "Una lista que pegar aquí" },
-  { key: "proveedores", label: "Proveedores contratados", hint: "Catering, fotografía…" },
-  { key: "ceremonia", label: "Tipo de ceremonia", hint: "Civil, religiosa…" },
-  { key: "vestuario", label: "Vestido o traje", hint: "Ya lo hemos elegido" },
-  { key: "alianzas", label: "Alianzas", hint: "Ya las tenemos" },
-  { key: "luna", label: "Luna de miel", hint: "Destino o reserva" },
+// Los textos de las opciones viven en `onboarding.json`:
+//   options.have.<key>.label | hint, options.ceremony.<value>.label | hint,
+//   options.scope.<value>, vendorTypes.<key>.
+export const HAVE_OPTIONS: { key: HaveKey }[] = [
+  { key: "fecha" },
+  { key: "presupuesto" },
+  { key: "lugar" },
+  { key: "invitados" },
+  { key: "proveedores" },
+  { key: "ceremonia" },
+  { key: "vestuario" },
+  { key: "alianzas" },
+  { key: "luna" },
 ];
 
-export const CEREMONY_OPTIONS: { value: CeremonyChoice; label: string; hint: string }[] = [
-  { value: "civil", label: "Civil", hint: "Con validez legal, en un ayuntamiento o en otro lugar" },
-  { value: "religiosa", label: "Religiosa", hint: "En una iglesia u otro lugar de culto" },
-  { value: "simbolica", label: "Simbólica", hint: "Una ceremonia a vuestra manera, sin trámite legal" },
-  { value: "unknown", label: "Aún no lo sabemos", hint: "Lo decidiremos más adelante" },
+export const CEREMONY_OPTIONS: { value: CeremonyChoice }[] = [
+  { value: "civil" },
+  { value: "religiosa" },
+  { value: "simbolica" },
+  { value: "unknown" },
 ];
 
-export const VENUE_SCOPE_OPTIONS: { value: VenueScope; label: string }[] = [
-  { value: "ceremonia", label: "Ceremonia" },
-  { value: "banquete", label: "Banquete" },
-  { value: "ambos", label: "Ambos" },
+export const VENUE_SCOPE_OPTIONS: { value: VenueScope }[] = [
+  { value: "ceremonia" },
+  { value: "banquete" },
+  { value: "ambos" },
 ];
 
 type VendorCategory = (typeof CATEGORY_OPTIONS)[number] | (string & {});
@@ -113,8 +127,8 @@ const known = (category: (typeof CATEGORY_OPTIONS)[number]): VendorCategory => c
 export const VENUE_CATEGORY = known("Finca");
 
 export interface VendorType {
+  /** Clave de `onboarding:vendorTypes.<key>`. */
   key: string;
-  label: string;
   /** Categoría con la que se guarda en Proveedores. */
   category: VendorCategory;
   /** Reconoce, entre las tareas del paso "proveedores", la de contratarlo. */
@@ -122,15 +136,15 @@ export interface VendorType {
 }
 
 export const VENDOR_TYPES: VendorType[] = [
-  { key: "catering", label: "Catering", category: known("Catering"), task: /catering/i },
-  { key: "fotografo", label: "Fotógrafo/a", category: known("Fotógrafo"), task: /fot[oó]graf/i },
-  { key: "musica", label: "Música / DJ", category: known("Música"), task: /m[uú]sica|\bdj\b/i },
-  { key: "flores", label: "Flores", category: known("Flores") },
-  { key: "video", label: "Vídeo", category: known("Vídeo") },
-  { key: "belleza", label: "Peluquería y maquillaje", category: "Peluquería y maquillaje" },
-  { key: "tarta", label: "Tarta", category: known("Pastel") },
-  { key: "transporte", label: "Transporte", category: known("Transporte") },
-  { key: "decoracion", label: "Decoración", category: known("Decoración") },
+  { key: "catering", category: known("Catering"), task: /catering/i },
+  { key: "fotografo", category: known("Fotógrafo"), task: /fot[oó]graf/i },
+  { key: "musica", category: known("Música"), task: /m[uú]sica|\bdj\b/i },
+  { key: "flores", category: known("Flores") },
+  { key: "video", category: known("Vídeo") },
+  { key: "belleza", category: "Peluquería y maquillaje" },
+  { key: "tarta", category: known("Pastel") },
+  { key: "transporte", category: known("Transporte") },
+  { key: "decoracion", category: known("Decoración") },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -241,7 +255,20 @@ function detectSeparator(lines: string[]): string | null {
   return withComma > 0 && withComma / lines.length >= 0.5 ? "," : null;
 }
 
-const HEADER_NAME = new Set(["nombre", "nombres", "name", "invitado", "invitados", "nombre completo", "nombre y apellidos"]);
+const HEADER_NAME = new Set([
+  "nombre",
+  "nombres",
+  "name",
+  "names",
+  "invitado",
+  "invitados",
+  "guest",
+  "guests",
+  "guest name",
+  "full name",
+  "nombre completo",
+  "nombre y apellidos",
+]);
 
 /**
  * Una línea por invitado: «Nombre», o «Nombre» y «Grupo» separados por

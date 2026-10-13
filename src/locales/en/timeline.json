@@ -1,1 +1,150 @@
-{}
+{
+  "duration": {
+    "instant": "Single moment"
+  },
+  "quoted": "“{{text}}”",
+  "template": {
+    "getReady": "Getting ready",
+    "guestsArrive": "Guests arrive",
+    "ceremony": "Ceremony",
+    "cocktail": "Cocktail hour",
+    "couplePhotos": "Couple portraits",
+    "banquetEntrance": "Entrance to the banquet",
+    "banquet": "Banquet",
+    "cakeSpeeches": "Cake and speeches",
+    "firstDance": "First dance",
+    "party": "Party",
+    "partyEnd": "End of the party"
+  },
+  "weddingName": {
+    "default": "Our wedding",
+    "of": "Wedding of {{names}}"
+  },
+  "text": {
+    "heading": "Timeline",
+    "responsible": "In charge: {{name}}",
+    "notes": "Notes: {{notes}}"
+  },
+  "undo": {
+    "action": "Undo",
+    "done": "Undone: {{message}}",
+    "error": "Couldn't undo the change."
+  },
+  "empty": {
+    "title": "Your day, hour by hour",
+    "description": "Put everything that will happen on the big day in order and fine-tune the times at your own pace. You can start from a template and change whatever you like, or start from scratch.",
+    "ceremonyTime": "What time is the ceremony?",
+    "invalid": "Pick a time between {{min}} and {{max}}.",
+    "hint": "It's usually at 12:00 or 18:00. You can change any time afterwards.",
+    "back": "Back",
+    "create": "Create my timeline",
+    "fromTemplate": "Start with a template",
+    "blank": "Start from scratch"
+  },
+  "roadmap": {
+    "dayTitle_one": "Next day",
+    "dayTitle_other": "{{count}} days later",
+    "daySr_one": "the next day",
+    "daySr_other": "{{count}} days later",
+    "editAria": "Edit “{{title}}”",
+    "placeSr": "Place:",
+    "responsibleSr": "In charge:",
+    "seeLess": "Show less",
+    "seeMore": "Show more",
+    "overlaps": "Overlaps with {{titles}}",
+    "adjustAria": "Adjust the time of “{{title}}”",
+    "earlierAria": "Move “{{title}}” {{minutes}} minutes earlier",
+    "earlier": "Move {{minutes}} minutes earlier",
+    "laterAria": "Move “{{title}}” {{minutes}} minutes later",
+    "later": "Move {{minutes}} minutes later",
+    "gap": "{{duration}} gap",
+    "untilSr": "until",
+    "add": "Add moment"
+  },
+  "form": {
+    "back": "Back to the timeline",
+    "editTitle": "Edit moment",
+    "newTitle": "New moment",
+    "description": "Time, duration and details for this moment of the day.",
+    "fields": {
+      "title": "Title",
+      "time": "Time",
+      "duration": "Duration",
+      "location": "Place",
+      "responsible": "In charge",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "title": "Ceremony, cocktails, first dance…",
+      "location": "St John's Church",
+      "responsible": "Ana, the photographer…",
+      "notes": "Anything the vendors or family need to know…"
+    },
+    "nextDay": "Early hours of the next day",
+    "noDuration": "No duration (single moment)",
+    "otherDuration": "Other duration…",
+    "durationMinutesLabel": "Duration in minutes",
+    "minutes": "minutes",
+    "highlight": {
+      "label": "Key moment",
+      "help": "It's marked with a highlighted dot on the timeline."
+    },
+    "delete": "Delete moment",
+    "cancel": "Cancel",
+    "save": "Save",
+    "errors": {
+      "title": "Give the moment a name.",
+      "time": "Enter a valid time, for example 12:30.",
+      "duration": "Enter a duration in minutes, between 0 and 1440.",
+      "save": "Couldn't save the moment.",
+      "delete": "Couldn't delete the moment."
+    }
+  },
+  "dialog": {
+    "title": "Timeline of the day",
+    "noDate": "You don't have a date yet",
+    "undoAria": "Undo: {{message}}",
+    "loading": "Loading the timeline",
+    "created": "Timeline created. You can now fine-tune the times.",
+    "nudge": {
+      "announceOne": "“{{title}}”: now at {{time}}",
+      "announceMany": "“{{title}}” and everything after it: now at {{time}}",
+      "movedOne": "“{{title}}” moved to {{time}}",
+      "movedMany": "“{{title}}” and everything after it moved to {{time}}"
+    },
+    "changes": {
+      "created": "Moment added",
+      "updated": "“{{title}}” updated",
+      "deleted": "“{{title}}” deleted"
+    },
+    "copied": "Timeline copied",
+    "add": "Add moment",
+    "copy": "Copy as text",
+    "print": "Print / PDF",
+    "newTab": "(opens in a new tab)",
+    "cascade": {
+      "label": "Also move everything that comes after",
+      "hint": "(when adjusting a time with −15 / +15)"
+    },
+    "errors": {
+      "create": "Couldn't create the timeline.",
+      "nudge": "Couldn't change the time.",
+      "copy": "Couldn't copy it. Try “Print / PDF” instead.",
+      "load": "Couldn't load the timeline. Reload the page and try again."
+    }
+  },
+  "print": {
+    "meta": {
+      "title": "Timeline of the day — tubodadiy"
+    },
+    "highlight": "Key moment",
+    "preparing": "Preparing the timeline",
+    "noAccess": "You don't have access to this plan.",
+    "back": "Back to the timeline",
+    "pdfHint": "To save it as a PDF, choose “Save as PDF” in the print dialogue.",
+    "button": "Print / PDF",
+    "loadError": "Couldn't load the timeline.",
+    "empty": "There are no moments in the timeline yet. Go back to the plan to add some.",
+    "nextDayNote": "+1: already in the early hours, the next day."
+  }
+}

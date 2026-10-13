@@ -11,6 +11,7 @@ import {
   SearchIcon,
   StarIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Skeleton } from "@/components/dashboard/ui";
@@ -27,6 +28,8 @@ import { DIALOG_CONTENT, DIALOG_TITLE, FIELD_LABEL, ROW_FOCUS } from "@/componen
 import { isHttpUrl, isLooseEmail } from "@/components/vendors/vendor-model";
 import { VendorIllustration } from "@/components/vendors/vendor-illustration";
 import { addVendor, updateVendor } from "@/lib/firebase/mutations";
+import { formatNumber } from "@/lib/i18n/format";
+import { useLanguage } from "@/lib/i18n/provider";
 import {
   mapsUrlForPlace,
   placeDetails,
@@ -37,16 +40,20 @@ import { COMMUNITIES, PROVINCES } from "@/lib/places/spain";
 import type { VenueResult } from "@/lib/places/types";
 import { cn } from "@/lib/utils";
 
-/** Estilos opcionales: se añaden al texto de la búsqueda («finca para bodas en Toledo rústica»). */
+/**
+ * Estilos opcionales: se añaden al texto de la búsqueda en español («finca para bodas en Toledo
+ * rústica»; son lugares de España). El valor se queda en español; la etiqueta se traduce
+ * (vendors:discovery.styles.<clave>).
+ */
 const STYLE_OPTIONS = [
-  "rústica",
-  "con jardín",
-  "junto al mar",
-  "cortijo",
-  "masía",
-  "palacio",
-  "en la montaña",
-  "moderna",
+  { value: "rústica", key: "rustic" },
+  { value: "con jardín", key: "garden" },
+  { value: "junto al mar", key: "seaside" },
+  { value: "cortijo", key: "cortijo" },
+  { value: "masía", key: "masia" },
+  { value: "palacio", key: "palace" },
+  { value: "en la montaña", key: "mountain" },
+  { value: "moderna", key: "modern" },
 ] as const;
 
 /** Espera tras el último cambio de filtro antes de buscar. */
@@ -114,6 +121,7 @@ interface VenueDiscoveryProps {
 }
 
 export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }: VenueDiscoveryProps) {
+  const { t } = useTranslation("vendors");
   const restoreFocus = useRestoreFocus();
   const [provinces, setProvinces] = React.useState<string[]>([]);
   const [styles, setStyles] = React.useState<string[]>([]);
@@ -187,7 +195,7 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
         : prev
     );
     setLoadingMore(false);
-    if (anyFailed) toast.error("No se han podido cargar todas las fincas. Inténtalo de nuevo.");
+    if (anyFailed) toast.error(t("discovery.loadMoreError"));
   }
 
   function toggleProvince(province: string) {
@@ -206,7 +214,7 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
 
   function toggleStyle(value: string) {
     setStyles((prev) =>
-      STYLE_OPTIONS.filter((s) => (s === value ? !prev.includes(s) : prev.includes(s)))
+      STYLE_OPTIONS.map((o) => o.value).filter((s) => (s === value ? !prev.includes(s) : prev.includes(s)))
     );
   }
 
@@ -236,10 +244,10 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
         country: details.country ?? "",
         placeKind: details.primaryType || venue.primaryType || "",
       });
-      toast.success(`«${name}» guardada en Fincas`);
+      toast.success(t("discovery.saved", { name }));
       if (isHttpUrl(details.website)) void completeFromSite(id, details.website);
     } catch {
-      toast.error("No se ha podido guardar la finca. Inténtalo de nuevo.");
+      toast.error(t("discovery.saveError"));
     } finally {
       setSaving((prev) => {
         const next = new Set(prev);
@@ -272,16 +280,16 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
         onCloseAutoFocus={restoreFocus.onCloseAutoFocus}
       >
         <DialogHeader>
-          <DialogTitle className={cn(DIALOG_TITLE, "pr-8")}>Descubre fincas para tu boda</DialogTitle>
+          <DialogTitle className={cn(DIALOG_TITLE, "pr-8")}>{t("discovery.title")}</DialogTitle>
           <DialogDescription className="text-sm text-ink-muted">
-            Elige dónde buscar y guarda las que te gusten: se añaden a tus proveedores como «Explorando».
+            {t("discovery.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="mt-5 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <span id="venue-where-label" className={FIELD_LABEL}>
-              Dónde
+              {t("discovery.where")}
             </span>
             <button
               type="button"
@@ -298,7 +306,7 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
                 id="venue-where-value"
                 className={cn("min-w-0 truncate", provinces.length ? "text-ink-strong" : "text-ink-placeholder")}
               >
-                {provinces.length ? summarize(provinces) : "Elige provincias o comunidades"}
+                {provinces.length ? summarize(provinces) : t("discovery.wherePlaceholder")}
               </span>
               <ChevronDownIcon
                 className={cn("size-4 shrink-0 text-ink-muted transition-transform", pickerOpen && "rotate-180")}
@@ -312,21 +320,22 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
 
           <div className="flex flex-col gap-2">
             <span id="venue-style-label" className={FIELD_LABEL}>
-              Estilo <span className="font-normal text-ink-muted">(opcional)</span>
+              {t("discovery.style")}{" "}
+              <span className="font-normal text-ink-muted">{t("discovery.optional")}</span>
             </span>
             <div role="group" aria-labelledby="venue-style-label" className="flex flex-wrap gap-2">
               {STYLE_OPTIONS.map((option) => {
-                const active = styles.includes(option);
+                const active = styles.includes(option.value);
                 return (
                   <button
-                    key={option}
+                    key={option.value}
                     type="button"
                     aria-pressed={active}
-                    onClick={() => toggleStyle(option)}
+                    onClick={() => toggleStyle(option.value)}
                     className={chip(active)}
                   >
                     {active && <CheckIcon className="size-3.5" aria-hidden="true" />}
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                    {t(`discovery.styles.${option.key}`)}
                   </button>
                 );
               })}
@@ -338,39 +347,39 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
           {!searching ? (
             <StateMessage
               icon={<SearchIcon className="size-5" aria-hidden="true" />}
-              title="Elige una o varias provincias para empezar"
-              text="Buscaremos fincas para bodas en cada una y verás los resultados aquí."
+              title={t("discovery.start.title")}
+              text={t("discovery.start.text")}
             />
           ) : loading ? (
             <ResultsSkeleton />
           ) : current?.error ? (
             <StateMessage
               icon={<AlertCircleIcon className="size-5" aria-hidden="true" />}
-              title="No hemos podido buscar fincas ahora mismo"
-              text="Puede ser un fallo de conexión. Inténtalo de nuevo en unos segundos."
+              title={t("discovery.error.title")}
+              text={t("discovery.error.text")}
               action={
                 <button type="button" onClick={() => setAttempt((a) => a + 1)} className={chip(false)}>
-                  Reintentar
+                  {t("discovery.error.retry")}
                 </button>
               }
             />
           ) : current && current.places.length === 0 ? (
             <StateMessage
               icon={<SearchIcon className="size-5" aria-hidden="true" />}
-              title="No hemos encontrado fincas con estos filtros"
-              text="Prueba a quitar algún estilo o a añadir más provincias."
+              title={t("discovery.none.title")}
+              text={t("discovery.none.text")}
             />
           ) : current ? (
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <p className="text-sm text-ink-muted">
-                  {current.places.length === 1 ? "1 finca" : `${current.places.length} fincas`}
+                  {t("discovery.count", { count: current.places.length })}
                 </p>
                 <GoogleAttribution />
               </div>
               {current.failed.length > 0 && (
                 <p className="text-sm text-ink-muted">
-                  No hemos podido consultar {current.failed.join(", ")}. El resto de resultados sí se muestran.
+                  {t("discovery.partialFail", { places: current.failed.join(", ") })}
                 </p>
               )}
               <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -393,7 +402,7 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
                     className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-btn-soft px-6 text-sm font-medium text-ink-on-lilac transition-opacity hover:opacity-90 disabled:opacity-60 outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                   >
                     {loadingMore && <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
-                    {loadingMore ? "Cargando…" : "Ver más"}
+                    {loadingMore ? t("discovery.loading") : t("discovery.more")}
                   </button>
                 </div>
               )}
@@ -407,9 +416,10 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
 
 /** Atribución obligatoria de Google al mostrar datos de Places sin mapa: texto «Google Maps» sin alterar. */
 function GoogleAttribution() {
+  const { t } = useTranslation("vendors");
   return (
     <p className="flex items-baseline gap-1.5 text-xs text-ink-muted">
-      <span>Resultados de</span>
+      <span>{t("discovery.resultsFrom")}</span>
       <span
         translate="no"
         lang="en"
@@ -431,11 +441,12 @@ function ProvincePicker({
   onToggleProvince: (province: string) => void;
   onToggleCommunity: (provinces: string[]) => void;
 }) {
+  const { t } = useTranslation("vendors");
   const full = selected.length >= MAX_PROVINCES;
   return (
     <div className="mt-1 flex max-h-72 flex-col gap-4 overflow-y-auto rounded-xl border border-line bg-surface p-3 sm:p-4">
       <p className="text-xs text-ink-muted">
-        Elige una comunidad para marcar todas sus provincias, o provincias sueltas. Máximo {MAX_PROVINCES}.
+        {t("discovery.pickerHint", { max: MAX_PROVINCES })}
       </p>
       {COMMUNITIES.map((community) => {
         const count = community.provinces.filter((p) => selected.includes(p)).length;
@@ -500,6 +511,8 @@ function VenueCard({
   saving: boolean;
   onSave: () => void;
 }) {
+  const { t } = useTranslation("vendors");
+  const { lang } = useLanguage();
   const place = venue.municipality
     ? venue.province
       ? `${venue.municipality} (${venue.province})`
@@ -507,7 +520,7 @@ function VenueCard({
     : venue.province;
   const rating =
     typeof venue.rating === "number"
-      ? venue.rating.toLocaleString("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+      ? formatNumber(venue.rating, lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
       : null;
 
   return (
@@ -522,7 +535,7 @@ function VenueCard({
           </h4>
           {place && <p className="mt-1 text-sm text-ink-muted">{place}</p>}
           {rating && (
-            <p className="mt-1 flex items-center gap-1 text-sm text-ink" aria-label={`Valoración ${rating} de 5`}>
+            <p className="mt-1 flex items-center gap-1 text-sm text-ink" aria-label={t("discovery.rating", { rating })}>
               <StarIcon className="size-3.5 fill-current" aria-hidden="true" />
               <span aria-hidden="true">{rating}</span>
             </p>
@@ -538,21 +551,21 @@ function VenueCard({
               ROW_FOCUS
             )}
           >
-            Ver en Maps
+            {t("discovery.viewOnMaps")}
             <ExternalLinkIcon className="size-3.5" aria-hidden="true" />
-            <span className="sr-only">(se abre en una pestaña nueva)</span>
+            <span className="sr-only">{t("contact.newTab")}</span>
           </a>
           {saved ? (
             <span className="inline-flex h-10 items-center gap-1.5 rounded-full bg-sage-pale px-4 text-sm font-medium text-ink">
               <CheckIcon className="size-4" aria-hidden="true" />
-              Guardada
+              {t("discovery.savedBadge")}
             </span>
           ) : (
             <button
               type="button"
               onClick={onSave}
               disabled={saving}
-              aria-label={`Guardar ${venue.name}`}
+              aria-label={t("discovery.saveAria", { name: venue.name })}
               className="inline-flex h-10 items-center gap-1.5 rounded-full bg-cta px-5 text-sm font-medium text-on-cta transition-opacity hover:opacity-90 disabled:opacity-60 outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
               {saving ? (
@@ -560,7 +573,7 @@ function VenueCard({
               ) : (
                 <PlusIcon className="size-4" aria-hidden="true" />
               )}
-              {saving ? "Guardando…" : "Guardar"}
+              {saving ? t("discovery.saving") : t("discovery.save")}
             </button>
           )}
         </div>
@@ -570,8 +583,9 @@ function VenueCard({
 }
 
 function ResultsSkeleton() {
+  const { t } = useTranslation("vendors");
   return (
-    <div role="status" aria-label="Buscando fincas" className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div role="status" aria-label={t("discovery.searchingVenues")} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {[0, 1, 2, 3].map((i) => (
         <div key={i} className="overflow-hidden rounded-2xl border border-line bg-raised">
           <Skeleton className="aspect-[16/9] w-full rounded-none bg-lilac-soft" />

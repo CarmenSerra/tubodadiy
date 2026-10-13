@@ -1,9 +1,14 @@
 "use client";
 
+"use client";
+
 import Link from "next/link";
 import { StoreIcon, UsersIcon, WalletIcon, type LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { computeTotals, formatMoney } from "@/components/budget/budget-math";
+import { computeTotals } from "@/components/budget/budget-math";
+import { formatMoney } from "@/lib/i18n/format";
+import { useLanguage } from "@/lib/i18n/provider";
 import type { WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { summarizeGuests, summarizeVendors, type FeaturedPlanData } from "./helpers";
@@ -28,6 +33,7 @@ function StatBody({
   value: string;
   muted: boolean;
 }) {
+  const { t } = useTranslation("dashboard");
   return (
     <>
       <span className="flex items-center gap-2 text-sm text-ink-muted">
@@ -35,7 +41,7 @@ function StatBody({
         {label}
       </span>
       {loading ? (
-        <span role="status" aria-label={`Cargando ${label.toLowerCase()}`}>
+        <span role="status" aria-label={t("glance.loading", { label: label.toLowerCase() })}>
           <Skeleton className="mt-3 h-6 w-2/3" />
         </span>
       ) : (
@@ -77,38 +83,40 @@ function Stat({
 
 /** "De un vistazo": tres datos y un enlace cada uno a su pestaña. */
 export function GlanceRow({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanData }) {
+  const { t } = useTranslation("dashboard");
+  const { lang } = useLanguage();
   const totals = computeTotals(plan.budgetTotal, data.budgetItems);
   const guests = summarizeGuests(data.guests);
   const vendors = summarizeVendors(data.vendors);
 
   const hasBudget = plan.budgetTotal > 0;
   const budgetValue = !hasBudget
-    ? "Añade tu presupuesto"
+    ? t("glance.budget.add")
     : totals.over > 0
-      ? `${formatMoney(totals.over)} por encima`
-      : `Te quedan ${formatMoney(totals.remaining)}`;
+      ? t("glance.budget.over", { amount: formatMoney(totals.over, lang) })
+      : t("glance.budget.left", { amount: formatMoney(totals.remaining, lang) });
 
   const guestsValue =
     guests.total === 0
-      ? "Añade a tus invitados"
-      : `${guests.confirmed} de ${guests.total} ${guests.confirmed === 1 ? "confirmado" : "confirmados"}`;
+      ? t("glance.guests.add")
+      : t("glance.guests.confirmed", { count: guests.confirmed, total: guests.total });
 
   const vendorsValue =
     vendors.total === 0
-      ? "Guarda tus proveedores"
+      ? t("glance.vendors.add")
       : vendors.booked > 0
-        ? `${vendors.booked} ${vendors.booked === 1 ? "elegido" : "elegidos"}`
-        : `${vendors.total} en estudio`;
+        ? t("glance.vendors.booked", { count: vendors.booked })
+        : t("glance.vendors.considering", { count: vendors.total });
 
   return (
     <section aria-labelledby="glance-title">
       <h2 id="glance-title" className="mb-3 font-display text-lg font-semibold text-ink">
-        De un vistazo
+        {t("glance.title")}
       </h2>
       <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
         <Stat
           href={`/plan/${plan.id}/budget`}
-          label="Presupuesto"
+          label={t("glance.budget.label")}
           icon={WalletIcon}
           loading={data.loading && data.budgetItems.length === 0}
           value={budgetValue}
@@ -116,7 +124,7 @@ export function GlanceRow({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
         />
         <Stat
           href={`/plan/${plan.id}/guests`}
-          label="Invitados"
+          label={t("glance.guests.label")}
           icon={UsersIcon}
           loading={data.loading && data.guests.length === 0}
           value={guestsValue}
@@ -124,7 +132,7 @@ export function GlanceRow({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
         />
         <Stat
           href={`/plan/${plan.id}/vendors`}
-          label="Proveedores"
+          label={t("glance.vendors.label")}
           icon={StoreIcon}
           loading={data.loading && data.vendors.length === 0}
           value={vendorsValue}

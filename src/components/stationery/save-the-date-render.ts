@@ -1,4 +1,5 @@
 import { dateParts } from "@/components/stationery/save-the-date-model";
+import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
 import type { SaveTheDateDesign, SaveTheDateTemplate } from "@/lib/firebase/designs";
 
 // Dibujo de la tarjeta «Reserva la fecha» sobre un <canvas>: la misma función
@@ -611,7 +612,7 @@ function ruleBlock(color: string, withHeart: boolean): Block {
 /* Composición                                                          */
 /* ------------------------------------------------------------------ */
 
-function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: CardFonts): Block[] {
+function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: CardFonts, lang: Lang): Block[] {
   const W = theme.maxWidth;
   const blocks: Block[] = [];
   const gap = (h: number) => blocks.push(spacer(h));
@@ -672,7 +673,7 @@ function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: C
   gap(38);
 
   // Fecha
-  const parts = dateParts(design.date);
+  const parts = dateParts(design.date, lang);
   const display = (size: number, color: string, extra: Partial<TextStyle> = {}): TextStyle => ({
     font: (s) => `400 ${s}px ${fonts.display}`,
     size,
@@ -683,7 +684,7 @@ function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: C
     if (theme.dateStyle === "sentence") {
       blocks.push(lineBlock(ctx, parts.weekday, caps(28, theme.accent, 10), W, 18));
       gap(18);
-      blocks.push(lineBlock(ctx, `${parts.day} de ${parts.month}`, display(92, theme.date), W, 36));
+      blocks.push(lineBlock(ctx, parts.dayMonth, display(92, theme.date), W, 36));
       gap(16);
       blocks.push(lineBlock(ctx, parts.year, caps(32, theme.accent, 18), W, 18));
     } else if (theme.dateStyle === "big") {
@@ -743,7 +744,12 @@ function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: C
  * Pinta la tarjeta en `canvas` (cuyo alto debe ser 1,4 × su ancho). Las
  * tipografías ya deben estar cargadas (ver `loadCardFonts`).
  */
-export function drawSaveTheDate(canvas: HTMLCanvasElement, design: SaveTheDateDesign, fonts: CardFonts) {
+export function drawSaveTheDate(
+  canvas: HTMLCanvasElement,
+  design: SaveTheDateDesign,
+  fonts: CardFonts,
+  lang: Lang = DEFAULT_LANG
+) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const theme = THEMES[design.template] ?? THEMES.jardin;
@@ -753,7 +759,7 @@ export function drawSaveTheDate(canvas: HTMLCanvasElement, design: SaveTheDateDe
 
   theme.paintBackground(ctx);
 
-  const blocks = buildBlocks(ctx, design, theme, fonts);
+  const blocks = buildBlocks(ctx, design, theme, fonts, lang);
   const total = blocks.reduce((sum, b) => sum + b.height, 0);
   const available = theme.bottom - theme.top;
   const scale = total > available ? available / total : 1;

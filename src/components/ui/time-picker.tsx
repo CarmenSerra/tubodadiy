@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { BRAND_POPOVER_SURFACE } from "@/components/ui/date-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -196,6 +197,7 @@ export function TimePicker({
   placeholder = "--:--",
   className,
 }: TimePickerProps) {
+  const { t } = useTranslation("dashboard");
   const parsed = React.useMemo(() => parseValue(value), [value]);
   const [open, setOpen] = React.useState(false);
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -267,7 +269,7 @@ export function TimePicker({
         align="start"
         sideOffset={6}
         collisionPadding={16}
-        aria-label="Elegir hora"
+        aria-label={t("ui.timePicker.choose")}
         onOpenAutoFocus={(event) => {
           event.preventDefault();
           focusColumn("h");
@@ -276,7 +278,7 @@ export function TimePicker({
       >
         <div className="mb-2 flex items-center gap-2">
           <label htmlFor={inputId} className="shrink-0 text-xs font-medium tracking-wide text-ink-muted">
-            Escribir
+            {t("ui.timePicker.type")}
           </label>
           <input
             id={inputId}
@@ -309,7 +311,7 @@ export function TimePicker({
 
         <div className="flex gap-2">
           <Column
-            label="Hora"
+            label={t("ui.timePicker.hour")}
             column="h"
             values={HOURS}
             selected={parsed?.h ?? null}
@@ -323,7 +325,7 @@ export function TimePicker({
             onSide={(d) => d > 0 && focusColumn("m")}
           />
           <Column
-            label="Min"
+            label={t("ui.timePicker.minute")}
             column="m"
             values={minutes}
             selected={parsed?.m ?? null}
@@ -348,13 +350,13 @@ export function TimePicker({
                 setOpen(false);
               }}
             >
-              Borrar
+              {t("ui.clear")}
             </button>
           ) : (
             <span />
           )}
           <button type="button" className={TEXT_BUTTON} onClick={() => setOpen(false)}>
-            Listo
+            {t("ui.done")}
           </button>
         </div>
       </PopoverContent>

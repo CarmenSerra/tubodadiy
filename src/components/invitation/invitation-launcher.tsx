@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
 import { MailIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CTA_SECONDARY } from "@/components/dashboard/ui";
 import { InvitationDialog } from "@/components/invitation/invitation-dialog";
@@ -53,12 +54,13 @@ export function InvitationLauncherProvider({ children }: { children: React.React
 
 /** Botón «Invitación» de la cabecera de Invitados. */
 export function InvitationButton({ className }: { className?: string }) {
+  const { t } = useTranslation("invitation");
   const launcher = React.useContext(InvitationLauncherContext);
   if (!launcher) return null;
   return (
     <button type="button" onClick={launcher.open} className={cn(CTA_SECONDARY, className)}>
       <MailIcon aria-hidden="true" className="size-4" />
-      Invitación
+      {t("launcher.button")}
     </button>
   );
 }

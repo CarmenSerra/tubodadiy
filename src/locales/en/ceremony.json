@@ -1,1 +1,104 @@
-{}
+{
+  "legal": {
+    "title": "Legal documents",
+    "description": "A guide to the paperwork and procedures for getting married in Spain."
+  },
+  "type": {
+    "title": "Type of ceremony",
+    "description": "How you'd like to get married. You can change it whenever you like.",
+    "change": "Change type",
+    "choose": "Choose the ceremony type",
+    "disclaimer": "This is a guide only and may vary by municipality or region. Confirm the details with your Civil Registry, notary or parish.",
+    "options": {
+      "civil": {
+        "label": "Civil",
+        "tagline": "Performed by a civil authority and fully valid in law.",
+        "implies": [
+          "It's officiated by an authority: a mayor or councillor, a justice of the peace, a notary or a court clerk (letrado de la Administración de Justicia).",
+          "You first need to complete the marriage file (at the Civil Registry or before a notary).",
+          "It's usually short and can take place at the town hall, the court, the notary's office or, depending on the municipality, at another agreed location."
+        ],
+        "legal": "The marriage is entered in the Civil Registry and is legally valid from that moment.",
+        "legalBadge": "Fully legally valid"
+      },
+      "religiosa": {
+        "label": "Religious",
+        "tagline": "Held according to the rite of a religious denomination.",
+        "implies": [
+          "It's officiated by whoever is appropriate in your faith (priest, pastor, rabbi, imam…).",
+          "For Catholic weddings there is a file at the parish, a baptism certificate and, usually, a pre-marriage course.",
+          "Timing and venue depend on the parish or community, so it's best to talk to them early."
+        ],
+        "legal": "A Catholic wedding has civil effects if it is entered in the Civil Registry (usually handled by the parish). Other denominations with an agreement with the State (Evangelical, Jewish, Islamic) can also have them, with their own requirements.",
+        "legalBadge": "Civil effects once registered"
+      },
+      "simbolica": {
+        "label": "Symbolic",
+        "tagline": "A ceremony tailored to you, with no legal effect on its own.",
+        "implies": [
+          "You choose the place, the readings, the rituals and who officiates, with no mandatory script.",
+          "It doesn't change your marital status and isn't entered in any register.",
+          "It can take place on the same day as the civil wedding or on another date."
+        ],
+        "legal": "It has no legal validity on its own. For the marriage to be legal you also need a civil wedding (or a religious one with civil effects).",
+        "legalBadge": "Also needs the civil one"
+      }
+    }
+  },
+  "officiant": {
+    "title": "Officiant",
+    "description": "Who will officiate the ceremony: their contact details, whether they're confirmed and their fee.",
+    "fields": {
+      "name": "Name",
+      "kind": "Type",
+      "phone": "Phone",
+      "email": "Email",
+      "notes": "Notes"
+    },
+    "kinds": {
+      "none": "Not specified",
+      "juez": "Judge or councillor",
+      "sacerdote": "Priest or parish priest",
+      "celebrante": "Civil officiant or celebrant",
+      "allegado": "Friend or family member",
+      "otro": "Other"
+    },
+    "confirmed": {
+      "label": "Confirmed",
+      "yes": "Yes: you have their word. The “Confirm officiant” task ticks itself off.",
+      "no": "No: they still need to be confirmed."
+    },
+    "fee": {
+      "label": "Fee (€, optional)",
+      "addToBudget": "Add to the budget",
+      "needFee": "Enter the fee so you can add it.",
+      "linked": "It's saved as a pending expense of {{amount}} under “{{category}}”. If you change the amount or remove it, the expense updates.",
+      "willCreate": "Creates a pending expense in the “{{category}}” category.",
+      "category": "Ceremony",
+      "inBudget": "It's already in the budget.",
+      "viewBudget": "View budget"
+    },
+    "errors": {
+      "name": "To mark them as confirmed, enter their name.",
+      "email": "Check the email address: it should look like name@domain.com.",
+      "fee": "Enter a valid amount, without symbols."
+    },
+    "toast": {
+      "saved": "Officiant details saved",
+      "cleared": "Officiant details removed",
+      "error": "Couldn't save the officiant details."
+    },
+    "clear": "Remove details",
+    "save": "Save"
+  },
+  "timeline": {
+    "title": "Timeline of the day",
+    "noDate": "Hour by hour, the big day. You don't have a date yet.",
+    "edit": "Edit timeline",
+    "loading": "Loading the timeline",
+    "error": "We couldn't load the timeline. Check your connection; your data is still saved.",
+    "empty": "There are no moments yet. You can start from a template (getting ready, ceremony, cocktails, banquet, dancing…) and fine-tune the times at your own pace, or start from scratch.",
+    "create": "Create the timeline",
+    "until": "until"
+  }
+}

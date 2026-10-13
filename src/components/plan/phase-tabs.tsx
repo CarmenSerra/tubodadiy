@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CheckIcon, LockIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { TabUnlock } from "@/components/plan/phase-celebration";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,13 +43,14 @@ export function PhaseTabs({
   unlockingId?: string | null;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation("plan");
   const listRef = React.useRef<HTMLDivElement>(null);
   const markerRef = React.useRef<HTMLSpanElement>(null);
   const markerReady = React.useRef(false);
 
   // Marcador de la pestaña activa: un contorno que se desliza de una pestaña a otra
   // (el relleno de cada pestaña se funde por su cuenta). La primera vez se coloca sin animar.
-  const activeComplete = tabs.find((t) => t.id === value)?.complete ?? false;
+  const activeComplete = tabs.find((tab) => tab.id === value)?.complete ?? false;
   React.useLayoutEffect(() => {
     const list = listRef.current;
     const marker = markerRef.current;
@@ -93,7 +95,8 @@ export function PhaseTabs({
     <Tabs value={value} onValueChange={onValueChange} className="gap-4">
       <TabsList
         ref={listRef}
-        aria-label="Fases del plan"
+        aria-label={t("tabs.ariaLabel")}
+        data-phase-tabs=""
         className={cn(
           "relative h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-lilac-soft p-1.5 ring-1 ring-lilac-edge",
           "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -129,7 +132,7 @@ export function PhaseTabs({
               {tab.locked && (
                 <>
                   <LockIcon className="size-3.5 text-ink-muted" aria-hidden="true" />
-                  <span className="sr-only">(bloqueada)</span>
+                  <span className="sr-only">{t("tabs.locked")}</span>
                 </>
               )}
               {unlockingId === tab.id && !tab.locked && <TabUnlock />}
@@ -143,7 +146,7 @@ export function PhaseTabs({
               {tab.recommended && (
                 <>
                   <span aria-hidden="true" className="size-1.5 rounded-full bg-lilac" />
-                  <span>Recomendado</span>
+                  <span>{t("tabs.recommended")}</span>
                   <span aria-hidden="true">·</span>
                 </>
               )}
@@ -155,7 +158,7 @@ export function PhaseTabs({
                   >
                     <CheckIcon className="size-3" strokeWidth={3} />
                   </span>
-                  <span>Completada</span>
+                  <span>{t("tabs.complete")}</span>
                 </>
               ) : (
                 <>
@@ -163,7 +166,7 @@ export function PhaseTabs({
                     {tab.done}/{tab.total}
                   </span>
                   <span className="sr-only">
-                    {tab.done} de {tab.total} {tab.total === 1 ? "paso" : "pasos"}
+                    {t("tabs.progress", { done: tab.done, count: tab.total })}
                   </span>
                 </>
               )}

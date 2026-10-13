@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 /** Cuántos cambios se pueden deshacer, como máximo, durante una sesión del diálogo. */
@@ -39,6 +40,7 @@ export interface TimelineUndo {
  * cabecera siempre deshacen lo mismo y en orden.
  */
 export function useTimelineUndo(): TimelineUndo {
+  const { t } = useTranslation("timeline");
   const stackRef = React.useRef<StackEntry[]>([]);
   const busyRef = React.useRef(false);
   const counterRef = React.useRef(0);
@@ -58,13 +60,15 @@ export function useTimelineUndo(): TimelineUndo {
       await entry.undo();
       // Solo se quita de la pila si salió bien: si falla, se puede reintentar.
       commit(stackRef.current.filter((e) => e !== entry));
-      toast.success(`Deshecho: ${entry.message.charAt(0).toLowerCase()}${entry.message.slice(1)}`);
+      toast.success(
+        t("undo.done", { message: `${entry.message.charAt(0).toLowerCase()}${entry.message.slice(1)}` })
+      );
     } catch {
-      toast.error("No se ha podido deshacer el cambio.");
+      toast.error(t("undo.error"));
     } finally {
       busyRef.current = false;
     }
-  }, [commit]);
+  }, [commit, t]);
 
   const push = React.useCallback(
     (entry: UndoEntry) => {
@@ -80,10 +84,10 @@ export function useTimelineUndo(): TimelineUndo {
         // avisos); sin esto el botón «Deshacer» del aviso no respondería.
         style: { pointerEvents: "auto" },
         classNames: { actionButton: "!rounded-full !bg-cta !px-3 !font-medium !text-on-cta" },
-        action: { label: "Deshacer", onClick: () => void undoLast() },
+        action: { label: t("undo.action"), onClick: () => void undoLast() },
       });
     },
-    [commit, undoLast]
+    [commit, undoLast, t]
   );
 
   const clear = React.useCallback(() => {

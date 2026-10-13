@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPinIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CARD } from "@/components/dashboard/ui";
@@ -8,10 +9,11 @@ import { IconTrigger, ROW_FOCUS as FOCUS_WHITE } from "@/components/vendors/vend
 import { SLIDE_WIDTH } from "@/components/vendors/vendor-carousel";
 import { VendorContactDialog } from "@/components/vendors/vendor-contact-dialog";
 import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
-import { EMPTY_COPY } from "@/components/vendors/vendor-model";
+import { categoryLabel, categorySlug } from "@/components/vendors/vendor-model";
 import { VendorPhoto, VendorPlaceholder } from "@/components/vendors/vendor-photo";
 import { VendorStatusBadge } from "@/components/vendors/vendor-status";
 import { deleteVendor, restoreVendor } from "@/lib/firebase/mutations";
+import { useLanguage } from "@/lib/i18n/provider";
 import type { Vendor } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -30,12 +32,15 @@ export function VendorCard({
   vendor: Vendor;
   active?: boolean;
 }) {
+  const { t } = useTranslation("vendors");
+  const { lang } = useLanguage();
+
   async function handleDelete() {
     try {
       await deleteVendor(planId, vendor.id);
-      toastWithUndo("Proveedor eliminado", () => restoreVendor(planId, vendor));
+      toastWithUndo(t("card.deleted"), () => restoreVendor(planId, vendor));
     } catch {
-      toast.error("No se ha podido eliminar el proveedor.");
+      toast.error(t("card.deleteError"));
     }
   }
 
@@ -64,12 +69,12 @@ export function VendorCard({
             planId={planId}
             vendor={vendor}
             trigger={
-              <IconTrigger label={`Editar ${vendor.name}`}>
+              <IconTrigger label={t("card.edit", { name: vendor.name })}>
                 <PencilIcon aria-hidden="true" />
               </IconTrigger>
             }
           />
-          <IconTrigger label={`Eliminar ${vendor.name}`} onClick={() => void handleDelete()}>
+          <IconTrigger label={t("card.delete", { name: vendor.name })} onClick={() => void handleDelete()}>
             <Trash2Icon aria-hidden="true" />
           </IconTrigger>
         </div>
@@ -81,9 +86,9 @@ export function VendorCard({
             {vendor.name}
           </h3>
           {vendor.cost !== null ? (
-            <p className="mt-0.5 text-sm font-medium text-ink">{formatCurrency(vendor.cost)}</p>
+            <p className="mt-0.5 text-sm font-medium text-ink">{formatCurrency(vendor.cost, lang)}</p>
           ) : (
-            <p className="mt-0.5 text-sm text-ink-muted">Precio por confirmar</p>
+            <p className="mt-0.5 text-sm text-ink-muted">{t("card.priceTbc")}</p>
           )}
           {location && (
             <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-muted">
@@ -103,10 +108,15 @@ export function VendorCard({
 
 /** Hueco acogedor de una categoría vacía: abre el formulario con la categoría ya elegida. */
 export function EmptyVendorCard({ planId, category }: { planId: string; category: string }) {
-  const copy = EMPTY_COPY[category] ?? {
-    title: `Añade tu primera opción de ${category.toLowerCase()}`,
-    cta: "Añadir opción",
-  };
+  const { t } = useTranslation("vendors");
+  const slug = categorySlug(category);
+  const starter = slug === "venue" || slug === "catering" || slug === "photographer";
+  const copy = starter
+    ? { title: t(`empty.${slug}.title`), cta: t(`empty.${slug}.cta`) }
+    : {
+        title: t("empty.custom.title", { category: categoryLabel(category, t).toLowerCase() }),
+        cta: t("empty.custom.cta"),
+      };
   return (
     <div className={cn("mx-auto", SLIDE_WIDTH)}>
       <VendorFormDialog
@@ -129,7 +139,7 @@ export function EmptyVendorCard({ planId, category }: { planId: string; category
                 {copy.title}
               </span>
               <span className="text-sm text-ink-muted">
-                Guarda aquí las opciones que estás comparando.
+                {t("empty.hint")}
               </span>
               <span className="inline-flex h-10 w-fit items-center gap-2 rounded-full bg-cta px-4 text-sm font-medium text-on-cta">
                 <PlusIcon className="size-4" aria-hidden="true" />

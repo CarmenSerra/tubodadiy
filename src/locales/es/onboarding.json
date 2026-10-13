@@ -1,1 +1,290 @@
-{}
+{
+  "defaultTitle": "Nuestra boda",
+  "meta": {
+    "title": "Nuevo plan de boda — tubodadiy"
+  },
+  "optional": "(opcional)",
+  "name": {
+    "label": "Nombre del plan"
+  },
+  "mode": {
+    "scratch": {
+      "title": "Desde cero",
+      "description": "Lienzo en blanco, os guiamos paso a paso"
+    },
+    "advanced": {
+      "title": "Ya tenemos cosas avanzadas",
+      "description": "Pasad aquí lo que ya tenéis y lo organizamos"
+    }
+  },
+  "options": {
+    "have": {
+      "fecha": {
+        "label": "Fecha",
+        "hint": "Ya sabemos el día"
+      },
+      "presupuesto": {
+        "label": "Presupuesto",
+        "hint": "Tenemos una cifra"
+      },
+      "lugar": {
+        "label": "Lugar reservado",
+        "hint": "Finca, salón o iglesia"
+      },
+      "invitados": {
+        "label": "Lista de invitados",
+        "hint": "Una lista que pegar aquí"
+      },
+      "proveedores": {
+        "label": "Proveedores contratados",
+        "hint": "Catering, fotografía…"
+      },
+      "ceremonia": {
+        "label": "Tipo de ceremonia",
+        "hint": "Civil, religiosa…"
+      },
+      "vestuario": {
+        "label": "Vestido o traje",
+        "hint": "Ya lo hemos elegido"
+      },
+      "alianzas": {
+        "label": "Alianzas",
+        "hint": "Ya las tenemos"
+      },
+      "luna": {
+        "label": "Luna de miel",
+        "hint": "Destino o reserva"
+      }
+    },
+    "ceremony": {
+      "civil": {
+        "label": "Civil",
+        "hint": "Con validez legal, en un ayuntamiento o en otro lugar"
+      },
+      "religiosa": {
+        "label": "Religiosa",
+        "hint": "En una iglesia u otro lugar de culto"
+      },
+      "simbolica": {
+        "label": "Simbólica",
+        "hint": "Una ceremonia a vuestra manera, sin trámite legal"
+      },
+      "unknown": {
+        "label": "Aún no lo sabemos",
+        "hint": "Lo decidiremos más adelante"
+      }
+    },
+    "scope": {
+      "ceremonia": "Ceremonia",
+      "banquete": "Banquete",
+      "ambos": "Ambos"
+    }
+  },
+  "vendorTypes": {
+    "catering": "Catering",
+    "fotografo": "Fotógrafo/a",
+    "musica": "Música / DJ",
+    "flores": "Flores",
+    "video": "Vídeo",
+    "belleza": "Peluquería y maquillaje",
+    "tarta": "Tarta",
+    "transporte": "Transporte",
+    "decoracion": "Decoración"
+  },
+  "date": {
+    "label": "Fecha de la boda",
+    "placeholder": "Elegir la fecha",
+    "help": "Con la fecha, tubodadiy empieza la cuenta atrás por vosotros."
+  },
+  "budget": {
+    "label": "Presupuesto total en euros",
+    "placeholder": "12.000",
+    "help": "Una cifra orientativa; podéis cambiarla cuando queráis."
+  },
+  "approx": {
+    "label": "Número aproximado de invitados",
+    "placeholder": "120",
+    "help": "Con un número aproximado vale. Lo afinaréis al hacer la lista."
+  },
+  "venue": {
+    "nameLabel": "Nombre del lugar",
+    "namePlaceholder": "Finca El Olivar",
+    "locationLabel": "Dónde está",
+    "locationPlaceholder": "Toledo",
+    "scopeQuestion": "¿Es para la ceremonia, el banquete o ambos?"
+  },
+  "guests": {
+    "label": "Pegad aquí vuestra lista",
+    "placeholder": "Ana García; Familia de la novia\nLuis Pérez; Amigos\nMaría López",
+    "help": "Un invitado por línea. Si pegáis desde Excel o Google Sheets, la primera columna es el nombre y la segunda, el grupo (opcional). También vale separar con «;» o con una coma.",
+    "willAdd_one": "Vamos a añadir {{n}} invitado",
+    "willAdd_other": "Vamos a añadir {{n}} invitados",
+    "tableCaption": "Primeros invitados de la lista",
+    "columnName": "Nombre",
+    "columnGroup": "Grupo",
+    "noGroup": "Sin grupo",
+    "andMore": "… y {{n}} más",
+    "skippedHeader": "Hemos ignorado la primera fila porque parece una cabecera.",
+    "truncated": "Solo añadiremos los primeros {{n}}."
+  },
+  "vendors": {
+    "nameLabel": "Nombre",
+    "priceLabel": "Precio",
+    "pricePlaceholder": "1.500"
+  },
+  "honeymoon": {
+    "label": "Destino de la luna de miel",
+    "placeholder": "Japón",
+    "help": "Es opcional: lo apuntamos en la sección Luna de miel."
+  },
+  "summary": {
+    "yourPlan": "Vuestro plan",
+    "blank": "Empezáis con el lienzo en blanco: os guiamos paso a paso por las 13 secciones del plan.",
+    "labels": {
+      "date": "Fecha",
+      "budget": "Presupuesto",
+      "ceremony": "Ceremonia",
+      "venue": "Lugar",
+      "guests": "Invitados",
+      "vendors": "Proveedores",
+      "dress": "Vestido o traje",
+      "rings": "Alianzas",
+      "honeymoon": "Luna de miel"
+    },
+    "venueScope": {
+      "ceremonia": "ceremonia",
+      "banquete": "banquete",
+      "ambos": "ceremonia y banquete"
+    },
+    "guestsList_one": "{{n}} invitado en la lista",
+    "guestsList_other": "{{n}} invitados en la lista",
+    "guestsApprox": "Unos {{n}} invitados",
+    "vendorsList_one": "{{count}} proveedor ({{names}})",
+    "vendorsList_other": "{{count}} proveedores ({{names}})",
+    "dressDone": "Ya elegido",
+    "ringsDone": "Ya las tenéis",
+    "honeymoonDone": "Ya la tenéis"
+  },
+  "creating": {
+    "title": "Preparando vuestro plan",
+    "description": "Solo será un momento.",
+    "dontClose": "No cerréis esta página hasta que terminemos.",
+    "done": "(hecho)",
+    "failed": "(no se ha podido)",
+    "stages": {
+      "plan": "Creando vuestro plan y sus secciones",
+      "venue": "Guardando el lugar",
+      "guests_one": "Añadiendo {{count}} invitado",
+      "guests_other": "Añadiendo {{count}} invitados",
+      "vendors": "Guardando los proveedores",
+      "steps": "Marcando lo que ya tenéis hecho"
+    }
+  },
+  "create": {
+    "error": "No se ha podido crear el plan. Inténtalo de nuevo.",
+    "success": "¡Plan creado!",
+    "partial": "Hemos creado el plan, pero no hemos podido añadir {{items}}. Podéis añadirlo desde el plan.",
+    "failedStage": {
+      "venue": "el lugar",
+      "guests": "la lista de invitados",
+      "vendors": "los proveedores",
+      "steps": "el progreso de las secciones"
+    }
+  },
+  "nav": {
+    "exitAria": "Salir sin crear el plan",
+    "exit": "Salir",
+    "progress": "Paso {{current}} de {{total}}",
+    "back": "Atrás",
+    "skipDefault": "Lo relleno después",
+    "create": "Crear nuestro plan",
+    "continue": "Continuar"
+  },
+  "leave": {
+    "title": "¿Salir sin crear el plan?",
+    "description": "Perderéis lo que habéis escrito hasta ahora.",
+    "stay": "Seguir con el plan"
+  },
+  "errors": {
+    "budgetInvalid": "Escribe un importe válido, por ejemplo 12.000.",
+    "budgetNegative": "El presupuesto no puede ser negativo.",
+    "amountTooLarge": "Ese importe es demasiado grande.",
+    "guestsInvalid": "Escribe un número entero, por ejemplo 120.",
+    "priceInvalid": "Escribe un importe válido, por ejemplo 1.500."
+  },
+  "copy": {
+    "name": {
+      "title": "¿Cómo se llama vuestro plan?",
+      "description": "Un nombre para reconocerlo. Podréis cambiarlo cuando queráis."
+    },
+    "mode": {
+      "title": "¿Cómo queréis empezar?",
+      "description": "Elegid lo que mejor os encaje. Siempre podréis añadir más cosas después."
+    },
+    "have": {
+      "title": "¿Qué tenéis ya?",
+      "description": "Marcad todo lo que ya esté decidido o reservado. Os pediremos solo esos datos.",
+      "skip": "Empezar sin nada"
+    },
+    "date": {
+      "title": "¿Ya tenéis fecha?",
+      "titleAdvanced": "¿Qué fecha tenéis?",
+      "description": "Elegid el día en el calendario.",
+      "skip": "Aún no la sabemos"
+    },
+    "budget": {
+      "title": "¿Cuál es vuestro presupuesto total?",
+      "description": "Lo que pensáis gastar en toda la boda.",
+      "skip": "Aún no lo sabemos"
+    },
+    "ceremony": {
+      "title": "¿Qué tipo de ceremonia queréis?",
+      "titleAdvanced": "¿Qué tipo de ceremonia tenéis?",
+      "description": "Lo apuntamos en la sección Ceremonia.",
+      "skip": "Saltar"
+    },
+    "approx": {
+      "title": "¿Cuántos invitados calculáis?",
+      "description": "Un número aproximado nos vale.",
+      "skip": "Aún no lo sabemos"
+    },
+    "venue": {
+      "title": "¿Qué lugar tenéis reservado?",
+      "description": "Lo guardamos en Proveedores como lugar elegido."
+    },
+    "guests": {
+      "title": "Pasadnos vuestra lista de invitados",
+      "description": "Copiadla de donde la tengáis y pegadla aquí; nosotros la ordenamos."
+    },
+    "vendors": {
+      "title": "¿Qué proveedores habéis contratado?",
+      "description": "Marcad los que ya tenéis. Los guardamos como elegidos; el nombre y el precio son opcionales."
+    },
+    "honeymoon": {
+      "title": "¿Adónde vais de luna de miel?",
+      "description": "Si ya lo sabéis, contádnoslo."
+    },
+    "summary": {
+      "title": "Todo listo para empezar",
+      "description": "Esto es lo que vamos a preparar por vosotros. Después podréis cambiarlo todo desde el plan."
+    }
+  },
+  "notes": {
+    "venue": {
+      "ceremonia": "Reservado para la ceremonia.",
+      "banquete": "Reservado para el banquete.",
+      "ambos": "Reservado para la ceremonia y el banquete."
+    },
+    "vendorMissing": "Falta añadir el nombre y los datos de contacto.",
+    "guestsApprox": "Calculamos unos {{n}} invitados.",
+    "ceremonyType": "Tipo de ceremonia: {{type}}.",
+    "ceremonyTypes": {
+      "civil": "civil",
+      "religiosa": "religiosa",
+      "simbolica": "simbólica"
+    },
+    "rings": "Ya tenemos las alianzas.",
+    "honeymoonTo": "Luna de miel: {{destination}}",
+    "honeymoonDone": "Ya tenemos la luna de miel."
+  }
+}

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Loader2, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -42,11 +43,7 @@ import { cn } from "@/lib/utils";
 import { addGuest, updateGuest } from "@/lib/firebase/mutations";
 import type { Guest, RsvpStatus } from "@/lib/types";
 
-const RSVP_OPTIONS: { value: RsvpStatus; label: string }[] = [
-  { value: "pending", label: "Pendiente" },
-  { value: "confirmed", label: "Confirmado" },
-  { value: "declined", label: "No asiste" },
-];
+const RSVP_OPTIONS: RsvpStatus[] = ["pending", "confirmed", "declined"];
 
 interface GuestFormDialogProps {
   planId: string;
@@ -73,6 +70,7 @@ export function GuestFormDialog({
   onOpenChange,
   returnFocusTo,
 }: GuestFormDialogProps) {
+  const { t } = useTranslation("guests");
   const [openState, setOpenState] = React.useState(false);
   const controlled = openProp !== undefined;
   const open = controlled ? openProp : openState;
@@ -87,7 +85,7 @@ export function GuestFormDialog({
           {trigger ?? (
             <button type="button" className={CTA_PRIMARY}>
               <PlusIcon aria-hidden="true" className="size-4" />
-              Añadir invitado
+              {t("form.addGuest")}
             </button>
           )}
         </DialogTrigger>
@@ -137,6 +135,7 @@ function GuestForm({
   defaultGroup?: string;
   onDone: () => void;
 }) {
+  const { t } = useTranslation("guests");
   const isEdit = Boolean(guest);
   const [name, setName] = React.useState(guest?.name ?? "");
   const [groupName, setGroupName] = React.useState(guest?.groupName ?? defaultGroup ?? "");
@@ -163,14 +162,14 @@ function GuestForm({
       };
       if (isEdit && guest) {
         await updateGuest(planId, guest.id, data);
-        toast.success("Invitado actualizado");
+        toast.success(t("form.updated"));
       } else {
         await addGuest(planId, data);
-        toast.success("Invitado añadido");
+        toast.success(t("form.added"));
       }
       onDone();
     } catch {
-      toast.error("No se ha podido guardar el invitado.");
+      toast.error(t("form.saveError"));
     } finally {
       setSubmitting(false);
     }
@@ -179,18 +178,18 @@ function GuestForm({
   return (
     <form onSubmit={handleSubmit}>
       <DialogHeader>
-        <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar invitado" : "Nuevo invitado"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{isEdit ? t("form.editTitle") : t("form.newTitle")}</DialogTitle>
       </DialogHeader>
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-name" className={FIELD_LABEL}>
-            Nombre
+            {t("form.name")}
           </Label>
           <Input
             id="guest-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nombre y apellidos"
+            placeholder={t("form.namePlaceholder")}
             required
             autoFocus
             className={FIELD}
@@ -198,22 +197,22 @@ function GuestForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-group" className={FIELD_LABEL}>
-            Grupo
+            {t("form.group")}
           </Label>
           <GroupSelect id="guest-group" value={groupName} onChange={setGroupName} groups={groups} />
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-rsvp" className={FIELD_LABEL}>
-            Respuesta
+            {t("form.response")}
           </Label>
           <Select value={rsvpStatus} onValueChange={(v) => setRsvpStatus(v as RsvpStatus)}>
             <SelectTrigger id="guest-rsvp" className={SELECT_TRIGGER}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent className={SELECT_CONTENT}>
-              {RSVP_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value} className={SELECT_ITEM}>
-                  {opt.label}
+              {RSVP_OPTIONS.map((value) => (
+                <SelectItem key={value} value={value} className={SELECT_ITEM}>
+                  {t(`rsvp.${value}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -225,18 +224,18 @@ function GuestForm({
             onCheckedChange={(v) => setPlusOne(Boolean(v))}
             className={CHECKBOX}
           />
-          Lleva acompañante
+          {t("form.plusOne")}
         </label>
         {plusOne && (
           <div className="flex flex-col gap-2">
             <Label htmlFor="guest-plusone-name" className={FIELD_LABEL}>
-              Nombre del acompañante
+              {t("form.plusOneName")}
             </Label>
             <Input
               id="guest-plusone-name"
               value={plusOneName}
               onChange={(e) => setPlusOneName(e.target.value)}
-              placeholder="Opcional: se puede añadir más tarde"
+              placeholder={t("form.plusOnePlaceholder")}
               maxLength={120}
               autoComplete="off"
               className={FIELD}
@@ -245,19 +244,19 @@ function GuestForm({
         )}
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-diet" className={FIELD_LABEL}>
-            Notas dietéticas
+            {t("form.dietary")}
           </Label>
           <Input
             id="guest-diet"
             value={dietaryNotes}
             onChange={(e) => setDietaryNotes(e.target.value)}
-            placeholder="Vegetariano, alergias..."
+            placeholder={t("form.dietaryPlaceholder")}
             className={FIELD}
           />
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="guest-notes" className={FIELD_LABEL}>
-            Notas
+            {t("form.notes")}
           </Label>
           <Textarea
             id="guest-notes"
@@ -270,11 +269,11 @@ function GuestForm({
       </div>
       <DialogFooter className="mt-6 gap-2 sm:gap-3">
         <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
-          Cancelar
+          {t("form.cancel")}
         </button>
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
           {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("form.save")}
         </button>
       </DialogFooter>
     </form>
@@ -286,5 +285,6 @@ export function EditGuestTrigger({
   guestName,
   ...props
 }: React.ComponentProps<"button"> & { guestName?: string }) {
-  return <EditIconButton label={guestName ? `Editar a ${guestName}` : "Editar invitado"} {...props} />;
+  const { t } = useTranslation("guests");
+  return <EditIconButton label={guestName ? t("form.editGuestNamed", { name: guestName }) : t("form.editTitle")} {...props} />;
 }

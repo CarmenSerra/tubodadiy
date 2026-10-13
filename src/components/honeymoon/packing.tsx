@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { BriefcaseIcon, Loader2, PlusIcon, RotateCcwIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -28,8 +29,10 @@ import {
 } from "@/lib/firebase/honeymoon";
 import {
   PACKING_GROUPS,
+  PACKING_GROUP_KEY,
   SUGGESTED_PACKING,
   isPackingGroup,
+  packingDisplay,
   packingProgress,
   type PackingGroup,
   type PackingItem,
@@ -38,6 +41,7 @@ import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
 function AddItemForm({ planId, announce }: { planId: string; announce: (message: string) => void }) {
+  const { t } = useTranslation("honeymoon");
   const [label, setLabel] = React.useState("");
   const [group, setGroup] = React.useState<PackingGroup>("Otros");
   const [busy, setBusy] = React.useState(false);
@@ -53,11 +57,11 @@ function AddItemForm({ planId, announce }: { planId: string; announce: (message:
     setBusy(true);
     try {
       await addPackingItem(planId, clean, group);
-      announce(`«${clean}» añadido a ${group}`);
+      announce(t("packing.announce.added", { name: clean, group: t(`packing.groups.${PACKING_GROUP_KEY[group]}`) }));
       setLabel("");
       document.getElementById(`${uid}-label`)?.focus();
     } catch {
-      toast.error("No se ha podido añadir el artículo.");
+      toast.error(t("packing.errors.add"));
     } finally {
       setBusy(false);
     }
@@ -67,24 +71,24 @@ function AddItemForm({ planId, announce }: { planId: string; announce: (message:
     <form
       onSubmit={handleSubmit}
       className={cn(HM_CARD, "flex flex-col gap-3 p-4 sm:flex-row sm:items-end sm:p-5")}
-      aria-label="Añadir a la maleta"
+      aria-label={t("packing.addForm.label")}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <Label htmlFor={`${uid}-label`} className={FIELD_LABEL}>
-          Añadir a la lista
+          {t("packing.addForm.item")}
         </Label>
         <Input
           id={`${uid}-label`}
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          placeholder="Libro, gafas de snorkel…"
+          placeholder={t("packing.addForm.placeholder")}
           autoComplete="off"
           className={FIELD}
         />
       </div>
       <div className="flex flex-col gap-2 sm:w-44">
         <Label htmlFor={`${uid}-group`} className={FIELD_LABEL}>
-          Grupo
+          {t("packing.addForm.group")}
         </Label>
         <Select value={group} onValueChange={(v) => isPackingGroup(v) && setGroup(v)}>
           <SelectTrigger id={`${uid}-group`} className={cn(SELECT_TRIGGER, "w-full")}>
@@ -93,7 +97,7 @@ function AddItemForm({ planId, announce }: { planId: string; announce: (message:
           <SelectContent className={SELECT_CONTENT}>
             {PACKING_GROUPS.map((g) => (
               <SelectItem key={g} value={g} className={SELECT_ITEM}>
-                {g}
+                {t(`packing.groups.${PACKING_GROUP_KEY[g]}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -105,7 +109,7 @@ function AddItemForm({ planId, announce }: { planId: string; announce: (message:
         ) : (
           <PlusIcon aria-hidden="true" className="size-4" />
         )}
-        Añadir
+        {t("packing.addForm.add")}
       </button>
     </form>
   );
@@ -122,6 +126,7 @@ export function Packing({
   seeded: boolean;
   announce: (message: string) => void;
 }) {
+  const { t } = useTranslation("honeymoon");
   const [restoring, setRestoring] = React.useState(false);
   const progress = packingProgress(items);
   const present = React.useMemo(() => new Set(items.map((i) => i.id)), [items]);
@@ -138,19 +143,19 @@ export function Packing({
   async function handleToggle(item: PackingItem, checked: boolean) {
     try {
       await setPackingChecked(planId, item.id, checked);
-      announce(`«${item.label}»: ${checked ? "en la maleta" : "pendiente"}`);
+      announce(t(checked ? "packing.announce.packed" : "packing.announce.pending", { name: packingDisplay(item, t).label }));
     } catch {
-      toast.error("No se ha podido actualizar el artículo.");
+      toast.error(t("packing.errors.update"));
     }
   }
 
   async function handleDelete(item: PackingItem) {
     try {
       await deletePackingItem(planId, item.id);
-      toastWithUndo("Artículo eliminado", () => restorePackingItem(planId, item));
-      announce(`«${item.label}» eliminado de la lista`);
+      toastWithUndo(t("packing.toasts.deleted"), () => restorePackingItem(planId, item));
+      announce(t("packing.announce.removed", { name: packingDisplay(item, t).label }));
     } catch {
-      toast.error("No se ha podido eliminar el artículo.");
+      toast.error(t("packing.errors.delete"));
     }
   }
 
@@ -158,9 +163,9 @@ export function Packing({
     setRestoring(true);
     try {
       await restoreSuggestedPacking(planId, missing.map((m) => m.id));
-      toast.success(missing.length === 1 ? "Artículo sugerido recuperado" : "Artículos sugeridos recuperados");
+      toast.success(t("packing.toasts.restored", { count: missing.length }));
     } catch {
-      toast.error("No se ha podido cargar la lista sugerida.");
+      toast.error(t("packing.errors.restore"));
     } finally {
       setRestoring(false);
     }
@@ -174,7 +179,7 @@ export function Packing({
         ) : (
           <RotateCcwIcon aria-hidden="true" className="size-4" />
         )}
-        {seeded ? `Recuperar sugeridos (${missing.length})` : "Cargar lista sugerida"}
+        {seeded ? t("packing.restoreSuggested", { count: missing.length }) : t("packing.loadSuggested")}
       </button>
     ) : null;
 
@@ -183,39 +188,39 @@ export function Packing({
       <SectionHeader
         id="hm-maleta-title"
         icon={<BriefcaseIcon />}
-        title="Maleta y papeles"
-        description="Todo lo que no se puede olvidar, para ir tachando."
+        title={t("packing.title")}
+        description={t("packing.description")}
         actions={items.length > 0 ? restoreButton : undefined}
       />
 
       {items.length === 0 ? (
         <EmptyState
           scene="montana"
-          title={seeded ? "La maleta está vacía" : "Preparando tu lista…"}
+          title={seeded ? t("packing.empty.title") : t("packing.empty.preparingTitle")}
           action={restoreButton}
         >
           {seeded
-            ? "Has quitado todo de la lista. Puedes recuperar los artículos sugeridos o añadir los tuyos."
-            : "Estamos dejando lista una maleta con lo típico: papeles, salud, ropa y tecnología."}
+            ? t("packing.empty.text")
+            : t("packing.empty.preparingText")}
         </EmptyState>
       ) : (
         <div className={cn(HM_CARD, "flex flex-col gap-3 p-5 sm:p-6")}>
           <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
             <div>
-              <p className="text-sm text-ink-muted">Maleta preparada</p>
+              <p className="text-sm text-ink-muted">{t("packing.progress.label")}</p>
               <p className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl" data-testid="packing-progress">
-                {progress.done} de {progress.total}
+                {t("packing.progress.value", { done: progress.done, total: progress.total })}
               </p>
             </div>
             <p className="pb-1 text-sm text-ink-muted">
               {progress.done === progress.total
-                ? "Todo listo para despegar."
-                : `Faltan ${progress.total - progress.done} ${progress.total - progress.done === 1 ? "cosa" : "cosas"}.`}
+                ? t("packing.progress.allDone")
+                : t("packing.progress.remaining", { count: progress.total - progress.done })}
             </p>
           </div>
           <div
             role="img"
-            aria-label={`Maleta preparada al ${progress.percent}%`}
+            aria-label={t("packing.progress.barLabel", { percent: progress.percent })}
             className="h-3 w-full overflow-hidden rounded-full bg-track"
           >
             <div
@@ -231,18 +236,21 @@ export function Packing({
       {groups.length > 0 && (
         <div className="grid items-start gap-4 lg:grid-cols-2">
           {groups.map(({ group, items: groupItems }) => {
+            const groupName = t(`packing.groups.${PACKING_GROUP_KEY[group]}`);
             const done = groupItems.filter((i) => i.checked).length;
             return (
-              <section key={group} aria-label={group} className={cn(HM_CARD, "overflow-hidden")}>
+              <section key={group} aria-label={groupName} className={cn(HM_CARD, "overflow-hidden")}>
                 <h3 className="flex items-center justify-between gap-3 bg-lilac-soft px-4 py-3 font-display text-lg font-semibold text-ink sm:px-5">
-                  {group}
+                  {groupName}
                   <span className="text-sm font-normal text-ink-muted">
-                    <span className="sr-only">Preparados: </span>
+                    <span className="sr-only">{t("packing.groupDone")} </span>
                     {done}/{groupItems.length}
                   </span>
                 </h3>
                 <ul>
-                  {groupItems.map((item) => (
+                  {groupItems.map((item) => {
+                    const shown = packingDisplay(item, t);
+                    return (
                     <li key={item.id} className="flex items-center gap-1 border-t border-line first:border-t-0 pl-4 pr-1 sm:pl-5">
                       <label className="flex min-h-12 min-w-0 flex-1 cursor-pointer items-start gap-3 py-3">
                         <Checkbox
@@ -257,14 +265,15 @@ export function Packing({
                               item.checked ? "text-ink-muted line-through" : "font-medium text-ink-strong"
                             )}
                           >
-                            {item.label}
+                            {shown.label}
                           </span>
-                          {item.note && <span className="mt-0.5 block text-xs text-ink-muted">{item.note}</span>}
+                          {shown.note && <span className="mt-0.5 block text-xs text-ink-muted">{shown.note}</span>}
                         </span>
                       </label>
-                      <DeleteIconButton ariaLabel={`Quitar «${item.label}» de la lista`} onDelete={() => handleDelete(item)} />
+                      <DeleteIconButton ariaLabel={t("packing.deleteAria", { name: shown.label })} onDelete={() => handleDelete(item)} />
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               </section>
             );

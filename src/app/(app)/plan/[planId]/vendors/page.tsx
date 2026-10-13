@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
 import { PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CTA_PRIMARY, SECTION_TITLE } from "@/components/dashboard/ui";
 import { VendorIdeas } from "@/components/ideas/vendor-ideas";
@@ -49,15 +50,16 @@ function NewVendorFromLink({ planId }: { planId: string }) {
 }
 
 export default function VendorsPage() {
+  const { t } = useTranslation("vendors");
   const { planId } = usePlanContext();
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="min-w-0">
-          <h2 className={SECTION_TITLE}>Proveedores</h2>
+          <h2 className={SECTION_TITLE}>{t("page.title")}</h2>
           <p className="mt-1 text-sm text-ink-muted">
-            Compara tus opciones por categoría y quédate con la que más te enamore.
+            {t("page.description")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -66,7 +68,7 @@ export default function VendorsPage() {
             trigger={
               <button type="button" className={CTA_PRIMARY}>
                 <PlusIcon className="size-4" aria-hidden="true" />
-                Añadir proveedor
+                {t("form.addVendor")}
               </button>
             }
           />

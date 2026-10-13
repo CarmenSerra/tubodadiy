@@ -1,21 +1,38 @@
 "use client";
 
 import Link from "next/link";
+import { format } from "date-fns";
 import { ArrowRightIcon, CalendarPlusIcon, ClockIcon, MapPinIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-import {
-  CATEGORY_INFO,
-  dayNumber,
-  groupAppointments,
-  monthShort,
-  relativeDay,
-} from "@/components/appointments/appointment-model";
+import { CATEGORY_INFO, groupAppointments } from "@/components/appointments/appointment-model";
+import { dateFnsLocale } from "@/lib/date-locale";
 import { appointmentsCollection, mapAppointment } from "@/lib/firebase/appointments";
 import { useCollection } from "@/lib/hooks/use-collection";
-import { cn } from "@/lib/utils";
+import { type Lang } from "@/lib/i18n/config";
+import { parseDateOnly } from "@/lib/i18n/format";
+import { useLanguage } from "@/lib/i18n/provider";
+import { cn, daysUntil } from "@/lib/utils";
 import { CARD, FOCUS, IconCircle, LINK } from "./ui";
 
 const MAX_SHOWN = 3;
+
+/** «Hoy», «Mañana», «En 5 días»; null si ya pasó o no hay fecha. */
+function relativeDay(date: string, t: TFunction): string | null {
+  const days = daysUntil(date);
+  if (days === null || days < 0) return null;
+  if (days === 0) return t("appointments.today");
+  if (days === 1) return t("appointments.tomorrow");
+  return t("appointments.inDays", { count: days });
+}
+
+/** Número del día y mes abreviado («12», «jun») para la insignia de la fecha. */
+function dayBadge(date: string, lang: Lang): { day: string; month: string } {
+  const d = parseDateOnly(date);
+  if (!d) return { day: "–", month: "" };
+  return { day: String(d.getDate()), month: format(d, "MMM", { locale: dateFnsLocale(lang) }).replace(/\./g, "") };
+}
 
 /**
  * «Próximas citas»: las 3 siguientes de la agenda del plan, con enlace para
@@ -23,6 +40,8 @@ const MAX_SHOWN = 3;
  * carga o si falla, no se pinta nada (la home no debe saltar ni alarmar).
  */
 export function UpcomingAppointments({ planId }: { planId: string }) {
+  const { t } = useTranslation("dashboard");
+  const { lang } = useLanguage();
   const { data, loading, error } = useCollection(appointmentsCollection(planId), mapAppointment);
   if (loading || error) return null;
 
@@ -35,7 +54,7 @@ export function UpcomingAppointments({ planId }: { planId: string }) {
     return (
       <section aria-labelledby="appointments-title">
         <h2 id="appointments-title" className="mb-3 font-display text-lg font-semibold text-ink">
-          Próximas citas
+          {t("appointments.title")}
         </h2>
         <Link href={agendaHref} className={cn(CARD, FOCUS, "group flex items-center gap-4 p-4 transition-colors hover:border-line-strong hover:bg-surface-alt motion-reduce:transition-none sm:p-5")}>
           <IconCircle tone="lilac">
@@ -43,10 +62,10 @@ export function UpcomingAppointments({ planId }: { planId: string }) {
           </IconCircle>
           <span className="min-w-0 flex-1">
             <span className="block font-display text-base font-semibold text-ink">
-              Agenda tu primera visita o prueba
+              {t("appointments.emptyTitle")}
             </span>
             <span className="block text-sm text-ink-muted">
-              Lugares, vestuario, degustaciones y reuniones, todo en un sitio.
+              {t("appointments.emptyText")}
             </span>
           </span>
           <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
@@ -58,13 +77,14 @@ export function UpcomingAppointments({ planId }: { planId: string }) {
   return (
     <section aria-labelledby="appointments-title">
       <h2 id="appointments-title" className="mb-3 font-display text-lg font-semibold text-ink">
-        Próximas citas
+        {t("appointments.title")}
       </h2>
       <div className={cn(CARD, "p-2 sm:p-3")}>
         <ul>
           {shown.map((a) => {
             const Icon = CATEGORY_INFO[a.category].icon;
-            const rel = relativeDay(a.date);
+            const rel = relativeDay(a.date, t);
+            const badge = dayBadge(a.date, lang);
             return (
               <li key={a.id}>
                 <Link
@@ -78,8 +98,8 @@ export function UpcomingAppointments({ planId }: { planId: string }) {
                     aria-hidden="true"
                     className="flex w-12 shrink-0 flex-col items-center rounded-xl bg-lilac-mid py-1.5 text-ink-on-tint"
                   >
-                    <span className="font-display text-xl font-semibold leading-none tabular-nums">{dayNumber(a.date)}</span>
-                    <span className="mt-0.5 text-[0.7rem] font-medium uppercase tracking-wide">{monthShort(a.date)}</span>
+                    <span className="font-display text-xl font-semibold leading-none tabular-nums">{badge.day}</span>
+                    <span className="mt-0.5 text-[0.7rem] font-medium uppercase tracking-wide">{badge.month}</span>
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
@@ -109,10 +129,10 @@ export function UpcomingAppointments({ planId }: { planId: string }) {
         </ul>
         <div className="flex items-center justify-between gap-3 px-2 pb-1 pt-2 sm:px-3">
           <span className="text-sm text-ink-muted">
-            {more > 0 ? `y ${more} más` : ""}
+            {more > 0 ? t("appointments.more", { count: more }) : ""}
           </span>
           <Link href={agendaHref} className={cn(LINK, "inline-flex items-center gap-1.5 text-sm")}>
-            Abrir la agenda
+            {t("appointments.open")}
             <ArrowRightIcon className="size-4" aria-hidden="true" />
           </Link>
         </div>

@@ -1,1 +1,151 @@
-{}
+{
+  "rsvp": {
+    "confirmed": "Confirmado",
+    "pending": "Pendiente",
+    "declined": "No asiste",
+    "changeAria": "Respuesta de {{name}}: {{status}}. Cambiar",
+    "groupAria": "Respuesta de {{name}}"
+  },
+  "groups": {
+    "family": "Familia",
+    "friends": "Amigos",
+    "other": "Otros"
+  },
+  "groupSelect": {
+    "placeholder": "Elige un grupo",
+    "none": "Sin grupo",
+    "custom": "Escribir otro grupo…",
+    "newName": "Nombre del nuevo grupo",
+    "newPlaceholder": "Compañeros de trabajo, vecinos…"
+  },
+  "filters": {
+    "section": "Buscar y filtrar invitados",
+    "searchPlaceholder": "Nombre, grupo o notas",
+    "searchLabel": "Buscar invitados por nombre, grupo o notas",
+    "clearSearch": "Borrar búsqueda",
+    "groupLabel": "Filtrar por grupo",
+    "allGroups": "Todos los grupos",
+    "noGroup": "Sin grupo",
+    "statusLabel": "Filtrar por respuesta",
+    "status": {
+      "all": "Todos",
+      "confirmed": "Confirmados",
+      "pending": "Pendientes",
+      "declined": "No asisten"
+    },
+    "shownOf_one": "<hl>{{shown}}</hl> de {{count}} invitado",
+    "shownOf_other": "<hl>{{shown}}</hl> de {{count}} invitados",
+    "total_one": "{{count}} invitado",
+    "total_other": "{{count}} invitados",
+    "clear": "Limpiar filtros"
+  },
+  "summary": {
+    "title": "Resumen de invitados",
+    "guests": "Invitados",
+    "peopleInList_one": "persona en tu lista",
+    "peopleInList_other": "personas en tu lista",
+    "confirmed": "Confirmados",
+    "ofList": "{{ratio}}% de la lista",
+    "pending": "Pendientes",
+    "pendingDetail": "sin respuesta todavía",
+    "declined": "No asisten",
+    "declinedDetail_one": "no podrá venir",
+    "declinedDetail_other": "no podrán venir",
+    "seats": "Cubiertos",
+    "seatsDetail": "confirmados y sus acompañantes",
+    "confirmedCount_one": "{{count}} confirmado",
+    "confirmedCount_other": "{{count}} confirmados",
+    "companionCount_one": "{{count}} acompañante",
+    "companionCount_other": "{{count}} acompañantes",
+    "withCompanion": "Con acompañante",
+    "noCompanions": "Ningún invitado lleva acompañante. Márcalo al editar un invitado y se sumará a los cubiertos.",
+    "companionGuests_one": "{{count}} invitado",
+    "companionGuests_other": "{{count}} invitados",
+    "extraSeats_one": "{{count}} cubierto extra",
+    "extraSeats_other": "{{count}} cubiertos extra",
+    "companionsConfirmed_one": "{{count}} ya ha confirmado",
+    "companionsConfirmed_other": "{{count}} ya han confirmado",
+    "maxSeats_one": "si vienen todos los que no han dicho que no, sería {{count}} cubierto",
+    "maxSeats_other": "si vienen todos los que no han dicho que no, serían {{count}} cubiertos",
+    "loading": "Cargando invitados"
+  },
+  "form": {
+    "addGuest": "Añadir invitado",
+    "newTitle": "Nuevo invitado",
+    "editTitle": "Editar invitado",
+    "editGuestNamed": "Editar a {{name}}",
+    "added": "Invitado añadido",
+    "updated": "Invitado actualizado",
+    "saveError": "No se ha podido guardar el invitado.",
+    "name": "Nombre",
+    "namePlaceholder": "Nombre y apellidos",
+    "group": "Grupo",
+    "response": "Respuesta",
+    "plusOne": "Lleva acompañante",
+    "plusOneName": "Nombre del acompañante",
+    "plusOnePlaceholder": "Opcional: se puede añadir más tarde",
+    "dietary": "Notas dietéticas",
+    "dietaryPlaceholder": "Vegetariano, alergias...",
+    "notes": "Notas",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "list": {
+    "title": "Lista de invitados",
+    "description": "Quién viene, quién falta por contestar y qué necesita cada persona.",
+    "rsvpError": "No se ha podido cambiar la respuesta. Inténtalo de nuevo.",
+    "deleted": "Invitado eliminado",
+    "deleteError": "No se ha podido eliminar el invitado.",
+    "deleteGuest": "Eliminar a {{name}}",
+    "empty": {
+      "title": "Tu lista de invitados empieza aquí",
+      "text": "Añade a las personas que no pueden faltar y ve apuntando quién confirma, quién lleva acompañante y qué necesita cada uno. Sin prisa."
+    },
+    "noMatches": {
+      "title": "No encontramos a nadie con esos filtros",
+      "text": "Prueba con otro nombre o quita algún filtro para volver a ver tu lista completa."
+    },
+    "guests": "Invitados",
+    "noGroup": "Sin grupo",
+    "noNotes": "Sin notas",
+    "dietaryPrefix": "Notas dietéticas:",
+    "yes": "Sí",
+    "no": "No",
+    "columns": {
+      "name": "Nombre",
+      "group": "Grupo",
+      "response": "Respuesta",
+      "companion": "Acompañante",
+      "dietary": "Notas dietéticas",
+      "actions": "Acciones"
+    }
+  },
+  "ideas": {
+    "groups": {
+      "familia-novia": "Familia de la novia",
+      "familia-del-novio": "Familia del novio",
+      "padres-abuelos": "Padres y abuelos",
+      "tios-primos": "Tíos y primos",
+      "amigos-infancia": "Amigos de la infancia",
+      "amigos-del-cole": "Amigos del cole",
+      "amigos-universidad": "Amigos de la universidad",
+      "amigos-pareja": "Amigos de la pareja",
+      "trabajo": "Trabajo",
+      "vecinos-amigos-familia": "Vecinos y amigos de la familia",
+      "ninos": "Niños"
+    },
+    "tips": {
+      "0": "Empezad por la lista de «imprescindibles» y añadid después, con calma.",
+      "1": "Poned un tope y un criterio claro, para no tener que dar explicaciones.",
+      "2": "Contad las parejas y los acompañantes desde el principio.",
+      "3": "Pedid ya las alergias, intolerancias y menús especiales.",
+      "4": "Tened una lista B por si hay bajas, pero invitad a todos a la vez."
+    },
+    "title": "Ideas para tu lista",
+    "description": "Unos consejos para empezar sin agobios.",
+    "groupsTitle": "Grupos habituales",
+    "groupsHint": "Toca uno para añadir a alguien directamente en ese grupo.",
+    "addInGroup": "Añadir invitado en «{{group}}»",
+    "addInGroupExists": "Añadir invitado en «{{group}}» (ya tienes este grupo)"
+  }
+}

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
   const q = (request.nextUrl.searchParams.get("q") ?? "").trim().slice(0, 120);
   const session = request.nextUrl.searchParams.get("session") ?? "";
-  if (!SESSION_RE.test(session)) return jsonError(400, "Falta la sesión de búsqueda.");
+  if (!SESSION_RE.test(session)) return jsonError(400, "missingSession");
   if (q.length < 2) return json({ suggestions: [] });
 
   try {
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     }
     return json({ suggestions });
   } catch (error) {
-    if (error instanceof GoogleError) return jsonError(error.status, error.message);
-    return jsonError(500, "No se pudo completar la búsqueda.");
+    if (error instanceof GoogleError) return jsonError(error.status, error.code);
+    return jsonError(500, "searchFailed");
   }
 }

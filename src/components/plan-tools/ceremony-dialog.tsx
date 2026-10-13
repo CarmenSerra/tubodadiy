@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { InfoIcon, Loader2, LandmarkIcon, ShieldCheckIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -19,12 +20,13 @@ export function CeremonyDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation("tools");
   return (
     <ToolDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Tipo de ceremonia"
-      description="Elige cómo os queréis casar. Puedes cambiarlo cuando quieras."
+      title={t("planTools.ceremony.title")}
+      description={t("planTools.ceremony.description")}
       icon={<LandmarkIcon />}
     >
       {open && <CeremonyForm onClose={() => onOpenChange(false)} />}
@@ -33,6 +35,7 @@ export function CeremonyDialog({
 }
 
 function CeremonyForm({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation("tools");
   const { planId, plan } = usePlanContext();
   const saved = plan?.ceremonyType ?? null;
   const [picked, setPicked] = React.useState<CeremonyType | null>(saved);
@@ -42,10 +45,10 @@ function CeremonyForm({ onClose }: { onClose: () => void }) {
     setSaving(mode);
     try {
       await saveCeremonyType(planId, type);
-      toast.success(type ? "Tipo de ceremonia guardado" : "Tipo de ceremonia quitado");
+      toast.success(type ? t("planTools.ceremony.toasts.saved") : t("planTools.ceremony.toasts.cleared"));
       onClose();
     } catch {
-      toast.error("No se ha podido guardar el tipo de ceremonia.");
+      toast.error(t("planTools.ceremony.toasts.error"));
       setSaving(null);
     }
   }
@@ -62,7 +65,7 @@ function CeremonyForm({ onClose }: { onClose: () => void }) {
       className="flex flex-col gap-5"
     >
       <fieldset className="flex flex-col gap-3">
-        <legend className="sr-only">Tipo de ceremonia</legend>
+        <legend className="sr-only">{t("planTools.ceremony.title")}</legend>
         {CEREMONY_OPTIONS.map((option) => (
           <CeremonyCard
             key={option.value}
@@ -76,8 +79,7 @@ function CeremonyForm({ onClose }: { onClose: () => void }) {
       <p className="flex items-start gap-2 text-sm text-ink-muted">
         <InfoIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         <span>
-          Es orientativo y puede cambiar según el municipio o la comunidad. Confirma los detalles en tu
-          Registro Civil, notaría o parroquia.
+          {t("planTools.ceremony.disclaimer")}
         </span>
       </p>
 
@@ -90,15 +92,15 @@ function CeremonyForm({ onClose }: { onClose: () => void }) {
             className={cn(CTA_SECONDARY, "sm:mr-auto")}
           >
             {saving === "clear" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-            Quitar elección
+            {t("planTools.ceremony.clear")}
           </button>
         )}
         <button type="button" onClick={onClose} className={CTA_SECONDARY}>
-          Cancelar
+          {t("planTools.actions.cancel")}
         </button>
         <button type="submit" disabled={!picked || unchanged || saving !== null} className={cn(CTA_PRIMARY, "disabled:opacity-50")}>
           {saving === "save" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("planTools.actions.save")}
         </button>
       </div>
     </form>
@@ -114,7 +116,10 @@ function CeremonyCard({
   checked: boolean;
   onSelect: () => void;
 }) {
+  const { t } = useTranslation("tools");
   const LegalIcon = option.legalByItself ? ShieldCheckIcon : InfoIcon;
+  const base = `planTools.ceremony.options.${option.value}`;
+  const implies = t(`${base}.implies`, { returnObjects: true }) as unknown as string[];
   return (
     <label
       className={cn(
@@ -142,20 +147,20 @@ function CeremonyCard({
           {checked && <span className="size-2.5 rounded-full bg-cta" />}
         </span>
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="font-display text-lg font-semibold leading-snug text-ink">{option.label}</span>
-          <span className="text-sm text-ink-strong">{option.tagline}</span>
+          <span className="font-display text-lg font-semibold leading-snug text-ink">{t(`${base}.label`)}</span>
+          <span className="text-sm text-ink-strong">{t(`${base}.tagline`)}</span>
         </span>
       </span>
       <ul className="ml-8 flex list-disc flex-col gap-1.5 pl-4 text-sm text-ink-muted marker:text-lilac">
-        {option.implies.map((line) => (
+        {implies.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </ul>
       <span className="ml-8 flex items-start gap-2 rounded-xl border border-line bg-field px-3 py-2.5 text-sm text-ink">
         <LegalIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         <span>
-          <span className="font-medium">{option.legalBadge}. </span>
-          {option.legal}
+          <span className="font-medium">{t(`${base}.legalBadge`)}. </span>
+          {t(`${base}.legal`)}
         </span>
       </span>
     </label>

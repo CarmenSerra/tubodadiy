@@ -5,7 +5,8 @@ import { InvitationView } from "@/components/invitation/invitation-view";
 import { RsvpForm } from "@/components/invitation/rsvp-form";
 import { formatLongDate } from "@/components/invitation/invitation-model";
 import { getPublishedInvitation } from "@/lib/firebase/invitation-server";
-
+import { getRequestLang } from "@/lib/i18n/request";
+import { getServerT } from "@/lib/i18n/server";
 
 // La invitación es privada por enlace: no se indexa ni se sigue.
 const NO_INDEX: Metadata["robots"] = { index: false, follow: false, nocache: true };
@@ -15,13 +16,19 @@ export async function generateMetadata({ params }: PageProps<"/i/[slug]">): Prom
   const { slug } = await params;
   const invitation = await getPublishedInvitation(slug);
   if (!invitation) {
-    return { title: "Invitación no disponible", robots: NO_INDEX };
+    // Sin invitación no hay idioma elegido por la pareja: se usa el de quien abre el enlace.
+    const t = getServerT(await getRequestLang(), "invitation");
+    return { title: t("page.unavailable.metaTitle"), robots: NO_INDEX };
   }
-  const { names, date } = invitation.data;
-  const when = formatLongDate(date);
+  const { names, date, lang } = invitation.data;
+  // La metadata sigue el idioma de la invitación, igual que la página.
+  const t = getServerT(lang, "invitation");
+  const when = formatLongDate(date, lang);
   return {
-    title: names ? `${names} — Invitación de boda` : "Invitación de boda",
-    description: `Estás invitado/a a la boda${names ? ` de ${names}` : ""}${when ? ` (${when})` : ""}. Confirma tu asistencia.`,
+    title: names ? t("page.meta.titleNames", { names }) : t("page.meta.title"),
+    description: names
+      ? t("page.meta.descriptionNames", { names, when: when ? ` (${when})` : "" })
+      : t("page.meta.description", { when: when ? ` (${when})` : "" }),
     robots: NO_INDEX,
   };
 }
@@ -32,14 +39,12 @@ export default async function InvitationPage({ params }: PageProps<"/i/[slug]">)
   const invitation = await getPublishedInvitation(slug);
 
   if (!invitation) {
+    const t = getServerT(await getRequestLang(), "invitation");
     return (
       <div className="inv-root inv-botanico">
         <main className="inv-unavailable">
-          <h1 className="inv-thanksTitle">Esta invitación no está disponible</h1>
-          <p className="inv-thanksText">
-            Puede que el enlace esté mal escrito o que la pareja aún no la haya publicado. Pregúntales por
-            el enlace correcto.
-          </p>
+          <h1 className="inv-thanksTitle">{t("page.unavailable.title")}</h1>
+          <p className="inv-thanksText">{t("page.unavailable.text")}</p>
         </main>
       </div>
     );
@@ -49,7 +54,7 @@ export default async function InvitationPage({ params }: PageProps<"/i/[slug]">)
     <InvitationView
       data={invitation.data}
       closed={invitation.closed}
-      rsvp={<RsvpForm slug={invitation.slug} />}
+      rsvp={<RsvpForm slug={invitation.slug} lang={invitation.data.lang} />}
     />
   );
 }

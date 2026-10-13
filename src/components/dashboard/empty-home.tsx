@@ -1,4 +1,7 @@
+"use client";
+
 import { CalendarHeartIcon, ListChecksIcon, WalletIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   Dot,
@@ -15,26 +18,16 @@ import {
 } from "@/components/brand/welcome-decorations";
 import { CARD, IconCircle, NewPlanButton } from "./ui";
 
+// Los textos de cada paso viven en `dashboard:empty.steps.<key>.title | text`.
 const FIRST_STEPS = [
-  {
-    icon: CalendarHeartIcon,
-    title: "Ponle nombre y fecha",
-    text: "Con la fecha, tubodadiy empieza la cuenta atrás por ti.",
-  },
-  {
-    icon: WalletIcon,
-    title: "Fija tu presupuesto",
-    text: "Una cifra de partida y, poco a poco, el desglose por categorías.",
-  },
-  {
-    icon: ListChecksIcon,
-    title: "Sigue tu lista de tareas",
-    text: "13 secciones listas para que avances a tu ritmo, sin agobios.",
-  },
-];
+  { key: "name", icon: CalendarHeartIcon },
+  { key: "budget", icon: WalletIcon },
+  { key: "tasks", icon: ListChecksIcon },
+] as const;
 
 /** Estado vacío: bienvenida cálida y una única acción clara, crear el primer plan. */
 export function EmptyHome({ greetingName }: { greetingName: string | null }) {
+  const { t } = useTranslation("dashboard");
   return (
     <div className="flex flex-col gap-10">
       <section
@@ -83,17 +76,16 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
             id="home-greeting"
             className="mt-1 text-balance text-3xl text-ink sm:text-4xl"
           >
-            {greetingName ? `Hola, ${greetingName}` : "Te damos la bienvenida"}
+            {greetingName ? t("header.greeting", { name: greetingName }) : t("empty.welcome")}
           </h1>
           <p className="max-w-md text-balance text-base text-ink-muted sm:text-lg">
-            Aún no tienes ningún plan de boda. Crea el primero y empieza por lo bonito: tu fecha, tu
-            presupuesto y todo lo que quieres vivir ese día.
+            {t("empty.intro")}
           </p>
           <div className="mt-4">
             <NewPlanButton />
           </div>
           <p className="mt-2 text-balance text-sm text-ink-muted">
-            ¿Te han invitado a un plan? Abre el enlace de invitación que te enviaron.
+            {t("empty.invited")}
           </p>
         </div>
       </section>
@@ -103,19 +95,19 @@ export function EmptyHome({ greetingName }: { greetingName: string | null }) {
           id="first-steps-title"
           className="mb-4 text-center font-display text-xl font-semibold text-ink sm:text-2xl"
         >
-          Así empieza todo
+          {t("empty.howItStarts")}
         </h2>
         <ol className="grid gap-3 sm:grid-cols-3 sm:gap-4">
           {FIRST_STEPS.map((step, i) => (
-            <li key={step.title} className={`${CARD} flex flex-col gap-2 p-5`}>
+            <li key={step.key} className={`${CARD} flex flex-col gap-2 p-5`}>
               <IconCircle tone={i % 2 === 0 ? "lilac" : "sage"}>
                 <step.icon />
               </IconCircle>
               <h3 className="mt-1 font-display text-base font-semibold text-ink-strong">
-                <span className="sr-only">Paso {i + 1}: </span>
-                {step.title}
+                <span className="sr-only">{t("empty.stepN", { n: i + 1 })}</span>
+                {t(`empty.steps.${step.key}.title`)}
               </h3>
-              <p className="text-sm text-ink-muted">{step.text}</p>
+              <p className="text-sm text-ink-muted">{t(`empty.steps.${step.key}.text`)}</p>
             </li>
           ))}
         </ol>

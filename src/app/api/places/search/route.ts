@@ -62,10 +62,10 @@ export async function GET(request: NextRequest) {
 
   const params = request.nextUrl.searchParams;
   const province = normalizeProvince(params.get("province") ?? "");
-  if (!province) return jsonError(400, "Elige una provincia de España.");
+  if (!province) return jsonError(400, "chooseProvince");
   const style = (params.get("style") ?? "").replace(/[^\p{L}\p{N} ,'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 60);
   const pageToken = (params.get("pageToken") ?? "").trim();
-  if (pageToken && !/^[A-Za-z0-9_=+/-]{10,4000}$/.test(pageToken)) return jsonError(400, "Página no válida.");
+  if (pageToken && !/^[A-Za-z0-9_=+/-]{10,4000}$/.test(pageToken)) return jsonError(400, "invalidPage");
 
   const textQuery = `finca para bodas en ${province}${style ? ` ${style}` : ""}`;
   try {
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     }
     return json({ places, ...(data.nextPageToken ? { nextPageToken: data.nextPageToken } : {}) });
   } catch (error) {
-    if (error instanceof GoogleError) return jsonError(error.status, error.message);
-    return jsonError(500, "No se pudo completar la búsqueda.");
+    if (error instanceof GoogleError) return jsonError(error.status, error.code);
+    return jsonError(500, "searchFailed");
   }
 }

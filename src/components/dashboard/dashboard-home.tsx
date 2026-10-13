@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { AlertCircleIcon, ArrowRightIcon, Loader2, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -45,11 +48,12 @@ export function DashboardHome({
   loadingPlans = false,
   plansError = false,
 }: DashboardHomeProps) {
+  const { t } = useTranslation("dashboard");
   const greetingName = firstName(userName);
 
   if (loadingPlans) {
     return (
-      <div className="flex justify-center py-24" role="status" aria-label="Cargando tu panel">
+      <div className="flex justify-center py-24" role="status" aria-label={t("home.loading")}>
         <Loader2 className="size-6 animate-spin text-lilac motion-reduce:animate-none" aria-hidden="true" />
       </div>
     );
@@ -62,7 +66,7 @@ export function DashboardHome({
         className="mx-auto flex max-w-xl items-start gap-3 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive"
       >
         <AlertCircleIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        No hemos podido cargar tus planes. Comprueba tu conexión y recarga la página.
+        {t("home.plansError")}
       </p>
     );
   }
@@ -91,7 +95,7 @@ export function DashboardHome({
 
       <footer className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <Link href={`/plan/${featured.id}`} className={cn(LINK, "inline-flex items-center gap-1.5")}>
-          Ver todo el plan
+          {t("home.viewPlan")}
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </Link>
         <Link
@@ -102,7 +106,7 @@ export function DashboardHome({
           )}
         >
           <PlusIcon className="size-4" aria-hidden="true" />
-          Nuevo plan de boda
+          {t("newPlan")}
         </Link>
       </footer>
     </div>

@@ -6,23 +6,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, HeartIcon } from "lucide-react";
 import { toast } from "sonner";
+import { Trans, useTranslation } from "react-i18next";
 
 import { HomeLink } from "@/components/brand/home-link";
+import { roleLabel } from "@/components/members/roles";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { getInviteByToken } from "@/lib/firebase/invites";
 import { acceptInvite } from "@/lib/actions/accept-invite";
-import type { PlanInvite, PlanRole } from "@/lib/types";
-
-const ROLE_LABEL: Record<PlanRole, string> = {
-  owner: "Dueño/a",
-  partner: "Pareja",
-  planner: "Wedding planner",
-};
+import type { PlanInvite } from "@/lib/types";
 
 export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
   const { token } = use(params);
+  const { t } = useTranslation("dashboard");
   const { user, loading: authLoading, firebaseReady } = useAuth();
   const router = useRouter();
 
@@ -43,13 +40,13 @@ export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
       const idToken = await user.getIdToken();
       const result = await acceptInvite(token, idToken);
       if (result.success && result.planId) {
-        toast.success("Te has unido al plan de boda");
+        toast.success(t("invite.joined"));
         router.push(`/plan/${result.planId}`);
       } else {
-        toast.error(result.error ?? "No se ha podido aceptar la invitación.");
+        toast.error(result.error ? t(`errors:invite.accept.${result.error}`) : t("invite.acceptFailed"));
       }
     } catch {
-      toast.error("No se ha podido aceptar la invitación.");
+      toast.error(t("invite.acceptFailed"));
     } finally {
       setAccepting(false);
     }
@@ -65,7 +62,7 @@ export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
             <HeartIcon className="size-5 fill-current" />
             <span className="font-display text-xl font-semibold">tubodadiy</span>
           </HomeLink>
-          <CardTitle>Invitación a un plan de boda</CardTitle>
+          <CardTitle>{t("invite.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -74,35 +71,41 @@ export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
             </div>
           ) : !invite ? (
             <CardDescription>
-              Esta invitación no existe, ha caducado o ya ha sido utilizada.
+              {t("invite.notFound")}
             </CardDescription>
           ) : invite.status !== "pending" ? (
-            <CardDescription>Esta invitación ya no está disponible.</CardDescription>
+            <CardDescription>{t("invite.unavailable")}</CardDescription>
           ) : (
             <div className="flex flex-col gap-4">
               <CardDescription>
-                <span className="font-medium text-foreground">{invite.email}</span> ha sido
-                invitado/a a colaborar en <span className="font-medium text-foreground">{invite.planTitle}</span>{" "}
-                como <span className="font-medium text-foreground">{ROLE_LABEL[invite.role]}</span>.
+                <Trans
+                  i18nKey="invite.description"
+                  ns="dashboard"
+                  components={{
+                    email: <span className="font-medium text-foreground">{invite.email}</span>,
+                    plan: <span className="font-medium text-foreground">{invite.planTitle}</span>,
+                    role: <span className="font-medium text-foreground">{roleLabel(invite.role, t)}</span>,
+                  }}
+                />
               </CardDescription>
               {!user ? (
                 <div className="flex flex-col gap-2">
                   <p className="text-sm text-muted-foreground">
-                    Inicia sesión o crea una cuenta para aceptar la invitación.
+                    {t("invite.signInPrompt")}
                   </p>
                   <div className="flex gap-2">
                     <Button asChild className="flex-1">
-                      <Link href={`/login?redirect=/invite/${token}`}>Iniciar sesión</Link>
+                      <Link href={`/login?redirect=/invite/${token}`}>{t("invite.login")}</Link>
                     </Button>
                     <Button asChild variant="outline" className="flex-1">
-                      <Link href={`/signup?redirect=/invite/${token}`}>Registrarse</Link>
+                      <Link href={`/signup?redirect=/invite/${token}`}>{t("invite.signup")}</Link>
                     </Button>
                   </div>
                 </div>
               ) : (
                 <Button onClick={handleAccept} disabled={accepting} className="w-full">
                   {accepting && <Loader2 className="animate-spin" />}
-                  Aceptar invitación
+                  {t("invite.accept")}
                 </Button>
               )}
             </div>

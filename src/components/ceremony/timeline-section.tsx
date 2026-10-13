@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CalendarClockIcon, PencilIcon, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CeremonySection } from "@/components/ceremony/section";
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
@@ -16,52 +17,52 @@ import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { mapTimelineItem, timelineItemsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { useLanguage } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
 /** «Cronograma del día»: resumen de solo lectura; se edita en el diálogo del cronograma. */
 export function TimelineSection() {
+  const { t } = useTranslation("ceremony");
+  const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
   const launcher = useTimelineLauncher();
   const { data, loading, error } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
   const items = React.useMemo(() => sortItems(data), [data]);
-  const dateText = formatWeekdayDate(plan?.weddingDate);
+  const dateText = formatWeekdayDate(plan?.weddingDate, lang);
   const open = launcher?.open;
 
   return (
     <CeremonySection
       id="cronograma"
       icon={<CalendarClockIcon />}
-      title="Cronograma del día"
-      description={dateText ?? "Hora a hora, el gran día. Aún no tenéis fecha."}
+      title={t("timeline.title")}
+      description={dateText ?? t("timeline.noDate")}
       action={
         items.length > 0 && open ? (
           <button type="button" onClick={open} className={CTA_SECONDARY}>
             <PencilIcon aria-hidden="true" className="size-4" />
-            Editar cronograma
+            {t("timeline.edit")}
           </button>
         ) : undefined
       }
     >
       {loading ? (
-        <div role="status" aria-label="Cargando el cronograma" className="flex flex-col gap-3">
+        <div role="status" aria-label={t("timeline.loading")} className="flex flex-col gap-3">
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="h-6 w-full rounded-xl" />
           ))}
         </div>
       ) : error ? (
         <p role="alert" className="text-sm text-ink-muted">
-          No hemos podido cargar el cronograma. Comprueba tu conexión; tus datos siguen guardados.
+          {t("timeline.error")}
         </p>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed border-line-strong p-4 sm:p-5">
-          <p className="text-sm text-ink-muted">
-            Todavía no hay momentos. Podéis partir de una plantilla (preparativos, ceremonia, cóctel,
-            banquete, baile…) y ajustar las horas con calma, o empezar desde cero.
-          </p>
+          <p className="text-sm text-ink-muted">{t("timeline.empty")}</p>
           {open && (
             <button type="button" onClick={open} className={CTA_PRIMARY}>
               <PlusIcon aria-hidden="true" className="size-4" />
-              Crear el cronograma
+              {t("timeline.create")}
             </button>
           )}
         </div>
@@ -94,8 +95,8 @@ export function TimelineSection() {
                   {item.durationMin > 0 && (
                     <span className="text-ink-muted">
                       {" "}
-                      <span aria-hidden="true">· hasta las </span>
-                      <span className="sr-only">hasta las </span>
+                      <span aria-hidden="true">· {t("timeline.until")} </span>
+                      <span className="sr-only">{t("timeline.until")} </span>
                       {formatClock(endMin(item))}
                     </span>
                   )}

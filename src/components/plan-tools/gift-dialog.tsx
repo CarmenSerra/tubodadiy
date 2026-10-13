@@ -12,13 +12,13 @@ import {
   PencilIcon,
   RepeatIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
 import { GIFT_LIST_FORM_ID, GiftListView } from "@/components/plan-tools/gift-list-view";
 import {
-  GIFT_MESSAGE_EXAMPLE,
   GIFT_MESSAGE_MAX,
   bizumError,
   formatBizum,
@@ -43,12 +43,6 @@ const FORM_ID = "gift-form";
 
 type View = "choose" | GiftMode;
 
-const DESCRIPTIONS: Record<View, string> = {
-  choose: "Elegid cómo queréis recibir el regalo. Podéis cambiarlo cuando queráis.",
-  money: "Recibe el regalo en dinero: cuenta bancaria, Bizum o las dos.",
-  list: "Una lista de cosas que os harían falta, para que quien quiera regalar algo sepa por dónde ir.",
-};
-
 export function GiftDialog({
   open,
   onOpenChange,
@@ -56,6 +50,7 @@ export function GiftDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation("tools");
   const { plan } = usePlanContext();
   const [saving, setSaving] = React.useState(false);
   // `null`: aún no se ha navegado; se abre en el modo elegido o, si no hay, en la elección.
@@ -72,8 +67,8 @@ export function GiftDialog({
     <ToolDialog
       open={open}
       onOpenChange={handleOpenChange}
-      title="Regalo"
-      description={DESCRIPTIONS[view]}
+      title={t("planTools.gift.title")}
+      description={t(`planTools.gift.descriptions.${view}`)}
       icon={<GiftIcon />}
       footer={
         view === "choose" ? (
@@ -82,12 +77,12 @@ export function GiftDialog({
             onClick={() => (mode ? setPicked(mode) : handleOpenChange(false))}
             className={CTA_SECONDARY}
           >
-            {mode ? "Volver" : "Cancelar"}
+            {mode ? t("planTools.actions.back") : t("planTools.actions.cancel")}
           </button>
         ) : (
           <>
             <button type="button" onClick={() => handleOpenChange(false)} className={CTA_SECONDARY}>
-              {view === "list" ? "Cerrar" : "Cancelar"}
+              {view === "list" ? t("planTools.actions.close") : t("planTools.actions.cancel")}
             </button>
             <button
               type="submit"
@@ -96,7 +91,7 @@ export function GiftDialog({
               className={cn(CTA_PRIMARY, "disabled:opacity-50")}
             >
               {saving && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-              Guardar
+              {t("planTools.actions.save")}
             </button>
           </>
         )
@@ -121,30 +116,14 @@ export function GiftDialog({
   );
 }
 
-const CHOICES: {
-  mode: GiftMode;
-  title: string;
-  text: string;
-  points: string[];
-  icon: React.ReactNode;
-}[] = [
-  {
-    mode: "money",
-    title: "Dinero (lo más habitual)",
-    text: "Dais un IBAN, un Bizum o los dos, y cada persona aporta lo que quiere. Sin duplicados ni cambios.",
-    points: ["IBAN y Bizum", "Cómodo para quien viaja"],
-    icon: <BanknoteIcon aria-hidden="true" className="size-6" />,
-  },
-  {
-    mode: "list",
-    title: "Lista de cosas (más tradicional)",
-    text: "Preparáis una lista de lo que os hace falta, con enlaces y precios aproximados, y los invitados la ven.",
-    points: ["Con enlaces y precios", "Marcáis lo que ya tenéis"],
-    icon: <ListChecksIcon aria-hidden="true" className="size-6" />,
-  },
+/** Textos en `tools:planTools.gift.choice.<modo>.title|text|points`. */
+const CHOICES: { mode: GiftMode; icon: React.ReactNode }[] = [
+  { mode: "money", icon: <BanknoteIcon aria-hidden="true" className="size-6" /> },
+  { mode: "list", icon: <ListChecksIcon aria-hidden="true" className="size-6" /> },
 ];
 
 function GiftChoice({ onPick }: { onPick: (view: View) => void }) {
+  const { t } = useTranslation("tools");
   const { planId, plan } = usePlanContext();
   const gift = plan?.gift ?? null;
   const [busy, setBusy] = React.useState<GiftMode | null>(null);
@@ -155,7 +134,7 @@ function GiftChoice({ onPick }: { onPick: (view: View) => void }) {
       await saveGiftMode(planId, gift, mode);
       onPick(mode);
     } catch {
-      toast.error("No se ha podido guardar la elección. Inténtalo de nuevo.");
+      toast.error(t("planTools.gift.choice.error"));
     } finally {
       setBusy(null);
     }
@@ -166,6 +145,7 @@ function GiftChoice({ onPick }: { onPick: (view: View) => void }) {
       <ul className="grid gap-4 sm:grid-cols-2">
         {CHOICES.map((choice) => {
           const current = gift?.mode === choice.mode;
+          const points = t(`planTools.gift.choice.${choice.mode}.points`, { returnObjects: true }) as unknown as string[];
           return (
             <li key={choice.mode} className="flex">
               <button
@@ -186,15 +166,15 @@ function GiftChoice({ onPick }: { onPick: (view: View) => void }) {
                   {current && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-cta px-2.5 py-0.5 text-xs font-medium text-on-cta">
                       <CheckIcon aria-hidden="true" className="size-3" />
-                      Lo que tenéis ahora
+                      {t("planTools.gift.choice.current")}
                     </span>
                   )}
                 </span>
-                <span className="font-display text-xl font-semibold leading-tight text-ink">{choice.title}</span>
+                <span className="font-display text-xl font-semibold leading-tight text-ink">{t(`planTools.gift.choice.${choice.mode}.title`)}</span>
                 <span id={`gift-choice-${choice.mode}`} className="flex flex-col gap-2 text-sm text-ink-muted">
-                  <span>{choice.text}</span>
+                  <span>{t(`planTools.gift.choice.${choice.mode}.text`)}</span>
                   <span className="flex flex-wrap gap-1.5">
-                    {choice.points.map((point) => (
+                    {points.map((point) => (
                       <span key={point} className="rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-ink">
                         {point}
                       </span>
@@ -207,7 +187,7 @@ function GiftChoice({ onPick }: { onPick: (view: View) => void }) {
         })}
       </ul>
       <p className="text-sm text-ink-muted">
-        Si cambiáis de opinión, lo que ya hayáis escrito en la otra no se pierde.
+        {t("planTools.gift.choice.note")}
       </p>
     </div>
   );
@@ -222,6 +202,7 @@ function GiftForm({
   onSavingChange: (saving: boolean) => void;
   onChangeMode: () => void;
 }) {
+  const { t } = useTranslation("tools");
   const { planId, plan } = usePlanContext();
   const gift = plan?.gift ?? null;
   const [iban, setIban] = React.useState(formatIban(gift?.iban ?? ""));
@@ -243,7 +224,7 @@ function GiftForm({
     if (ibanProblem || bizumProblem) {
       setTouched({ iban: true, bizum: true });
       setEditingIban(true);
-      toast.error("Revisa los datos marcados antes de guardar.");
+      toast.error(t("planTools.gift.money.reviewErrors"));
       return;
     }
     const clean = {
@@ -258,10 +239,10 @@ function GiftForm({
     onSavingChange(true);
     try {
       await saveGift(planId, clean);
-      toast.success(empty ? "Datos del regalo quitados" : "Datos del regalo guardados");
+      toast.success(empty ? t("planTools.gift.money.cleared") : t("planTools.gift.money.saved"));
       onClose();
     } catch {
-      toast.error("No se han podido guardar los datos del regalo.");
+      toast.error(t("planTools.gift.money.saveError"));
     } finally {
       onSavingChange(false);
     }
@@ -273,8 +254,7 @@ function GiftForm({
     <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <p className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-line bg-lilac-soft px-3.5 py-3 text-sm text-ink">
         <span>
-          Muchas parejas dan un IBAN para quien prefiere transferencia y un Bizum para quien quiere hacerlo
-          al momento. Puedes poner uno, otro o los dos.
+          {t("planTools.gift.money.intro")}
         </span>
         <button
           type="button"
@@ -282,13 +262,13 @@ function GiftForm({
           className="inline-flex min-h-10 items-center gap-1.5 rounded-full text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         >
           <RepeatIcon aria-hidden="true" className="size-3.5" />
-          Cambiar a lista de cosas
+          {t("planTools.gift.money.switchToList")}
         </button>
       </p>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="gift-iban" className={FIELD_LABEL}>
-          IBAN de la cuenta
+          {t("planTools.gift.money.ibanLabel")}
         </Label>
         {editingIban ? (
           <>
@@ -317,8 +297,8 @@ function GiftForm({
               className={cn("text-sm", touched.iban && ibanProblem ? "text-danger" : "text-ink-muted")}
             >
               {touched.iban && ibanProblem
-                ? ibanProblem
-                : "Usa una cuenta que controléis los dos. Se muestra oculto en cuanto lo guardas."}
+                ? t(`planTools.gift.money.ibanErrors.${ibanProblem}`)
+                : t("planTools.gift.money.ibanHelp")}
             </p>
           </>
         ) : (
@@ -327,15 +307,15 @@ function GiftForm({
             className="flex items-center gap-2 rounded-xl border border-line-strong bg-field py-1.5 pl-3.5 pr-1.5"
           >
             <span className="min-w-0 flex-1 truncate font-mono text-[0.8125rem] text-ink-strong sm:text-sm sm:tracking-wide">
-              <span className="sr-only">{revealed ? `IBAN: ${ibanShown}` : "IBAN oculto"}</span>
+              <span className="sr-only">{revealed ? t("planTools.gift.money.ibanShown", { iban: ibanShown }) : t("planTools.gift.money.ibanHidden")}</span>
               <span aria-hidden="true">{revealed ? ibanShown : maskIban(iban)}</span>
             </span>
             <button
               type="button"
               onClick={() => setRevealed((v) => !v)}
               aria-pressed={revealed}
-              aria-label={revealed ? "Ocultar IBAN" : "Mostrar IBAN"}
-              title={revealed ? "Ocultar IBAN" : "Mostrar IBAN"}
+              aria-label={revealed ? t("planTools.gift.money.hideIban") : t("planTools.gift.money.showIban")}
+              title={revealed ? t("planTools.gift.money.hideIban") : t("planTools.gift.money.showIban")}
               className="inline-flex size-10 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac"
             >
               {revealed ? <EyeOffIcon aria-hidden="true" className="size-4" /> : <EyeIcon aria-hidden="true" className="size-4" />}
@@ -347,13 +327,13 @@ function GiftForm({
                 setRevealed(false);
                 requestAnimationFrame(() => ibanInputRef.current?.focus());
               }}
-              aria-label="Cambiar IBAN"
-              title="Cambiar IBAN"
+              aria-label={t("planTools.gift.money.changeIban")}
+              title={t("planTools.gift.money.changeIban")}
               className="inline-flex size-10 shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-medium text-ink transition-colors hover:bg-lilac-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac sm:w-auto sm:px-3"
             >
               <PencilIcon aria-hidden="true" className="size-3.5" />
               <span aria-hidden="true" className="hidden sm:inline">
-                Cambiar
+                {t("planTools.gift.money.change")}
               </span>
             </button>
           </div>
@@ -362,7 +342,7 @@ function GiftForm({
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="gift-bizum" className={FIELD_LABEL}>
-          Teléfono para Bizum
+          {t("planTools.gift.money.bizumLabel")}
         </Label>
         <Input
           id="gift-bizum"
@@ -384,22 +364,22 @@ function GiftForm({
           role={touched.bizum && bizumProblem ? "alert" : undefined}
           className={cn("text-sm", touched.bizum && bizumProblem ? "text-danger" : "text-ink-muted")}
         >
-          {touched.bizum && bizumProblem ? bizumProblem : "Opcional. El móvil donde queréis recibir los Bizum."}
+          {touched.bizum && bizumProblem ? t("planTools.gift.money.bizumError") : t("planTools.gift.money.bizumHelp")}
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Label htmlFor="gift-message" className={FIELD_LABEL}>
-            Mensaje para los invitados
+            {t("planTools.gift.messageLabel")}
           </Label>
           {!message.trim() && (
             <button
               type="button"
-              onClick={() => setMessage(GIFT_MESSAGE_EXAMPLE)}
+              onClick={() => setMessage(t("planTools.gift.money.messageExample"))}
               className="rounded text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
-              Usar un texto de ejemplo
+              {t("planTools.gift.useExample")}
             </button>
           )}
         </div>
@@ -408,7 +388,7 @@ function GiftForm({
           value={message}
           onChange={(e) => setMessage(e.target.value.slice(0, GIFT_MESSAGE_MAX))}
           rows={4}
-          placeholder="Algo breve y cariñoso para quien quiera tener un detalle con vosotros…"
+          placeholder={t("planTools.gift.messagePlaceholder")}
           aria-describedby="gift-message-count"
           className={cn(FIELD, "h-auto min-h-28 py-2.5")}
         />
@@ -420,13 +400,13 @@ function GiftForm({
       <div className="flex items-start justify-between gap-4 rounded-2xl border border-line p-4">
         <div className="flex min-w-0 flex-col gap-0.5">
           <Label htmlFor="gift-show" className="text-sm font-medium text-ink">
-            Mostrar en la invitación
+            {t("planTools.gift.showOnInvitation")}
           </Label>
           <p id="gift-show-help" className="text-sm text-ink-muted">
             {show
-              ? "El IBAN, el Bizum y el mensaje aparecerán en la invitación que compartas."
-              : "Nada se mostrará a los invitados: solo lo veis vosotros."}
-            {show && !hasData && " Añade antes un IBAN o un Bizum."}
+              ? t("planTools.gift.money.showOn")
+              : t("planTools.gift.showOff")}
+            {show && !hasData && ` ${t("planTools.gift.money.addFirst")}`}
           </p>
         </div>
         <Switch

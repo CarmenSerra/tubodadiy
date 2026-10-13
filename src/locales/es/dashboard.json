@@ -1,1 +1,203 @@
-{}
+{
+  "newPlan": "Nuevo plan de boda",
+  "home": {
+    "loading": "Cargando tu panel",
+    "plansError": "No hemos podido cargar tus planes. Comprueba tu conexión y recarga la página.",
+    "viewPlan": "Ver todo el plan"
+  },
+  "header": {
+    "greeting": "Hola, {{name}}",
+    "greetingAnon": "Hola"
+  },
+  "empty": {
+    "welcome": "Te damos la bienvenida",
+    "intro": "Aún no tienes ningún plan de boda. Crea el primero y empieza por lo bonito: tu fecha, tu presupuesto y todo lo que quieres vivir ese día.",
+    "invited": "¿Te han invitado a un plan? Abre el enlace de invitación que te enviaron.",
+    "howItStarts": "Así empieza todo",
+    "stepN": "Paso {{n}}: ",
+    "steps": {
+      "name": {
+        "title": "Ponle nombre y fecha",
+        "text": "Con la fecha, tubodadiy empieza la cuenta atrás por ti."
+      },
+      "budget": {
+        "title": "Fija tu presupuesto",
+        "text": "Una cifra de partida y, poco a poco, el desglose por categorías."
+      },
+      "tasks": {
+        "title": "Sigue tu lista de tareas",
+        "text": "13 secciones listas para que avances a tu ritmo, sin agobios."
+      }
+    }
+  },
+  "appointments": {
+    "title": "Próximas citas",
+    "emptyTitle": "Agenda tu primera visita o prueba",
+    "emptyText": "Lugares, vestuario, degustaciones y reuniones, todo en un sitio.",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "inDays_one": "En {{count}} día",
+    "inDays_other": "En {{count}} días",
+    "more": "y {{count}} más",
+    "open": "Abrir la agenda"
+  },
+  "glance": {
+    "title": "De un vistazo",
+    "loading": "Cargando {{label}}",
+    "budget": {
+      "label": "Presupuesto",
+      "add": "Añade tu presupuesto",
+      "over": "{{amount}} por encima",
+      "left": "Te quedan {{amount}}"
+    },
+    "guests": {
+      "label": "Invitados",
+      "add": "Añade a tus invitados",
+      "confirmed_one": "{{count}} de {{total}} confirmado",
+      "confirmed_other": "{{count}} de {{total}} confirmados"
+    },
+    "vendors": {
+      "label": "Proveedores",
+      "add": "Guarda tus proveedores",
+      "booked_one": "{{count}} elegido",
+      "booked_other": "{{count}} elegidos",
+      "considering": "{{count}} en estudio"
+    }
+  },
+  "now": {
+    "label": "Ahora toca",
+    "loading": "Cargando tu siguiente paso",
+    "loadError": "No hemos podido cargar tus pasos ahora mismo. Puedes verlos en <plan>el plan</plan>.",
+    "noSections": "Este plan todavía no tiene secciones.",
+    "openPlan": "Abrir el plan",
+    "mainDone": "Lo principal está hecho",
+    "allDone": "¡Todo listo!",
+    "onlyGeneralLeft": "Solo te queda tu lista libre de tareas generales, cuando quieras.",
+    "allSectionsDone": "Has completado todas las secciones del plan.",
+    "viewPlan": "Ver el plan",
+    "continue": "Continuar",
+    "start": "Empezar",
+    "allTasksDone": "Todas las tareas están hechas: ya puedes marcarla como completada.",
+    "nextWithProgress": "Siguiente: {{task}} · {{done}} de {{total}} tareas hechas",
+    "startWith": "Empieza por: {{task}}",
+    "phaseProgress_one": "{{done}} de {{count}} paso",
+    "phaseProgress_other": "{{done}} de {{count}} pasos",
+    "phaseN": "Fase {{n}} de {{total}}"
+  },
+  "countdown": {
+    "noDate": "Aún sin fecha",
+    "today": "¡Hoy es el gran día!",
+    "bigDay": "Vuestro gran día",
+    "wasOn": "fue el {{date}}",
+    "until": "hasta el {{date}}",
+    "days_one": "día",
+    "days_other": "días"
+  },
+  "planSwitcher": {
+    "trigger": "Tus planes",
+    "label": "Elige qué plan ver",
+    "noDate": "Sin fecha todavía"
+  },
+  "roles": {
+    "owner": {
+      "label": "Dueño/a"
+    },
+    "partner": {
+      "label": "Pareja",
+      "description": "Gestiona el plan contigo, con acceso total."
+    },
+    "planner": {
+      "label": "Wedding planner",
+      "description": "Colabora con acceso total."
+    }
+  },
+  "team": {
+    "title": "Equipo",
+    "description": "Las personas que organizan esta boda contigo.",
+    "you": "Tú",
+    "youSuffix": "(tú)",
+    "planOwner": "Dueño/a del plan",
+    "guestFallback": "Invitado/a",
+    "loading": "Cargando",
+    "loadingTeam": "Cargando equipo",
+    "onlyYou": "solo tú",
+    "andMore": " y {{count}} más",
+    "buttonAria": "Equipo del plan: {{names}}{{more}}. Abrir",
+    "inviteSomeone": "Invitar a alguien",
+    "status": {
+      "pending": "Pendiente",
+      "inPlan": "En el plan"
+    },
+    "sections": {
+      "inPlan": "En el plan",
+      "pending": "Invitaciones pendientes",
+      "invite": "Invitar a alguien"
+    },
+    "copy": {
+      "copy": "Copiar enlace",
+      "copied": "Copiado",
+      "toastCopied": "Enlace copiado",
+      "toastManual": "Selecciona el enlace y cópialo con Ctrl+C."
+    },
+    "pending": {
+      "linkFor": "Enlace de invitación para {{email}}"
+    },
+    "invite": {
+      "intro": "Genera un enlace para que tu pareja o tu wedding planner vean y editen el plan contigo.",
+      "createError": "No se ha podido crear la invitación.",
+      "emailLabel": "Correo electrónico de la persona invitada",
+      "emailPlaceholder": "pareja@ejemplo.com",
+      "role": "Rol",
+      "submit": "Crear enlace de invitación"
+    },
+    "created": {
+      "message": "<strong>Invitación creada.</strong> Comparte este enlace con <email/> por WhatsApp, correo o como prefieras. Podrá aceptarla tras crear una cuenta o iniciar sesión.",
+      "linkLabel": "Enlace de invitación",
+      "another": "Invitar a otra persona"
+    },
+    "ownerOnly": "Solo la persona dueña del plan puede enviar invitaciones. Si quieres sumar a alguien, coméntaselo y lo invitará encantada."
+  },
+  "invite": {
+    "title": "Invitación a un plan de boda",
+    "joined": "Te has unido al plan de boda",
+    "acceptFailed": "No se ha podido aceptar la invitación.",
+    "notFound": "Esta invitación no existe, ha caducado o ya ha sido utilizada.",
+    "unavailable": "Esta invitación ya no está disponible.",
+    "description": "<email/> ha sido invitado/a a colaborar en <plan/> como <role/>.",
+    "signInPrompt": "Inicia sesión o crea una cuenta para aceptar la invitación.",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "accept": "Aceptar invitación"
+  },
+  "ui": {
+    "close": "Cerrar",
+    "clear": "Borrar",
+    "done": "Listo",
+    "notifications": "Notificaciones",
+    "timePicker": {
+      "choose": "Elegir hora",
+      "type": "Escribir",
+      "hour": "Hora",
+      "minute": "Min"
+    },
+    "datePicker": {
+      "choose": "Elegir fecha",
+      "placeholder": "Elige una fecha",
+      "today": "Hoy",
+      "months": "Meses",
+      "prevMonth": "Mes anterior",
+      "nextMonth": "Mes siguiente",
+      "prevYear": "Año anterior",
+      "nextYear": "Año siguiente",
+      "changeMonthYear": "{{month}}. Cambiar mes y año",
+      "backToDays": "{{year}}. Volver a los días",
+      "valueFormat": "d 'de' MMMM 'de' yyyy",
+      "fullDateFormat": "EEEE, d 'de' MMMM 'de' yyyy"
+    }
+  },
+  "undo": {
+    "action": "Deshacer",
+    "done": "Deshecho: {{message}}",
+    "error": "No se ha podido deshacer el cambio."
+  }
+}

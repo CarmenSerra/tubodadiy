@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { CopyIcon, PlusIcon, PrinterIcon, Undo2Icon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
@@ -47,6 +48,7 @@ import {
   updateTimelineItem,
 } from "@/lib/firebase/timeline";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { useLanguage } from "@/lib/i18n/provider";
 import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -126,7 +128,9 @@ export function TimelineDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const { plan } = usePlanContext();
-  const dateText = formatWeekdayDate(plan?.weddingDate);
+  const { t } = useTranslation("timeline");
+  const { lang } = useLanguage();
+  const dateText = formatWeekdayDate(plan?.weddingDate, lang);
   const contentRef = React.useRef<HTMLDivElement>(null);
   const restoreFocus = useRestoreFocus();
   const undo = useTimelineUndo();
@@ -169,22 +173,22 @@ export function TimelineDialog({
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-1">
               <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-                Cronograma del día
+                {t("dialog.title")}
               </DialogTitle>
               <DialogDescription className="text-sm text-ink-muted">
-                {dateText ?? "Aún no tienes fecha"}
+                {dateText ?? t("dialog.noDate")}
               </DialogDescription>
             </div>
             {undo.count > 0 && (
               <button
                 type="button"
                 onClick={() => void undoLast()}
-                aria-label={`Deshacer: ${undo.lastMessage}`}
+                aria-label={t("dialog.undoAria", { message: undo.lastMessage })}
                 title={undo.lastMessage ?? undefined}
                 className={cn(CTA_SECONDARY, "h-9 shrink-0 px-4")}
               >
                 <Undo2Icon aria-hidden="true" className="size-4" />
-                Deshacer
+                {t("undo.action")}
                 {undo.count > 1 && (
                   <span aria-hidden="true" className="tabular-nums text-ink-muted">
                     ({undo.count})
@@ -201,8 +205,9 @@ export function TimelineDialog({
 }
 
 function TimelineSkeleton() {
+  const { t } = useTranslation("timeline");
   return (
-    <div role="status" aria-label="Cargando el cronograma" className="flex flex-col gap-4">
+    <div role="status" aria-label={t("dialog.loading")} className="flex flex-col gap-4">
       {[0, 1, 2].map((i) => (
         <div key={i} className="grid grid-cols-[5rem_1fr] gap-4 sm:grid-cols-[6.5rem_1fr]">
           <Skeleton className="h-7 w-14" />
@@ -215,6 +220,8 @@ function TimelineSkeleton() {
 
 function TimelineBody({ undo }: { undo: TimelineUndo }) {
   const { planId, plan } = usePlanContext();
+  const { t } = useTranslation("timeline");
+  const { lang } = useLanguage();
   const { data, loading, error } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
   const items = React.useMemo(() => sortItems(data), [data]);
   const isDesktop = useIsDesktop();
@@ -239,14 +246,14 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
   async function handleTemplate(ceremonyStartMin: number) {
     setCreating(true);
     try {
-      const ids = await addTimelineItems(planId, buildTemplate(ceremonyStartMin));
+      const ids = await addTimelineItems(planId, buildTemplate(ceremonyStartMin, lang));
       undo.push({
-        message: "Cronograma creado. Ya puedes ajustar las horas.",
+        message: t("dialog.created"),
         undo: () => deleteTimelineItems(planId, ids),
       });
       void markTimelineProgress(planId, "draft");
     } catch {
-      toast.error("No se ha podido crear el cronograma.");
+      toast.error(t("dialog.errors.create"));
     } finally {
       setCreating(false);
     }
@@ -262,15 +269,17 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
     }));
     try {
       await shiftTimelineItems(planId, updates);
-      const moved = updates.length > 1 ? " y lo que viene después" : "";
       const now = formatClock(item.startMin + delta);
-      setAnnouncement(`«${item.title}»${moved}: ahora a las ${now}`);
+      const several = updates.length > 1;
+      setAnnouncement(
+        t(several ? "dialog.nudge.announceMany" : "dialog.nudge.announceOne", { title: item.title, time: now })
+      );
       undo.push({
-        message: `«${item.title}»${moved} ${updates.length > 1 ? "movidos" : "movido"} a las ${now}`,
+        message: t(several ? "dialog.nudge.movedMany" : "dialog.nudge.movedOne", { title: item.title, time: now }),
         undo: () => shiftTimelineItems(planId, before),
       });
     } catch {
-      toast.error("No se ha podido cambiar la hora.");
+      toast.error(t("dialog.errors.nudge"));
     }
   }
 
@@ -278,13 +287,13 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
   function handleFormChange(change: TimelineChange) {
     if (change.type === "created") {
       undo.push({
-        message: "Momento añadido",
+        message: t("dialog.changes.created"),
         undo: () => deleteTimelineItem(planId, change.id),
       });
     } else if (change.type === "updated") {
       const { before } = change;
       undo.push({
-        message: `«${change.title}» actualizado`,
+        message: t("dialog.changes.updated", { title: change.title }),
         undo: () =>
           updateTimelineItem(planId, before.id, {
             title: before.title,
@@ -299,7 +308,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
     } else {
       const { item } = change;
       undo.push({
-        message: `«${item.title}» eliminado`,
+        message: t("dialog.changes.deleted", { title: item.title }),
         undo: () => restoreTimelineItem(planId, item),
       });
     }
@@ -307,12 +316,12 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
 
   async function handleCopy() {
     if (!plan) return;
-    const ok = await copyText(timelineToText(items, plan));
+    const ok = await copyText(timelineToText(items, plan, lang));
     if (ok) {
-      toast.success("Cronograma copiado");
+      toast.success(t("dialog.copied"));
       void markTimelineProgress(planId, "share");
     } else {
-      toast.error("No se ha podido copiar. Prueba con «Imprimir / PDF».");
+      toast.error(t("dialog.errors.copy"));
     }
   }
 
@@ -320,7 +329,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
     return (
       <div className="flex-1 px-5 py-6 sm:px-8">
         <p role="alert" className="text-sm text-ink">
-          No se ha podido cargar el cronograma. Recarga la página e inténtalo de nuevo.
+          {t("dialog.errors.load")}
         </p>
       </div>
     );
@@ -339,12 +348,12 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" onClick={openNew} className={cn(CTA_PRIMARY, "h-10 px-5")}>
           <PlusIcon aria-hidden="true" className="size-4" />
-          Añadir momento
+          {t("dialog.add")}
         </button>
         <TimelineIdeas planId={planId} items={items} />
         <button type="button" onClick={handleCopy} className={CTA_SECONDARY}>
           <CopyIcon aria-hidden="true" className="size-4" />
-          Copiar como texto
+          {t("dialog.copy")}
         </button>
         <Link
           href={`/plan/${planId}/cronograma/imprimir`}
@@ -354,8 +363,8 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
           className={CTA_SECONDARY}
         >
           <PrinterIcon aria-hidden="true" className="size-4" />
-          Imprimir / PDF
-          <span className="sr-only"> (se abre en una pestaña nueva)</span>
+          {t("dialog.print")}
+          <span className="sr-only"> {t("dialog.newTab")}</span>
         </Link>
       </div>
       <label className="flex cursor-pointer flex-wrap items-center gap-x-2.5 gap-y-0.5 text-sm text-ink-strong">
@@ -364,8 +373,8 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
           onCheckedChange={(v) => handleCascadeChange(Boolean(v))}
           className={CHECKBOX}
         />
-        <span>Mover también lo que viene después</span>
-        <span className="hidden text-ink-muted sm:inline">(al ajustar una hora con −15 / +15)</span>
+        <span>{t("dialog.cascade.label")}</span>
+        <span className="hidden text-ink-muted sm:inline">{t("dialog.cascade.hint")}</span>
       </label>
     </div>
   ) : null;

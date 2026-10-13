@@ -1,4 +1,5 @@
 import { ArmchairIcon, CheckIcon, ClockIcon, UserPlusIcon, UserXIcon, UsersIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CARD, IconCircle, MiniBar } from "@/components/dashboard/ui";
 import { summarizeGuests } from "@/components/dashboard/helpers";
@@ -44,53 +45,54 @@ export function StatTile({
 }
 
 export function GuestSummary({ guests }: { guests: Guest[] }) {
+  const { t } = useTranslation("guests");
   const g = summarizeGuests(guests);
   const seats = summarizeSeats(guests);
   return (
     <section aria-labelledby="guest-summary-title" className="flex flex-col gap-3 sm:gap-4">
       <h2 id="guest-summary-title" className="sr-only">
-        Resumen de invitados
+        {t("summary.title")}
       </h2>
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
         <StatTile
           className="col-span-2 lg:col-span-1"
           icon={<UsersIcon />}
           tone="lilac"
-          label="Invitados"
+          label={t("summary.guests")}
           value={g.total}
-          detail={g.total === 1 ? "persona en tu lista" : "personas en tu lista"}
+          detail={t("summary.peopleInList", { count: g.total })}
         />
         <StatTile
           icon={<CheckIcon />}
           tone="sage"
-          label="Confirmados"
+          label={t("summary.confirmed")}
           value={g.confirmed}
-          detail={`${g.ratio}% de la lista`}
+          detail={t("summary.ofList", { ratio: g.ratio })}
           bar={g.ratio}
         />
         <StatTile
           icon={<ClockIcon />}
           tone="lilac"
-          label="Pendientes"
+          label={t("summary.pending")}
           value={g.pending}
-          detail="sin respuesta todavía"
+          detail={t("summary.pendingDetail")}
         />
         <StatTile
           icon={<UserXIcon />}
           tone="sage"
-          label="No asisten"
+          label={t("summary.declined")}
           value={g.declined}
-          detail={g.declined === 1 ? "no podrá venir" : "no podrán venir"}
+          detail={t("summary.declinedDetail", { count: g.declined })}
         />
         <StatTile
           icon={<ArmchairIcon />}
           tone="lilac"
-          label="Cubiertos"
+          label={t("summary.seats")}
           value={seats.seats}
           detail={
             seats.extraSeatsConfirmed > 0
-              ? `${g.confirmed} ${g.confirmed === 1 ? "confirmado" : "confirmados"} + ${seats.extraSeatsConfirmed} ${seats.extraSeatsConfirmed === 1 ? "acompañante" : "acompañantes"}`
-              : "confirmados y sus acompañantes"
+              ? `${t("summary.confirmedCount", { count: g.confirmed })} + ${t("summary.companionCount", { count: seats.extraSeatsConfirmed })}`
+              : t("summary.seatsDetail")
           }
         />
       </div>
@@ -101,6 +103,7 @@ export function GuestSummary({ guests }: { guests: Guest[] }) {
 
 /** Invitados que llevan acompañante y los cubiertos extra que suponen. */
 function CompanionSummary({ seats }: { seats: ReturnType<typeof summarizeSeats> }) {
+  const { t } = useTranslation("guests");
   const n = seats.withCompanion;
   return (
     <div className={cn(CARD, "flex min-w-0 items-start gap-3 p-4 sm:items-center sm:gap-4 sm:p-5")}>
@@ -108,22 +111,23 @@ function CompanionSummary({ seats }: { seats: ReturnType<typeof summarizeSeats> 
         <UserPlusIcon />
       </IconCircle>
       <div className="min-w-0 flex-1">
-        <h3 className="font-display text-base font-semibold leading-snug text-ink-strong">Con acompañante</h3>
+        <h3 className="font-display text-base font-semibold leading-snug text-ink-strong">{t("summary.withCompanion")}</h3>
         {n === 0 ? (
           <p className="mt-0.5 text-sm text-ink-muted">
-            Ningún invitado lleva acompañante. Márcalo al editar un invitado y se sumará a los cubiertos.
+            {t("summary.noCompanions")}
           </p>
         ) : (
           <>
             <p className="mt-0.5 break-words font-display text-xl font-semibold leading-tight text-ink sm:text-2xl">
-              {n} {n === 1 ? "invitado" : "invitados"}
+              {t("summary.companionGuests", { count: n })}
               <span aria-hidden="true"> → </span>
               <span className="sr-only">: </span>
-              {n} {n === 1 ? "cubierto extra" : "cubiertos extra"}
+              {t("summary.extraSeats", { count: n })}
             </p>
             <p className="mt-1 text-sm text-ink-muted">
-              {seats.withCompanionConfirmed} {seats.withCompanionConfirmed === 1 ? "ya ha confirmado" : "ya han confirmado"}
-              {" · "}si vienen todos los que no han dicho que no, serían {seats.maxSeats} cubiertos
+              {t("summary.companionsConfirmed", { count: seats.withCompanionConfirmed })}
+              {" · "}
+              {t("summary.maxSeats", { count: seats.maxSeats })}
             </p>
           </>
         )}
@@ -134,8 +138,9 @@ function CompanionSummary({ seats }: { seats: ReturnType<typeof summarizeSeats> 
 
 /** Esqueleto de la pantalla de invitados (mismo aspecto que el contenido). */
 export function GuestsSkeleton() {
+  const { t } = useTranslation("guests");
   return (
-    <div className="flex flex-col gap-5" role="status" aria-label="Cargando invitados">
+    <div className="flex flex-col gap-5" role="status" aria-label={t("summary.loading")}>
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
         {[0, 1, 2, 3, 4].map((i) => (
           <div

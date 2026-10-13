@@ -1,33 +1,40 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-import { computePhases, phaseOf, recommendedStep, type PhaseState } from "@/lib/phases";
+import { computePhases, displayPhaseName, phaseOf, recommendedStep, type PhaseState } from "@/lib/phases";
+import { displayStepDescription, displayStepTitle, displayTaskTitle } from "@/lib/steps";
 import type { PlanStep, WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import type { FeaturedPlanData } from "./helpers";
 import { CARD, CTA_PRIMARY, CTA_SECONDARY, LINK, Skeleton } from "./ui";
 
 /** Una sola línea con la siguiente tarea del paso (o su descripción). */
-function stepLine(step: PlanStep): string {
-  const pending = step.tasks.filter((t) => !t.done);
-  if (step.tasks.length === 0) return step.description ?? "";
-  if (pending.length === 0) return "Todas las tareas están hechas: ya puedes marcarla como completada.";
+function stepLine(step: PlanStep, t: TFunction): string {
+  const pending = step.tasks.filter((task) => !task.done);
+  if (step.tasks.length === 0) {
+    return step.description ? displayStepDescription(step.category, t, step.description) : "";
+  }
+  if (pending.length === 0) return t("now.allTasksDone");
   const done = step.tasks.length - pending.length;
+  const next = displayTaskTitle(step.category, pending[0], t);
   return done > 0
-    ? `Siguiente: ${pending[0].title} · ${done} de ${step.tasks.length} tareas hechas`
-    : `Empieza por: ${pending[0].title}`;
+    ? t("now.nextWithProgress", { task: next, done, total: step.tasks.length })
+    : t("now.startWith", { task: next });
 }
 
 /** Barra de fases: una pieza por fase, la actual a medio llenar. Decorativa. */
 function PhaseLine({ phases, phase }: { phases: PhaseState[]; phase: PhaseState }) {
+  const { t } = useTranslation("dashboard");
   return (
     <div className="mt-6 border-t border-line pt-5 sm:mt-8">
       <p className="text-sm text-ink-muted">
-        <span className="font-medium text-ink">{phase.name}</span> · {phase.done} de {phase.total}{" "}
-        {phase.total === 1 ? "paso" : "pasos"}
-        <span className="sr-only">
-          . Fase {phase.index + 1} de {phases.length}
-        </span>
+        <span className="font-medium text-ink">{displayPhaseName(phase, t)}</span> ·{" "}
+        {t("now.phaseProgress", { done: phase.done, count: phase.total })}
+        <span className="sr-only">. {t("now.phaseN", { n: phase.index + 1, total: phases.length })}</span>
       </p>
       <div
         aria-hidden="true"
@@ -50,16 +57,18 @@ function PhaseLine({ phases, phase }: { phases: PhaseState[]; phase: PhaseState 
 }
 
 function Label() {
+  const { t } = useTranslation("dashboard");
   return (
     <h2 className="flex items-center gap-2 text-sm font-medium text-ink-muted">
       <span aria-hidden="true" className="size-2 rounded-full bg-lilac" />
-      Ahora toca
+      {t("now.label")}
     </h2>
   );
 }
 
 /** El único bloque protagonista de la home: qué hacer ahora y un botón. */
 export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanData }) {
+  const { t } = useTranslation("dashboard");
   const planHref = `/plan/${plan.id}`;
   const waiting = data.loading && data.steps.length === 0;
 
@@ -71,7 +80,7 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
 
   if (waiting) {
     return (
-      <section className={cn(CARD, "p-6 sm:p-8")} role="status" aria-label="Cargando tu siguiente paso">
+      <section className={cn(CARD, "p-6 sm:p-8")} role="status" aria-label={t("now.loading")}>
         <Skeleton className="h-4 w-24" />
         <Skeleton className="mt-5 h-8 w-2/3 max-w-sm" />
         <Skeleton className="mt-3 h-4 w-full max-w-md" />
@@ -93,11 +102,7 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
   if (data.error && data.steps.length === 0) {
     return withLabel(
       <p className="mt-4 text-ink">
-        No hemos podido cargar tus pasos ahora mismo. Puedes verlos en{" "}
-        <Link href={planHref} className={LINK}>
-          el plan
-        </Link>
-        .
+        <Trans i18nKey="now.loadError" ns="dashboard" components={{ plan: <Link href={planHref} className={LINK} /> }} />
       </p>
     );
   }
@@ -105,9 +110,9 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
   if (data.steps.length === 0) {
     return withLabel(
       <>
-        <p className="mt-4 text-ink">Este plan todavía no tiene secciones.</p>
+        <p className="mt-4 text-ink">{t("now.noSections")}</p>
         <Link href={planHref} className={cn(CTA_PRIMARY, "mt-6")}>
-          Abrir el plan
+          {t("now.openPlan")}
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </Link>
       </>
@@ -122,15 +127,13 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
     return withLabel(
       <>
         <p className="mt-4 font-display text-2xl font-semibold text-ink sm:text-3xl">
-          {anyOpen ? "Lo principal está hecho" : "¡Todo listo!"}
+          {anyOpen ? t("now.mainDone") : t("now.allDone")}
         </p>
         <p className="mt-2 text-ink-muted">
-          {anyOpen
-            ? "Solo te queda tu lista libre de tareas generales, cuando quieras."
-            : "Has completado todas las secciones del plan."}
+          {anyOpen ? t("now.onlyGeneralLeft") : t("now.allSectionsDone")}
         </p>
         <Link href={planHref} className={cn(CTA_SECONDARY, "mt-6")}>
-          Ver el plan
+          {t("now.viewPlan")}
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </Link>
       </>
@@ -140,19 +143,19 @@ export function NowCard({ plan, data }: { plan: WeddingPlan; data: FeaturedPlanD
   const started = step.status === "in_progress" || step.tasks.some((t) => t.done);
   const phaseId = phaseOf(step.category)?.id;
   const phase = phases.find((p) => p.id === phaseId) ?? null;
-  const line = stepLine(step);
+  const line = stepLine(step, t);
 
   return withLabel(
     <>
       <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
         <div className="min-w-0">
           <h3 className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            {step.title}
+            {displayStepTitle(step.category, t, step.title)}
           </h3>
           {line && <p className="mt-2 text-ink-muted [overflow-wrap:anywhere]">{line}</p>}
         </div>
         <Link href={`${planHref}#step-${step.id}`} className={cn(CTA_PRIMARY, "w-full shrink-0 sm:w-auto")}>
-          {started ? "Continuar" : "Empezar"}
+          {started ? t("now.continue") : t("now.start")}
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </Link>
       </div>

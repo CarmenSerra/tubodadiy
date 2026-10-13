@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { ArrowLeftIcon, Loader2, Trash2Icon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { CATEGORY_INFO, isCategory } from "@/components/appointments/appointment-model";
+import { isCategory } from "@/components/appointments/appointment-model";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import {
   CHECKBOX,
@@ -17,6 +18,7 @@ import {
   SELECT_ITEM,
   SELECT_TRIGGER,
 } from "@/components/guests/brand-dialog";
+import { categoryLabel } from "@/components/vendors/vendor-model";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { ignoreToastInteraction } from "@/components/timeline/use-timeline-undo";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -130,12 +132,13 @@ function AppointmentForm({
   onDone: () => void;
   onChange?: (change: AppointmentChange) => void;
 }) {
+  const { t } = useTranslation("tools");
   const isEdit = Boolean(item);
   const initialCategory = item?.category ?? defaultCategory ?? "otro";
 
   const [category, setCategory] = React.useState<AppointmentCategory>(initialCategory);
   // El título se sugiere según el tipo mientras no lo hayas escrito tú.
-  const [title, setTitle] = React.useState(item?.title ?? CATEGORY_INFO[initialCategory].suggestedTitle);
+  const [title, setTitle] = React.useState(item?.title ?? t(`appointments.categories.${initialCategory}.suggestedTitle`));
   const [titleTouched, setTitleTouched] = React.useState(isEdit);
   const [date, setDate] = React.useState(item?.date ?? "");
   const [time, setTime] = React.useState(item?.time ?? "");
@@ -156,14 +159,14 @@ function AppointmentForm({
 
   const selectedVendor = vendors.find((v) => v.id === vendorId);
   // Un proveedor ya borrado se sigue mostrando con el nombre que se guardó.
-  const orphanVendor = vendorId && !selectedVendor ? item?.vendorName || "Proveedor eliminado" : null;
+  const orphanVendor = vendorId && !selectedVendor ? item?.vendorName || t("appointments.form.deletedVendor") : null;
 
   function clearError(field: FormError["field"]) {
     setError((current) => (current?.field === field ? null : current));
   }
 
   function handleCategory(next: AppointmentCategory) {
-    if (!titleTouched) setTitle(CATEGORY_INFO[next].suggestedTitle);
+    if (!titleTouched) setTitle(t(`appointments.categories.${next}.suggestedTitle`));
     setCategory(next);
   }
 
@@ -178,10 +181,10 @@ function AppointmentForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     let problem: FormError | null = null;
-    if (!title.trim()) problem = { field: "title", text: "Ponle un título a la cita." };
-    else if (!date) problem = { field: "date", text: "Elige el día de la cita." };
+    if (!title.trim()) problem = { field: "title", text: t("appointments.form.errors.title") };
+    else if (!date) problem = { field: "date", text: t("appointments.form.errors.date") };
     else if (time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(time))
-      problem = { field: "time", text: "Escribe una hora válida, por ejemplo 18:30." };
+      problem = { field: "time", text: t("appointments.form.errors.time") };
     if (problem) {
       setError(problem);
       document.getElementById({ title: titleId, date: dateId, time: timeId }[problem.field])?.focus();
@@ -210,7 +213,7 @@ function AppointmentForm({
       }
       onDone();
     } catch {
-      toast.error("No se ha podido guardar la cita.");
+      toast.error(t("appointments.form.errors.save"));
     } finally {
       setSubmitting(false);
     }
@@ -223,7 +226,7 @@ function AppointmentForm({
       onChange?.({ type: "deleted", item });
       onDone();
     } catch {
-      toast.error("No se ha podido eliminar la cita.");
+      toast.error(t("appointments.errors.delete"));
     }
   }
 
@@ -239,18 +242,18 @@ function AppointmentForm({
           )}
         >
           <ArrowLeftIcon aria-hidden="true" className="size-4" />
-          Volver a las citas
+          {t("appointments.form.back")}
         </button>
-        <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar cita" : "Nueva cita"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{isEdit ? t("appointments.form.editTitle") : t("appointments.form.newTitle")}</DialogTitle>
         <DialogDescription className="sr-only">
-          Tipo, día, hora y detalles de la cita.
+          {t("appointments.form.description")}
         </DialogDescription>
       </DialogHeader>
 
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor={categoryId} className={FIELD_LABEL}>
-            Tipo de cita
+            {t("appointments.form.type")}
           </Label>
           <Select value={category} onValueChange={(v) => isCategory(v) && handleCategory(v)}>
             <SelectTrigger id={categoryId} className={SELECT_TRIGGER}>
@@ -259,7 +262,7 @@ function AppointmentForm({
             <SelectContent className={SELECT_CONTENT}>
               {APPOINTMENT_CATEGORIES.map((c) => (
                 <SelectItem key={c} value={c} className={SELECT_ITEM}>
-                  {CATEGORY_INFO[c].label}
+                  {t(`appointments.categories.${c}.label`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -268,7 +271,7 @@ function AppointmentForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor={titleId} className={FIELD_LABEL}>
-            Título
+            {t("appointments.form.titleLabel")}
           </Label>
           <Input
             id={titleId}
@@ -278,7 +281,7 @@ function AppointmentForm({
               setTitleTouched(true);
               clearError("title");
             }}
-            placeholder="Visita a la finca, prueba del vestido…"
+            placeholder={t("appointments.form.titlePlaceholder")}
             autoFocus={!isEdit}
             autoComplete="off"
             required
@@ -296,7 +299,7 @@ function AppointmentForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor={dateId} className={FIELD_LABEL}>
-              Día
+              {t("appointments.form.day")}
             </Label>
             <DatePicker
               id={dateId}
@@ -316,7 +319,7 @@ function AppointmentForm({
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor={timeId} className={FIELD_LABEL}>
-              Hora <span className="font-normal text-ink-muted">(opcional)</span>
+              {t("appointments.form.time")} <span className="font-normal text-ink-muted">{t("appointments.form.optional")}</span>
             </Label>
             <TimePicker
               id={timeId}
@@ -339,13 +342,13 @@ function AppointmentForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor={placeId} className={FIELD_LABEL}>
-            Lugar o dirección
+            {t("appointments.form.place")}
           </Label>
           <Input
             id={placeId}
             value={place}
             onChange={(e) => setPlace(e.target.value)}
-            placeholder="Finca Los Olivos, Calle Mayor 3…"
+            placeholder={t("appointments.form.placePlaceholder")}
             autoComplete="off"
             className={FIELD}
           />
@@ -354,7 +357,7 @@ function AppointmentForm({
         {(vendors.length > 0 || vendorId) && (
           <div className="flex flex-col gap-2">
             <Label htmlFor={vendorFieldId} className={FIELD_LABEL}>
-              Proveedor <span className="font-normal text-ink-muted">(opcional)</span>
+              {t("appointments.form.vendor")} <span className="font-normal text-ink-muted">{t("appointments.form.optional")}</span>
             </Label>
             <Select value={vendorId || NO_VENDOR} onValueChange={handleVendor}>
               <SelectTrigger id={vendorFieldId} className={SELECT_TRIGGER}>
@@ -362,7 +365,7 @@ function AppointmentForm({
               </SelectTrigger>
               <SelectContent className={SELECT_CONTENT}>
                 <SelectItem value={NO_VENDOR} className={SELECT_ITEM}>
-                  Sin proveedor
+                  {t("appointments.form.noVendor")}
                 </SelectItem>
                 {orphanVendor && (
                   <SelectItem value={vendorId} className={SELECT_ITEM}>
@@ -371,8 +374,8 @@ function AppointmentForm({
                 )}
                 {vendors.map((v) => (
                   <SelectItem key={v.id} value={v.id} className={SELECT_ITEM}>
-                    {v.name || "Sin nombre"}
-                    {v.category ? ` · ${v.category}` : ""}
+                    {v.name || t("appointments.form.unnamedVendor")}
+                    {v.category ? ` · ${categoryLabel(v.category, t)}` : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -382,13 +385,13 @@ function AppointmentForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor={notesId} className={FIELD_LABEL}>
-            Notas
+            {t("appointments.form.notes")}
           </Label>
           <Textarea
             id={notesId}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Qué preguntar, qué llevar, con quién ir…"
+            placeholder={t("appointments.form.notesPlaceholder")}
             rows={3}
             className="min-h-20 rounded-xl border-line-strong bg-field text-base text-ink-strong shadow-none placeholder:text-ink-placeholder focus-visible:ring-lilac focus-visible:ring-offset-0 sm:text-sm"
           />
@@ -400,7 +403,7 @@ function AppointmentForm({
             onCheckedChange={(v) => setDone(Boolean(v))}
             className={CHECKBOX}
           />
-          Ya hecha
+          {t("appointments.form.done")}
         </label>
       </div>
 
@@ -416,15 +419,15 @@ function AppointmentForm({
             )}
           >
             <Trash2Icon aria-hidden="true" className="size-4" />
-            Eliminar cita
+            {t("appointments.form.delete")}
           </button>
         )}
         <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
-          Cancelar
+          {t("appointments.form.cancel")}
         </button>
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
           {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("appointments.form.save")}
         </button>
       </DialogFooter>
     </form>

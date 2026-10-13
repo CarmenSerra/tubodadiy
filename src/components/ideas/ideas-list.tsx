@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CheckIcon, Loader2, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import type { IdeasPanelContext } from "@/components/ideas/ideas-panel";
@@ -37,7 +38,7 @@ export interface IdeaItem {
   present?: boolean;
   /** Si es false, el botón no marca la fila como «Añadida» (p. ej. abre un formulario). */
   markAdded?: boolean;
-  /** Etiqueta accesible del botón; por defecto «Añadir «título»». */
+  /** Etiqueta accesible del botón; por defecto «Añadir «título»» (vendors:ideas.common.addAria). */
   addLabel?: string;
   onAdd: (ctx: IdeasPanelContext) => Promise<void> | void;
 }
@@ -60,21 +61,6 @@ interface IdeasListProps {
   minForGroups?: number;
 }
 
-const COPY = {
-  f: {
-    added: "Añadida",
-    present: "Ya la tienes",
-    show: "Mostrar también las que ya tienes",
-    hide: "Ocultar las que ya tienes",
-  },
-  m: {
-    added: "Añadido",
-    present: "Ya lo tienes",
-    show: "Mostrar también los que ya tienes",
-    hide: "Ocultar los que ya tienes",
-  },
-} as const;
-
 /** Lista de ideas con botón «+» por fila, filtros opcionales y las ya presentes aparte. */
 export function IdeasList({
   items,
@@ -84,10 +70,17 @@ export function IdeasList({
   errorMessage,
   emptyText,
   groups,
-  groupsLabel = "Filtrar ideas",
+  groupsLabel,
   minForGroups = 8,
 }: IdeasListProps) {
-  const copy = COPY[gender];
+  const { t } = useTranslation("vendors");
+  // Género del sustantivo (Añadida / Añadido, Ya la / lo tienes): vendors:ideas.common.<clave>_f | _m.
+  const copy = {
+    added: t("ideas.common.added", { context: gender }),
+    present: t("ideas.common.present", { context: gender }),
+    show: t("ideas.common.show", { context: gender }),
+    hide: t("ideas.common.hide", { context: gender }),
+  };
   const [group, setGroup] = React.useState("all");
   const [showExisting, setShowExisting] = React.useState(false);
   const [added, setAdded] = React.useState<ReadonlySet<string>>(() => new Set());
@@ -135,7 +128,7 @@ export function IdeasList({
       {showChips && (
         <div
           role="group"
-          aria-label={groupsLabel}
+          aria-label={groupsLabel ?? t("ideas.common.filter")}
           // Los filtros se quedan arriba mientras se desplaza la lista.
           className="sticky top-0 z-10 -mx-5 flex flex-wrap gap-1.5 bg-surface px-5 pb-2 pt-1"
         >
@@ -145,7 +138,7 @@ export function IdeasList({
             onClick={() => setGroup("all")}
             className={cn(IDEA_CHIP, activeGroup === "all" && CHIP_ON)}
           >
-            Todas
+            {t("ideas.common.all")}
           </button>
           {presentGroups.map((g) => (
             <button
@@ -204,7 +197,7 @@ export function IdeasList({
                   <button
                     type="button"
                     aria-disabled="true"
-                    aria-label={`«${item.title}» ${copy.added.toLowerCase()}`}
+                    aria-label={t("ideas.common.addedAria", { title: item.title, added: copy.added.toLowerCase() })}
                     className={cn(
                       "mt-0.5 inline-flex h-9 shrink-0 cursor-default items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-green",
                       ROW_FOCUS
@@ -216,7 +209,7 @@ export function IdeasList({
                 ) : (
                   <button
                     type="button"
-                    aria-label={item.addLabel ?? `Añadir «${item.title}»`}
+                    aria-label={item.addLabel ?? t("ideas.common.addAria", { title: item.title })}
                     aria-busy={isAdding || undefined}
                     onClick={() => void handleAdd(item)}
                     className={cn(

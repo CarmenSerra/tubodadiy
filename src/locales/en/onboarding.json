@@ -1,1 +1,290 @@
-{}
+{
+  "defaultTitle": "Our wedding",
+  "meta": {
+    "title": "New wedding plan — tubodadiy"
+  },
+  "optional": "(optional)",
+  "name": {
+    "label": "Plan name"
+  },
+  "mode": {
+    "scratch": {
+      "title": "From scratch",
+      "description": "A blank canvas, we'll guide you step by step"
+    },
+    "advanced": {
+      "title": "We're already well along",
+      "description": "Tell us what you already have and we'll organize it"
+    }
+  },
+  "options": {
+    "have": {
+      "fecha": {
+        "label": "Date",
+        "hint": "We already know the day"
+      },
+      "presupuesto": {
+        "label": "Budget",
+        "hint": "We have a figure"
+      },
+      "lugar": {
+        "label": "Venue booked",
+        "hint": "Estate, hall or church"
+      },
+      "invitados": {
+        "label": "Guest list",
+        "hint": "A list to paste here"
+      },
+      "proveedores": {
+        "label": "Vendors hired",
+        "hint": "Catering, photography…"
+      },
+      "ceremonia": {
+        "label": "Type of ceremony",
+        "hint": "Civil, religious…"
+      },
+      "vestuario": {
+        "label": "Dress or suit",
+        "hint": "We've already chosen it"
+      },
+      "alianzas": {
+        "label": "Wedding rings",
+        "hint": "We already have them"
+      },
+      "luna": {
+        "label": "Honeymoon",
+        "hint": "Destination or booking"
+      }
+    },
+    "ceremony": {
+      "civil": {
+        "label": "Civil",
+        "hint": "Legally binding, at a town hall or elsewhere"
+      },
+      "religiosa": {
+        "label": "Religious",
+        "hint": "In a church or another place of worship"
+      },
+      "simbolica": {
+        "label": "Symbolic",
+        "hint": "A ceremony your own way, with no legal paperwork"
+      },
+      "unknown": {
+        "label": "We don't know yet",
+        "hint": "We'll decide later"
+      }
+    },
+    "scope": {
+      "ceremonia": "Ceremony",
+      "banquete": "Reception",
+      "ambos": "Both"
+    }
+  },
+  "vendorTypes": {
+    "catering": "Catering",
+    "fotografo": "Photographer",
+    "musica": "Music / DJ",
+    "flores": "Flowers",
+    "video": "Video",
+    "belleza": "Hair and makeup",
+    "tarta": "Cake",
+    "transporte": "Transport",
+    "decoracion": "Decoration"
+  },
+  "date": {
+    "label": "Wedding date",
+    "placeholder": "Choose the date",
+    "help": "Once you set the date, tubodadiy starts the countdown for you."
+  },
+  "budget": {
+    "label": "Total budget in euros",
+    "placeholder": "12,000",
+    "help": "A rough figure is fine; you can change it whenever you like."
+  },
+  "approx": {
+    "label": "Approximate number of guests",
+    "placeholder": "120",
+    "help": "A rough number is fine. You'll fine-tune it when you build the list."
+  },
+  "venue": {
+    "nameLabel": "Venue name",
+    "namePlaceholder": "The Olive Grove Estate",
+    "locationLabel": "Where is it?",
+    "locationPlaceholder": "Toledo",
+    "scopeQuestion": "Is it for the ceremony, the reception or both?"
+  },
+  "guests": {
+    "label": "Paste your list here",
+    "placeholder": "Anna Smith; Bride's family\nLuke Parker; Friends\nMaria Lopez",
+    "help": "One guest per line. If you paste from Excel or Google Sheets, the first column is the name and the second is the group (optional). Separating with \";\" or a comma works too.",
+    "willAdd_one": "We're going to add {{n}} guest",
+    "willAdd_other": "We're going to add {{n}} guests",
+    "tableCaption": "First guests on the list",
+    "columnName": "Name",
+    "columnGroup": "Group",
+    "noGroup": "No group",
+    "andMore": "… and {{n}} more",
+    "skippedHeader": "We skipped the first row because it looks like a header.",
+    "truncated": "We'll only add the first {{n}}."
+  },
+  "vendors": {
+    "nameLabel": "Name",
+    "priceLabel": "Price",
+    "pricePlaceholder": "1,500"
+  },
+  "honeymoon": {
+    "label": "Honeymoon destination",
+    "placeholder": "Japan",
+    "help": "It's optional: we'll note it in the Honeymoon section."
+  },
+  "summary": {
+    "yourPlan": "Your plan",
+    "blank": "You're starting with a blank canvas: we'll guide you step by step through the 13 sections of the plan.",
+    "labels": {
+      "date": "Date",
+      "budget": "Budget",
+      "ceremony": "Ceremony",
+      "venue": "Venue",
+      "guests": "Guests",
+      "vendors": "Vendors",
+      "dress": "Dress or suit",
+      "rings": "Wedding rings",
+      "honeymoon": "Honeymoon"
+    },
+    "venueScope": {
+      "ceremonia": "ceremony",
+      "banquete": "reception",
+      "ambos": "ceremony and reception"
+    },
+    "guestsList_one": "{{n}} guest on the list",
+    "guestsList_other": "{{n}} guests on the list",
+    "guestsApprox": "About {{n}} guests",
+    "vendorsList_one": "{{count}} vendor ({{names}})",
+    "vendorsList_other": "{{count}} vendors ({{names}})",
+    "dressDone": "Already chosen",
+    "ringsDone": "You already have them",
+    "honeymoonDone": "Already planned"
+  },
+  "creating": {
+    "title": "Getting your plan ready",
+    "description": "It'll only take a moment.",
+    "dontClose": "Please don't close this page until we're done.",
+    "done": "(done)",
+    "failed": "(couldn't be done)",
+    "stages": {
+      "plan": "Creating your plan and its sections",
+      "venue": "Saving the venue",
+      "guests_one": "Adding {{count}} guest",
+      "guests_other": "Adding {{count}} guests",
+      "vendors": "Saving the vendors",
+      "steps": "Ticking off what you've already done"
+    }
+  },
+  "create": {
+    "error": "The plan couldn't be created. Please try again.",
+    "success": "Plan created!",
+    "partial": "We created the plan, but couldn't add {{items}}. You can add it from the plan.",
+    "failedStage": {
+      "venue": "the venue",
+      "guests": "the guest list",
+      "vendors": "the vendors",
+      "steps": "the section progress"
+    }
+  },
+  "nav": {
+    "exitAria": "Leave without creating the plan",
+    "exit": "Leave",
+    "progress": "Step {{current}} of {{total}}",
+    "back": "Back",
+    "skipDefault": "I'll fill this in later",
+    "create": "Create our plan",
+    "continue": "Continue"
+  },
+  "leave": {
+    "title": "Leave without creating the plan?",
+    "description": "You'll lose what you've written so far.",
+    "stay": "Keep going"
+  },
+  "errors": {
+    "budgetInvalid": "Enter a valid amount, for example 12,000.",
+    "budgetNegative": "The budget can't be negative.",
+    "amountTooLarge": "That amount is too large.",
+    "guestsInvalid": "Enter a whole number, for example 120.",
+    "priceInvalid": "Enter a valid amount, for example 1,500."
+  },
+  "copy": {
+    "name": {
+      "title": "What's your plan called?",
+      "description": "A name to recognize it by. You can change it whenever you like."
+    },
+    "mode": {
+      "title": "How would you like to start?",
+      "description": "Choose whatever suits you best. You can always add more later."
+    },
+    "have": {
+      "title": "What do you already have?",
+      "description": "Tick everything that's already decided or booked. We'll only ask for those details.",
+      "skip": "Start with nothing"
+    },
+    "date": {
+      "title": "Do you have a date yet?",
+      "titleAdvanced": "What's your date?",
+      "description": "Pick the day on the calendar.",
+      "skip": "We don't know yet"
+    },
+    "budget": {
+      "title": "What's your total budget?",
+      "description": "What you plan to spend on the whole wedding.",
+      "skip": "We don't know yet"
+    },
+    "ceremony": {
+      "title": "What kind of ceremony would you like?",
+      "titleAdvanced": "What kind of ceremony are you having?",
+      "description": "We'll note it in the Ceremony section.",
+      "skip": "Skip"
+    },
+    "approx": {
+      "title": "How many guests are you expecting?",
+      "description": "A rough number is fine.",
+      "skip": "We don't know yet"
+    },
+    "venue": {
+      "title": "Which venue have you booked?",
+      "description": "We'll save it in Vendors as your chosen venue."
+    },
+    "guests": {
+      "title": "Share your guest list with us",
+      "description": "Copy it from wherever you keep it and paste it here; we'll sort it out."
+    },
+    "vendors": {
+      "title": "Which vendors have you hired?",
+      "description": "Tick the ones you already have. We'll save them as chosen; the name and price are optional."
+    },
+    "honeymoon": {
+      "title": "Where are you going on your honeymoon?",
+      "description": "If you already know, tell us."
+    },
+    "summary": {
+      "title": "All set to begin",
+      "description": "This is what we'll prepare for you. You can change everything afterwards from the plan."
+    }
+  },
+  "notes": {
+    "venue": {
+      "ceremonia": "Booked for the ceremony.",
+      "banquete": "Booked for the reception.",
+      "ambos": "Booked for the ceremony and the reception."
+    },
+    "vendorMissing": "Still need to add the name and contact details.",
+    "guestsApprox": "We're expecting about {{n}} guests.",
+    "ceremonyType": "Ceremony type: {{type}}.",
+    "ceremonyTypes": {
+      "civil": "civil",
+      "religiosa": "religious",
+      "simbolica": "symbolic"
+    },
+    "rings": "We already have the wedding rings.",
+    "honeymoonTo": "Honeymoon: {{destination}}",
+    "honeymoonDone": "We've already planned the honeymoon."
+  }
+}

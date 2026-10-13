@@ -1,6 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -47,10 +48,11 @@ export function NewPlanButton({
   variant?: "primary" | "secondary";
   className?: string;
 }) {
+  const { t } = useTranslation("dashboard");
   return (
     <Link href={NEW_PLAN_HREF} className={cn(variant === "primary" ? CTA_PRIMARY : CTA_SECONDARY, className)}>
       <PlusIcon aria-hidden="true" className="size-4" />
-      Nuevo plan de boda
+      {t("newPlan")}
     </Link>
   );
 }

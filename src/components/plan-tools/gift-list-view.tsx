@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ExternalLinkIcon, Loader2, PlusIcon, RepeatIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -19,12 +20,10 @@ import { cleanUrl } from "@/components/invitation/invitation-model";
 import {
   GIFT_ITEM_LIMITS,
   GIFT_ITEM_SUGGESTIONS,
-  GIFT_LIST_MESSAGE_EXAMPLE,
   GIFT_MESSAGE_MAX,
   GIFT_PRIORITIES,
   emptyGift,
   giftListSummary,
-  giftPriorityLabel,
   isGiftPriority,
   sortGiftItems,
   type GiftItem,
@@ -49,6 +48,8 @@ import {
 import { giftItemsQuery, mapGiftItem } from "@/lib/firebase/gift-list";
 import { saveGift } from "@/lib/firebase/plan-tools";
 import { useCollection } from "@/lib/hooks/use-collection";
+import type { Lang } from "@/lib/i18n/config";
+import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn, formatCurrency, parseAmount } from "@/lib/utils";
 
@@ -59,7 +60,7 @@ const NO_PRIORITY = "none";
 type ItemForm = { kind: "new"; name: string } | { kind: "edit"; item: GiftItem };
 
 /** Texto de un precio aproximado: «≈ 120 €». */
-const approx = (price: number) => `≈ ${formatCurrency(price)}`;
+const approx = (price: number, lang: Lang) => `≈ ${formatCurrency(price, lang)}`;
 
 function hostOf(link: string): string {
   try {
@@ -70,6 +71,7 @@ function hostOf(link: string): string {
 }
 
 function PriorityChip({ priority }: { priority: GiftPriority }) {
+  const { t } = useTranslation("tools");
   return (
     <span
       className={cn(
@@ -79,7 +81,7 @@ function PriorityChip({ priority }: { priority: GiftPriority }) {
         priority === "low" && "border border-line-strong text-ink-muted"
       )}
     >
-      {giftPriorityLabel(priority)}
+      {t(`planTools.gift.list.priorities.${priority}.label`)}
     </span>
   );
 }
@@ -93,6 +95,8 @@ export function GiftListView({
   onSavingChange: (saving: boolean) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation("tools");
+  const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
   const gift = plan?.gift ?? null;
   const { data, loading, error } = useCollection(giftItemsQuery(planId), mapGiftItem);
@@ -115,19 +119,19 @@ export function GiftListView({
       try {
         await updateGiftItem(planId, before.id, input);
       } catch {
-        toast.error("No se han podido guardar los cambios.");
+        toast.error(t("planTools.gift.list.errors.saveChanges"));
         return;
       }
       setForm(null);
-      toastWithUndo("Cambios guardados", () => restoreGiftItemFields(planId, before));
+      toastWithUndo(t("planTools.gift.list.toasts.changesSaved"), () => restoreGiftItemFields(planId, before));
       return;
     }
     try {
       const id = await addGiftItem(planId, input);
       setForm(null);
-      toastWithUndo(`«${input.name}» añadido a la lista`, () => deleteGiftItem(planId, id));
+      toastWithUndo(t("planTools.gift.list.toasts.added", { name: input.name }), () => deleteGiftItem(planId, id));
     } catch {
-      toast.error("No se ha podido añadir a la lista.");
+      toast.error(t("planTools.gift.list.errors.add"));
     }
   }
 
@@ -135,9 +139,9 @@ export function GiftListView({
     try {
       await deleteGiftItem(planId, item.id);
       if (form?.kind === "edit" && form.item.id === item.id) setForm(null);
-      toastWithUndo(`«${item.name}» eliminado de la lista`, () => restoreGiftItem(planId, item));
+      toastWithUndo(t("planTools.gift.list.toasts.removed", { name: item.name }), () => restoreGiftItem(planId, item));
     } catch {
-      toast.error("No se ha podido eliminar de la lista.");
+      toast.error(t("planTools.gift.list.errors.remove"));
     }
   }
 
@@ -145,7 +149,7 @@ export function GiftListView({
     try {
       await setGiftItemAchieved(planId, item.id, achieved);
     } catch {
-      toast.error("No se ha podido actualizar la lista.");
+      toast.error(t("planTools.gift.list.errors.update"));
     }
   }
 
@@ -159,10 +163,10 @@ export function GiftListView({
         listMessage: message.trim(),
         showOnInvitation: show,
       });
-      toast.success("Lista de regalos guardada");
+      toast.success(t("planTools.gift.list.toasts.saved"));
       onClose();
     } catch {
-      toast.error("No se ha podido guardar el mensaje.");
+      toast.error(t("planTools.gift.list.errors.saveMessage"));
     } finally {
       onSavingChange(false);
     }
@@ -171,14 +175,14 @@ export function GiftListView({
   return (
     <div className="flex flex-col gap-6">
       <p className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-line bg-lilac-soft px-3.5 py-3 text-sm text-ink">
-        <span>Cosas que os harían falta. Los invitados solo la verán: nadie reserva ni marca nada.</span>
+        <span>{t("planTools.gift.list.intro")}</span>
         <button
           type="button"
           onClick={onChangeMode}
           className="inline-flex min-h-10 items-center gap-1.5 rounded-full text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         >
           <RepeatIcon aria-hidden="true" className="size-3.5" />
-          Cambiar a dinero
+          {t("planTools.gift.list.switchToMoney")}
         </button>
       </p>
 
@@ -186,18 +190,26 @@ export function GiftListView({
         <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
           <div className="flex flex-col gap-0.5">
             <h3 id="gift-list-title" className="font-display text-xl font-semibold text-ink">
-              Vuestra lista
+              {t("planTools.gift.list.heading")}
             </h3>
             <p className="text-sm text-ink-muted" aria-live="polite">
               {summary.total === 0
-                ? "Todavía no hay nada. Los cambios se guardan al momento."
-                : `${summary.pending} por conseguir${summary.achieved > 0 ? ` · ${summary.achieved} ya ${summary.achieved === 1 ? "conseguida" : "conseguidas"}` : ""}${summary.pendingPrice > 0 ? ` · unos ${formatCurrency(summary.pendingPrice)} en total` : ""}`}
+                ? t("planTools.gift.list.summary.empty")
+                : [
+                    t("planTools.gift.list.summary.pending", { count: summary.pending }),
+                    summary.achieved > 0 ? t("planTools.gift.list.summary.achieved", { count: summary.achieved }) : "",
+                    summary.pendingPrice > 0
+                      ? t("planTools.gift.list.summary.price", { price: formatCurrency(summary.pendingPrice, lang) })
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
             </p>
           </div>
           {!form && (
             <button type="button" onClick={() => openForm({ kind: "new", name: "" })} className={CTA_SECONDARY}>
               <PlusIcon aria-hidden="true" className="size-4" />
-              Añadir una cosa
+              {t("planTools.gift.list.addItem")}
             </button>
           )}
         </div>
@@ -214,29 +226,28 @@ export function GiftListView({
 
         {error && (
           <p role="alert" className="text-sm text-danger">
-            No se ha podido cargar la lista. Recarga la página e inténtalo de nuevo.
+            {t("planTools.gift.list.loadError")}
           </p>
         )}
 
         {loading ? (
-          <div role="status" aria-label="Cargando la lista" className="h-24 animate-pulse rounded-2xl bg-track motion-reduce:animate-none" />
+          <div role="status" aria-label={t("planTools.gift.list.loading")} className="h-24 animate-pulse rounded-2xl bg-track motion-reduce:animate-none" />
         ) : items.length === 0 ? (
           !form && (
             <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-line-strong px-4 py-5">
               <p className="text-sm text-ink">
-                Empieza por lo que de verdad os falta en casa. Puedes poner un enlace y un precio aproximado para
-                que sea fácil encontrarlo.
+                {t("planTools.gift.list.emptyHint")}
               </p>
               <div className="flex flex-wrap gap-2">
-                {GIFT_ITEM_SUGGESTIONS.map((name) => (
+                {GIFT_ITEM_SUGGESTIONS.map((key) => (
                   <button
-                    key={name}
+                    key={key}
                     type="button"
-                    onClick={() => openForm({ kind: "new", name })}
+                    onClick={() => openForm({ kind: "new", name: t(`planTools.gift.list.suggestions.${key}`) })}
                     className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-line-strong bg-field px-3.5 text-sm text-ink transition-colors hover:bg-lilac-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                   >
                     <PlusIcon aria-hidden="true" className="size-3.5" />
-                    {name}
+                    {t(`planTools.gift.list.suggestions.${key}`)}
                   </button>
                 ))}
               </div>
@@ -252,8 +263,8 @@ export function GiftListView({
                 <Checkbox
                   checked={item.achieved}
                   onCheckedChange={(v) => void handleAchieved(item, v === true)}
-                  aria-label={`Ya tenemos «${item.name}»`}
-                  title="Ya lo tenemos"
+                  aria-label={t("planTools.gift.list.haveAria", { name: item.name })}
+                  title={t("planTools.gift.list.have")}
                   className={cn(CHECKBOX, "mt-3.5")}
                 />
                 <div className="min-w-0 flex-1 py-2.5">
@@ -267,9 +278,9 @@ export function GiftListView({
                   </p>
                   {(item.priority || item.price !== null || item.link || item.achieved) && (
                     <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-ink-muted">
-                      {item.achieved && <span className="font-medium text-ink">Ya lo tenemos</span>}
+                      {item.achieved && <span className="font-medium text-ink">{t("planTools.gift.list.have")}</span>}
                       {item.priority && !item.achieved && <PriorityChip priority={item.priority} />}
-                      {item.price !== null && <span className="tabular-nums">{approx(item.price)}</span>}
+                      {item.price !== null && <span className="tabular-nums">{approx(item.price, lang)}</span>}
                       {item.link && (
                         <a
                           href={item.link}
@@ -279,7 +290,7 @@ export function GiftListView({
                         >
                           <ExternalLinkIcon aria-hidden="true" className="size-3 shrink-0" />
                           <span className="truncate">{hostOf(item.link)}</span>
-                          <span className="sr-only"> (se abre en una pestaña nueva)</span>
+                          <span className="sr-only"> {t("planTools.gift.list.newTab")}</span>
                         </a>
                       )}
                     </p>
@@ -287,17 +298,17 @@ export function GiftListView({
                   {item.note && <p className="mt-1 break-words text-xs text-ink-muted">{item.note}</p>}
                 </div>
                 <EditIconButton
-                  label={`Editar «${item.name}»`}
+                  label={t("planTools.gift.list.editAria", { name: item.name })}
                   className="mt-1.5"
                   onClick={() => openForm({ kind: "edit", item })}
                 />
-                <DeleteIconButton ariaLabel={`Quitar «${item.name}» de la lista`} onDelete={() => handleDelete(item)} />
+                <DeleteIconButton ariaLabel={t("planTools.gift.list.removeAria", { name: item.name })} onDelete={() => handleDelete(item)} />
               </li>
             ))}
           </ul>
         )}
         {items.length > 0 && (
-          <p className="text-xs text-ink-muted">Marca la casilla de lo que ya tengáis: dejará de enseñarse a los invitados.</p>
+          <p className="text-xs text-ink-muted">{t("planTools.gift.list.achievedHint")}</p>
         )}
       </section>
 
@@ -305,15 +316,15 @@ export function GiftListView({
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <Label htmlFor="gift-list-message" className={FIELD_LABEL}>
-              Mensaje para los invitados
+              {t("planTools.gift.messageLabel")}
             </Label>
             {!message.trim() && (
               <button
                 type="button"
-                onClick={() => setMessage(GIFT_LIST_MESSAGE_EXAMPLE.slice(0, GIFT_MESSAGE_MAX))}
+                onClick={() => setMessage(t("planTools.gift.list.messageExample").slice(0, GIFT_MESSAGE_MAX))}
                 className="rounded text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
-                Usar un texto de ejemplo
+                {t("planTools.gift.useExample")}
               </button>
             )}
           </div>
@@ -322,7 +333,7 @@ export function GiftListView({
             value={message}
             onChange={(e) => setMessage(e.target.value.slice(0, GIFT_MESSAGE_MAX))}
             rows={4}
-            placeholder="Algo breve y cariñoso para quien quiera tener un detalle con vosotros…"
+            placeholder={t("planTools.gift.messagePlaceholder")}
             aria-describedby="gift-list-message-count"
             className={cn(FIELD, "h-auto min-h-28 py-2.5")}
           />
@@ -334,13 +345,13 @@ export function GiftListView({
         <div className="flex items-start justify-between gap-4 rounded-2xl border border-line p-4">
           <div className="flex min-w-0 flex-col gap-0.5">
             <Label htmlFor="gift-list-show" className="text-sm font-medium text-ink">
-              Mostrar en la invitación
+              {t("planTools.gift.showOnInvitation")}
             </Label>
             <p id="gift-list-show-help" className="text-sm text-ink-muted">
               {show
-                ? "La lista (sin lo que ya tenéis) y el mensaje aparecerán en la invitación que compartas."
-                : "Nada se mostrará a los invitados: solo lo veis vosotros."}
-              {show && summary.pending === 0 && " Añade antes alguna cosa a la lista."}
+                ? t("planTools.gift.list.showOn")
+                : t("planTools.gift.showOff")}
+              {show && summary.pending === 0 && ` ${t("planTools.gift.list.addFirst")}`}
             </p>
           </div>
           <Switch
@@ -367,12 +378,14 @@ function GiftItemForm({
   onCancel: () => void;
   onSubmit: (input: GiftItemInput) => Promise<void>;
 }) {
+  const { t } = useTranslation("tools");
+  const { lang } = useLanguage();
   const uid = React.useId();
   const nameRef = React.useRef<HTMLInputElement>(null);
   const [name, setName] = React.useState(initial?.name ?? prefillName);
   const [link, setLink] = React.useState(initial?.link ?? "");
   const [priceText, setPriceText] = React.useState(
-    initial?.price != null ? String(initial.price).replace(".", ",") : ""
+    initial?.price != null ? (lang === "en" ? String(initial.price) : String(initial.price).replace(".", ",")) : ""
   );
   const [priority, setPriority] = React.useState<string>(initial?.priority ?? NO_PRIORITY);
   const [note, setNote] = React.useState(initial?.note ?? "");
@@ -383,20 +396,20 @@ function GiftItemForm({
     nameRef.current?.focus();
   }, []);
 
-  const price = priceText.trim() ? parseAmount(priceText) : null;
-  const nameProblem = name.trim() ? null : "Escribe qué es, por ejemplo «Juego de sábanas».";
+  const price = priceText.trim() ? parseAmount(priceText, lang) : null;
+  const nameProblem = name.trim() ? null : t("planTools.gift.list.form.errors.name");
   const linkProblem =
-    link.trim() && !cleanUrl(link) ? "Escribe una dirección web válida, por ejemplo https://tienda.es/producto." : null;
+    link.trim() && !cleanUrl(link) ? t("planTools.gift.list.form.errors.link") : null;
   const priceProblem =
     price !== null && (!Number.isFinite(price) || price < 0 || price > GIFT_ITEM_LIMITS.price)
-      ? "Escribe un importe en euros, por ejemplo 45 o 45,90."
+      ? t("planTools.gift.list.form.errors.price")
       : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (nameProblem || linkProblem || priceProblem) {
       setTouched({ name: true, link: true, price: true });
-      toast.error("Revisa los datos marcados antes de guardar.");
+      toast.error(t("planTools.gift.money.reviewErrors"));
       return;
     }
     setBusy(true);
@@ -427,12 +440,12 @@ function GiftItemForm({
     <form
       onSubmit={handleSubmit}
       noValidate
-      aria-label={initial ? `Editar «${initial.name}»` : "Añadir una cosa a la lista"}
+      aria-label={initial ? t("planTools.gift.list.editAria", { name: initial.name }) : t("planTools.gift.list.form.addAria")}
       className="flex flex-col gap-4 rounded-2xl border border-line-strong bg-lilac-soft p-4 sm:p-5"
     >
       <div className="flex flex-col gap-2">
         <Label htmlFor={`${uid}-name`} className={FIELD_LABEL}>
-          ¿Qué es?
+          {t("planTools.gift.list.form.name")}
         </Label>
         <Input
           ref={nameRef}
@@ -441,7 +454,7 @@ function GiftItemForm({
           maxLength={GIFT_ITEM_LIMITS.name}
           onChange={(e) => setName(e.target.value)}
           onBlur={() => setTouched((t) => ({ ...t, name: true }))}
-          placeholder="Robot de cocina"
+          placeholder={t("planTools.gift.list.form.namePlaceholder")}
           autoComplete="off"
           aria-invalid={touched.name && nameProblem ? true : undefined}
           aria-describedby={touched.name && nameProblem ? `${uid}-name-help` : undefined}
@@ -453,7 +466,7 @@ function GiftItemForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${uid}-price`} className={FIELD_LABEL}>
-            Precio aproximado (€)
+            {t("planTools.gift.list.form.price")}
           </Label>
           <Input
             id={`${uid}-price`}
@@ -467,12 +480,12 @@ function GiftItemForm({
             aria-describedby={`${uid}-price-help`}
             className={FIELD}
           />
-          {help(`${uid}-price-help`, priceProblem, touched.price, "Opcional. Una idea, no tiene que ser exacto.")}
+          {help(`${uid}-price-help`, priceProblem, touched.price, t("planTools.gift.list.form.priceHelp"))}
         </div>
 
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${uid}-priority`} className={FIELD_LABEL}>
-            Prioridad
+            {t("planTools.gift.list.form.priority")}
           </Label>
           <Select value={priority} onValueChange={setPriority}>
             <SelectTrigger id={`${uid}-priority`} className={cn(SELECT_TRIGGER, "w-full")}>
@@ -480,22 +493,22 @@ function GiftItemForm({
             </SelectTrigger>
             <SelectContent className={SELECT_CONTENT}>
               <SelectItem value={NO_PRIORITY} className={SELECT_ITEM}>
-                Sin prioridad
+                {t("planTools.gift.list.form.noPriority")}
               </SelectItem>
               {GIFT_PRIORITIES.map((p) => (
                 <SelectItem key={p.id} value={p.id} className={SELECT_ITEM}>
-                  {p.label}
+                  {t(`planTools.gift.list.priorities.${p.id}.label`)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <p className="text-sm text-ink-muted">Opcional. Lo más importante sale primero.</p>
+          <p className="text-sm text-ink-muted">{t("planTools.gift.list.form.priorityHelp")}</p>
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor={`${uid}-link`} className={FIELD_LABEL}>
-          Enlace
+          {t("planTools.gift.list.form.link")}
         </Label>
         <Input
           id={`${uid}-link`}
@@ -512,12 +525,12 @@ function GiftItemForm({
           aria-describedby={`${uid}-link-help`}
           className={FIELD}
         />
-        {help(`${uid}-link-help`, linkProblem, touched.link, "Opcional. La tienda o el producto, para que sea fácil de encontrar.")}
+        {help(`${uid}-link-help`, linkProblem, touched.link, t("planTools.gift.list.form.linkHelp"))}
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor={`${uid}-note`} className={FIELD_LABEL}>
-          Nota
+          {t("planTools.gift.list.form.note")}
         </Label>
         <Textarea
           id={`${uid}-note`}
@@ -525,18 +538,18 @@ function GiftItemForm({
           maxLength={GIFT_ITEM_LIMITS.note}
           onChange={(e) => setNote(e.target.value)}
           rows={2}
-          placeholder="Color, talla o modelo que preferís"
+          placeholder={t("planTools.gift.list.form.notePlaceholder")}
           className={cn(FIELD, "h-auto min-h-20 py-2.5")}
         />
       </div>
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <button type="button" onClick={onCancel} className={CTA_SECONDARY}>
-          Cancelar
+          {t("planTools.actions.cancel")}
         </button>
         <button type="submit" disabled={busy} className={cn(CTA_PRIMARY, "disabled:opacity-50")}>
           {busy && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          {initial ? "Guardar cambios" : "Añadir a la lista"}
+          {initial ? t("planTools.gift.list.form.saveChanges") : t("planTools.gift.list.form.addToList")}
         </button>
       </div>
     </form>

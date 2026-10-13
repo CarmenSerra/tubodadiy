@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, LockIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CARD, CTA_SECONDARY, FOCUS, IconCircle } from "@/components/dashboard/ui";
 import { PlanProvider, usePlanContext } from "@/lib/context/plan-context";
@@ -33,8 +34,9 @@ export function StepCardSkeleton() {
 }
 
 function PlanShellSkeleton() {
+  const { t } = useTranslation("plan");
   return (
-    <div className="flex flex-col gap-6" role="status" aria-label="Cargando tu plan">
+    <div className="flex flex-col gap-6" role="status" aria-label={t("shell.loading")}>
       <Bone className="h-10 w-2/3 max-w-sm bg-track" />
       <div className="flex gap-6 border-b border-line pb-3">
         {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -60,6 +62,7 @@ function PlanShellSkeleton() {
 
 function PlanShellInner({ children }: { children: React.ReactNode }) {
   const { plan, loading, isMember } = usePlanContext();
+  const { t } = useTranslation("plan");
 
   if (loading) {
     return <PlanShellSkeleton />;
@@ -72,15 +75,12 @@ function PlanShellInner({ children }: { children: React.ReactNode }) {
           <LockIcon />
         </IconCircle>
         <h1 className="mt-4 font-display text-xl font-semibold text-ink">
-          No tienes acceso a este plan
+          {t("shell.noAccess.title")}
         </h1>
-        <p className="mt-2 text-sm text-ink-muted">
-          Puede que el plan no exista o que aún no seas miembro. Pide al dueño del plan que te
-          invite de nuevo.
-        </p>
+        <p className="mt-2 text-sm text-ink-muted">{t("shell.noAccess.description")}</p>
         <Link href="/dashboard" className={cn(CTA_SECONDARY, "mt-5")}>
           <ArrowLeftIcon aria-hidden="true" className="size-4" />
-          Volver al inicio
+          {t("shell.backHome")}
         </Link>
       </div>
     );
@@ -97,7 +97,7 @@ function PlanShellInner({ children }: { children: React.ReactNode }) {
           )}
         >
           <ArrowLeftIcon aria-hidden="true" className="size-4" />
-          Volver al inicio
+          {t("shell.backHome")}
         </Link>
         {/* Decorative: the plan's title is the couple's names, so it gets
             the script accent reserved for that one case. If it's ever

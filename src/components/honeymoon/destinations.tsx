@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CheckCircle2Icon, CompassIcon, ExternalLinkIcon, HeartIcon, MapPinIcon, StarIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, FOCUS } from "@/components/dashboard/ui";
@@ -19,11 +20,13 @@ import {
   setDestinationVote,
 } from "@/lib/firebase/honeymoon";
 import { isHttpUrl, sceneFor, urlHost, type Destination } from "@/lib/honeymoon-model";
+import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn, formatCurrency } from "@/lib/utils";
 
 /** Miniatura: la imagen si hay URL (y carga) o un dibujo estable por nombre. */
 function Thumb({ dest }: { dest: Destination }) {
+  const { t } = useTranslation("honeymoon");
   const uid = React.useId().replace(/:/g, "");
   const url = dest.imageUrl.trim();
   const [failedUrl, setFailedUrl] = React.useState<string | null>(null);
@@ -34,7 +37,7 @@ function Thumb({ dest }: { dest: Destination }) {
         // eslint-disable-next-line @next/next/no-img-element -- dominios remotos libres: no se puede usar next/image
         <img
           src={url}
-          alt={`Imagen de ${dest.name}`}
+          alt={t("destinations.imageAlt", { name: dest.name })}
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
@@ -63,15 +66,17 @@ function DestinationCard({
   chosenIds: string[];
   announce: (message: string) => void;
 }) {
+  const { t } = useTranslation("honeymoon");
+  const { lang } = useLanguage();
   const voted = dest.votes.includes(uid);
   const votes = dest.votes.length;
 
   async function handleVote() {
     try {
       await setDestinationVote(planId, dest.id, uid, !voted);
-      announce(!voted ? `Te gusta «${dest.name}»` : `Ya no te gusta «${dest.name}»`);
+      announce(!voted ? t("destinations.announce.liked", { name: dest.name }) : t("destinations.announce.unliked", { name: dest.name }));
     } catch {
-      toast.error("No se ha podido guardar tu voto.");
+      toast.error(t("destinations.errors.vote"));
     }
   }
 
@@ -80,25 +85,25 @@ function DestinationCard({
     try {
       if (dest.chosen) {
         await setChosenDestination(planId, null, chosenIds);
-        toast.success(`«${dest.name}» ya no es el destino elegido`);
-        announce(`«${dest.name}» ya no es el destino elegido`);
+        toast.success(t("destinations.toasts.unchosen", { name: dest.name }));
+        announce(t("destinations.toasts.unchosen", { name: dest.name }));
       } else {
         await setChosenDestination(planId, dest.id, chosenIds);
-        toastWithUndo(`«${dest.name}» elegido como destino`, () => setChosenDestination(planId, previous, [dest.id]));
-        announce(`«${dest.name}» elegido como destino`);
+        toastWithUndo(t("destinations.toasts.chosen", { name: dest.name }), () => setChosenDestination(planId, previous, [dest.id]));
+        announce(t("destinations.toasts.chosen", { name: dest.name }));
       }
     } catch {
-      toast.error("No se ha podido cambiar el destino elegido.");
+      toast.error(t("destinations.errors.choose"));
     }
   }
 
   async function handleDelete() {
     try {
       await deleteDestination(planId, dest.id);
-      toastWithUndo("Destino eliminado", () => restoreDestination(planId, dest));
-      announce(`Destino «${dest.name}» eliminado`);
+      toastWithUndo(t("destinations.toasts.deleted"), () => restoreDestination(planId, dest));
+      announce(t("destinations.announce.deleted", { name: dest.name }));
     } catch {
-      toast.error("No se ha podido eliminar el destino.");
+      toast.error(t("destinations.errors.delete"));
     }
   }
 
@@ -118,13 +123,13 @@ function DestinationCard({
           {dest.chosen && (
             <span className="inline-flex items-center gap-1 rounded-full bg-deep px-2.5 py-1 text-xs font-semibold text-on-solid shadow-pop">
               <CheckCircle2Icon aria-hidden="true" className="size-3.5" />
-              Elegido
+              {t("destinations.badges.chosen")}
             </span>
           )}
           {topVoted && !dest.chosen && (
             <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-ink shadow-pop">
               <StarIcon aria-hidden="true" className="size-3.5 fill-current" />
-              Más votado
+              {t("destinations.badges.topVoted")}
             </span>
           )}
         </div>
@@ -142,7 +147,7 @@ function DestinationCard({
             )}
             {dest.approxPrice != null && (
               <span className="font-medium text-ink">
-                <span className="sr-only">Precio aproximado: </span>≈ {formatCurrency(dest.approxPrice)}
+                <span className="sr-only">{t("destinations.approxPrice")} </span>≈ {formatCurrency(dest.approxPrice, lang)}
               </span>
             )}
           </div>
@@ -162,7 +167,7 @@ function DestinationCard({
           >
             <span className="truncate">{urlHost(link)}</span>
             <ExternalLinkIcon aria-hidden="true" className="size-3.5 shrink-0" />
-            <span className="sr-only">(se abre en una pestaña nueva)</span>
+            <span className="sr-only">{t("destinations.newTab")}</span>
           </a>
         )}
 
@@ -170,7 +175,7 @@ function DestinationCard({
           <button
             type="button"
             aria-pressed={voted}
-            aria-label={`Me gusta «${dest.name}». ${votes} ${votes === 1 ? "voto" : "votos"}${voted ? ", incluido el tuyo" : ""}`}
+            aria-label={t(voted ? "destinations.voteAriaMine" : "destinations.voteAria", { name: dest.name, count: votes })}
             onClick={handleVote}
             className={cn(
               FOCUS,
@@ -193,7 +198,7 @@ function DestinationCard({
             )}
           >
             <CheckCircle2Icon aria-hidden="true" className="size-4" />
-            {dest.chosen ? "Quitar elección" : "Elegir"}
+            {dest.chosen ? t("destinations.actions.unchoose") : t("destinations.actions.choose")}
           </button>
           <div className="-mr-2 ml-auto flex">
             <DestinationFormDialog
@@ -201,7 +206,7 @@ function DestinationCard({
               destination={dest}
               trigger={<EditDestinationTrigger name={dest.name} />}
             />
-            <DeleteIconButton ariaLabel={`Eliminar «${dest.name}»`} onDelete={handleDelete} />
+            <DeleteIconButton ariaLabel={t("destinations.actions.deleteAria", { name: dest.name })} onDelete={handleDelete} />
           </div>
         </div>
       </div>
@@ -220,6 +225,7 @@ export function Destinations({
   destinations: Destination[];
   announce: (message: string) => void;
 }) {
+  const { t } = useTranslation("honeymoon");
   const chosenIds = React.useMemo(() => destinations.filter((d) => d.chosen).map((d) => d.id), [destinations]);
   const maxVotes = Math.max(0, ...destinations.map((d) => d.votes.length));
 
@@ -228,22 +234,21 @@ export function Destinations({
       <SectionHeader
         id="hm-destinos-title"
         icon={<CompassIcon />}
-        title="Destinos e ideas"
-        description="Reúne los sitios que te ilusionan, vota y elige uno."
+        title={t("destinations.title")}
+        description={t("destinations.description")}
         actions={destinations.length > 0 ? <DestinationFormDialog planId={planId} /> : undefined}
       />
 
       {destinations.length === 0 ? (
         <EmptyState
           scene="playa"
-          title="Aún no hay destinos en la lista"
-          action={<DestinationFormDialog planId={planId} trigger={<button type="button" className={CTA_PRIMARY}>Añadir el primer destino</button>} />}
+          title={t("destinations.empty.title")}
+          action={<DestinationFormDialog planId={planId} trigger={<button type="button" className={CTA_PRIMARY}>{t("destinations.empty.action")}</button>} />}
         >
-          Apunta playas, ciudades o rutas con las que sueñas. Cada persona del plan puede votar con un corazón y,
-          cuando lo tengas claro, marca uno como elegido.
+          {t("destinations.empty.text")}
         </EmptyState>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Destinos candidatos">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label={t("destinations.listLabel")}>
           {destinations.map((dest) => (
             <DestinationCard
               key={dest.id}

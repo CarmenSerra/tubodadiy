@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -12,14 +13,16 @@ import { cn } from "@/lib/utils";
  */
 export function PlanProgressBar({
   value,
-  label = "Progreso del plan",
+  label,
   className,
 }: {
   /** 0-100. */
   value: number;
+  /** Etiqueta accesible; por defecto «Progreso del plan». */
   label?: string;
   className?: string;
 }) {
+  const { t } = useTranslation("plan");
   const clamped = Math.max(0, Math.min(100, Math.round(value)));
   // El ancho pintado va un fotograma por detrás del valor para que la
   // transición CSS tenga de dónde partir (0 la primera vez).
@@ -41,11 +44,11 @@ export function PlanProgressBar({
       </span>
       <div
         role="progressbar"
-        aria-label={label}
+        aria-label={label ?? t("progress.label")}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={clamped}
-        aria-valuetext={`${clamped} %`}
+        aria-valuetext={t("progress.valueText", { value: clamped })}
         data-testid="plan-progress"
         className="relative h-2.5 min-w-16 flex-1 overflow-hidden rounded-full bg-track ring-1 ring-inset ring-line"
       >

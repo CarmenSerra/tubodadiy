@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CheckIcon, Loader2, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -14,7 +15,7 @@ import {
   SELECT_ITEM,
   SELECT_TRIGGER,
 } from "@/components/guests/brand-dialog";
-import { matchCategory, normalize } from "@/components/budget/budget-math";
+import { categoryLabel, matchCategory, normalize } from "@/components/budget/budget-math";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
@@ -32,7 +33,8 @@ import { addBudgetItem, updateBudgetItem } from "@/lib/firebase/mutations";
 import type { BudgetItem, BudgetItemState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-// Categorías sugeridas para que el desglose salga ordenado.
+// Categorías sugeridas para que el desglose salga ordenado. Se guardan con este nombre (español)
+// y se enseñan traducidas (budget:categories.*).
 const DEFAULT_CATEGORIES = ["Lugar", "Catering", "Vestuario", "Fotografía", "Música", "Flores y decoración"];
 
 interface BudgetItemFormDialogProps {
@@ -44,6 +46,7 @@ interface BudgetItemFormDialogProps {
 }
 
 export function BudgetItemFormDialog({ planId, item, trigger, categories = [] }: BudgetItemFormDialogProps) {
+  const { t } = useTranslation("budget");
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -52,7 +55,7 @@ export function BudgetItemFormDialog({ planId, item, trigger, categories = [] }:
         {trigger ?? (
           <button type="button" className={CTA_PRIMARY}>
             <PlusIcon aria-hidden="true" className="size-4" />
-            Añadir gasto
+            {t("form.addExpense")}
           </button>
         )}
       </DialogTrigger>
@@ -71,12 +74,8 @@ export function BudgetItemFormDialog({ planId, item, trigger, categories = [] }:
 }
 
 const CUSTOM = "__custom__";
-const CUSTOM_LABEL = "✨ Elige lo que quieras…";
 
-const STATE_OPTIONS: { value: BudgetItemState; title: string; hint: string }[] = [
-  { value: "pending", title: "Pendiente", hint: "Previsto, aún sin pagar" },
-  { value: "paid", title: "Pagado", hint: "Ya está gastado" },
-];
+const STATE_OPTIONS: BudgetItemState[] = ["pending", "paid"];
 
 function BudgetItemForm({
   planId,
@@ -89,6 +88,7 @@ function BudgetItemForm({
   categories: string[];
   onDone: () => void;
 }) {
+  const { t } = useTranslation("budget");
   const isEdit = Boolean(item);
   // Las del plan (incluida la de este gasto) y, tras ellas, las sugeridas que aún no se usan.
   const seen = new Set<string>();
@@ -99,6 +99,7 @@ function BudgetItemForm({
     return true;
   });
 
+  const labelOf = (c: string) => categoryLabel(c, t);
   const [category, setCategory] = React.useState(item?.category ? matchCategory(item.category, options) : "");
   const [customName, setCustomName] = React.useState("");
   const [concept, setConcept] = React.useState(item?.concept ?? "");
@@ -115,11 +116,9 @@ function BudgetItemForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!concept.trim()) return;
-    const finalCategory = isCustom ? matchCategory(customName, options) : category;
+    const finalCategory = isCustom ? matchCategory(customName, options, labelOf) : category;
     if (!finalCategory) {
-      setCategoryError(
-        isCustom ? "Escribe el nombre de tu categoría o elige una de la lista." : "Elige una categoría o crea la tuya."
-      );
+      setCategoryError(isCustom ? t("form.errors.customCategory") : t("form.errors.category"));
       if (isCustom) customRef.current?.focus();
       return;
     }
@@ -136,14 +135,14 @@ function BudgetItemForm({
       };
       if (isEdit && item) {
         await updateBudgetItem(planId, item.id, data);
-        toast.success("Gasto actualizado");
+        toast.success(t("form.updated"));
       } else {
         await addBudgetItem(planId, data);
-        toast.success("Gasto añadido");
+        toast.success(t("form.added"));
       }
       onDone();
     } catch {
-      toast.error("No se ha podido guardar el gasto.");
+      toast.error(t("form.saveError"));
     } finally {
       setSubmitting(false);
     }
@@ -152,18 +151,18 @@ function BudgetItemForm({
   return (
     <form onSubmit={handleSubmit}>
       <DialogHeader>
-        <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar gasto" : "Nuevo gasto"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{isEdit ? t("form.editTitle") : t("form.newTitle")}</DialogTitle>
       </DialogHeader>
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor="budget-concept" className={FIELD_LABEL}>
-            Concepto
+            {t("form.concept")}
           </Label>
           <Input
             id="budget-concept"
             value={concept}
             onChange={(e) => setConcept(e.target.value)}
-            placeholder="Vestido de novia"
+            placeholder={t("form.conceptPlaceholder")}
             required
             autoFocus
             className={FIELD}
@@ -171,7 +170,7 @@ function BudgetItemForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="budget-category" className={FIELD_LABEL}>
-            Categoría
+            {t("form.category")}
           </Label>
           <Select
             value={category}
@@ -187,7 +186,7 @@ function BudgetItemForm({
               aria-invalid={categoryError && !isCustom ? true : undefined}
               aria-describedby={categoryError && !isCustom ? "budget-category-error" : undefined}
             >
-              <SelectValue placeholder="Elige una categoría" />
+              <SelectValue placeholder={t("form.categoryPlaceholder")} />
             </SelectTrigger>
             <SelectContent
               className={SELECT_CONTENT}
@@ -202,18 +201,18 @@ function BudgetItemForm({
             >
               {options.map((c) => (
                 <SelectItem key={c} value={c} className={SELECT_ITEM}>
-                  {c}
+                  {labelOf(c)}
                 </SelectItem>
               ))}
               <SelectItem value={CUSTOM} className={cn(SELECT_ITEM, "font-medium")}>
-                {CUSTOM_LABEL}
+                {t("form.customOption")}
               </SelectItem>
             </SelectContent>
           </Select>
           {isCustom && (
             <div className="flex flex-col gap-2">
               <Label htmlFor="budget-category-custom" className={FIELD_LABEL}>
-                Nombre de tu categoría
+                {t("form.customName")}
               </Label>
               <Input
                 id="budget-category-custom"
@@ -223,7 +222,7 @@ function BudgetItemForm({
                   setCustomName(e.target.value);
                   setCategoryError("");
                 }}
-                placeholder="Mariachis, fuegos artificiales, tarta sorpresa…"
+                placeholder={t("form.customPlaceholder")}
                 maxLength={60}
                 autoComplete="off"
                 aria-invalid={categoryError ? true : undefined}
@@ -240,7 +239,7 @@ function BudgetItemForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="budget-amount" className={FIELD_LABEL}>
-            Importe (€)
+            {t("form.amount")}
           </Label>
           <Input
             id="budget-amount"
@@ -255,15 +254,15 @@ function BudgetItemForm({
           />
         </div>
         <fieldset className="flex flex-col gap-2">
-          <legend className={cn(FIELD_LABEL, "mb-2")}>Estado</legend>
+          <legend className={cn(FIELD_LABEL, "mb-2")}>{t("form.status")}</legend>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {STATE_OPTIONS.map((opt) => (
+            {STATE_OPTIONS.map((value) => (
               <label
-                key={opt.value}
+                key={value}
                 className={cn(
                   "relative flex min-h-14 cursor-pointer flex-col justify-center rounded-xl border px-3.5 py-2 transition-colors",
                   "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-lilac has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-surface",
-                  state === opt.value
+                  state === value
                     ? "border-lilac bg-lilac-soft"
                     : "border-line-strong bg-field hover:bg-lilac-soft/60"
                 )}
@@ -271,16 +270,16 @@ function BudgetItemForm({
                 <input
                   type="radio"
                   name="budget-state"
-                  value={opt.value}
-                  checked={state === opt.value}
-                  onChange={() => setState(opt.value)}
+                  value={value}
+                  checked={state === value}
+                  onChange={() => setState(value)}
                   className="sr-only"
                 />
                 <span className="flex items-center gap-2 text-sm font-medium text-ink">
-                  {opt.title}
-                  {state === opt.value && <CheckIcon aria-hidden="true" className="size-4 text-green" />}
+                  {t(`form.state.${value}.title`)}
+                  {state === value && <CheckIcon aria-hidden="true" className="size-4 text-green" />}
                 </span>
-                <span className="text-xs text-ink-muted">{opt.hint}</span>
+                <span className="text-xs text-ink-muted">{t(`form.state.${value}.hint`)}</span>
               </label>
             ))}
           </div>
@@ -288,13 +287,13 @@ function BudgetItemForm({
         {state === "pending" && (
           <div className="flex flex-col gap-2">
             <Label htmlFor="budget-due" className={FIELD_LABEL}>
-              Fecha límite de pago <span className="font-normal text-ink-muted">(opcional)</span>
+              {t("form.dueDate")} <span className="font-normal text-ink-muted">{t("form.optional")}</span>
             </Label>
             <DatePicker
               id="budget-due"
               value={dueDate}
               onChange={setDueDate}
-              placeholder="¿Para cuándo hay que pagarlo?"
+              placeholder={t("form.duePlaceholder")}
               className={FIELD}
             />
           </div>
@@ -302,11 +301,11 @@ function BudgetItemForm({
       </div>
       <DialogFooter className="mt-6 gap-2 sm:gap-3">
         <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
-          Cancelar
+          {t("form.cancel")}
         </button>
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
           {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("form.save")}
         </button>
       </DialogFooter>
     </form>
@@ -318,5 +317,6 @@ export function EditBudgetItemTrigger({
   concept,
   ...props
 }: React.ComponentProps<"button"> & { concept?: string }) {
-  return <EditIconButton label={concept ? `Editar «${concept}»` : "Editar gasto"} {...props} />;
+  const { t } = useTranslation("budget");
+  return <EditIconButton label={concept ? t("form.editNamed", { name: concept }) : t("form.editTitle")} {...props} />;
 }

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { FileCheck2Icon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CeremonyTypeSection } from "@/components/ceremony/ceremony-type-section";
 import { OfficiantSection } from "@/components/ceremony/officiant-section";
@@ -12,6 +13,7 @@ import { LegalDocsBody } from "@/components/plan-tools/legal-docs-dialog";
 
 /** Pestaña «Ceremonia»: tipo, oficiante, documentos legales y resumen del cronograma. */
 export function CeremonyPage() {
+  const { t } = useTranslation("ceremony");
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const openPicker = React.useCallback(() => setPickerOpen(true), []);
 
@@ -34,8 +36,8 @@ export function CeremonyPage() {
       <CeremonySection
         id="documentos"
         icon={<FileCheck2Icon />}
-        title="Documentos legales"
-        description="Guía de papeles y trámites para casaros en España."
+        title={t("legal.title")}
+        description={t("legal.description")}
       >
         <LegalDocsBody onChooseCeremony={openPicker} />
       </CeremonySection>

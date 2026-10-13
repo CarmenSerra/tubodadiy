@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next";
+
 import { communityOf } from "@/lib/places/spain";
 import type { Vendor } from "@/lib/types";
 
@@ -20,11 +22,30 @@ export const CATEGORY_OPTIONS = [
 /** Valor interno de "Otra categoría…" en el desplegable. */
 export const OTHER_CATEGORY = "__other";
 
-/** Textos del hueco vacío de cada categoría de partida. */
-export const EMPTY_COPY: Record<string, { title: string; cta: string }> = {
-  Finca: { title: "Añade tu primera finca", cta: "Añadir finca" },
-  Catering: { title: "Añade tu primer catering", cta: "Añadir catering" },
-  Fotógrafo: { title: "Añade tu primer fotógrafo", cta: "Añadir fotógrafo" },
+/**
+ * Clave de traducción (vendors:categories.<slug>) de cada categoría conocida. Los valores
+ * guardados en Firestore son los nombres en español: solo se traducen al mostrarlos.
+ */
+const CATEGORY_SLUGS: Record<string, string> = {
+  finca: "venue",
+  catering: "catering",
+  fotografo: "photographer",
+  video: "video",
+  musica: "music",
+  flores: "flowers",
+  pastel: "cake",
+  transporte: "transport",
+  decoracion: "decor",
+  "musica para la ceremonia": "ceremonyMusic",
+  "peluqueria y maquillaje": "hairMakeup",
+  vestido: "dress",
+  traje: "suit",
+  alianzas: "rings",
+  "animacion infantil": "kidsEntertainment",
+  fotomaton: "photoBooth",
+  "wedding planner": "weddingPlanner",
+  invitaciones: "invitations",
+  otros: "other",
 };
 
 /** Minúsculas y sin tildes: "Fotografía" y "fotografia " son la misma categoría. */
@@ -51,6 +72,17 @@ export function canonicalCategory(category: string): string {
   if (CATEGORY_ALIASES[key]) return CATEGORY_ALIASES[key];
   const known = CATEGORY_OPTIONS.find((c) => categoryKey(c) === key);
   return known ?? trimmed;
+}
+
+/** Clave (sin prefijo) de una categoría conocida, o undefined si es personalizada. */
+export function categorySlug(category: string): string | undefined {
+  return CATEGORY_SLUGS[categoryKey(canonicalCategory(category))];
+}
+
+/** Nombre a mostrar de una categoría: traducido si es conocida; las personalizadas, tal cual. */
+export function categoryLabel(category: string, t: TFunction): string {
+  const slug = categorySlug(category);
+  return slug ? t(`categories.${slug}`, { ns: "vendors" }) : category;
 }
 
 export interface VendorGroup {
@@ -144,7 +176,8 @@ export function vendorPlace(vendor: Pick<Vendor, "province" | "community">): {
 /** Filtro por lugar: una comunidad entera o una provincia concreta. */
 export type LocationFilter = { kind: "community" | "province"; value: string } | null;
 
-const OTHER_PLACES = "Otras ubicaciones";
+/** Comunidad con la que se agrupan los proveedores sin comunidad (se traduce al mostrar). */
+export const OTHER_PLACES = "Otras ubicaciones";
 
 export interface LocationOptions {
   /** Comunidades con proveedores guardados, con sus provincias (solo las que tienen proveedores). */

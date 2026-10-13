@@ -1,8 +1,10 @@
 import { BadgeCheckIcon, CalculatorIcon, HourglassIcon, WalletIcon } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
 
 import { CARD } from "@/components/dashboard/ui";
 import { Bone } from "@/components/plan/plan-shell";
 import { StatTile } from "@/components/guests/guest-summary";
+import { useLanguage } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 import type { BudgetItem } from "@/lib/types";
 import { computeTotals, formatDue, formatMoney } from "./budget-math";
@@ -32,10 +34,6 @@ function Dot({ tone }: { tone: "sage" | "lilac" }) {
   );
 }
 
-function plural(count: number, one: string, many: string) {
-  return `${count} ${count === 1 ? one : many}`;
-}
-
 export function BudgetSummary({
   budgetTotal,
   items,
@@ -43,31 +41,38 @@ export function BudgetSummary({
   budgetTotal: number;
   items: BudgetItem[];
 }) {
-  const t = computeTotals(budgetTotal, items);
+  const { t } = useTranslation("budget");
+  const { lang } = useLanguage();
+  const totals = computeTotals(budgetTotal, items);
   const hasTotal = budgetTotal > 0;
-  const over = t.over > 0;
+  const over = totals.over > 0;
+  const money = (value: number) => formatMoney(value, lang);
 
   return (
     <section aria-labelledby="budget-summary-title" className="flex flex-col gap-3 sm:gap-4">
       <h2 id="budget-summary-title" className="sr-only">
-        Resumen del presupuesto
+        {t("summary.title")}
       </h2>
 
       <div className={cn(CARD, "flex flex-col gap-4 p-5 sm:p-6")}>
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
           <div>
-            <p className="text-sm text-ink-muted">{over ? "Por encima del total" : "Te queda"}</p>
+            <p className="text-sm text-ink-muted">{over ? t("summary.overTotal") : t("summary.remaining")}</p>
             <p
               className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl"
               data-testid="budget-remaining"
             >
-              {hasTotal ? formatMoney(over ? t.over : t.remaining) : "—"}
+              {hasTotal ? money(over ? totals.over : totals.remaining) : "—"}
             </p>
           </div>
           {hasTotal && (
             <p className="pb-1 text-sm text-ink-muted">
-              de <span className="font-medium text-ink">{formatMoney(budgetTotal)}</span> de presupuesto
-              total
+              <Trans
+                ns="budget"
+                i18nKey="summary.ofTotal"
+                values={{ total: money(budgetTotal) }}
+                components={{ hl: <span className="font-medium text-ink" /> }}
+              />
             </p>
           )}
         </div>
@@ -75,33 +80,37 @@ export function BudgetSummary({
         {hasTotal ? (
           <>
             <UsageBar
-              paid={t.paidRatio}
-              pending={t.pendingRatio}
-              label={`Pagado: ${formatMoney(t.paid)}. Pendiente: ${formatMoney(t.pending)}. Previsto en total: el ${t.plannedPercent}% del presupuesto.`}
+              paid={totals.paidRatio}
+              pending={totals.pendingRatio}
+              label={t("summary.barLabel", {
+                paid: money(totals.paid),
+                pending: money(totals.pending),
+                percent: totals.plannedPercent,
+              })}
             />
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-ink-muted">
               <span className="flex flex-wrap gap-x-4 gap-y-1">
                 <span>
                   <Dot tone="sage" />
-                  Pagado <span className="font-medium text-ink">{formatMoney(t.paid)}</span>
+                  {t("summary.paid")} <span className="font-medium text-ink">{money(totals.paid)}</span>
                 </span>
                 <span>
                   <Dot tone="lilac" />
-                  Pendiente <span className="font-medium text-ink">{formatMoney(t.pending)}</span>
+                  {t("summary.pending")} <span className="font-medium text-ink">{money(totals.pending)}</span>
                 </span>
               </span>
               <span>
                 {over
-                  ? "Lo previsto supera el total: es buen momento para reajustar partidas con calma."
-                  : t.planned === 0
-                    ? "Aún no hay gastos apuntados."
-                    : `Lo previsto es el ${t.plannedPercent}% del total. Vas dentro de tu presupuesto.`}
+                  ? t("summary.overNote")
+                  : totals.planned === 0
+                    ? t("summary.noExpenses")
+                    : t("summary.withinNote", { percent: totals.plannedPercent })}
               </span>
             </div>
           </>
         ) : (
           <p className="text-sm text-ink-muted">
-            Aún no has fijado un presupuesto total.
+            {t("summary.noTotal")}
           </p>
         )}
       </div>
@@ -110,34 +119,34 @@ export function BudgetSummary({
         <StatTile
           icon={<WalletIcon />}
           tone="lilac"
-          label="Presupuesto total"
-          value={hasTotal ? formatMoney(budgetTotal) : "Sin definir"}
-          detail="tu techo de gasto"
+          label={t("summary.tiles.total")}
+          value={hasTotal ? money(budgetTotal) : t("summary.tiles.undefined")}
+          detail={t("summary.tiles.totalDetail")}
         />
         <StatTile
           icon={<BadgeCheckIcon />}
           tone="sage"
-          label="Total pagado"
-          value={formatMoney(t.paid)}
-          detail={t.paidCount === 0 ? "aún nada pagado" : plural(t.paidCount, "gasto ya pagado", "gastos ya pagados")}
+          label={t("summary.tiles.paid")}
+          value={money(totals.paid)}
+          detail={totals.paidCount === 0 ? t("summary.tiles.nothingPaid") : t("summary.tiles.paidCount", { count: totals.paidCount })}
         />
         <StatTile
           icon={<HourglassIcon />}
           tone="lilac"
-          label="Pendiente por pagar"
-          value={formatMoney(t.pending)}
+          label={t("summary.tiles.pending")}
+          value={money(totals.pending)}
           detail={
-            t.pendingCount === 0
-              ? "nada pendiente"
-              : `${plural(t.pendingCount, "gasto", "gastos")}${t.nextDue ? ` · próximo, el ${formatDue(t.nextDue)}` : ""}`
+            totals.pendingCount === 0
+              ? t("summary.tiles.nothingPending")
+              : `${t("summary.tiles.expenseCount", { count: totals.pendingCount })}${totals.nextDue ? ` · ${t("summary.tiles.nextOn", { date: formatDue(totals.nextDue, lang) })}` : ""}`
           }
         />
         <StatTile
           icon={<CalculatorIcon />}
           tone="sage"
-          label="Total previsto"
-          value={formatMoney(t.planned)}
-          detail="pagado + pendiente"
+          label={t("summary.tiles.planned")}
+          value={money(totals.planned)}
+          detail={t("summary.tiles.plannedDetail")}
         />
       </div>
     </section>

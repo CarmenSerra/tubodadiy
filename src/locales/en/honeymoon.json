@@ -1,1 +1,392 @@
-{}
+{
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "bookingTypes": {
+    "flight": "Flight",
+    "hotel": "Hotel",
+    "excursion": "Excursion",
+    "insurance": "Insurance",
+    "other": "Other"
+  },
+  "page": {
+    "loading": "Loading your honeymoon",
+    "loadError": {
+      "title": "We couldn't load your honeymoon",
+      "text": "Check your connection and try again in a few seconds. Your data is still safe."
+    },
+    "tabsLabel": "Honeymoon sections",
+    "tabs": {
+      "destinations": "Destinations",
+      "itinerary": "Itinerary",
+      "bookings": "Bookings",
+      "packing": "Packing"
+    },
+    "seedError": "We couldn't set up your packing list. You can load it from “Packing and documents”."
+  },
+  "hero": {
+    "kicker": "After the big day",
+    "title": "Honeymoon",
+    "subtitle": "Destinations, itinerary, bookings and packing: the whole trip in one place, no rush.",
+    "destination": {
+      "label": "Destination",
+      "toChoose": "To be chosen",
+      "noIdeas": "No ideas yet",
+      "chosen": "Chosen destination",
+      "ideas_one": "{{count}} idea on the list",
+      "ideas_other": "{{count}} ideas on the list"
+    },
+    "itinerary": {
+      "label": "Itinerary",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "empty": "Not planned yet",
+      "planned": "planned"
+    },
+    "budget": {
+      "label": "Budget",
+      "over": "over the total",
+      "left": "left to book",
+      "noBudget": "booked, no budget set"
+    },
+    "packing": {
+      "label": "Packing",
+      "progress": "{{done}} of {{total}}",
+      "noList": "No list",
+      "ready": "{{percent}}% packed",
+      "preparing": "set up when you arrive"
+    }
+  },
+  "destinations": {
+    "title": "Destinations and ideas",
+    "description": "Gather the places you're dreaming of, vote and pick one.",
+    "listLabel": "Candidate destinations",
+    "imageAlt": "Picture of {{name}}",
+    "approxPrice": "Approximate price:",
+    "newTab": "(opens in a new tab)",
+    "badges": {
+      "chosen": "Chosen",
+      "topVoted": "Most voted"
+    },
+    "voteAria_one": "I like “{{name}}”. {{count}} vote",
+    "voteAria_other": "I like “{{name}}”. {{count}} votes",
+    "voteAriaMine_one": "I like “{{name}}”. {{count}} vote, including yours",
+    "voteAriaMine_other": "I like “{{name}}”. {{count}} votes, including yours",
+    "actions": {
+      "choose": "Choose",
+      "unchoose": "Unchoose",
+      "editAria": "Edit “{{name}}”",
+      "deleteAria": "Delete “{{name}}”"
+    },
+    "announce": {
+      "liked": "You like “{{name}}”",
+      "unliked": "You no longer like “{{name}}”",
+      "deleted": "Destination “{{name}}” deleted"
+    },
+    "toasts": {
+      "chosen": "“{{name}}” chosen as your destination",
+      "unchosen": "“{{name}}” is no longer the chosen destination",
+      "deleted": "Destination deleted"
+    },
+    "errors": {
+      "vote": "We couldn't save your vote.",
+      "choose": "We couldn't change the chosen destination.",
+      "delete": "We couldn't delete the destination."
+    },
+    "empty": {
+      "title": "No destinations on the list yet",
+      "text": "Jot down the beaches, cities or routes you dream of. Everyone in the plan can vote with a heart and, once you're sure, mark one as chosen.",
+      "action": "Add your first destination"
+    },
+    "form": {
+      "add": "Add destination",
+      "newTitle": "New destination",
+      "editTitle": "Edit destination",
+      "name": "Destination",
+      "namePlaceholder": "Bali, Maldives, Costa Rica…",
+      "country": "Country",
+      "countryPlaceholder": "Indonesia",
+      "price": "Approximate price (€)",
+      "notes": "Notes",
+      "notesPlaceholder": "Best season, what draws us, how to get there…",
+      "link": "Link",
+      "optional": "(optional)",
+      "image": "Image",
+      "imageOptional": "(web address, optional)",
+      "imagePlaceholder": "https://…/photo.jpg",
+      "imageHelp": "It will show as a thumbnail. Without an image, a drawing is shown.",
+      "errors": {
+        "price": "Enter a valid amount, for example 1800.",
+        "link": "That link isn't valid. It must start with http or https.",
+        "image": "That image address isn't valid."
+      },
+      "toasts": {
+        "updated": "Destination updated",
+        "added": "Destination added",
+        "error": "We couldn't save the destination."
+      }
+    }
+  },
+  "itinerary": {
+    "title": "Day-by-day itinerary",
+    "description": "What to do each day, with the place and times.",
+    "listLabel": "Trip days",
+    "takeoff": "Taking off",
+    "day": "Day {{day}}",
+    "dayLabel": "day {{day}}",
+    "dayLabelPlace": "day {{day}} ({{place}})",
+    "moveUp": "Move {{label}} up",
+    "moveDown": "Move {{label}} down",
+    "editAria": "Edit {{label}}",
+    "deleteAria": "Delete {{label}}",
+    "noActivities": "No activities noted yet.",
+    "addActivities": "Add activities",
+    "announce": {
+      "moved": "Day {{day}} moved to position {{position}}"
+    },
+    "toasts": {
+      "deleted": "Day {{day}} deleted"
+    },
+    "errors": {
+      "move": "We couldn't move the day.",
+      "delete": "We couldn't delete the day."
+    },
+    "empty": {
+      "title": "The itinerary is blank",
+      "text": "Build the trip day by day: where to sleep, what to see and what time each plan starts. You can always change the order.",
+      "action": "Add your first day"
+    },
+    "form": {
+      "add": "Add day",
+      "newTitle": "New day",
+      "editTitle": "Edit day",
+      "place": "Place",
+      "placePlaceholder": "Ubud, Gili Island, outbound flight…",
+      "date": "Date",
+      "optional": "(optional)",
+      "activities": "Activities",
+      "noActivities": "No activities yet. Add plans with a time if they have one.",
+      "timeAria": "Time of activity {{n}} (optional)",
+      "activityAria": "Activity {{n}}",
+      "activityPlaceholder": "Snorkelling, dinner on the beach…",
+      "moveUp": "Move activity {{n}} up",
+      "moveDown": "Move activity {{n}} down",
+      "remove": "Remove activity {{n}}",
+      "addActivity": "Add activity",
+      "errors": {
+        "place": "Enter the place for this day."
+      },
+      "toasts": {
+        "updated": "Day updated",
+        "added": "Day added to the itinerary",
+        "error": "We couldn't save the day."
+      }
+    }
+  },
+  "bookings": {
+    "title": "Bookings and budget",
+    "description": "Flights, hotels and excursions, with what you've paid so far.",
+    "listLabel": "Bookings",
+    "noDate": "No date",
+    "code": "Code",
+    "paid": "Paid",
+    "pending": "Pending",
+    "markPaidAria": "Mark “{{name}}” as paid",
+    "deleteAria": "Delete “{{name}}”",
+    "editAria": "Edit “{{name}}”",
+    "announce": {
+      "paid": "“{{name}}”: paid",
+      "unpaid": "“{{name}}”: payment pending",
+      "deleted": "Booking “{{name}}” deleted"
+    },
+    "toasts": {
+      "deleted": "Booking deleted"
+    },
+    "errors": {
+      "payment": "We couldn't update the payment. Please try again.",
+      "delete": "We couldn't delete the booking."
+    },
+    "budget": {
+      "overBy": "Over budget by",
+      "left": "You have left",
+      "ofPrefix": "of ",
+      "ofSuffix": " for the honeymoon",
+      "barLabel": "You've booked {{percent}}% of the honeymoon budget",
+      "bookedPrefix": "Booked ",
+      "ofTotal": " of the total",
+      "rebalance": ". A good moment to rebalance, calmly.",
+      "setPrompt": "Set how much you want to spend on the trip and you'll see what's left as you add bookings. It's separate from the wedding budget."
+    },
+    "stats": {
+      "booked": "Booked",
+      "bookedDetail_one": "{{count}} booking in total",
+      "bookedDetail_other": "{{count}} bookings in total",
+      "paid": "Paid",
+      "paidDetail_one": "{{paid}} of {{count}} booking",
+      "paidDetail_other": "{{paid}} of {{count}} bookings",
+      "toPay": "To pay",
+      "toPayDetail": "booked and still pending"
+    },
+    "empty": {
+      "title": "No bookings yet",
+      "text": "Note down flights, the hotel, excursions or insurance here with their price and confirmation code, and tick off what's already paid.",
+      "action": "Add your first booking"
+    },
+    "form": {
+      "add": "Add booking",
+      "newTitle": "New booking",
+      "editTitle": "Edit booking",
+      "type": "Type",
+      "name": "Name",
+      "namePlaceholder": "Flight Madrid – Denpasar, Sunset Hotel…",
+      "date": "Date",
+      "optional": "(optional)",
+      "price": "Price (€)",
+      "code": "Confirmation code",
+      "alreadyPaid": "Already paid",
+      "errors": {
+        "price": "Enter a valid amount, for example 450 or 1,250.50."
+      },
+      "toasts": {
+        "updated": "Booking updated",
+        "added": "Booking added",
+        "error": "We couldn't save the booking."
+      }
+    },
+    "budgetDialog": {
+      "set": "Set budget",
+      "change": "Change budget",
+      "title": "Honeymoon budget",
+      "total": "Total available (€)",
+      "help": "It's separate from the wedding budget. Leave it empty to remove it.",
+      "error": "Enter a valid amount, for example 4000.",
+      "saved": "Honeymoon budget saved",
+      "saveError": "We couldn't save the budget."
+    }
+  },
+  "packing": {
+    "title": "Packing and documents",
+    "description": "Everything you can't forget, to tick off as you go.",
+    "groups": {
+      "documents": "Documents",
+      "health": "Health",
+      "clothing": "Clothing",
+      "tech": "Tech",
+      "other": "Other"
+    },
+    "groupDone": "Packed:",
+    "deleteAria": "Remove “{{name}}” from the list",
+    "addForm": {
+      "label": "Add to the suitcase",
+      "item": "Add to the list",
+      "placeholder": "Book, snorkel mask…",
+      "group": "Group",
+      "add": "Add"
+    },
+    "restoreSuggested": "Restore suggestions ({{count}})",
+    "loadSuggested": "Load suggested list",
+    "progress": {
+      "label": "Packed so far",
+      "value": "{{done}} of {{total}}",
+      "allDone": "All set for take-off.",
+      "remaining_one": "{{count}} thing to go.",
+      "remaining_other": "{{count}} things to go.",
+      "barLabel": "Suitcase {{percent}}% packed"
+    },
+    "empty": {
+      "title": "The suitcase is empty",
+      "preparingTitle": "Preparing your list…",
+      "text": "You've removed everything from the list. You can restore the suggested items or add your own.",
+      "preparingText": "We're getting a suitcase ready with the usual: documents, health, clothing and tech."
+    },
+    "announce": {
+      "added": "“{{name}}” added to {{group}}",
+      "packed": "“{{name}}”: packed",
+      "pending": "“{{name}}”: pending",
+      "removed": "“{{name}}” removed from the list"
+    },
+    "toasts": {
+      "deleted": "Item deleted",
+      "restored_one": "Suggested item restored",
+      "restored_other": "Suggested items restored"
+    },
+    "errors": {
+      "add": "We couldn't add the item.",
+      "update": "We couldn't update the item.",
+      "delete": "We couldn't delete the item.",
+      "restore": "We couldn't load the suggested list."
+    },
+    "suggested": {
+      "passports": {
+        "label": "Passports",
+        "note": "Check they don't expire within the next 6 months."
+      },
+      "nationalId": {
+        "label": "ID cards"
+      },
+      "visas": {
+        "label": "Visas",
+        "note": "See whether your destination requires them and how far ahead to apply."
+      },
+      "tickets": {
+        "label": "Tickets and bookings to hand",
+        "note": "On your phone and, just in case, printed."
+      },
+      "insurance": {
+        "label": "Travel insurance",
+        "note": "With the policy and the assistance phone number saved."
+      },
+      "cards": {
+        "label": "Cards and some cash"
+      },
+      "vaccines": {
+        "label": "Vaccinations",
+        "note": "Check with your doctor well in advance."
+      },
+      "firstAid": {
+        "label": "First-aid kit and regular medication"
+      },
+      "sunscreen": {
+        "label": "Sunscreen"
+      },
+      "repellent": {
+        "label": "Mosquito repellent"
+      },
+      "swimwear": {
+        "label": "Swimwear"
+      },
+      "flipFlops": {
+        "label": "Flip-flops and sandals"
+      },
+      "lightClothes": {
+        "label": "Light, airy clothes"
+      },
+      "hat": {
+        "label": "Hat or cap and sunglasses"
+      },
+      "shoes": {
+        "label": "Comfortable walking shoes"
+      },
+      "jacket": {
+        "label": "A light layer",
+        "note": "For flights, evenings and excursions."
+      },
+      "adapter": {
+        "label": "Plug adapter"
+      },
+      "chargers": {
+        "label": "Chargers and a power bank"
+      },
+      "mobileData": {
+        "label": "Mobile data or eSIM"
+      },
+      "towel": {
+        "label": "Beach towel"
+      },
+      "lock": {
+        "label": "Luggage lock"
+      }
+    }
+  }
+}

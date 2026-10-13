@@ -2,25 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
 export function PlanNav({ planId }: { planId: string }) {
   const pathname = usePathname();
+  const { t } = useTranslation("plan");
   const base = `/plan/${planId}`;
 
   const items = [
-    { href: base, label: "Resumen" },
-    { href: `${base}/ceremonia`, label: "Ceremonia" },
-    { href: `${base}/guests`, label: "Invitados" },
-    { href: `${base}/vendors`, label: "Proveedores" },
-    { href: `${base}/budget`, label: "Presupuesto" },
-    { href: `${base}/honeymoon`, label: "Luna de miel" },
+    { href: base, label: t("nav.overview") },
+    { href: `${base}/ceremonia`, label: t("nav.ceremony") },
+    { href: `${base}/guests`, label: t("nav.guests") },
+    { href: `${base}/vendors`, label: t("nav.vendors") },
+    { href: `${base}/budget`, label: t("nav.budget") },
+    { href: `${base}/honeymoon`, label: t("nav.honeymoon") },
   ];
 
   return (
     <nav
-      aria-label="Secciones del plan"
+      aria-label={t("nav.ariaLabel")}
       className="-mx-4 flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-line px-4 sm:mx-0 sm:gap-2 sm:px-0"
     >
       {items.map((item) => {

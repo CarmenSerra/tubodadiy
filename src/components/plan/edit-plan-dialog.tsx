@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Loader2, PencilIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ export function EditPlanDialog({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+  const { t } = useTranslation("plan");
   const [openState, setOpenState] = React.useState(false);
   const controlled = openProp !== undefined;
   const open = controlled ? openProp : openState;
@@ -56,7 +58,7 @@ export function EditPlanDialog({
             className="h-10 rounded-full px-3.5 text-sm font-medium text-ink shadow-none hover:bg-lilac-soft hover:text-ink focus-visible:ring-lilac focus-visible:ring-offset-surface"
           >
             <PencilIcon />
-            Editar
+            {t("edit.trigger")}
           </Button>
         </DialogTrigger>
       )}
@@ -73,6 +75,7 @@ export function EditPlanDialog({
 }
 
 function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void }) {
+  const { t } = useTranslation("plan");
   const [title, setTitle] = React.useState(plan.title);
   const [weddingDate, setWeddingDate] = React.useState(plan.weddingDate ?? "");
   const [budgetTotal, setBudgetTotal] = React.useState(String(plan.budgetTotal ?? 0));
@@ -83,14 +86,14 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
     setSubmitting(true);
     try {
       await updatePlanDetails(plan.id, {
-        title: title.trim() || "Nuestra boda",
+        title: title.trim() || t("edit.defaultTitle"),
         weddingDate: weddingDate || null,
         budgetTotal: budgetTotal ? Number(budgetTotal) : 0,
       });
-      toast.success("Plan actualizado");
+      toast.success(t("edit.success"));
       onDone();
     } catch {
-      toast.error("No se ha podido actualizar el plan.");
+      toast.error(t("edit.error"));
     } finally {
       setSubmitting(false);
     }
@@ -99,12 +102,12 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
   return (
     <form onSubmit={handleSubmit}>
       <DialogHeader className="pr-8 text-left">
-        <DialogTitle className="text-xl sm:text-2xl">Editar plan de boda</DialogTitle>
+        <DialogTitle className="text-xl sm:text-2xl">{t("edit.title")}</DialogTitle>
       </DialogHeader>
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="edit-plan-title" className={PLAN_LABEL}>
-            Nombre del plan
+            {t("edit.fields.title")}
           </Label>
           <Input
             id="edit-plan-title"
@@ -115,7 +118,7 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="edit-plan-date" className={PLAN_LABEL}>
-            Fecha objetivo
+            {t("edit.fields.date")}
           </Label>
           <DatePicker
             id="edit-plan-date"
@@ -125,12 +128,12 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
             className={PLAN_FIELD}
           />
           <p id="edit-plan-date-help" className={PLAN_HELP}>
-            Opcional. Puedes dejarla vacía si aún no la sabes.
+            {t("edit.fields.dateHelp")}
           </p>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="edit-plan-budget" className={PLAN_LABEL}>
-            Presupuesto total (€)
+            {t("edit.fields.budget")}
           </Label>
           <Input
             id="edit-plan-budget"
@@ -146,12 +149,12 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
       <DialogFooter className="mt-7 gap-2 sm:gap-3">
         <DialogClose asChild>
           <button type="button" className={cn(CTA_SECONDARY, PLAN_BUTTON_FOCUS, "h-11 sm:h-10")}>
-            Cancelar
+            {t("edit.cancel")}
           </button>
         </DialogClose>
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, PLAN_BUTTON_FOCUS)}>
           {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("edit.save")}
         </button>
       </DialogFooter>
     </form>

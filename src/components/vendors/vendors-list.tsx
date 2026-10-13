@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CompassIcon, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Skeleton } from "@/components/dashboard/ui";
 import { EmptyVendorCard, VendorCard } from "@/components/vendors/vendor-card";
@@ -9,6 +10,7 @@ import { SLIDE_WIDTH, VendorCarousel } from "@/components/vendors/vendor-carouse
 import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
 import { VendorLocationFilter } from "@/components/vendors/vendor-location-filter";
 import {
+  categoryLabel,
   filterByLocation,
   groupVendors,
   isFilterAvailable,
@@ -46,6 +48,7 @@ function SectionSkeleton() {
 }
 
 export function VendorsList({ planId }: { planId: string }) {
+  const { t } = useTranslation("vendors");
   const { data: vendors, loading } = useCollection(vendorsQuery(planId), mapVendor);
   const [locationFilter, setLocationFilter] = React.useState<LocationFilter>(null);
   const [discoverOpen, setDiscoverOpen] = React.useState(false);
@@ -58,7 +61,7 @@ export function VendorsList({ planId }: { planId: string }) {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-6 sm:gap-8" role="status" aria-label="Cargando proveedores">
+      <div className="flex flex-col gap-6 sm:gap-8" role="status" aria-label={t("list.loading")}>
         <SectionSkeleton />
         <SectionSkeleton />
       </div>
@@ -88,21 +91,17 @@ export function VendorsList({ planId }: { planId: string }) {
                 id={`vendors-section-${index}`}
                 className="font-display text-lg font-semibold text-ink sm:text-xl"
               >
-                {category}
+                {categoryLabel(category, t)}
               </h3>
               <span className="text-sm text-ink-muted">
-                {options.length === 0
-                  ? "Sin opciones aún"
-                  : options.length === 1
-                    ? "1 opción"
-                    : `${options.length} opciones`}
+                {options.length === 0 ? t("list.noOptions") : t("list.optionCount", { count: options.length })}
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-x-1">
               {isVenueCategory(category) && options.length > 0 && (
                 <button type="button" onClick={() => setDiscoverOpen(true)} className={SECTION_ACTION}>
                   <CompassIcon className="size-4" aria-hidden="true" />
-                  Descubrir fincas
+                  {t("list.discover")}
                 </button>
               )}
               {options.length > 0 && (
@@ -112,7 +111,7 @@ export function VendorsList({ planId }: { planId: string }) {
                   trigger={
                     <button type="button" className={SECTION_ACTION}>
                       <PlusIcon className="size-4" aria-hidden="true" />
-                      Añadir otra
+                      {t("list.addAnother")}
                     </button>
                   }
                 />
@@ -126,7 +125,7 @@ export function VendorsList({ planId }: { planId: string }) {
             </>
           ) : (
             <VendorCarousel
-              label={category}
+              label={categoryLabel(category, t)}
               slides={options.map((vendor) => ({
                 key: vendor.id,
                 name: vendor.name,
@@ -148,10 +147,11 @@ export function VendorsList({ planId }: { planId: string }) {
 
 /** Invitación amable cuando todavía no hay ninguna finca guardada. */
 function VenueInvitation({ onOpen }: { onOpen: () => void }) {
+  const { t } = useTranslation("vendors");
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-3 text-center">
       <p className="text-sm text-ink-muted">
-        ¿Quieres ver fincas para bodas? Te enseñamos algunas por provincia para que guardes las que te gusten.
+        {t("list.invitation")}
       </p>
       <button
         type="button"
@@ -159,7 +159,7 @@ function VenueInvitation({ onOpen }: { onOpen: () => void }) {
         className="inline-flex h-10 items-center gap-2 rounded-full bg-btn-soft px-5 text-sm font-medium text-ink-on-lilac transition-opacity hover:opacity-90 outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       >
         <CompassIcon className="size-4" aria-hidden="true" />
-        Ver fincas para bodas
+        {t("list.seeVenues")}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { addDays, format, parse } from "date-fns";
 import { ArrowDownIcon, ArrowUpIcon, MapIcon, PlaneTakeoffIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY } from "@/components/dashboard/ui";
@@ -11,16 +12,17 @@ import { DayFormDialog, EditDayTrigger } from "@/components/honeymoon/day-form-d
 import { EmptyState, HM_CARD, HM_TEXT_BUTTON, SectionHeader } from "@/components/honeymoon/ui";
 import { deleteDay, restoreDay, swapDays } from "@/lib/firebase/honeymoon";
 import { nextOrder, type TripDay } from "@/lib/honeymoon-model";
+import { dateFormatter } from "@/lib/i18n/format";
+import type { Lang } from "@/lib/i18n/config";
+import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
-const DATE_FORMAT = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" });
-
-function longDate(value: string): string {
+function longDate(value: string, lang: Lang): string {
   if (!value) return "";
   const date = new Date(value + "T00:00:00");
   if (Number.isNaN(date.getTime())) return "";
-  const text = DATE_FORMAT.format(date);
+  const text = dateFormatter(lang, { weekday: "long", day: "numeric", month: "long" }).format(date);
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
@@ -43,6 +45,8 @@ export function Itinerary({
   days: TripDay[];
   announce: (message: string) => void;
 }) {
+  const { t } = useTranslation("honeymoon");
+  const { lang } = useLanguage();
   const orderForNew = nextOrder(days.map((d) => d.order));
   const listRef = React.useRef<HTMLOListElement>(null);
   const pendingFocus = React.useRef<{ id: string; dir: "up" | "down" } | null>(null);
@@ -65,20 +69,20 @@ export function Itinerary({
     pendingFocus.current = { id: day.id, dir: delta < 0 ? "up" : "down" };
     try {
       await swapDays(planId, day, other);
-      announce(`Día ${index + 1} movido a la posición ${index + 1 + delta}`);
+      announce(t("itinerary.announce.moved", { day: index + 1, position: index + 1 + delta }));
     } catch {
       pendingFocus.current = null;
-      toast.error("No se ha podido mover el día.");
+      toast.error(t("itinerary.errors.move"));
     }
   }
 
   async function handleDelete(day: TripDay, index: number) {
     try {
       await deleteDay(planId, day.id);
-      toastWithUndo(`Día ${index + 1} eliminado`, () => restoreDay(planId, day));
-      announce(`Día ${index + 1} eliminado`);
+      toastWithUndo(t("itinerary.toasts.deleted", { day: index + 1 }), () => restoreDay(planId, day));
+      announce(t("itinerary.toasts.deleted", { day: index + 1 }));
     } catch {
-      toast.error("No se ha podido eliminar el día.");
+      toast.error(t("itinerary.errors.delete"));
     }
   }
 
@@ -91,29 +95,28 @@ export function Itinerary({
       <SectionHeader
         id="hm-itinerario-title"
         icon={<MapIcon />}
-        title="Itinerario por días"
-        description="Qué hacer cada día, con su lugar y sus horas."
+        title={t("itinerary.title")}
+        description={t("itinerary.description")}
         actions={days.length > 0 ? addDialog : undefined}
       />
 
       {days.length === 0 ? (
         <EmptyState
           scene="isla"
-          title="El itinerario está en blanco"
+          title={t("itinerary.empty.title")}
           action={
             <DayFormDialog
               planId={planId}
               nextOrder={orderForNew}
               trigger={
                 <button type="button" className={CTA_PRIMARY}>
-                  Añadir el primer día
+                  {t("itinerary.empty.action")}
                 </button>
               }
             />
           }
         >
-          Ve montando el viaje día a día: dónde dormir, qué ver y a qué hora sale cada plan. Siempre podrás
-          cambiar el orden.
+          {t("itinerary.empty.text")}
         </EmptyState>
       ) : (
         <div>
@@ -124,12 +127,12 @@ export function Itinerary({
             <span className="flex size-10 items-center justify-center rounded-full bg-lilac-mid text-ink-on-tint">
               <PlaneTakeoffIcon className="size-5" />
             </span>
-            Despegamos
+            {t("itinerary.takeoff")}
           </div>
-          <ol ref={listRef} className="flex flex-col" aria-label="Días del viaje">
+          <ol ref={listRef} className="flex flex-col" aria-label={t("itinerary.listLabel")}>
             {days.map((day, index) => {
-              const label = `el día ${index + 1}${day.place ? ` (${day.place})` : ""}`;
-              const date = longDate(day.date);
+              const label = day.place ? t("itinerary.dayLabelPlace", { day: index + 1, place: day.place }) : t("itinerary.dayLabel", { day: index + 1 });
+              const date = longDate(day.date, lang);
               return (
                 <li key={day.id} className="relative pb-4 pl-14 last:pb-0 sm:pl-16">
                   {/* Raíl punteado entre los días */}
@@ -145,11 +148,11 @@ export function Itinerary({
                   >
                     {index + 1}
                   </span>
-                  <article className={cn(HM_CARD, "p-4 sm:p-5")} aria-label={`Día ${index + 1}`}>
+                  <article className={cn(HM_CARD, "p-4 sm:p-5")} aria-label={t("itinerary.day", { day: index + 1 })}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-ink-muted">
-                          Día {index + 1}
+                          {t("itinerary.day", { day: index + 1 })}
                           {date && <span> · {date}</span>}
                         </p>
                         <h3 className="break-words font-display text-xl font-semibold leading-snug text-ink-strong">
@@ -163,7 +166,7 @@ export function Itinerary({
                           className={MOVE_BUTTON}
                           disabled={index === 0}
                           onClick={() => handleMove(index, -1)}
-                          aria-label={`Subir ${label}`}
+                          aria-label={t("itinerary.moveUp", { label })}
                         >
                           <ArrowUpIcon aria-hidden="true" />
                         </button>
@@ -173,7 +176,7 @@ export function Itinerary({
                           className={MOVE_BUTTON}
                           disabled={index === days.length - 1}
                           onClick={() => handleMove(index, 1)}
-                          aria-label={`Bajar ${label}`}
+                          aria-label={t("itinerary.moveDown", { label })}
                         >
                           <ArrowDownIcon aria-hidden="true" />
                         </button>
@@ -184,7 +187,7 @@ export function Itinerary({
                           trigger={<EditDayTrigger label={label} />}
                         />
                         <DeleteIconButton
-                          ariaLabel={`Eliminar ${label}`}
+                          ariaLabel={t("itinerary.deleteAria", { label })}
                           onDelete={() => handleDelete(day, index)}
                         />
                       </div>
@@ -209,14 +212,14 @@ export function Itinerary({
                       </ul>
                     ) : (
                       <div className="mt-3 flex flex-wrap items-center gap-x-2 border-t border-dashed border-line pt-2 text-sm text-ink-muted">
-                        Sin actividades apuntadas.
+                        {t("itinerary.noActivities")}
                         <DayFormDialog
                           planId={planId}
                           day={day}
                           nextOrder={orderForNew}
                           trigger={
                             <button type="button" className={HM_TEXT_BUTTON}>
-                              Añadir actividades
+                              {t("itinerary.addActivities")}
                             </button>
                           }
                         />

@@ -1,1 +1,270 @@
-{}
+{
+  "defaults": {
+    "message": "It would mean the world to us to have you with us on such a special day. Let us know if you can make it in just a couple of taps."
+  },
+  "templates": {
+    "botanico": {
+      "label": "Botanical",
+      "hint": "Lilac and sage, with leaves"
+    },
+    "minimal": {
+      "label": "Minimal",
+      "hint": "Clean and typographic"
+    },
+    "elegante": {
+      "label": "Elegant",
+      "hint": "Deep plum"
+    }
+  },
+  "share": {
+    "introNames": "{{names}} are inviting you to their wedding",
+    "introGeneric": "You are invited to our wedding",
+    "whatsapp": "{{intro}}{{when}}. Here is the invitation, where you can also let us know if you are coming: {{url}}"
+  },
+  "page": {
+    "meta": {
+      "title": "Wedding invitation",
+      "titleNames": "{{names}} — Wedding invitation",
+      "description": "You are invited to the wedding{{when}}. Let us know if you can come.",
+      "descriptionNames": "You are invited to the wedding of {{names}}{{when}}. Let us know if you can come."
+    },
+    "unavailable": {
+      "metaTitle": "Invitation unavailable",
+      "title": "This invitation is not available",
+      "text": "The link may be mistyped, or the couple may not have published the invitation yet. Ask them for the right link."
+    }
+  },
+  "view": {
+    "time": "{{time}}",
+    "eyebrow": "We're getting married!",
+    "eyebrowMinimal": "We're getting married",
+    "cta": "Confirm attendance",
+    "messageLabel": "A message from the couple",
+    "when": "When and where",
+    "places": {
+      "ceremony": "Ceremony",
+      "banquet": "Reception"
+    },
+    "directions": "Get directions",
+    "directionsSr": "to {{place}} (opens in a new tab)",
+    "gift": {
+      "titleList": "What we would love",
+      "titleMoney": "If you'd like to give something",
+      "listLabel": "Gift list",
+      "hint": "The list is only a guide. If you'd like to give something from it, let us know first so it isn't doubled up.",
+      "priceSr": "Approximate price:",
+      "view": "View",
+      "viewSr": "“{{name}}” (opens in a new tab)",
+      "iban": "Bank transfer (IBAN)",
+      "ibanName": "IBAN",
+      "bizum": "Bizum",
+      "bizumName": "Bizum number"
+    },
+    "copy": {
+      "aria": "Copy {{label}}",
+      "action": "Copy",
+      "done": "Copied"
+    },
+    "rsvpTitle": "Will you join us?",
+    "deadline": {
+      "closed": "The deadline to reply has passed. If you still want to let us know, please get in touch with us directly.",
+      "closedOn": "The deadline to reply passed on {{date}}. If you still want to let us know, please get in touch with us directly.",
+      "beforePrefix": "Please reply by ",
+      "beforeSuffix": "."
+    },
+    "footer": {
+      "withLove": "With love, {{names}}",
+      "madeWith": "Invitation made with tubodadiy"
+    }
+  },
+  "rsvp": {
+    "legend": "Attendance reply",
+    "optional": "(optional)",
+    "name": {
+      "label": "Full name",
+      "placeholder": "Your name"
+    },
+    "attending": {
+      "label": "Will you come to the wedding?",
+      "yes": "Yes, I'll be there!",
+      "no": "Sorry, I can't make it"
+    },
+    "plusOne": {
+      "label": "Are you bringing a plus one?",
+      "yes": "Yes",
+      "no": "No, just me",
+      "nameLabel": "Your plus one's name",
+      "namePlaceholder": "Full name"
+    },
+    "dietary": {
+      "label": "Allergies or diet",
+      "placeholder": "Vegetarian, coeliac, nut allergy…"
+    },
+    "message": {
+      "label": "A message for the couple",
+      "placeholder": "A few words to remember…"
+    },
+    "honeypot": "Leave this field empty",
+    "submit": {
+      "send": "Send reply",
+      "save": "Save changes"
+    },
+    "cancel": "Cancel",
+    "thanks": {
+      "title": "Thank you!",
+      "titleName": "Thank you, {{name}}!",
+      "yes": "We've received your reply. We're so happy you'll be there!",
+      "no": "We've received your reply. We're sorry you can't make it; thank you for letting us know.",
+      "plusOne": "You're coming with a plus one.",
+      "plusOneName": "You're coming with a plus one: {{name}}.",
+      "change": "Change my reply"
+    },
+    "errors": {
+      "name": "Please enter your full name.",
+      "attending": "Let us know if you're coming.",
+      "network": "We couldn't send your reply. Check your connection and try again.",
+      "nameTooLong": "That name is too long (maximum {{max}} characters).",
+      "plusOneTooLong": "Your plus one's name is too long.",
+      "dietaryTooLong": "Allergies or diet: maximum {{max}} characters.",
+      "messageTooLong": "The message is too long (maximum {{max}} characters).",
+      "unavailable": "We can't receive replies right now. Please try again later.",
+      "notFound": "This invitation doesn't exist.",
+      "rateLimited": "Too many submissions in a row. Wait a few minutes and try again.",
+      "gone": "This invitation is no longer available.",
+      "closed": "The deadline to reply has passed. Please get in touch with the couple directly.",
+      "saveFailed": "We couldn't save your reply. Please try again in a moment."
+    }
+  },
+  "launcher": {
+    "button": "Invitation"
+  },
+  "responses": {
+    "title": "Invitation replies",
+    "count_one": "{{count}} reply",
+    "count_other": "{{count}} replies",
+    "attending_one": "{{count}} attending",
+    "attending_other": "{{count}} attending",
+    "showLess": "Show less",
+    "showMore": "Show {{count}} more",
+    "row": {
+      "attending": "Attending",
+      "notAttending": "Not attending",
+      "plusOne": "With a plus one",
+      "plusOneName": "With a plus one: {{name}}"
+    }
+  },
+  "editor": {
+    "title": "Wedding invitation",
+    "description": "Make your invitation your own and share a single link: anyone who opens it can reply without creating an account.",
+    "confirmClose": "You have unsaved changes. Close without saving?",
+    "loadError": "We couldn't load the invitation. Reload the page and try again.",
+    "loading": "Loading the invitation",
+    "tabs": {
+      "label": "View",
+      "edit": "Edit",
+      "preview": "Preview"
+    },
+    "fill": {
+      "upToDate": "Your invitation is already up to date with your plan.",
+      "updated_one": "{{count}} field was updated from your plan.",
+      "updated_other": "{{count}} fields were updated from your plan.",
+      "filledTitle": "Filled in from your plan",
+      "filledNote": "({{fields}}). Change anything you like: what you write is never overwritten.",
+      "canFill": "Empty fields can be filled in from your plan.",
+      "refresh": "Update from plan",
+      "groups": {
+        "names": "names",
+        "date": "date",
+        "place": "venue",
+        "address": "address",
+        "map": "map",
+        "time": "time"
+      }
+    },
+    "sections": {
+      "language": "Invitation language",
+      "style": "Style",
+      "couple": "The couple",
+      "when": "When",
+      "where": "Where",
+      "whereNote": "If something doesn't apply, leave it blank and it won't appear.",
+      "gift": "Gift",
+      "publish": "Publish and share"
+    },
+    "language": {
+      "label": "Invitation language",
+      "note": "Your guests will see the invitation and the reply form in this language. Your dashboard stays in your own language."
+    },
+    "template": {
+      "label": "Template"
+    },
+    "fields": {
+      "names": "Names",
+      "message": "Message",
+      "messageHint": "A few words of welcome for your guests.",
+      "date": "Wedding date",
+      "deadline": "Reply by",
+      "deadlineHint": "Optional. After this date, the form closes.",
+      "noDeadline": "No deadline"
+    },
+    "place": {
+      "name": "Venue",
+      "time": "Time",
+      "address": "Address",
+      "addressPlaceholder": "Street, number, town",
+      "namePlaceholder": {
+        "ceremony": "St Michael's Church",
+        "banquet": "Olive Grove Estate"
+      },
+      "map": "Map link (optional)",
+      "mapHint": "If left empty, “Get directions” will search for the address on Google Maps.",
+      "mapError": "Paste a web address that starts with http:// or https://."
+    },
+    "gift": {
+      "label": "Show the gift details",
+      "helpList": "Your guests will see the list of things you've saved in your plan (without what you already have).",
+      "helpMoney": "Your guests will see the IBAN or Bizum you've saved in your plan.",
+      "emptyList": "Your gift list has nothing to show yet. Add something in the gift details of your plan.",
+      "emptyMoney": "You haven't added an IBAN or Bizum in the gift details of your plan yet.",
+      "notShown": "You have a gift set up, but it isn't marked to appear on the invitation. Turn it on in the gift details of your plan.",
+      "notChosen": "You haven't chosen how to receive gifts yet (money or a list of things). Do it in the “Gift” step of your plan."
+    },
+    "publish": {
+      "label": "Invitation published",
+      "helpOn": "Anyone with the link can view it and reply. If you unpublish it, the link stops working.",
+      "helpOff": "It's a draft for now: nobody can see it. Publishing also saves your changes."
+    },
+    "link": {
+      "label": "Link for your guests",
+      "placeholder": "Publish the invitation to get the link",
+      "unsaved": "You have unsaved changes: save them so they show up at the link.",
+      "copy": "Copy link",
+      "whatsapp": "Share on WhatsApp",
+      "view": "View invitation",
+      "newTab": "(opens in a new tab)"
+    },
+    "preview": {
+      "caption": "This is how your guests will see it"
+    },
+    "status": {
+      "new": "Not saved yet",
+      "dirty": "Unsaved changes",
+      "saved": "All saved"
+    },
+    "actions": {
+      "close": "Close",
+      "save": "Save changes"
+    },
+    "toasts": {
+      "badMapUrl": "Check the map link: it must be a valid web address.",
+      "namesRequired": "Enter the couple's names before publishing.",
+      "saveFailed": "We couldn't save the invitation. Please try again.",
+      "saved": "Invitation saved",
+      "published": "Invitation published. You can now share the link.",
+      "unpublished": "Invitation unpublished. The link no longer works.",
+      "unpublishFailed": "We couldn't unpublish it. Please try again.",
+      "linkCopied": "Link copied",
+      "copyFailed": "We couldn't copy it. Select the link and copy it by hand."
+    }
+  }
+}

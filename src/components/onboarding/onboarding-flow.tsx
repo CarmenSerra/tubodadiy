@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, ArrowRightIcon, Loader2, XIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import { SELECTED_PLAN_KEY } from "@/components/dashboard/helpers";
 import {
@@ -25,9 +27,13 @@ import {
   type StageState,
 } from "@/lib/firebase/onboarding";
 import { useAuth } from "@/lib/hooks/use-auth";
+import { useLanguage } from "@/lib/i18n/provider";
+import type { Lang } from "@/lib/i18n/config";
 import {
   SKIPPABLE,
+  defaultPlanTitle,
   emptyAnswers,
+  isDefaultPlanTitle,
   screensFor,
   type OnboardingAnswers,
   type ScreenId,
@@ -64,74 +70,15 @@ interface Copy {
   skip?: string;
 }
 
-function copyFor(screen: ScreenId, advanced: boolean): Copy {
-  switch (screen) {
-    case "name":
-      return {
-        title: "¿Cómo se llama vuestro plan?",
-        description: "Un nombre para reconocerlo. Podréis cambiarlo cuando queráis.",
-      };
-    case "mode":
-      return {
-        title: "¿Cómo queréis empezar?",
-        description: "Elegid lo que mejor os encaje. Siempre podréis añadir más cosas después.",
-      };
-    case "have":
-      return {
-        title: "¿Qué tenéis ya?",
-        description: "Marcad todo lo que ya esté decidido o reservado. Os pediremos solo esos datos.",
-        skip: "Empezar sin nada",
-      };
-    case "date":
-      return {
-        title: advanced ? "¿Qué fecha tenéis?" : "¿Ya tenéis fecha?",
-        description: "Elegid el día en el calendario.",
-        skip: "Aún no la sabemos",
-      };
-    case "budget":
-      return {
-        title: "¿Cuál es vuestro presupuesto total?",
-        description: "Lo que pensáis gastar en toda la boda.",
-        skip: "Aún no lo sabemos",
-      };
-    case "ceremony":
-      return {
-        title: advanced ? "¿Qué tipo de ceremonia tenéis?" : "¿Qué tipo de ceremonia queréis?",
-        description: "Lo apuntamos en la sección Ceremonia.",
-        skip: "Saltar",
-      };
-    case "approx":
-      return {
-        title: "¿Cuántos invitados calculáis?",
-        description: "Un número aproximado nos vale.",
-        skip: "Aún no lo sabemos",
-      };
-    case "venue":
-      return {
-        title: "¿Qué lugar tenéis reservado?",
-        description: "Lo guardamos en Proveedores como lugar elegido.",
-      };
-    case "guests":
-      return {
-        title: "Pasadnos vuestra lista de invitados",
-        description: "Copiadla de donde la tengáis y pegadla aquí; nosotros la ordenamos.",
-      };
-    case "vendors":
-      return {
-        title: "¿Qué proveedores habéis contratado?",
-        description: "Marcad los que ya tenéis. Los guardamos como elegidos; el nombre y el precio son opcionales.",
-      };
-    case "honeymoon":
-      return {
-        title: "¿Adónde vais de luna de miel?",
-        description: "Si ya lo sabéis, contádnoslo.",
-      };
-    case "summary":
-      return {
-        title: "Todo listo para empezar",
-        description: "Esto es lo que vamos a preparar por vosotros. Después podréis cambiarlo todo desde el plan.",
-      };
-  }
+/** Textos de cada pantalla (`onboarding:copy.<pantalla>.*`). `t` es el de `useTranslation("onboarding")`. */
+function copyFor(screen: ScreenId, advanced: boolean, t: TFunction): Copy {
+  const variant = advanced && (screen === "date" || screen === "ceremony") ? "titleAdvanced" : "title";
+  const skip = t(`copy.${screen}.skip`, { defaultValue: "" });
+  return {
+    title: t(`copy.${screen}.${variant}`),
+    description: t(`copy.${screen}.description`),
+    skip: skip || undefined,
+  };
 }
 
 /** Lo que se borra al saltar una pantalla («Aún no lo sabemos», «Lo relleno después»). */
@@ -158,14 +105,14 @@ interface FlowState {
   screen: ScreenId;
 }
 
-function loadDraft(uid: string | undefined): FlowState | null {
+function loadDraft(uid: string | undefined, lang: Lang): FlowState | null {
   if (typeof window === "undefined" || !uid) return null;
   try {
     const raw = window.sessionStorage.getItem(DRAFT_KEY);
     if (!raw) return null;
     const draft = JSON.parse(raw) as { uid?: string; screen?: ScreenId; answers?: Partial<OnboardingAnswers> };
     if (draft.uid !== uid || !draft.answers) return null;
-    const answers: OnboardingAnswers = { ...emptyAnswers(), ...draft.answers };
+    const answers: OnboardingAnswers = { ...emptyAnswers(lang), ...draft.answers };
     if (!Array.isArray(answers.have) || typeof answers.vendors !== "object" || answers.vendors === null) return null;
     const screens = screensFor(answers);
     const screen = draft.screen && screens.includes(draft.screen) ? draft.screen : "name";
@@ -208,8 +155,10 @@ function restoreSkipped(
 }
 
 /** ¿Hay algo escrito que se perdería al salir? */
-function hasProgress(answers: OnboardingAnswers): boolean {
-  return JSON.stringify(answers) !== JSON.stringify(emptyAnswers());
+function hasProgress(answers: OnboardingAnswers, lang: Lang): boolean {
+  // El título por defecto (en cualquier idioma) no cuenta como algo escrito.
+  const plain = (a: OnboardingAnswers) => JSON.stringify({ ...a, title: isDefaultPlanTitle(a.title) ? "" : a.title });
+  return plain(answers) !== plain(emptyAnswers(lang));
 }
 
 function rememberSelectedPlan(planId: string) {
@@ -220,9 +169,9 @@ function rememberSelectedPlan(planId: string) {
   }
 }
 
-function joinList(items: string[]): string {
-  if (items.length <= 1) return items[0] ?? "";
-  return `${items.slice(0, -1).join(", ")} y ${items[items.length - 1]}`;
+/** «a, b y c» / «a, b and c» según el idioma. */
+function joinList(items: string[], lang: Lang): string {
+  return new Intl.ListFormat(lang, { style: "long", type: "conjunction" }).format(items);
 }
 
 /* ------------------------------------------------------------------ */
@@ -232,14 +181,23 @@ function joinList(items: string[]): string {
 type StageRow = { key: "plan" | ExtraStage; label: string; state: StageView };
 
 export function OnboardingFlow() {
+  const { t } = useTranslation("onboarding");
+  const { lang } = useLanguage();
   const { user } = useAuth();
   const router = useRouter();
   const uid = user?.uid;
 
   const [flow, setFlow] = React.useState<FlowState>(
-    () => loadDraft(uid) ?? { answers: emptyAnswers(), screen: "name" }
+    () => loadDraft(uid, lang) ?? { answers: emptyAnswers(lang), screen: "name" }
   );
-  const { answers, screen } = flow;
+  const { screen } = flow;
+  // Mientras el título sea el de por defecto, sigue al idioma activo.
+  const answers = React.useMemo(() => {
+    const fallback = defaultPlanTitle(lang);
+    return isDefaultPlanTitle(flow.answers.title) && flow.answers.title !== fallback
+      ? { ...flow.answers, title: fallback }
+      : flow.answers;
+  }, [flow.answers, lang]);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [creating, setCreating] = React.useState(false);
   const [stages, setStages] = React.useState<StageRow[]>([]);
@@ -255,8 +213,8 @@ export function OnboardingFlow() {
   const index = Math.max(0, screens.indexOf(screen));
   const advanced = answers.mode === "advanced";
   const copy: Copy = creating
-    ? { title: "Preparando vuestro plan", description: "Solo será un momento." }
-    : copyFor(screen, advanced);
+    ? { title: t("creating.title"), description: t("creating.description") }
+    : copyFor(screen, advanced, t);
 
   // El borrador se guarda en cada cambio, salvo cuando ya se está creando.
   React.useEffect(() => {
@@ -320,7 +278,7 @@ export function OnboardingFlow() {
   }
 
   function goNext() {
-    const found = validateScreen(screen, answers);
+    const found = validateScreen(screen, answers, t, lang);
     if (Object.keys(found).length > 0) {
       setErrors(found);
       const firstId = Object.keys(found)[0];
@@ -360,19 +318,19 @@ export function OnboardingFlow() {
 
   async function create() {
     if (!user || creating) return;
-    const { plan, extras } = buildSubmission(answers);
+    const { plan, extras } = buildSubmission(answers, t, lang);
 
     const labels: Record<ExtraStage, string> = {
-      venue: "Guardando el lugar",
-      guests: `Añadiendo ${extras.guests?.length ?? 0} invitados`,
-      vendors: "Guardando los proveedores",
-      steps: "Marcando lo que ya tenéis hecho",
+      venue: t("creating.stages.venue"),
+      guests: t("creating.stages.guests", { count: extras.guests?.length ?? 0 }),
+      vendors: t("creating.stages.vendors"),
+      steps: t("creating.stages.steps"),
     };
     const setStage = (key: StageRow["key"], state: StageView) =>
       setStages((rows) => rows.map((r) => (r.key === key ? { ...r, state } : r)));
 
     setStages([
-      { key: "plan", label: "Creando vuestro plan y sus secciones", state: "active" },
+      { key: "plan", label: t("creating.stages.plan"), state: "active" },
       ...stagesFor(extras).map((key): StageRow => ({ key, label: labels[key], state: "pending" })),
     ]);
     setCreating(true);
@@ -382,22 +340,30 @@ export function OnboardingFlow() {
       planId = await createWeddingPlan(user.uid, plan);
     } catch {
       setCreating(false);
-      toast.error("No se ha podido crear el plan. Inténtalo de nuevo.");
+      toast.error(t("create.error"));
       return;
     }
     setStage("plan", "done");
 
-    const result = await applyOnboardingExtras(planId, extras, (stage: ExtraStage, state: StageState) =>
-      setStage(stage, state)
+    const result = await applyOnboardingExtras(
+      planId,
+      extras,
+      (stage: ExtraStage, state: StageState) => setStage(stage, state),
+      lang
     );
 
     finished.current = true;
     clearDraft();
     rememberSelectedPlan(planId);
-    toast.success("¡Plan creado!");
+    toast.success(t("create.success"));
     if (result.failed.length > 0) {
       toast.warning(
-        `Hemos creado el plan, pero no hemos podido añadir ${joinList(result.failed.map((f) => f.label))}. Podéis añadirlo desde el plan.`,
+        t("create.partial", {
+          items: joinList(
+            result.failed.map((f) => t(`create.failedStage.${f.stage}`)),
+            lang
+          ),
+        }),
         { duration: 10000 }
       );
     }
@@ -411,7 +377,7 @@ export function OnboardingFlow() {
   }
 
   const screenProps: ScreenProps = { answers, set, errors, advanced };
-  const submission = React.useMemo(() => buildSubmission(answers), [answers]);
+  const submission = React.useMemo(() => buildSubmission(answers, t, lang), [answers, t, lang]);
 
   let body: React.ReactNode;
   if (creating) {
@@ -470,26 +436,26 @@ export function OnboardingFlow() {
               href="/dashboard"
               onClick={(event) => {
                 // Con respuestas ya escritas, antes de tirarlas se pregunta.
-                if (hasProgress(answers)) {
+                if (hasProgress(answers, lang)) {
                   event.preventDefault();
                   setLeaveOpen(true);
                 } else {
                   clearDraft();
                 }
               }}
-              aria-label="Salir sin crear el plan"
+              aria-label={t("nav.exitAria")}
               tabIndex={creating ? -1 : undefined}
               className={cn(WIZ_QUIET, "-ml-3")}
             >
               <XIcon className="size-4" aria-hidden="true" />
-              Salir
+              {t("nav.exit")}
             </Link>
           </div>
           <ProgressDots current={creating ? screens.length - 1 : index} total={screens.length} />
           <span />
         </div>
         <p id="onb-progress" className="sr-only">
-          Paso {index + 1} de {screens.length}
+          {t("nav.progress", { current: index + 1, total: screens.length })}
         </p>
 
         <div
@@ -520,19 +486,19 @@ export function OnboardingFlow() {
                   {index > 0 ? (
                     <button type="button" onClick={goBack} className={cn(WIZ_QUIET, "-ml-3 sm:ml-0")}>
                       <ArrowLeftIcon className="size-4" aria-hidden="true" />
-                      Atrás
+                      {t("nav.back")}
                     </button>
                   ) : (
                     <span />
                   )}
                   {skippable && (
                     <button type="button" onClick={skip} className={cn(WIZ_QUIET, "-mr-3 sm:mr-0")}>
-                      {copy.skip ?? "Lo relleno después"}
+                      {copy.skip ?? t("nav.skipDefault")}
                     </button>
                   )}
                 </div>
                 <button type="submit" disabled={!canContinue} className={cn(WIZ_CTA, "w-full sm:w-auto")}>
-                  {screen === "summary" ? "Crear nuestro plan" : "Continuar"}
+                  {screen === "summary" ? t("nav.create") : t("nav.continue")}
                   {screen !== "summary" && <ArrowRightIcon className="size-4" aria-hidden="true" />}
                 </button>
               </div>
@@ -541,7 +507,7 @@ export function OnboardingFlow() {
           {creating && (
             <p className="mt-4 flex items-center justify-center gap-2 text-sm text-ink-muted" role="status">
               <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-              No cerréis esta página hasta que terminemos.
+              {t("creating.dontClose")}
             </p>
           )}
         </div>
@@ -551,14 +517,14 @@ export function OnboardingFlow() {
         <AlertDialogContent className="max-w-md gap-4 border-line bg-surface p-5 text-ink-strong shadow-none sm:p-7">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-display text-xl font-semibold text-ink sm:text-2xl">
-              ¿Salir sin crear el plan?
+              {t("leave.title")}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm text-ink-muted">
-              Perderéis lo que habéis escrito hasta ahora.
+              {t("leave.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-3">
-            <AlertDialogCancel className="bg-cta text-on-cta">Seguir con el plan</AlertDialogCancel>
+            <AlertDialogCancel className="bg-cta text-on-cta">{t("leave.stay")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 clearDraft();
@@ -566,7 +532,7 @@ export function OnboardingFlow() {
               }}
               className="bg-btn-soft text-ink-on-lilac"
             >
-              Salir
+              {t("nav.exit")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

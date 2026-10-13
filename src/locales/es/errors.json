@@ -19,5 +19,14 @@
     "unavailable": "El servicio no está disponible ahora mismo. Inténtalo de nuevo en unos minutos.",
     "deadline-exceeded": "La operación ha tardado demasiado. Inténtalo de nuevo.",
     "unknown": "Ha ocurrido un error inesperado. Inténtalo de nuevo."
+  },
+  "invite": {
+    "accept": {
+      "serverNotConfigured": "El servidor no tiene configuradas las credenciales de Firebase Admin (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY).",
+      "invalidSession": "Sesión no válida. Vuelve a iniciar sesión e inténtalo de nuevo.",
+      "notFound": "Esta invitación no existe o ha caducado.",
+      "unavailable": "Esta invitación ya no está disponible.",
+      "planGone": "El plan de boda asociado a esta invitación ya no existe."
+    }
   }
 }

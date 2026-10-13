@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   DropdownMenu,
@@ -17,25 +18,24 @@ import { cn } from "@/lib/utils";
 // sobre su fondo y sobre la tarjeta crema (#F8F5F1).
 export const RSVP_ORDER: RsvpStatus[] = ["confirmed", "pending", "declined"];
 
-export const RSVP_CONFIG: Record<RsvpStatus, { label: string; badge: string; active: string }> = {
+// El texto sale de guests:rsvp.<estado>.
+export const RSVP_CONFIG: Record<RsvpStatus, { badge: string; active: string }> = {
   confirmed: {
-    label: "Confirmado",
     badge: "border-transparent bg-sage-pale text-ink",
     active: "border-sage bg-sage-pale text-ink",
   },
   pending: {
-    label: "Pendiente",
     badge: "border-line-strong bg-transparent text-ink-muted",
     active: "border-line-strong bg-page text-ink-on-lilac",
   },
   declined: {
-    label: "No asiste",
     badge: "border-transparent bg-lilac-soft text-ink-muted dark:text-ink",
     active: "border-line-strong bg-lilac-soft text-ink-on-lilac",
   },
 };
 
 export function RsvpBadge({ status, className }: { status: RsvpStatus; className?: string }) {
+  const { t } = useTranslation("guests");
   const config = RSVP_CONFIG[status];
   return (
     <span
@@ -46,7 +46,7 @@ export function RsvpBadge({ status, className }: { status: RsvpStatus; className
       )}
     >
       {status === "confirmed" && <CheckIcon className="size-3" aria-hidden="true" />}
-      {config.label}
+      {t(`rsvp.${status}`)}
     </span>
   );
 }
@@ -61,12 +61,13 @@ export function RsvpMenu({
   value: RsvpStatus;
   onChange: (status: RsvpStatus) => void;
 }) {
+  const { t } = useTranslation("guests");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          aria-label={`Respuesta de ${name}: ${RSVP_CONFIG[value].label}. Cambiar`}
+          aria-label={t("rsvp.changeAria", { name, status: t(`rsvp.${value}`) })}
           className={cn(
             "group -ml-1 inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-1.5 transition-colors hover:bg-lilac-soft data-[state=open]:bg-lilac-soft",
             ROW_FOCUS
@@ -90,7 +91,7 @@ export function RsvpMenu({
               value={status}
               className="rounded-lg py-2 text-sm focus:bg-lilac-soft focus:text-ink"
             >
-              {RSVP_CONFIG[status].label}
+              {t(`rsvp.${status}`)}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
@@ -109,10 +110,11 @@ export function RsvpSegmented({
   value: RsvpStatus;
   onChange: (status: RsvpStatus) => void;
 }) {
+  const { t } = useTranslation("guests");
   return (
     <div
       role="group"
-      aria-label={`Respuesta de ${name}`}
+      aria-label={t("rsvp.groupAria", { name })}
       className="grid grid-cols-3 gap-1 rounded-full border border-line-strong bg-raised p-1"
     >
       {RSVP_ORDER.map((status) => {
@@ -132,7 +134,7 @@ export function RsvpSegmented({
             )}
           >
             {active && status === "confirmed" && <CheckIcon className="size-3.5" aria-hidden="true" />}
-            {RSVP_CONFIG[status].label}
+            {t(`rsvp.${status}`)}
           </button>
         );
       })}

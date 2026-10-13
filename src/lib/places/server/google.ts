@@ -13,8 +13,11 @@ export const DETAILS_MASK =
 export class GoogleError extends Error {
   /** Estado HTTP que devolvemos nosotros al cliente. */
   status: number;
-  constructor(message: string, status: number) {
-    super(message);
+  /** Clave de vendors:places.errors.<code>; el idioma lo pone quien responde (jsonError). */
+  code: string;
+  constructor(code: string, status: number) {
+    super(code);
+    this.code = code;
     this.status = status;
   }
 }
@@ -38,7 +41,7 @@ export interface RawPlace {
 
 function apiKey(): string {
   const key = process.env.GOOGLE_PLACES_API_KEY;
-  if (!key) throw new GoogleError("La búsqueda en Google Maps no está configurada en el servidor.", 503);
+  if (!key) throw new GoogleError("notConfigured", 503);
   return key;
 }
 
@@ -62,7 +65,7 @@ export async function googleFetch<T>(
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch {
-    throw new GoogleError("Google Maps no responde ahora mismo. Inténtalo de nuevo en un momento.", 504);
+    throw new GoogleError("googleTimeout", 504);
   }
   if (!res.ok) {
     let detail = "";
@@ -73,10 +76,10 @@ export async function googleFetch<T>(
       // sin cuerpo
     }
     console.error(`Places API ${init.method} ${path.split("?")[0]} -> ${res.status} ${detail}`.replaceAll(key, "***"));
-    if (res.status === 404) throw new GoogleError("No encontramos ese lugar en Google Maps.", 404);
-    if (res.status === 400) throw new GoogleError("Google Maps no ha entendido la consulta.", 400);
-    if (res.status === 429) throw new GoogleError("Demasiadas búsquedas seguidas. Espera un momento.", 429);
-    throw new GoogleError("No se pudo consultar Google Maps ahora mismo.", 502);
+    if (res.status === 404) throw new GoogleError("placeNotFound", 404);
+    if (res.status === 400) throw new GoogleError("googleBadRequest", 400);
+    if (res.status === 429) throw new GoogleError("tooManyRequests", 429);
+    throw new GoogleError("googleUnavailable", 502);
   }
   return (await res.json()) as T;
 }

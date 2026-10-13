@@ -1,1 +1,392 @@
-{}
+{
+  "actions": {
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "bookingTypes": {
+    "flight": "Vuelo",
+    "hotel": "Hotel",
+    "excursion": "Excursión",
+    "insurance": "Seguro",
+    "other": "Otro"
+  },
+  "page": {
+    "loading": "Cargando la luna de miel",
+    "loadError": {
+      "title": "No hemos podido cargar la luna de miel",
+      "text": "Comprueba tu conexión y vuelve a intentarlo en unos segundos. Tus datos siguen guardados."
+    },
+    "tabsLabel": "Secciones de la luna de miel",
+    "tabs": {
+      "destinations": "Destinos",
+      "itinerary": "Itinerario",
+      "bookings": "Reservas",
+      "packing": "Maleta"
+    },
+    "seedError": "No se ha podido preparar la lista de la maleta. Puedes cargarla desde «Maleta y papeles»."
+  },
+  "hero": {
+    "kicker": "Después del gran día",
+    "title": "Luna de miel",
+    "subtitle": "Destinos, itinerario, reservas y maleta: todo el viaje en un solo sitio, sin prisas.",
+    "destination": {
+      "label": "Destino",
+      "toChoose": "Por elegir",
+      "noIdeas": "Sin ideas aún",
+      "chosen": "Destino elegido",
+      "ideas_one": "{{count}} idea en la lista",
+      "ideas_other": "{{count}} ideas en la lista"
+    },
+    "itinerary": {
+      "label": "Itinerario",
+      "days_one": "{{count}} día",
+      "days_other": "{{count}} días",
+      "empty": "Aún sin planificar",
+      "planned": "planificados"
+    },
+    "budget": {
+      "label": "Presupuesto",
+      "over": "por encima del total",
+      "left": "te quedan por reservar",
+      "noBudget": "reservado, sin presupuesto fijado"
+    },
+    "packing": {
+      "label": "Maleta",
+      "progress": "{{done}} de {{total}}",
+      "noList": "Sin lista",
+      "ready": "{{percent}}% preparada",
+      "preparing": "se prepara al entrar"
+    }
+  },
+  "destinations": {
+    "title": "Destinos e ideas",
+    "description": "Reúne los sitios que te ilusionan, vota y elige uno.",
+    "listLabel": "Destinos candidatos",
+    "imageAlt": "Imagen de {{name}}",
+    "approxPrice": "Precio aproximado:",
+    "newTab": "(se abre en una pestaña nueva)",
+    "badges": {
+      "chosen": "Elegido",
+      "topVoted": "Más votado"
+    },
+    "voteAria_one": "Me gusta «{{name}}». {{count}} voto",
+    "voteAria_other": "Me gusta «{{name}}». {{count}} votos",
+    "voteAriaMine_one": "Me gusta «{{name}}». {{count}} voto, incluido el tuyo",
+    "voteAriaMine_other": "Me gusta «{{name}}». {{count}} votos, incluido el tuyo",
+    "actions": {
+      "choose": "Elegir",
+      "unchoose": "Quitar elección",
+      "editAria": "Editar «{{name}}»",
+      "deleteAria": "Eliminar «{{name}}»"
+    },
+    "announce": {
+      "liked": "Te gusta «{{name}}»",
+      "unliked": "Ya no te gusta «{{name}}»",
+      "deleted": "Destino «{{name}}» eliminado"
+    },
+    "toasts": {
+      "chosen": "«{{name}}» elegido como destino",
+      "unchosen": "«{{name}}» ya no es el destino elegido",
+      "deleted": "Destino eliminado"
+    },
+    "errors": {
+      "vote": "No se ha podido guardar tu voto.",
+      "choose": "No se ha podido cambiar el destino elegido.",
+      "delete": "No se ha podido eliminar el destino."
+    },
+    "empty": {
+      "title": "Aún no hay destinos en la lista",
+      "text": "Apunta playas, ciudades o rutas con las que sueñas. Cada persona del plan puede votar con un corazón y, cuando lo tengas claro, marca uno como elegido.",
+      "action": "Añadir el primer destino"
+    },
+    "form": {
+      "add": "Añadir destino",
+      "newTitle": "Nuevo destino",
+      "editTitle": "Editar destino",
+      "name": "Destino",
+      "namePlaceholder": "Bali, Maldivas, Costa Rica…",
+      "country": "País",
+      "countryPlaceholder": "Indonesia",
+      "price": "Precio aproximado (€)",
+      "notes": "Notas",
+      "notesPlaceholder": "Mejor época, qué nos atrae, cómo se llega…",
+      "link": "Enlace",
+      "optional": "(opcional)",
+      "image": "Imagen",
+      "imageOptional": "(dirección web, opcional)",
+      "imagePlaceholder": "https://…/foto.jpg",
+      "imageHelp": "Se verá como miniatura. Sin imagen, se muestra un dibujo.",
+      "errors": {
+        "price": "Escribe un importe válido, por ejemplo 1800.",
+        "link": "El enlace no es válido. Debe empezar por http o https.",
+        "image": "La dirección de la imagen no es válida."
+      },
+      "toasts": {
+        "updated": "Destino actualizado",
+        "added": "Destino añadido",
+        "error": "No se ha podido guardar el destino."
+      }
+    }
+  },
+  "itinerary": {
+    "title": "Itinerario por días",
+    "description": "Qué hacer cada día, con su lugar y sus horas.",
+    "listLabel": "Días del viaje",
+    "takeoff": "Despegamos",
+    "day": "Día {{day}}",
+    "dayLabel": "el día {{day}}",
+    "dayLabelPlace": "el día {{day}} ({{place}})",
+    "moveUp": "Subir {{label}}",
+    "moveDown": "Bajar {{label}}",
+    "editAria": "Editar {{label}}",
+    "deleteAria": "Eliminar {{label}}",
+    "noActivities": "Sin actividades apuntadas.",
+    "addActivities": "Añadir actividades",
+    "announce": {
+      "moved": "Día {{day}} movido a la posición {{position}}"
+    },
+    "toasts": {
+      "deleted": "Día {{day}} eliminado"
+    },
+    "errors": {
+      "move": "No se ha podido mover el día.",
+      "delete": "No se ha podido eliminar el día."
+    },
+    "empty": {
+      "title": "El itinerario está en blanco",
+      "text": "Ve montando el viaje día a día: dónde dormir, qué ver y a qué hora sale cada plan. Siempre podrás cambiar el orden.",
+      "action": "Añadir el primer día"
+    },
+    "form": {
+      "add": "Añadir día",
+      "newTitle": "Nuevo día",
+      "editTitle": "Editar día",
+      "place": "Lugar",
+      "placePlaceholder": "Ubud, isla de Gili, vuelo de ida…",
+      "date": "Fecha",
+      "optional": "(opcional)",
+      "activities": "Actividades",
+      "noActivities": "Sin actividades todavía. Añade planes con su hora si la tienen.",
+      "timeAria": "Hora de la actividad {{n}} (opcional)",
+      "activityAria": "Actividad {{n}}",
+      "activityPlaceholder": "Snorkel, cena en la playa…",
+      "moveUp": "Subir la actividad {{n}}",
+      "moveDown": "Bajar la actividad {{n}}",
+      "remove": "Quitar la actividad {{n}}",
+      "addActivity": "Añadir actividad",
+      "errors": {
+        "place": "Escribe el lugar de este día."
+      },
+      "toasts": {
+        "updated": "Día actualizado",
+        "added": "Día añadido al itinerario",
+        "error": "No se ha podido guardar el día."
+      }
+    }
+  },
+  "bookings": {
+    "title": "Reservas y presupuesto",
+    "description": "Vuelos, hoteles y excursiones, con lo que llevas pagado.",
+    "listLabel": "Reservas",
+    "noDate": "Sin fecha",
+    "code": "Código",
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "markPaidAria": "Marcar «{{name}}» como pagado",
+    "deleteAria": "Eliminar «{{name}}»",
+    "editAria": "Editar «{{name}}»",
+    "announce": {
+      "paid": "«{{name}}»: pagado",
+      "unpaid": "«{{name}}»: pendiente de pago",
+      "deleted": "Reserva «{{name}}» eliminada"
+    },
+    "toasts": {
+      "deleted": "Reserva eliminada"
+    },
+    "errors": {
+      "payment": "No se ha podido actualizar el pago. Inténtalo de nuevo.",
+      "delete": "No se ha podido eliminar la reserva."
+    },
+    "budget": {
+      "overBy": "Por encima del presupuesto",
+      "left": "Te queda",
+      "ofPrefix": "de ",
+      "ofSuffix": " para la luna de miel",
+      "barLabel": "Has reservado el {{percent}}% del presupuesto de la luna de miel",
+      "bookedPrefix": "Reservado ",
+      "ofTotal": " del total",
+      "rebalance": ". Es un buen momento para reajustar con calma.",
+      "setPrompt": "Fija cuánto quieres gastar en el viaje y verás cuánto te queda según vayas apuntando reservas. Es independiente del presupuesto de la boda."
+    },
+    "stats": {
+      "booked": "Reservado",
+      "bookedDetail_one": "{{count}} reserva en total",
+      "bookedDetail_other": "{{count}} reservas en total",
+      "paid": "Pagado",
+      "paidDetail_one": "{{paid}} de {{count}} reserva",
+      "paidDetail_other": "{{paid}} de {{count}} reservas",
+      "toPay": "Por pagar",
+      "toPayDetail": "reservado y todavía pendiente"
+    },
+    "empty": {
+      "title": "Aún no hay reservas",
+      "text": "Apunta aquí los vuelos, el hotel, las excursiones o el seguro con su precio y su código de confirmación, y marca lo que ya está pagado.",
+      "action": "Añadir la primera reserva"
+    },
+    "form": {
+      "add": "Añadir reserva",
+      "newTitle": "Nueva reserva",
+      "editTitle": "Editar reserva",
+      "type": "Tipo",
+      "name": "Nombre",
+      "namePlaceholder": "Vuelo Madrid – Denpasar, Hotel Sunset…",
+      "date": "Fecha",
+      "optional": "(opcional)",
+      "price": "Precio (€)",
+      "code": "Código de confirmación",
+      "alreadyPaid": "Ya está pagado",
+      "errors": {
+        "price": "Escribe un importe válido, por ejemplo 450 o 1.250,50."
+      },
+      "toasts": {
+        "updated": "Reserva actualizada",
+        "added": "Reserva añadida",
+        "error": "No se ha podido guardar la reserva."
+      }
+    },
+    "budgetDialog": {
+      "set": "Fijar presupuesto",
+      "change": "Cambiar presupuesto",
+      "title": "Presupuesto de la luna de miel",
+      "total": "Total disponible (€)",
+      "help": "Es independiente del presupuesto de la boda. Déjalo vacío para quitarlo.",
+      "error": "Escribe un importe válido, por ejemplo 4000.",
+      "saved": "Presupuesto de la luna de miel guardado",
+      "saveError": "No se ha podido guardar el presupuesto."
+    }
+  },
+  "packing": {
+    "title": "Maleta y papeles",
+    "description": "Todo lo que no se puede olvidar, para ir tachando.",
+    "groups": {
+      "documents": "Papeles",
+      "health": "Salud",
+      "clothing": "Ropa",
+      "tech": "Tecnología",
+      "other": "Otros"
+    },
+    "groupDone": "Preparados:",
+    "deleteAria": "Quitar «{{name}}» de la lista",
+    "addForm": {
+      "label": "Añadir a la maleta",
+      "item": "Añadir a la lista",
+      "placeholder": "Libro, gafas de snorkel…",
+      "group": "Grupo",
+      "add": "Añadir"
+    },
+    "restoreSuggested": "Recuperar sugeridos ({{count}})",
+    "loadSuggested": "Cargar lista sugerida",
+    "progress": {
+      "label": "Maleta preparada",
+      "value": "{{done}} de {{total}}",
+      "allDone": "Todo listo para despegar.",
+      "remaining_one": "Falta {{count}} cosa.",
+      "remaining_other": "Faltan {{count}} cosas.",
+      "barLabel": "Maleta preparada al {{percent}}%"
+    },
+    "empty": {
+      "title": "La maleta está vacía",
+      "preparingTitle": "Preparando tu lista…",
+      "text": "Has quitado todo de la lista. Puedes recuperar los artículos sugeridos o añadir los tuyos.",
+      "preparingText": "Estamos dejando lista una maleta con lo típico: papeles, salud, ropa y tecnología."
+    },
+    "announce": {
+      "added": "«{{name}}» añadido a {{group}}",
+      "packed": "«{{name}}»: en la maleta",
+      "pending": "«{{name}}»: pendiente",
+      "removed": "«{{name}}» eliminado de la lista"
+    },
+    "toasts": {
+      "deleted": "Artículo eliminado",
+      "restored_one": "Artículo sugerido recuperado",
+      "restored_other": "Artículos sugeridos recuperados"
+    },
+    "errors": {
+      "add": "No se ha podido añadir el artículo.",
+      "update": "No se ha podido actualizar el artículo.",
+      "delete": "No se ha podido eliminar el artículo.",
+      "restore": "No se ha podido cargar la lista sugerida."
+    },
+    "suggested": {
+      "passports": {
+        "label": "Pasaportes",
+        "note": "Comprueba que no caducan en los próximos 6 meses."
+      },
+      "nationalId": {
+        "label": "DNI"
+      },
+      "visas": {
+        "label": "Visados",
+        "note": "Mira si el destino los pide y con cuánta antelación."
+      },
+      "tickets": {
+        "label": "Billetes y reservas a mano",
+        "note": "En el móvil y, por si acaso, impresos."
+      },
+      "insurance": {
+        "label": "Seguro de viaje",
+        "note": "Con la póliza y el teléfono de asistencia guardados."
+      },
+      "cards": {
+        "label": "Tarjetas y algo de efectivo"
+      },
+      "vaccines": {
+        "label": "Vacunas",
+        "note": "Consúltalas en tu centro de salud con tiempo."
+      },
+      "firstAid": {
+        "label": "Botiquín y medicación habitual"
+      },
+      "sunscreen": {
+        "label": "Protector solar"
+      },
+      "repellent": {
+        "label": "Repelente de mosquitos"
+      },
+      "swimwear": {
+        "label": "Bañador"
+      },
+      "flipFlops": {
+        "label": "Chanclas y sandalias"
+      },
+      "lightClothes": {
+        "label": "Ropa ligera y fresca"
+      },
+      "hat": {
+        "label": "Gorra o sombrero y gafas de sol"
+      },
+      "shoes": {
+        "label": "Calzado cómodo para caminar"
+      },
+      "jacket": {
+        "label": "Una prenda de abrigo ligera",
+        "note": "Para vuelos, noches y excursiones."
+      },
+      "adapter": {
+        "label": "Adaptador de enchufe"
+      },
+      "chargers": {
+        "label": "Cargadores y batería externa"
+      },
+      "mobileData": {
+        "label": "Datos móviles o eSIM"
+      },
+      "towel": {
+        "label": "Toalla de playa"
+      },
+      "lock": {
+        "label": "Candado para la maleta"
+      }
+    }
+  }
+}

@@ -1,23 +1,23 @@
 import { CheckIcon, HeartIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import type { VendorStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // Flujo de decisión en tono calmado. Todos con texto >= 4.5:1 sobre su fondo.
-export const VENDOR_STATUS: Record<VendorStatus, { label: string; className: string }> = {
-  exploring: { label: "Explorando", className: "border-line-strong bg-lilac-soft text-ink" },
-  visited: { label: "Visitada", className: "border-transparent bg-lilac-mid text-ink" },
-  favorite: { label: "Favorita", className: "border-transparent bg-sage-pale text-ink" },
-  chosen: { label: "Elegida", className: "border-transparent bg-deep text-on-solid" },
+// El texto sale de vendors:status.<estado>.
+export const VENDOR_STATUS: Record<VendorStatus, { className: string }> = {
+  exploring: { className: "border-line-strong bg-lilac-soft text-ink" },
+  visited: { className: "border-transparent bg-lilac-mid text-ink" },
+  favorite: { className: "border-transparent bg-sage-pale text-ink" },
+  chosen: { className: "border-transparent bg-deep text-on-solid" },
 };
 
-export const VENDOR_STATUS_OPTIONS = (Object.keys(VENDOR_STATUS) as VendorStatus[]).map((value) => ({
-  value,
-  label: VENDOR_STATUS[value].label,
-}));
+export const VENDOR_STATUS_VALUES = Object.keys(VENDOR_STATUS) as VendorStatus[];
 
 export function VendorStatusBadge({ status }: { status: VendorStatus }) {
+  const { t } = useTranslation("vendors");
   const config = VENDOR_STATUS[status];
   return (
     <Badge
@@ -26,7 +26,7 @@ export function VendorStatusBadge({ status }: { status: VendorStatus }) {
     >
       {status === "favorite" && <HeartIcon className="size-3" aria-hidden="true" />}
       {status === "chosen" && <CheckIcon className="size-3" aria-hidden="true" />}
-      {config.label}
+      {t(`status.${status}`)}
     </Badge>
   );
 }

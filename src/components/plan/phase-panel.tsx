@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CheckIcon, LockIcon, LockOpenIcon, XIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { TabsContent } from "@/components/ui/tabs";
 import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
@@ -64,6 +65,7 @@ export function PhasePanel({
   /** Sale desvaneciéndose hacia la izquierda (la fase recién completada, antes de cambiar). */
   animateOut?: boolean;
 }) {
+  const { t } = useTranslation("plan");
   // Al desbloquear desaparece el candado que tenía el foco: llévalo al panel.
   const panelRef = React.useRef<HTMLDivElement>(null);
   const wasLocked = React.useRef(locked);
@@ -85,11 +87,11 @@ export function PhasePanel({
           className="flex items-start gap-3 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge py-2.5 pl-4 pr-2 text-sm text-ink"
         >
           <p className="flex-1 py-1">
-            Te recomendamos terminar «{softNote}» primero, pero puedes avanzar aquí cuando quieras.
+            {t("panel.softNote", { name: softNote })}
           </p>
           <button
             type="button"
-            aria-label="Cerrar aviso"
+            aria-label={t("panel.dismissNote")}
             onClick={onDismissNote}
             className={cn(
               "flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-raised/70",
@@ -108,7 +110,7 @@ export function PhasePanel({
           className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-sage-pale px-4 py-3 text-ink"
         >
           <CheckIcon className="size-5 shrink-0" aria-hidden="true" />
-          <p className="flex-1 font-display text-base font-semibold">¡{name}, listo!</p>
+          <p className="flex-1 font-display text-base font-semibold">{t("panel.done", { name })}</p>
           {nextPhaseName && (
             <button
               type="button"
@@ -119,7 +121,7 @@ export function PhasePanel({
                 "focus-visible:ring-offset-sage-pale"
               )}
             >
-              Seguir con «{nextPhaseName}»
+              {t("panel.goToNext", { name: nextPhaseName })}
             </button>
           )}
         </div>
@@ -190,7 +192,7 @@ export function PhasePanel({
             ) : (
               <LockIcon className="size-4" aria-hidden="true" />
             )}
-            {locked ? "Desbloquear fase" : "Bloquear fase"}
+            {locked ? t("panel.unlock") : t("panel.lock")}
           </button>
         </div>
       )}

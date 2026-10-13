@@ -2,9 +2,11 @@
 
 import * as React from "react";
 import { ChevronDownIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import { TeamDialog } from "@/components/members/team-dialog";
-import { ROLE_LABEL } from "@/components/members/roles";
+import { roleLabel } from "@/components/members/roles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +15,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/lib/i18n/provider";
 import { cn, daysUntil, formatDate, initials } from "@/lib/utils";
 import type { PlanMember, WeddingPlan } from "@/lib/types";
 import type { FeaturedPlanData } from "./helpers";
@@ -25,25 +28,26 @@ const QUIET_BUTTON = cn(
 
 /** Cuenta atrás tranquila: número grande y la fecha en pequeño. */
 function Countdown({ plan, className }: { plan: WeddingPlan; className?: string }) {
+  const { t } = useTranslation("dashboard");
+  const { lang } = useLanguage();
   const days = daysUntil(plan.weddingDate);
+  const date = formatDate(plan.weddingDate, lang);
 
   let body: React.ReactNode;
   if (days === null) {
-    body = <p className="font-display text-2xl font-medium text-ink">Aún sin fecha</p>;
+    body = <p className="font-display text-2xl font-medium text-ink">{t("countdown.noDate")}</p>;
   } else if (days === 0) {
     body = (
       <>
-        <p className="font-display text-3xl font-medium text-ink">¡Hoy es el gran día!</p>
-        <p className="mt-1 text-sm text-ink-muted">{formatDate(plan.weddingDate)}</p>
+        <p className="font-display text-3xl font-medium text-ink">{t("countdown.today")}</p>
+        <p className="mt-1 text-sm text-ink-muted">{date}</p>
       </>
     );
   } else if (days < 0) {
     body = (
       <>
-        <p className="font-display text-2xl font-medium text-ink">Vuestro gran día</p>
-        <p className="mt-1 text-sm text-ink-muted">
-          fue el {formatDate(plan.weddingDate)}
-        </p>
+        <p className="font-display text-2xl font-medium text-ink">{t("countdown.bigDay")}</p>
+        <p className="mt-1 text-sm text-ink-muted">{t("countdown.wasOn", { date })}</p>
       </>
     );
   } else {
@@ -53,11 +57,9 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
           <span className="font-display text-6xl font-medium leading-none tabular-nums text-ink sm:text-7xl">
             {days}
           </span>
-          <span className="font-display text-xl text-ink">{days === 1 ? "día" : "días"}</span>
+          <span className="font-display text-xl text-ink">{t("countdown.days", { count: days })}</span>
         </p>
-        <p className="mt-2 text-sm text-ink-muted">
-          hasta el {formatDate(plan.weddingDate)}
-        </p>
+        <p className="mt-2 text-sm text-ink-muted">{t("countdown.until", { date })}</p>
       </>
     );
   }
@@ -74,9 +76,9 @@ function Countdown({ plan, className }: { plan: WeddingPlan; className?: string 
   );
 }
 
-function memberLabel(member: PlanMember, currentUserId: string, userName: string | null) {
-  if (member.userId === currentUserId) return userName || "Tú";
-  return member.invitedEmail || "Invitado/a";
+function memberLabel(member: PlanMember, currentUserId: string, userName: string | null, t: TFunction) {
+  if (member.userId === currentUserId) return userName || t("team.you");
+  return member.invitedEmail || t("team.guestFallback");
 }
 
 /** Avatares apilados que abren el modal de equipo. */
@@ -91,6 +93,7 @@ function TeamButton({
   currentUserId: string;
   userName: string | null;
 }) {
+  const { t } = useTranslation("dashboard");
   const [open, setOpen] = React.useState(false);
   // El botón no es un <DialogTrigger>: devolvemos el foco a mano al cerrar.
   const openerRef = React.useRef<HTMLElement | null>(null);
@@ -103,20 +106,25 @@ function TeamButton({
 
   if (waiting) {
     return (
-      <span role="status" aria-label="Cargando equipo" className="flex h-10 items-center">
+      <span role="status" aria-label={t("team.loadingTeam")} className="flex h-10 items-center">
         <Skeleton className="size-8" />
       </span>
     );
   }
 
-  const names = shown.map((m) => `${memberLabel(m, currentUserId, userName)}, ${ROLE_LABEL[m.role]}`).join("; ");
+  const names = shown
+    .map((m) => `${memberLabel(m, currentUserId, userName, t)}, ${roleLabel(m.role, t)}`)
+    .join("; ");
 
   return (
     <>
       <button
         type="button"
         aria-haspopup="dialog"
-        aria-label={`Equipo del plan: ${names || "solo tú"}${extra > 0 ? ` y ${extra} más` : ""}. Abrir`}
+        aria-label={t("team.buttonAria", {
+          names: names || t("team.onlyYou"),
+          more: extra > 0 ? t("team.andMore", { count: extra }) : "",
+        })}
         onClick={(e) => {
           openerRef.current = e.currentTarget;
           setOpen(true);
@@ -132,7 +140,7 @@ function TeamButton({
                 i % 2 === 0 ? "bg-lilac-mid" : "bg-sage-pale"
               )}
             >
-              {initials(memberLabel(m, currentUserId, userName))}
+              {initials(memberLabel(m, currentUserId, userName, t))}
             </span>
           ))}
           {extra > 0 && (
@@ -141,7 +149,7 @@ function TeamButton({
             </span>
           )}
         </span>
-        <span aria-hidden="true">{alone ? "Invitar a alguien" : "Equipo"}</span>
+        <span aria-hidden="true">{alone ? t("team.inviteSomeone") : t("team.title")}</span>
       </button>
       <TeamDialog
         open={open}
@@ -169,10 +177,12 @@ function PlanSwitcher({
   selectedId: string;
   onSelect: (planId: string) => void;
 }) {
+  const { t } = useTranslation("dashboard");
+  const { lang } = useLanguage();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={cn(QUIET_BUTTON, "data-[state=open]:bg-lilac-soft")}>
-        Tus planes
+        {t("planSwitcher.trigger")}
         <ChevronDownIcon className="size-4" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -180,7 +190,7 @@ function PlanSwitcher({
         className="w-72 max-w-[calc(100vw-2rem)] rounded-xl border-line bg-surface p-1.5 text-ink shadow-none"
       >
         <DropdownMenuLabel className="px-2 py-1.5 text-sm font-medium text-ink-muted">
-          Elige qué plan ver
+          {t("planSwitcher.label")}
         </DropdownMenuLabel>
         <DropdownMenuRadioGroup value={selectedId} onValueChange={onSelect}>
           {plans.map((plan) => (
@@ -191,7 +201,7 @@ function PlanSwitcher({
             >
               <span className="w-full truncate font-medium">{plan.title}</span>
               <span className="text-xs text-ink-muted">
-                {plan.weddingDate ? formatDate(plan.weddingDate) : "Sin fecha todavía"}
+                {plan.weddingDate ? formatDate(plan.weddingDate, lang) : t("planSwitcher.noDate")}
               </span>
             </DropdownMenuRadioItem>
           ))}
@@ -222,6 +232,7 @@ export function HomeHeader({
   userName: string | null;
   onSelectPlan: (planId: string) => void;
 }) {
+  const { t } = useTranslation("dashboard");
   return (
     <header
       aria-labelledby="home-greeting"
@@ -232,7 +243,7 @@ export function HomeHeader({
           id="home-greeting"
           className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl"
         >
-          {greetingName ? `Hola, ${greetingName}` : "Hola"}
+          {greetingName ? t("header.greeting", { name: greetingName }) : t("header.greetingAnon")}
         </h1>
         <p
           className="text-script-accent mt-1 text-balance break-words text-[1.75rem] sm:text-4xl"

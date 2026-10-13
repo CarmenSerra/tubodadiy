@@ -61,9 +61,9 @@ export function coupleNames(
   const b = saveTheDate?.name2.trim() ?? "";
   if (a && b) return `${a} & ${b}`;
 
-  const title = (plan?.title ?? "").trim().replace(/^boda\s+(de|del)\s+/i, "");
+  const title = (plan?.title ?? "").trim().replace(/^(?:boda\s+(?:de|del)|wedding\s+of)\s+/i, "");
   // Un título como «Nuestra boda» no son nombres: hace falta un «y», «&» o «+» entre dos.
-  const parts = title.split(/\s+(?:y|e|&|\+)\s+/i).map((p) => p.trim());
+  const parts = title.split(/\s+(?:y|e|and|&|\+)\s+/i).map((p) => p.trim());
   if (parts.length === 2 && parts.every((p) => p && p.split(/\s+/).length <= 3)) {
     return `${parts[0]} & ${parts[1]}`;
   }
@@ -73,7 +73,7 @@ export function coupleNames(
 // ---- Lugares (proveedores de «Finca») ----
 
 const STATUS_RANK: Record<VendorStatus, number> = { chosen: 0, favorite: 1, visited: 2, exploring: 3 };
-const VENUE_KEYS = new Set(["finca", "fincas"]);
+const VENUE_KEYS = new Set(["finca", "fincas", "venue", "venues"]);
 
 /** Opciones de la categoría «Finca», la más avanzada primero (elegida → favorita → visitada → explorando). */
 export function venueVendors(vendors: Vendor[]): Vendor[] {
@@ -85,8 +85,8 @@ export function venueVendors(vendors: Vendor[]): Vendor[] {
 }
 
 const mentions = (v: Vendor, re: RegExp) => re.test(normalize(`${v.name} ${v.notes}`));
-const CEREMONY_WORDS = /ceremoni|iglesia|parroquia|ermita|ayuntamiento|juzgado/;
-const BANQUET_WORDS = /banquete|celebracion|comida|convite/;
+const CEREMONY_WORDS = /ceremoni|ceremony|iglesia|church|parroquia|ermita|chapel|ayuntamiento|town hall|juzgado/;
+const BANQUET_WORDS = /banquete|banquet|celebracion|celebration|reception|comida|lunch|dinner|convite/;
 
 function placeFromVendor(v: Vendor | undefined): Partial<InvitationPlace> {
   if (!v) return {};
@@ -110,15 +110,21 @@ function pickItem(items: TimelineItem[], tests: RegExp[], exclude?: RegExp): Tim
 
 /** Momento del cronograma que marca la ceremonia (el que se llama «Ceremonia», no «Llegada a la ceremonia»). */
 export function ceremonyItem(timeline: TimelineItem[]): TimelineItem | undefined {
-  return pickItem(timeline, [/^ceremonia\b/, /\bceremonia\b/, /\bboda (civil|religiosa)\b/], /llegada|ensayo|fotos/);
+  return pickItem(timeline, [/^ceremon(ia|y)\b/, /\bceremon(ia|y)\b/, /\bboda (civil|religiosa)\b/, /\b(civil|religious) wedding\b/],
+    /llegada|arrival|ensayo|rehearsal|fotos|photos/);
 }
 
 /** Momento que marca el banquete; si no hay, el cóctel (cuando empieza la celebración). */
 export function banquetItem(timeline: TimelineItem[]): TimelineItem | undefined {
   return pickItem(
     timeline,
-    [/^banquete\b/, /^(comida|cena|almuerzo|convite)\b/, /\b(banquete|comida|cena|almuerzo)\b/, /\b(coctel|cocktail|aperitivo)\b/],
-    /entrada|llegada|fin\b/
+    [
+      /^(banquete|banquet)\b/,
+      /^(comida|cena|almuerzo|convite|lunch|dinner|reception)\b/,
+      /\b(banquete|banquet|comida|cena|almuerzo|lunch|dinner|reception)\b/,
+      /\b(coctel|cocktail|aperitivo)\b/,
+    ],
+    /entrada|entrance|llegada|arrival|fin\b|end\b/
   );
 }
 
@@ -160,18 +166,18 @@ export function derivePlanFill({ plan, saveTheDate, vendors, timeline }: PlanSou
   return fill;
 }
 
-/** Etiquetas para el aviso «Rellenado con…». */
-export const FILL_GROUP_LABEL: Record<FillKey, string> = {
-  names: "nombres",
-  date: "fecha",
-  "ceremony.name": "lugar",
-  "ceremony.address": "dirección",
-  "ceremony.mapUrl": "mapa",
-  "ceremony.time": "hora",
-  "banquet.name": "lugar",
-  "banquet.address": "dirección",
-  "banquet.mapUrl": "mapa",
-  "banquet.time": "hora",
+/** Grupo del aviso «Rellenado con…»; el texto sale de `invitation:editor.fill.groups.<grupo>`. */
+export const FILL_GROUP: Record<FillKey, "names" | "date" | "place" | "address" | "map" | "time"> = {
+  names: "names",
+  date: "date",
+  "ceremony.name": "place",
+  "ceremony.address": "address",
+  "ceremony.mapUrl": "map",
+  "ceremony.time": "time",
+  "banquet.name": "place",
+  "banquet.address": "address",
+  "banquet.mapUrl": "map",
+  "banquet.time": "time",
 };
 
 export interface FillResult {

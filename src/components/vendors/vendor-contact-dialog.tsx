@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import { ExternalLinkIcon, MailIcon, MapPinIcon, PhoneIcon, StickyNoteIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CTA_SECONDARY, IconCircle, LINK } from "@/components/dashboard/ui";
 import { DIALOG_CONTENT, DIALOG_TITLE } from "@/components/vendors/vendor-brand";
-import { mapsHref } from "@/components/vendors/vendor-model";
+import { categoryLabel, mapsHref } from "@/components/vendors/vendor-model";
 import { VendorPhoto } from "@/components/vendors/vendor-photo";
 import {
   Dialog,
@@ -40,6 +41,7 @@ function ContactRow({
 
 /** "Contacto" de una opción: solo se muestran los datos que existen. */
 export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
+  const { t } = useTranslation("vendors");
   const location = vendor.location?.trim() ?? "";
   const maps = mapsHref(vendor);
   const email = vendor.contactEmail.trim();
@@ -52,17 +54,17 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
       <DialogTrigger asChild>
         <button
           type="button"
-          aria-label={`Contacto de ${vendor.name}`}
+          aria-label={t("contact.ariaLabel", { name: vendor.name })}
           className={cn(CTA_SECONDARY, "h-10 px-4")}
         >
-          Contacto
+          {t("contact.button")}
         </button>
       </DialogTrigger>
       <DialogContent className={DIALOG_CONTENT}>
         <DialogHeader className="gap-1.5 pr-6">
           <DialogTitle className={DIALOG_TITLE}>{vendor.name}</DialogTitle>
           <DialogDescription className="text-sm text-ink-muted">
-            {vendor.category} · datos de contacto
+            {t("contact.description", { category: categoryLabel(vendor.category, t) })}
           </DialogDescription>
         </DialogHeader>
 
@@ -80,7 +82,7 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
         {hasAnything ? (
           <ul className="mt-6 flex flex-col gap-5">
             {(location || maps) && (
-              <ContactRow icon={<MapPinIcon />} label="Ubicación">
+              <ContactRow icon={<MapPinIcon />} label={t("contact.location")}>
                 {location && <p>{location}</p>}
                 {maps && (
                   <a
@@ -89,37 +91,36 @@ export function VendorContactDialog({ vendor }: { vendor: Vendor }) {
                     rel="noopener noreferrer"
                     className={cn(LINK, "mt-1 inline-flex items-center gap-1.5 text-sm")}
                   >
-                    Ver en Google Maps
+                    {t("contact.viewOnMaps")}
                     <ExternalLinkIcon className="size-3.5" aria-hidden="true" />
-                    <span className="sr-only">(se abre en una pestaña nueva)</span>
+                    <span className="sr-only">{t("contact.newTab")}</span>
                   </a>
                 )}
               </ContactRow>
             )}
             {email && (
-              <ContactRow icon={<MailIcon />} label="Correo electrónico">
+              <ContactRow icon={<MailIcon />} label={t("contact.email")}>
                 <a href={`mailto:${email}`} className={cn(LINK, "break-all")}>
                   {email}
                 </a>
               </ContactRow>
             )}
             {phone && (
-              <ContactRow icon={<PhoneIcon />} label="Teléfono">
+              <ContactRow icon={<PhoneIcon />} label={t("contact.phone")}>
                 <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className={LINK}>
                   {phone}
                 </a>
               </ContactRow>
             )}
             {notes && (
-              <ContactRow icon={<StickyNoteIcon />} label="Notas">
+              <ContactRow icon={<StickyNoteIcon />} label={t("contact.notes")}>
                 <p className="whitespace-pre-line">{notes}</p>
               </ContactRow>
             )}
           </ul>
         ) : (
           <p className="mt-6 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge px-4 py-3.5 text-sm text-ink">
-            Todavía no has guardado datos de contacto de esta opción. Edítala con el lápiz de la
-            tarjeta para añadir la dirección, el correo electrónico o el teléfono.
+            {t("contact.empty")}
           </p>
         )}
       </DialogContent>

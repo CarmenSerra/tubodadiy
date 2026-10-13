@@ -2,14 +2,16 @@
 
 import * as React from "react";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { ChevronDownIcon, MailCheckIcon, MessageSquareQuoteIcon, UserPlusIcon, UtensilsIcon } from "lucide-react";
 
 import { CARD, IconCircle } from "@/components/dashboard/ui";
 import { ROW_FOCUS } from "@/components/guests/brand-dialog";
 import type { RsvpRecord } from "@/components/invitation/invitation-model";
+import { dateFnsLocale } from "@/lib/date-locale";
 import { mapRsvp, rsvpsQuery } from "@/lib/firebase/invitation";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { useLanguage } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
 const PREVIEW_COUNT = 3;
@@ -19,6 +21,7 @@ const PREVIEW_COUNT = 3;
  * la vista y el resto desplegable. No se pinta si todavía no ha respondido nadie.
  */
 export function InvitationResponses({ planId }: { planId: string }) {
+  const { t } = useTranslation("invitation");
   const { data, loading, error } = useCollection(rsvpsQuery(planId), mapRsvp);
   const [expanded, setExpanded] = React.useState(false);
 
@@ -36,10 +39,10 @@ export function InvitationResponses({ planId }: { planId: string }) {
         </IconCircle>
         <div className="min-w-0 flex-1">
           <h3 id="invitation-responses-title" className="font-display text-base font-semibold leading-snug text-ink-strong">
-            Respuestas de la invitación
+            {t("responses.title")}
           </h3>
           <p className="text-sm text-ink-muted">
-            {data.length} {data.length === 1 ? "respuesta" : "respuestas"} · {yes} {yes === 1 ? "asiste" : "asisten"}
+            {t("responses.count", { count: data.length })} · {t("responses.attending", { count: yes })}
           </p>
         </div>
       </div>
@@ -60,7 +63,7 @@ export function InvitationResponses({ planId }: { planId: string }) {
             ROW_FOCUS
           )}
         >
-          {expanded ? "Ver menos" : `Ver ${hidden} más`}
+          {expanded ? t("responses.showLess") : t("responses.showMore", { count: hidden })}
           <ChevronDownIcon
             aria-hidden="true"
             className={cn("size-4 transition-transform motion-reduce:transition-none", expanded && "rotate-180")}
@@ -72,7 +75,11 @@ export function InvitationResponses({ planId }: { planId: string }) {
 }
 
 function ResponseRow({ response: r }: { response: RsvpRecord }) {
-  const when = r.updatedAt ? formatDistanceToNow(r.updatedAt, { addSuffix: true, locale: es }) : "";
+  const { t } = useTranslation("invitation");
+  const { lang } = useLanguage();
+  const when = r.updatedAt
+    ? formatDistanceToNow(r.updatedAt, { addSuffix: true, locale: dateFnsLocale(lang) })
+    : "";
   return (
     <li className="flex flex-col gap-1.5 py-3 first:pt-1 last:pb-0">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -83,7 +90,7 @@ function ResponseRow({ response: r }: { response: RsvpRecord }) {
             r.attending ? "bg-sage-pale text-ink" : "bg-lilac-soft text-ink-muted dark:text-ink"
           )}
         >
-          {r.attending ? "Asiste" : "No asiste"}
+          {r.attending ? t("responses.row.attending") : t("responses.row.notAttending")}
         </span>
         {when && <span className="ml-auto text-xs text-ink-muted">{when}</span>}
       </div>
@@ -93,7 +100,7 @@ function ResponseRow({ response: r }: { response: RsvpRecord }) {
             <span className="flex items-start gap-1.5">
               <UserPlusIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span className="min-w-0 break-words">
-                Con acompañante{r.plusOneName ? `: ${r.plusOneName}` : ""}
+                {r.plusOneName ? t("responses.row.plusOneName", { name: r.plusOneName }) : t("responses.row.plusOne")}
               </span>
             </span>
           )}

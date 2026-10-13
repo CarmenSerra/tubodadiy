@@ -1,9 +1,10 @@
+import type { TFunction } from "i18next";
+
 import type { OnboardingExtras } from "@/lib/firebase/onboarding";
+import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
 import {
-  CEREMONY_OPTIONS,
-  DEFAULT_PLAN_TITLE,
   VENDOR_TYPES,
-  VENUE_SCOPE_OPTIONS,
+  defaultPlanTitle,
   formatCount,
   parseGuestList,
   screensFor,
@@ -30,7 +31,9 @@ export type SummaryKind =
 
 export interface SummaryLine {
   kind: SummaryKind;
+  /** Ya traducido. */
   label: string;
+  /** Ya traducido. */
   value: string;
 }
 
@@ -43,9 +46,9 @@ export interface Submission {
 const MAX_BUDGET = 1_000_000_000;
 const MAX_APPROX_GUESTS = 10_000;
 
-function budgetValue(raw: string): number | null {
+function budgetValue(raw: string, lang: Lang): number | null {
   if (!raw.trim()) return null;
-  const value = parseAmount(raw);
+  const value = parseAmount(raw, lang);
   if (Number.isNaN(value) || value <= 0 || value > MAX_BUDGET) return null;
   return Math.round(value * 100) / 100;
 }
@@ -57,28 +60,36 @@ function approxGuestsValue(raw: string): number | null {
   return Number.isInteger(value) && value > 0 && value <= MAX_APPROX_GUESTS ? value : null;
 }
 
-/** Errores de la pantalla (id del campo → mensaje); vacío si se puede avanzar. */
-export function validateScreen(screen: ScreenId, answers: OnboardingAnswers): Record<string, string> {
+/**
+ * Errores de la pantalla (id del campo → mensaje ya traducido); vacío si se
+ * puede avanzar. `t` es el de `useTranslation("onboarding")`.
+ */
+export function validateScreen(
+  screen: ScreenId,
+  answers: OnboardingAnswers,
+  t: TFunction,
+  lang: Lang = DEFAULT_LANG
+): Record<string, string> {
   const errors: Record<string, string> = {};
 
   if (screen === "budget" && answers.budget.trim()) {
-    const value = parseAmount(answers.budget);
-    if (Number.isNaN(value)) errors["onb-budget"] = "Escribe un importe válido, por ejemplo 12.000.";
-    else if (value < 0) errors["onb-budget"] = "El presupuesto no puede ser negativo.";
-    else if (value > MAX_BUDGET) errors["onb-budget"] = "Ese importe es demasiado grande.";
+    const value = parseAmount(answers.budget, lang);
+    if (Number.isNaN(value)) errors["onb-budget"] = t("errors.budgetInvalid");
+    else if (value < 0) errors["onb-budget"] = t("errors.budgetNegative");
+    else if (value > MAX_BUDGET) errors["onb-budget"] = t("errors.amountTooLarge");
   }
 
   if (screen === "approx" && answers.guestsApprox.trim() && approxGuestsValue(answers.guestsApprox) === null) {
-    errors["onb-approx"] = "Escribe un número entero, por ejemplo 120.";
+    errors["onb-approx"] = t("errors.guestsInvalid");
   }
 
   if (screen === "vendors") {
     for (const type of VENDOR_TYPES) {
       const v = answers.vendors[type.key];
       if (v?.on && v.price.trim()) {
-        const value = parseAmount(v.price);
+        const value = parseAmount(v.price, lang);
         if (Number.isNaN(value) || value < 0 || value > MAX_BUDGET) {
-          errors[`onb-vendor-price-${type.key}`] = "Escribe un importe válido, por ejemplo 1.500.";
+          errors[`onb-vendor-price-${type.key}`] = t("errors.priceInvalid");
         }
       }
     }
@@ -87,7 +98,12 @@ export function validateScreen(screen: ScreenId, answers: OnboardingAnswers): Re
   return errors;
 }
 
-export function buildSubmission(answers: OnboardingAnswers): Submission {
+/** Datos a crear y resumen (ya traducido con `t` de `useTranslation("onboarding")`). */
+export function buildSubmission(
+  answers: OnboardingAnswers,
+  t: TFunction,
+  lang: Lang = DEFAULT_LANG
+): Submission {
   const screens = screensFor(answers);
   const asks = (screen: ScreenId) => screens.includes(screen);
   const has = (key: OnboardingAnswers["have"][number]) => answers.mode === "advanced" && answers.have.includes(key);
@@ -96,26 +112,28 @@ export function buildSubmission(answers: OnboardingAnswers): Submission {
   const summary: SummaryLine[] = [];
 
   const weddingDate = asks("date") && answers.date ? answers.date : null;
-  if (weddingDate) summary.push({ kind: "date", label: "Fecha", value: formatDate(weddingDate) });
+  if (weddingDate) summary.push({ kind: "date", label: t("summary.labels.date"), value: formatDate(weddingDate, lang) });
 
-  const budgetTotal = (asks("budget") && budgetValue(answers.budget)) || 0;
-  if (budgetTotal > 0) summary.push({ kind: "budget", label: "Presupuesto", value: formatCurrency(budgetTotal) });
+  const budgetTotal = (asks("budget") && budgetValue(answers.budget, lang)) || 0;
+  if (budgetTotal > 0) summary.push({ kind: "budget", label: t("summary.labels.budget"), value: formatCurrency(budgetTotal, lang) });
 
   if (asks("ceremony") && answers.ceremony && answers.ceremony !== "unknown") {
     extras.ceremony = answers.ceremony;
-    const option = CEREMONY_OPTIONS.find((o) => o.value === answers.ceremony);
-    summary.push({ kind: "ceremony", label: "Ceremonia", value: option?.label ?? "" });
+    summary.push({
+      kind: "ceremony",
+      label: t("summary.labels.ceremony"),
+      value: t(`options.ceremony.${answers.ceremony}.label`),
+    });
   }
 
   const venueName = answers.venueName.trim();
   if (asks("venue") && venueName) {
     const location = answers.venueLocation.trim();
     extras.venue = { name: venueName, location, scope: answers.venueScope };
-    const scope = VENUE_SCOPE_OPTIONS.find((o) => o.value === answers.venueScope)?.label.toLowerCase();
     summary.push({
       kind: "venue",
-      label: "Lugar",
-      value: `${venueName}${location ? `, ${location}` : ""} (${answers.venueScope === "ambos" ? "ceremonia y banquete" : scope})`,
+      label: t("summary.labels.venue"),
+      value: `${venueName}${location ? `, ${location}` : ""} (${t(`summary.venueScope.${answers.venueScope}`)})`,
     });
   }
 
@@ -125,8 +143,8 @@ export function buildSubmission(answers: OnboardingAnswers): Submission {
       extras.guests = guests;
       summary.push({
         kind: "guests",
-        label: "Invitados",
-        value: `${formatCount(guests.length)} ${guests.length === 1 ? "invitado" : "invitados"} en la lista`,
+        label: t("summary.labels.guests"),
+        value: t("summary.guestsList", { count: guests.length, n: formatCount(guests.length, lang) }),
       });
     }
   }
@@ -134,7 +152,11 @@ export function buildSubmission(answers: OnboardingAnswers): Submission {
     const approx = approxGuestsValue(answers.guestsApprox);
     if (approx) {
       extras.guestsApprox = approx;
-      summary.push({ kind: "guests", label: "Invitados", value: `Unos ${formatCount(approx)} invitados` });
+      summary.push({
+        kind: "guests",
+        label: t("summary.labels.guests"),
+        value: t("summary.guestsApprox", { n: formatCount(approx, lang) }),
+      });
     }
   }
 
@@ -152,31 +174,35 @@ export function buildSubmission(answers: OnboardingAnswers): Submission {
     }
     if (vendors.length > 0) {
       extras.vendors = vendors;
-      const names = vendors.map((v) => v.type.label).join(", ");
+      const names = vendors.map((v) => t(`vendorTypes.${v.type.key}`)).join(", ");
       summary.push({
         kind: "vendors",
-        label: "Proveedores",
-        value: `${vendors.length} ${vendors.length === 1 ? "proveedor" : "proveedores"} (${names})`,
+        label: t("summary.labels.vendors"),
+        value: t("summary.vendorsList", { count: vendors.length, names }),
       });
     }
   }
 
   if (has("vestuario")) {
     extras.dress = true;
-    summary.push({ kind: "dress", label: "Vestido o traje", value: "Ya elegido" });
+    summary.push({ kind: "dress", label: t("summary.labels.dress"), value: t("summary.dressDone") });
   }
   if (has("alianzas")) {
     extras.rings = true;
-    summary.push({ kind: "rings", label: "Alianzas", value: "Ya las tenéis" });
+    summary.push({ kind: "rings", label: t("summary.labels.rings"), value: t("summary.ringsDone") });
   }
   if (has("luna") && asks("honeymoon")) {
     const destination = answers.honeymoonDestination.trim();
     extras.honeymoon = { destination };
-    summary.push({ kind: "honeymoon", label: "Luna de miel", value: destination || "Ya la tenéis" });
+    summary.push({
+      kind: "honeymoon",
+      label: t("summary.labels.honeymoon"),
+      value: destination || t("summary.honeymoonDone"),
+    });
   }
 
   return {
-    plan: { title: answers.title.trim() || DEFAULT_PLAN_TITLE, weddingDate, budgetTotal },
+    plan: { title: answers.title.trim() || defaultPlanTitle(lang), weddingDate, budgetTotal },
     extras,
     summary,
   };

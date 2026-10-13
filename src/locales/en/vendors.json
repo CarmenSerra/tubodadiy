@@ -1,1 +1,1302 @@
-{}
+{
+  "categories": {
+    "venue": "Venue",
+    "catering": "Catering",
+    "photographer": "Photographer",
+    "video": "Video",
+    "music": "Music",
+    "flowers": "Flowers",
+    "cake": "Cake",
+    "transport": "Transport",
+    "decor": "Decor",
+    "ceremonyMusic": "Ceremony music",
+    "hairMakeup": "Hair and makeup",
+    "dress": "Dress",
+    "suit": "Suit",
+    "rings": "Wedding rings",
+    "kidsEntertainment": "Kids' entertainment",
+    "photoBooth": "Photo booth",
+    "weddingPlanner": "Wedding planner",
+    "invitations": "Invitations",
+    "other": "Other"
+  },
+  "card": {
+    "deleted": "Vendor deleted",
+    "deleteError": "We couldn't delete the vendor.",
+    "edit": "Edit {{name}}",
+    "delete": "Delete {{name}}",
+    "priceTbc": "Price to be confirmed"
+  },
+  "empty": {
+    "venue": {
+      "title": "Add your first venue",
+      "cta": "Add venue"
+    },
+    "catering": {
+      "title": "Add your first caterer",
+      "cta": "Add caterer"
+    },
+    "photographer": {
+      "title": "Add your first photographer",
+      "cta": "Add photographer"
+    },
+    "custom": {
+      "title": "Add your first {{category}} option",
+      "cta": "Add option"
+    },
+    "hint": "Keep the options you're comparing right here."
+  },
+  "contact": {
+    "button": "Contact",
+    "ariaLabel": "Contact details for {{name}}",
+    "description": "{{category}} · contact details",
+    "location": "Location",
+    "viewOnMaps": "View on Google Maps",
+    "newTab": "(opens in a new tab)",
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes",
+    "empty": "You haven't saved any contact details for this option yet. Edit it with the pencil on the card to add the address, email or phone number."
+  },
+  "status": {
+    "exploring": "Exploring",
+    "visited": "Visited",
+    "favorite": "Favorite",
+    "chosen": "Chosen"
+  },
+  "photo": {
+    "notImage": "Choose an image file (JPG, PNG, WebP…).",
+    "processError": "We couldn't process the photo.",
+    "preview": "Photo preview",
+    "upload": "Upload a photo",
+    "change": "Change photo",
+    "remove": "Remove photo",
+    "hint": "It's resized automatically so it stays small."
+  },
+  "carousel": {
+    "newOption": "New option: {{name}}",
+    "roleCarousel": "carousel",
+    "roleSlide": "slide",
+    "options": "{{label}} options",
+    "slideOf": "{{index}} of {{count}}",
+    "previous": "Previous {{label}} option",
+    "next": "Next {{label}} option",
+    "goTo": "Go to option {{index}} of {{count}}: {{name}}"
+  },
+  "list": {
+    "loading": "Loading vendors",
+    "noOptions": "No options yet",
+    "optionCount_one": "{{count}} option",
+    "optionCount_other": "{{count}} options",
+    "discover": "Discover venues",
+    "addAnother": "Add another",
+    "invitation": "Want to browse wedding venues? We'll show you some by province so you can save the ones you like.",
+    "seeVenues": "Browse wedding venues"
+  },
+  "filter": {
+    "section": "Filter vendors by location",
+    "label": "Filter by location",
+    "all": "All locations",
+    "otherPlaces": "Other locations",
+    "shownOf_one": "{{count}} option of {{total}}",
+    "shownOf_other": "{{count}} options of {{total}}",
+    "clear": "Clear filter"
+  },
+  "placeSearch": {
+    "searchError": "We couldn't search right now. You can fill in the details by hand.",
+    "detailsError": "We couldn't load that place's details. Try again or fill them in by hand.",
+    "linkProtocol": "The link must start with http:// or https://.",
+    "linkNotFound": "We couldn't find that place. Check the link or search by name.",
+    "linkError": "We couldn't read the link right now. Please try again.",
+    "loadingPlace": "Loading the place's details…",
+    "searching": "Searching…",
+    "results_one": "{{count}} result. Use the arrow keys and Enter to choose.",
+    "results_other": "{{count}} results. Use the arrow keys and Enter to choose.",
+    "noResults": "No results.",
+    "label": "Search for the place or business",
+    "placeholder": "For example: Finca Los Lavaderos de Rojas",
+    "listLabel": "Places found",
+    "help": "Pick a Google Maps result and we'll fill in the details for you; you can edit everything afterwards.",
+    "filled": "Details for “{{name}}” added. Review them below.",
+    "haveLink": "Have a Google Maps link?",
+    "linkLabel": "Google Maps link",
+    "fill": "Fill in"
+  },
+  "form": {
+    "addVendor": "Add vendor",
+    "newTitle": "New vendor",
+    "editTitle": "Edit vendor",
+    "description": "Only the name is required; you can fill in the rest whenever you like.",
+    "added": "Vendor added",
+    "updated": "Vendor updated",
+    "saveError": "We couldn't save the vendor.",
+    "save": "Save",
+    "otherCategory": "Other category…",
+    "linkedToMaps": "Linked to Google Maps: the link is created automatically.",
+    "unlink": "Unlink",
+    "errors": {
+      "name": "Give it a name so you can recognize it.",
+      "category": "Enter the category name.",
+      "email": "Check the email address: it should look like name@domain.com.",
+      "link": "The link must start with http:// or https://.",
+      "website": "Enter a valid website, for example https://yourvenue.com.",
+      "cost": "Enter a valid amount, without symbols."
+    },
+    "fields": {
+      "name": "Name",
+      "category": "Category",
+      "customCategory": "Category name",
+      "customCategoryPlaceholder": "For example: Invitations",
+      "price": "Price (€)",
+      "status": "Status",
+      "photo": "Photo",
+      "photoLink": "Or a link to the photo",
+      "photoLinkHint": "Paste a link to an image. If there's no photo, you'll see an illustration.",
+      "website": "Website",
+      "address": "Address",
+      "municipality": "Town or city",
+      "province": "Province",
+      "community": "Region: {{name}}",
+      "provincePlaceholder": "Choose province",
+      "noProvince": "No province",
+      "mapsLink": "Google Maps link",
+      "email": "Contact email",
+      "phone": "Phone",
+      "notes": "Notes"
+    }
+  },
+  "discovery": {
+    "title": "Discover venues for your wedding",
+    "description": "Choose where to look and save the ones you like: they're added to your vendors as “Exploring”.",
+    "where": "Where",
+    "wherePlaceholder": "Choose provinces or regions",
+    "style": "Style",
+    "optional": "(optional)",
+    "styles": {
+      "rustic": "Rustic",
+      "garden": "With garden",
+      "seaside": "Seaside",
+      "cortijo": "Cortijo (Andalusian estate)",
+      "masia": "Masía (Catalan farmhouse)",
+      "palace": "Palace",
+      "mountain": "In the mountains",
+      "modern": "Modern"
+    },
+    "start": {
+      "title": "Choose one or more provinces to get started",
+      "text": "We'll look for wedding venues in each one and show the results here."
+    },
+    "error": {
+      "title": "We couldn't search for venues right now",
+      "text": "It might be a connection problem. Try again in a few seconds.",
+      "retry": "Try again"
+    },
+    "none": {
+      "title": "We couldn't find venues with these filters",
+      "text": "Try removing a style or adding more provinces."
+    },
+    "count_one": "{{count}} venue",
+    "count_other": "{{count}} venues",
+    "partialFail": "We couldn't check {{places}}. The rest of the results are shown.",
+    "loading": "Loading…",
+    "more": "Show more",
+    "loadMoreError": "We couldn't load all the venues. Please try again.",
+    "resultsFrom": "Results from",
+    "pickerHint": "Choose a region to select all its provinces, or pick individual provinces. Maximum {{max}}.",
+    "rating": "Rated {{rating}} out of 5",
+    "viewOnMaps": "View on Maps",
+    "savedBadge": "Saved",
+    "saveAria": "Save {{name}}",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "“{{name}}” saved to Venues",
+    "saveError": "We couldn't save the venue. Please try again.",
+    "searchingVenues": "Searching for venues"
+  },
+  "page": {
+    "title": "Vendors",
+    "description": "Compare your options by category and pick the one you fall in love with."
+  },
+  "places": {
+    "errors": {
+      "signInRequired": "Sign in to use the Google Maps search.",
+      "verifyUnavailable": "The server can't verify your session right now.",
+      "sessionExpired": "Your session has expired. Sign in again and try again.",
+      "missingSession": "The search session is missing.",
+      "invalidSession": "Invalid search session.",
+      "searchFailed": "We couldn't complete the search.",
+      "invalidPlaceId": "Invalid place identifier.",
+      "placeNotFound": "We couldn't find that place on Google Maps.",
+      "placeFailed": "We couldn't get that place.",
+      "invalidLink": "That link isn't valid.",
+      "notMapsLink": "Paste a Google Maps link (for example, from “Share” in the app).",
+      "linkFailed": "We couldn't read the link.",
+      "chooseProvince": "Choose a province in Spain.",
+      "invalidPage": "Invalid page.",
+      "webRequired": "Enter the web address.",
+      "webInvalid": "That web address isn't valid.",
+      "webProtocol": "Only http or https addresses are supported.",
+      "notConfigured": "Google Maps search isn't set up on the server.",
+      "googleTimeout": "Google Maps isn't responding right now. Try again in a moment.",
+      "googleBadRequest": "Google Maps didn't understand the request.",
+      "tooManyRequests": "Too many searches in a row. Please wait a moment.",
+      "googleUnavailable": "We couldn't reach Google Maps right now.",
+      "signIn": "Sign in to search Google Maps.",
+      "network": "We couldn't connect. Check your connection and try again.",
+      "generic": "We couldn't complete the search. Please try again."
+    }
+  },
+  "ideas": {
+    "steps": {
+      "fecha_presupuesto": {
+        "hablar-que-importa-mas": {
+          "title": "Talk about what matters most to you at the wedding",
+          "hint": "Deciding your priorities helps you split the money without arguing.",
+          "when": "12–18 months before"
+        },
+        "preguntar-con-cuanta-ayuda": {
+          "title": "Ask how much help you can count on from family",
+          "hint": "Find out early whether parents or grandparents are contributing, and how, so you can adjust the total.",
+          "when": "12–18 months before"
+        },
+        "abrir-una-cuenta-conjunta": {
+          "title": "Open a joint account for the wedding",
+          "hint": "It makes it easier to save, pay deposits and see all your spending in one place.",
+          "when": "12 months before"
+        },
+        "comparar-temporada-alta-baja": {
+          "title": "Compare peak and off-peak season",
+          "hint": "On weekdays or outside May–September, venues and catering are usually cheaper.",
+          "when": "12–15 months before"
+        },
+        "consultar-fechas-con-familiares": {
+          "title": "Check dates with key family members",
+          "hint": "Avoid clashing with other weddings, long weekends, communions or local festivals.",
+          "when": "12–15 months before"
+        },
+        "calcular-coste-por-invitado": {
+          "title": "Work out the cost per guest",
+          "hint": "The banquet and venue scale with every guest: try 60, 80 and 100.",
+          "when": "12 months before"
+        },
+        "apuntar-los-sobres-regalos": {
+          "title": "Note the cash gifts and presents you expect to receive",
+          "hint": "A cautious estimate of guests' gifts helps, but don't take it for granted.",
+          "when": "9–12 months before"
+        },
+        "reservar-colchon-del-5": {
+          "title": "Set aside a 5–10% cushion for the unexpected",
+          "hint": "Extras always come up: fittings, alterations, tips, extra hours.",
+          "when": "12 months before"
+        },
+        "revisar-presupuesto-con-contratado": {
+          "title": "Review the budget against what you've booked",
+          "hint": "Every quarter, compare what you planned with what you've paid and adjust.",
+          "when": "Every 3 months"
+        },
+        "pactar-quien-paga-cada": {
+          "title": "Agree on who pays for what, and when",
+          "hint": "Note each vendor's deposits and payment dates so there are no surprises.",
+          "when": "6–9 months before"
+        }
+      },
+      "invitados": {
+        "definir-cuantos-invitados-quereis": {
+          "title": "Decide the maximum number of guests",
+          "hint": "Set a realistic cap before starting the list: it shapes your venue and budget.",
+          "when": "12–15 months before"
+        },
+        "acordar-los-criterios-invitacion": {
+          "title": "Agree on your invitation criteria",
+          "hint": "For example: people you've spoken to this year, partners, children, coworkers.",
+          "when": "12–15 months before"
+        },
+        "repartir-cupos-entre-vosotros": {
+          "title": "Split the guest quotas between you and your families",
+          "hint": "A clear split (for example, 40/40/20) avoids tension with parents and in-laws.",
+          "when": "12 months before"
+        },
+        "separar-lista-lista": {
+          "title": "Split the list into an A list and a B list",
+          "hint": "The B list is only invited if there are cancellations; it helps you adjust without stress.",
+          "when": "10–12 months before"
+        },
+        "recoger-direcciones-telefonos-todos": {
+          "title": "Collect everyone's address and phone number",
+          "hint": "Ask for postal addresses if you're sending paper invitations.",
+          "when": "8–10 months before"
+        },
+        "preguntar-por-alergias-intolerancias": {
+          "title": "Ask about allergies and intolerances",
+          "hint": "The caterer needs this in advance: coeliacs, allergies, vegetarians.",
+          "when": "3–4 months before"
+        },
+        "decidir-invita-ninos-que": {
+          "title": "Decide whether to invite children, and from what age",
+          "hint": "If there will be children, think about a kids' menu and an area or entertainment for them.",
+          "when": "10–12 months before"
+        },
+        "confirmar-asistentes-por-llamada": {
+          "title": "Confirm attendance by phone or message",
+          "hint": "Gently chase the pending replies before the deadline.",
+          "when": "2–3 months before"
+        },
+        "pedir-confirmacion-menu-cada": {
+          "title": "Ask each guest to confirm their menu choice",
+          "hint": "If there are menu options, note them on the list to pass on to the caterer.",
+          "when": "2–3 months before"
+        },
+        "asignar-cada-invitado-una": {
+          "title": "Assign each guest a table",
+          "hint": "Group people by affinity and spread out any family tensions.",
+          "when": "3–4 weeks before"
+        },
+        "preparar-plano-mesas-con": {
+          "title": "Prepare the seating plan with the caterer",
+          "hint": "Share the final plan and the list of dietary needs with the venue.",
+          "when": "2–3 weeks before"
+        },
+        "avisar-los-invitados-bajas": {
+          "title": "Tell the venue about last-minute cancellations",
+          "hint": "If anything changes, let the caterer know as soon as possible to avoid extra charges.",
+          "when": "1–2 weeks before"
+        }
+      },
+      "lugar": {
+        "hacer-una-lista-corta": {
+          "title": "Make a shortlist of venues",
+          "hint": "Search by area, capacity and price; narrow it down based on your guest list.",
+          "when": "12–15 months before"
+        },
+        "preguntar-fechas-libres-precio": {
+          "title": "Ask about available dates and price per guest",
+          "hint": "One email to several venues lets you compare availability and rates at once.",
+          "when": "12–15 months before"
+        },
+        "comprobar-espacio-incluye-catering": {
+          "title": "Check whether the venue includes its own catering",
+          "hint": "Some venues require their own caterer; others let you choose yours.",
+          "when": "12–15 months before"
+        },
+        "preguntar-por-horario-maximo": {
+          "title": "Ask about the latest finishing time and noise limit",
+          "hint": "Confirm until what time music is allowed and whether the open bar is charged by the hour.",
+          "when": "When visiting"
+        },
+        "ver-plan-llueve": {
+          "title": "See the rain plan",
+          "hint": "Ask to see the alternative hall or marquee and how much it costs to set up.",
+          "when": "When visiting"
+        },
+        "confirmar-accesos-parking-accesibilidad": {
+          "title": "Confirm access, parking and accessibility",
+          "hint": "Think about older guests, wheelchairs, high heels and baby strollers.",
+          "when": "When visiting"
+        },
+        "preguntar-que-mobiliario-decoracion": {
+          "title": "Ask what furniture and decor is included",
+          "hint": "Tables, chairs, linens, tableware and glassware: it can save or cost you a lot.",
+          "when": "When visiting"
+        },
+        "pedir-contrato-revisar-politica": {
+          "title": "Ask for the contract and review the cancellation policy",
+          "hint": "Read the deposit, payment deadlines and what happens if the guest count changes.",
+          "when": "Before booking"
+        },
+        "preguntar-por-hora-acceso": {
+          "title": "Ask about the access time for setup",
+          "hint": "Florists, decorators and musicians need to get in with plenty of time.",
+          "when": "6–8 months before"
+        },
+        "repasar-con-espacio-distribucion": {
+          "title": "Go over the hall layout with the venue",
+          "hint": "Tables, dance floor, bar and stage: sketch it out with the venue team.",
+          "when": "3–4 months before"
+        },
+        "pedir-lista-proveedores-recomendados": {
+          "title": "Ask for the venue's list of recommended vendors",
+          "hint": "They know the place and often have fixed rates or access permits already sorted.",
+          "when": "After booking"
+        },
+        "hacer-una-ultima-visita": {
+          "title": "Do a final walkthrough with key vendors",
+          "hint": "With the photographer, DJ and decorator, check power outlets, lighting and spaces.",
+          "when": "1–2 months before"
+        }
+      },
+      "proveedores": {
+        "hacer-una-lista-proveedores": {
+          "title": "Make a list of must-have vendors",
+          "hint": "Decide what's essential (catering, photographer, music) and what can wait.",
+          "when": "12 months before"
+        },
+        "pedir-presupuesto-3-fotografos": {
+          "title": "Get quotes from 3 photographers or videographers",
+          "hint": "Compare style, hours of coverage, deliverables and delivery time.",
+          "when": "10–12 months before"
+        },
+        "ver-albumes-completos-bodas": {
+          "title": "Look at full albums from past weddings",
+          "hint": "A whole wedding tells you more than a portfolio of their best shots.",
+          "when": "10–12 months before"
+        },
+        "reservar-peluqueria-maquillaje": {
+          "title": "Book hair and makeup",
+          "hint": "Include a trial and ask whether they travel to the wedding location.",
+          "when": "6–9 months before"
+        },
+        "elegir-florista-definir-estilo": {
+          "title": "Choose a florist and define your floral style",
+          "hint": "Bring inspiration photos and your color palette.",
+          "when": "6–9 months before"
+        },
+        "encargar-tarta-nupcial": {
+          "title": "Order the wedding cake",
+          "hint": "Ask for a flavor tasting and whether setup and delivery are included.",
+          "when": "4–6 months before"
+        },
+        "probar-menu-con-catering": {
+          "title": "Taste the menu with the caterer",
+          "hint": "Choose starters, mains and dessert, and review the kids' menu and dietary options.",
+          "when": "4–6 months before"
+        },
+        "preguntar-por-recena-barra": {
+          "title": "Ask about the late-night snack and open bar",
+          "hint": "Clarify what's included, until when, and whether extra hours carry a surcharge.",
+          "when": "4–6 months before"
+        },
+        "contratar-animacion-cuidadores-para": {
+          "title": "Hire entertainers or sitters for the children",
+          "hint": "Having someone to help frees up the parents and avoids mishaps during the banquet.",
+          "when": "3–6 months before"
+        },
+        "firmar-todos-los-contratos": {
+          "title": "Sign all contracts and keep copies",
+          "hint": "Check services, schedules, extras and the cancellation policy before signing.",
+          "when": "When hiring"
+        },
+        "anotar-fechas-pago-senales": {
+          "title": "Note each vendor's payment dates and deposits",
+          "hint": "Put them in your calendar so you don't miss a payment.",
+          "when": "When hiring"
+        },
+        "dar-cada-proveedor-cronograma": {
+          "title": "Give every vendor the final schedule",
+          "hint": "Include times, contacts and addresses; everyone should know what happens and when.",
+          "when": "2–3 weeks before"
+        },
+        "confirmar-por-telefono-con": {
+          "title": "Confirm by phone with each vendor",
+          "hint": "A call the week before avoids last-minute misunderstandings.",
+          "when": "1 week before"
+        },
+        "preparar-sobres-con-pago": {
+          "title": "Prepare envelopes with each vendor's final payment",
+          "hint": "Label them and put a trusted person in charge of handing them over.",
+          "when": "1 week before"
+        }
+      },
+      "ceremonia": {
+        "decidir-ceremonia-mismo-sitio": {
+          "title": "Decide whether the ceremony is at the same place as the banquet",
+          "hint": "It saves travel and time; for a church or town hall you'll need to organize transport.",
+          "when": "12 months before"
+        },
+        "preguntar-por-horarios-disponibilidad": {
+          "title": "Ask about the venue's times and availability",
+          "hint": "Churches, courts and town halls have fixed time slots: book well ahead.",
+          "when": "10–12 months before"
+        },
+        "elegir-las-personas-que": {
+          "title": "Choose the people who will be with you at the ceremony",
+          "hint": "Best man, maid of honor, witnesses, page boys and ring bearers.",
+          "when": "6–9 months before"
+        },
+        "elegir-lecturas-poemas-textos": {
+          "title": "Choose readings, poems or texts for the ceremony",
+          "hint": "Family or friends can read them; let them know in advance so they can rehearse.",
+          "when": "3–4 months before"
+        },
+        "escribir-los-votos": {
+          "title": "Write your vows",
+          "hint": "Short and personal: a minute each is plenty, and it tends to be moving.",
+          "when": "1–2 months before"
+        },
+        "elegir-musica-entrada-firma": {
+          "title": "Choose the music for the entrance, the signing and the exit",
+          "hint": "Three key moments: the entrance, the signing and the recessional.",
+          "when": "3–4 months before"
+        },
+        "preparar-ensayo-ceremonia": {
+          "title": "Plan a ceremony rehearsal",
+          "hint": "Go over positions and the order of entry with the officiant and your party.",
+          "when": "1–2 weeks before"
+        },
+        "decidir-como-colocar-familia": {
+          "title": "Decide how to seat the family during the ceremony",
+          "hint": "Reserve the front rows for parents and grandparents; tell them where to sit.",
+          "when": "1 month before"
+        },
+        "comprar-encargar-ramo-las": {
+          "title": "Buy or order the bouquet and ceremony flowers",
+          "hint": "Includes the bouquet, family boutonnieres and corsages, and the altar or table decor.",
+          "when": "3–4 months before"
+        },
+        "preparar-cojin-caja-para": {
+          "title": "Prepare the cushion or box for the rings",
+          "hint": "Someone you trust keeps them safe until the exchange.",
+          "when": "1 month before"
+        },
+        "imprimir-programa-misal-ceremonia": {
+          "title": "Print the ceremony program",
+          "hint": "Optional: it helps guests follow the readings and songs.",
+          "when": "1–2 months before"
+        },
+        "preparar-arroz-petalos-confeti": {
+          "title": "Get the rice, petals or confetti for the exit",
+          "hint": "Ask first what the venue allows; some ban rice.",
+          "when": "2–4 weeks before"
+        }
+      },
+      "documentos_legales": {
+        "pedir-cita-registro-civil": {
+          "title": "Book an appointment at the civil registry or notary",
+          "hint": "For a civil wedding, book the appointment for the paperwork according to your municipality.",
+          "when": "6–8 months before"
+        },
+        "pedir-certificado-literal-nacimiento": {
+          "title": "Request the full birth certificate",
+          "hint": "It can be requested online or at the Civil Registry; it usually needs to be recent.",
+          "when": "5–6 months before"
+        },
+        "obtener-certificado-empadronamiento": {
+          "title": "Get the certificate of residence (empadronamiento)",
+          "hint": "Request it at the town hall or online; one for each of you if you live apart.",
+          "when": "4–5 months before"
+        },
+        "conseguir-certificado-estado-civil": {
+          "title": "Get the certificate of marital status if needed",
+          "hint": "Needed if you've been married before or live outside Spain.",
+          "when": "5–6 months before"
+        },
+        "preparar-copias-del-dni": {
+          "title": "Prepare copies of both your ID or passports",
+          "hint": "Check they won't expire before the wedding or the honeymoon.",
+          "when": "5–6 months before"
+        },
+        "elegir-los-testigos-del": {
+          "title": "Choose the marriage witnesses",
+          "hint": "There are usually two (civil ceremony); they must be adults with valid ID and present on the day.",
+          "when": "3–4 months before"
+        },
+        "pedir-partida-bautismo-reciente": {
+          "title": "Request a recent baptism certificate",
+          "hint": "For a religious ceremony, request it from the parish where you were baptized.",
+          "when": "5–6 months before"
+        },
+        "hacer-expediente-parroquial": {
+          "title": "Complete the parish paperwork",
+          "hint": "For a religious ceremony, it's handled at the parish with documents and an interview.",
+          "when": "5–6 months before"
+        },
+        "apuntarse-cursillo-prematrimonial": {
+          "title": "Sign up for the pre-marriage course",
+          "hint": "For a religious ceremony it's usually mandatory; places fill up, so book early.",
+          "when": "6–8 months before"
+        },
+        "confirmar-con-parroquia-oficiante": {
+          "title": "Confirm the required documents with the parish or officiant",
+          "hint": "Each diocese and municipality asks for something different: confirm before chasing paperwork.",
+          "when": "6–8 months before"
+        },
+        "preguntar-por-posibles-tramites": {
+          "title": "Ask about any paperwork for a symbolic ceremony",
+          "hint": "It has no legal validity on its own; decide whether you want to sign at the registry first.",
+          "when": "6–8 months before"
+        },
+        "decidir-regimen-economico-matrimonial": {
+          "title": "Decide your marital property regime",
+          "hint": "Community property or separate property; ask a notary if you have doubts.",
+          "when": "2–4 months before"
+        },
+        "anotar-fechas-horas-todas": {
+          "title": "Note the dates and times of all legal appointments",
+          "hint": "Set calendar alerts: certificates are only valid for a short time.",
+          "when": "When booking"
+        },
+        "pedir-libro-familia-tras": {
+          "title": "Request the family book (libro de familia) after the wedding",
+          "hint": "It's processed at the Civil Registry after the wedding; keep the certificate.",
+          "when": "After the wedding"
+        },
+        "cambiar-domicilio-titulares-contratos": {
+          "title": "Update your address and contract holders if needed",
+          "hint": "Bank, insurance, mortgage or rental: update them after the wedding with the family book.",
+          "when": "After the wedding"
+        }
+      },
+      "vestuario": {
+        "guardar-fotos-inspiracion-looks": {
+          "title": "Save inspiration photos for your looks",
+          "hint": "Create a folder with styles, cuts and colors before you head to the shops.",
+          "when": "12–14 months before"
+        },
+        "fijar-presupuesto-vestuario": {
+          "title": "Set an attire budget",
+          "hint": "Include alterations, accessories, underwear and a second outfit if you want one.",
+          "when": "12 months before"
+        },
+        "pedir-cita-varios-talleres": {
+          "title": "Book appointments at several boutiques or ateliers",
+          "hint": "A made-to-measure dress can take 6 to 10 months: book early.",
+          "when": "10–12 months before"
+        },
+        "elegir-zapatos-comprobar-que": {
+          "title": "Choose shoes and check they're comfortable",
+          "hint": "Break them in at home for a few days and bring a second pair for dancing.",
+          "when": "3–4 months before"
+        },
+        "elegir-velo-tocado-complementos": {
+          "title": "Choose the veil, headpiece and accessories",
+          "hint": "Match them with your hairstyle and neckline; try them on with the dress.",
+          "when": "4–6 months before"
+        },
+        "elegir-ropa-interior-para": {
+          "title": "Choose underwear for the dress",
+          "hint": "Bring it to the fittings so the adjustments are right.",
+          "when": "3–4 months before"
+        },
+        "elegir-camisa-corbata-pajarita": {
+          "title": "Choose the groom's shirt, tie or bow tie and shoes",
+          "hint": "Coordinate colors with the bouquet and the wedding party.",
+          "when": "3–4 months before"
+        },
+        "decidir-vestuario-pajes-damas": {
+          "title": "Decide the outfits for pages, bridesmaids and groomsmen",
+          "hint": "Let them know in advance and tell them the color or style you want.",
+          "when": "4–6 months before"
+        },
+        "hacer-prueba-final-los": {
+          "title": "Do the final fitting and last alterations",
+          "hint": "Go with your final shoes and accessories; confirm when to pick everything up.",
+          "when": "3–4 weeks before"
+        },
+        "preparar-kit-emergencia-para": {
+          "title": "Pack an emergency kit for the day",
+          "hint": "Pins, thread, plasters, tissues, safety pins, makeup and spare shoes.",
+          "when": "1–2 weeks before"
+        },
+        "encargar-quien-cuidara-del": {
+          "title": "Appoint someone to look after the dress and suit",
+          "hint": "Assign someone to hang them, transport them and help with buttons or zippers.",
+          "when": "1 week before"
+        },
+        "planificar-limpieza-conservacion-posterior": {
+          "title": "Plan the cleaning and storage afterwards",
+          "hint": "Take the dress to a specialist dry cleaner and store it in a garment bag.",
+          "when": "After the wedding"
+        }
+      },
+      "papeleria": {
+        "definir-estilo-visual-boda": {
+          "title": "Define the visual style of the wedding",
+          "hint": "Color palette, typography and motifs that repeat across all your stationery.",
+          "when": "10–12 months before"
+        },
+        "pedir-presupuesto-3-imprentas": {
+          "title": "Get quotes from 3 printers",
+          "hint": "Compare paper, finishes, minimum quantity and delivery times.",
+          "when": "8–10 months before"
+        },
+        "redactar-texto-invitacion": {
+          "title": "Write the invitation text",
+          "hint": "Include who is inviting, date, time, locations, dress code and RSVP deadline.",
+          "when": "6–8 months before"
+        },
+        "crear-una-web-codigo": {
+          "title": "Create a website or QR code for the wedding",
+          "hint": "One link with maps, schedules, accommodation and gift list saves a lot of questions.",
+          "when": "6–8 months before"
+        },
+        "imprimir-una-prueba-antes": {
+          "title": "Print a proof before ordering the full run",
+          "hint": "Check typos, colors and sizes; real paper looks very different from a screen.",
+          "when": "5–6 months before"
+        },
+        "encargar-sobres-sellos-lacre": {
+          "title": "Order envelopes and seals or wax",
+          "hint": "Count a few extra invitations in case of mistakes or last-minute guests.",
+          "when": "5–6 months before"
+        },
+        "disenar-menu-seating-los": {
+          "title": "Design the menu, seating chart and place cards",
+          "hint": "Menu, seating plan, table names: order them once the guest list is final.",
+          "when": "2–3 months before"
+        },
+        "preparar-cartel-bienvenida": {
+          "title": "Prepare the welcome sign",
+          "hint": "A sign at the entrance of the venue or banquet with your names.",
+          "when": "2–3 months before"
+        },
+        "encargar-las-tarjetas-agradecimiento": {
+          "title": "Order the thank-you cards",
+          "hint": "They're left on the table or sent to each guest afterwards.",
+          "when": "2–3 months before"
+        },
+        "preparar-libro-firmas-dedicatorias": {
+          "title": "Prepare the guest book",
+          "hint": "An alternative: cards to leave a message or an instant photo.",
+          "when": "2–3 months before"
+        },
+        "fijar-fecha-limite-para": {
+          "title": "Set the RSVP deadline",
+          "hint": "Make it 4–6 weeks before the wedding and repeat it on the invitation.",
+          "when": "3–4 months before"
+        }
+      },
+      "alojamiento_transporte": {
+        "hacer-una-lista-invitados": {
+          "title": "Make a list of guests coming from out of town",
+          "hint": "You'll know how many rooms and transport seats you need.",
+          "when": "8–10 months before"
+        },
+        "pedir-bloqueo-habitaciones-hoteles": {
+          "title": "Ask nearby hotels for a room block",
+          "hint": "Ask about the group rate and the deadline to release rooms at no cost.",
+          "when": "8–10 months before"
+        },
+        "reservar-alojamiento-para-familia": {
+          "title": "Book accommodation for close family and the wedding party",
+          "hint": "It avoids last-minute rushes and makes the day's preparations easier.",
+          "when": "6–8 months before"
+        },
+        "reservar-suite-habitacion-los": {
+          "title": "Book the couple's suite or room",
+          "hint": "To get ready, rest and spend the wedding night, if you're not going home.",
+          "when": "6–8 months before"
+        },
+        "contratar-autobuses-microbuses-para": {
+          "title": "Hire buses or minibuses for guests",
+          "hint": "Round trips between hotel, ceremony and venue; match the times to your schedule.",
+          "when": "4–6 months before"
+        },
+        "reservar-coche-los-novios": {
+          "title": "Book the couple's car",
+          "hint": "A classic car or a chauffeur for the ceremony or the exit from the banquet.",
+          "when": "4–6 months before"
+        },
+        "dar-los-invitados-una": {
+          "title": "Give guests a guide with schedules and routes",
+          "hint": "Include maps, parking, bus stops and phone numbers for local taxis.",
+          "when": "2–3 months before"
+        },
+        "hacer-una-lista-taxis": {
+          "title": "Make a list of local taxis and ride-hailing options",
+          "hint": "For those who don't want to drive after the party; note down contact numbers.",
+          "when": "2–3 months before"
+        },
+        "preparar-una-bolsa-bienvenida": {
+          "title": "Prepare a welcome bag for guests staying overnight",
+          "hint": "Water, a map, a snack and the weekend's program.",
+          "when": "1 month before"
+        },
+        "confirmar-horarios-del-autobus": {
+          "title": "Confirm the bus schedule with the company",
+          "hint": "Check stops, number of seats and the return time after the party.",
+          "when": "1–2 weeks before"
+        },
+        "designar-una-persona-contacto": {
+          "title": "Appoint a transport contact person",
+          "hint": "Someone you trust to coordinate arrivals, pick-ups and drop-offs during the day.",
+          "when": "1–2 weeks before"
+        }
+      },
+      "lista_regalos": {
+        "decidir-preferis-recibir-dinero": {
+          "title": "Decide whether you'd rather receive money or a list of items",
+          "hint": "Money is the most common and avoids duplicates; a list is more traditional and many people find it more personal. You can change your mind.",
+          "when": "6–8 months before"
+        },
+        "decidir-quereis-cuenta-bancaria": {
+          "title": "Decide whether you want a bank account, Bizum or both",
+          "hint": "A bank transfer works for all ages; Bizum is quick for anyone with the app.",
+          "when": "6–8 months before"
+        },
+        "repasar-que-falta-casa": {
+          "title": "Review what you're missing at home before building the list",
+          "hint": "Walk through the kitchen, bathroom and bedroom with a notebook: what's broken, what's old and what you've never had.",
+          "when": "5–6 months before"
+        },
+        "incluir-cosas-distinto-precio": {
+          "title": "Include items at different price points",
+          "hint": "Mix small touches with bigger items so everyone can find something that suits them.",
+          "when": "4–5 months before"
+        },
+        "anadir-enlace-precio-aproximado": {
+          "title": "Add a link and an approximate price to each item",
+          "hint": "If guests can find it in one click, they're more likely to get the model and color you want.",
+          "when": "4–5 months before"
+        },
+        "marcar-las-cosas-mas": {
+          "title": "Mark the most important items on the list",
+          "hint": "Prioritize what you really need (appliances, bed linen) and leave the treats for last.",
+          "when": "4–5 months before"
+        },
+        "marcando-lista-que-teneis": {
+          "title": "Keep marking off what you've already received",
+          "hint": "That way the invitation only shows what's still pending and you avoid getting the same thing twice.",
+          "when": "As gifts arrive"
+        },
+        "pedir-los-invitados-que": {
+          "title": "Ask guests to let you know before buying something from the list",
+          "hint": "One sentence in the message is enough: “Message us before buying so nothing gets duplicated.”",
+          "when": "3–4 months before"
+        },
+        "guardar-los-tickets-los": {
+          "title": "Keep the gift receipts so items can be exchanged",
+          "hint": "Ask for a gift receipt at the shop and note who gave what for the thank-yous.",
+          "when": "As gifts arrive"
+        },
+        "elegir-una-cuenta-que": {
+          "title": "Choose an account that you both control",
+          "hint": "It can be joint or one of yours; check that it doesn't charge fees for incoming transfers.",
+          "when": "6–8 months before"
+        },
+        "decidir-para-que-quereis": {
+          "title": "Decide what you want the money for",
+          "hint": "Honeymoon, a house deposit, renovations or shared savings: telling guests helps them give.",
+          "when": "6–8 months before"
+        },
+        "redactar-mensaje-breve-carinoso": {
+          "title": "Write a short, warm message asking for money instead of gifts",
+          "hint": "Two or three sentences, without pressure: what matters is that they come. Keep it positive.",
+          "when": "5–6 months before"
+        },
+        "revisar-iban-bizum-antes": {
+          "title": "Double-check the IBAN and Bizum details before sharing them",
+          "hint": "Copy and paste instead of typing, and ask someone else to check it.",
+          "when": "4–6 months before"
+        },
+        "decidir-donde-veran-los": {
+          "title": "Decide where the details will be shown",
+          "hint": "On the invitation, on the wedding website or only to those who ask; choose what feels most comfortable.",
+          "when": "4–6 months before"
+        },
+        "preparar-una-respuesta-para": {
+          "title": "Prepare a reply for anyone who insists on giving a physical gift",
+          "hint": "A kind sentence ready to repeat: “Your company is the best gift; if you like, a contribution to the honeymoon.”",
+          "when": "2–3 months before"
+        },
+        "decidir-como-recoger-los": {
+          "title": "Decide how to collect envelopes and parcels that arrive on the wedding day",
+          "hint": "A discreet box or urn and a trusted person to look after it and take everything home.",
+          "when": "1–2 months before"
+        },
+        "anotar-quien-regalado-cuanto": {
+          "title": "Note who gave what",
+          "hint": "It makes thank-yous easier and avoids oversights; a quick note on your phone is enough.",
+          "when": "As gifts arrive"
+        },
+        "enviar-mensajes-agradecimiento-personalizados": {
+          "title": "Send personalized thank-you messages",
+          "hint": "A short, sincere note to each person, ideally within the first few weeks, saying what you'll use the money for.",
+          "when": "1–2 months after"
+        }
+      },
+      "timeline": {
+        "repasar-cronograma-con-padrinos": {
+          "title": "Go over the schedule with the best man, maid of honor and witnesses",
+          "hint": "It's easier if they know when they need to be there and what's expected of them.",
+          "when": "3–4 weeks before"
+        },
+        "dejar-margen-entre-los": {
+          "title": "Leave a buffer between key moments",
+          "hint": "Surprises happen; a 10–15 minute cushion between moments helps a lot.",
+          "when": "When drafting"
+        },
+        "acordar-con-fotografo-las": {
+          "title": "Agree the must-have photos with the photographer",
+          "hint": "Prepare a list of family photos with names to save time.",
+          "when": "1–2 months before"
+        },
+        "calcular-horas-peluqueria-maquillaje": {
+          "title": "Work out the time for hair, makeup and getting dressed",
+          "hint": "Allow extra time: it always runs long, and the getting-ready photos need room too.",
+          "when": "1–2 months before"
+        },
+        "avisar-los-invitados-hora": {
+          "title": "Tell guests what time to arrive",
+          "hint": "Set an arrival time 20–30 minutes before the ceremony.",
+          "when": "1 month before"
+        },
+        "planificar-las-comidas-los": {
+          "title": "Plan the couple's meals during the day",
+          "hint": "Something light before getting dressed; afterwards there's little time to eat in peace.",
+          "when": "1 month before"
+        },
+        "pasar-cronograma-catering-finca": {
+          "title": "Send the schedule to the caterer and the venue",
+          "hint": "Service, cocktail hour, banquet and late-night snack times need to fit the timings.",
+          "when": "2–3 weeks before"
+        },
+        "asignar-responsable-del-dia": {
+          "title": "Assign a day-of person to each task",
+          "hint": "A trusted person takes care of vendors, gifts or the children.",
+          "when": "2–3 weeks before"
+        },
+        "imprimir-copias-del-cronograma": {
+          "title": "Print copies of the schedule",
+          "hint": "One for each of the wedding party, the photographer and the venue manager.",
+          "when": "1 week before"
+        },
+        "preparar-lista-musica-para": {
+          "title": "Prepare the music list for each moment",
+          "hint": "Entrance, cocktail hour, banquet, first dance and party: pass it to the DJ or band.",
+          "when": "1–2 months before"
+        }
+      },
+      "luna_de_miel": {
+        "decidir-cuanto-presupuesto-dedicais": {
+          "title": "Decide how much budget to put toward the trip",
+          "hint": "A cap per person helps you choose the destination and length.",
+          "when": "10–12 months before"
+        },
+        "elegir-epoca-del-ano": {
+          "title": "Choose the right time of year for your destination",
+          "hint": "Check the weather, rainy or monsoon season, and prices on those dates.",
+          "when": "8–10 months before"
+        },
+        "decidir-que-tipo-viaje": {
+          "title": "Decide what kind of trip you want",
+          "hint": "Beach, city, adventure or a road trip; rest or see as much as possible?",
+          "when": "8–10 months before"
+        },
+        "comprobar-visados-vacunas-requisitos": {
+          "title": "Check visas, vaccines and entry requirements",
+          "hint": "Some countries require a passport valid for months or an entry permit.",
+          "when": "5–6 months before"
+        },
+        "contratar-seguro-viaje": {
+          "title": "Get travel insurance",
+          "hint": "Check cancellation and medical cover, especially for a faraway trip.",
+          "when": "When booking"
+        },
+        "valorar-viaje-novios-posterior": {
+          "title": "Consider a later honeymoon instead of an immediate one",
+          "hint": "If work or budget doesn't line up, you can do it a few months later.",
+          "when": "8–10 months before"
+        },
+        "avisar-hotel-que-viaje": {
+          "title": "Tell the hotel it's a honeymoon trip",
+          "hint": "Many hotels offer a little gift or a room upgrade.",
+          "when": "1 month before"
+        },
+        "reservar-las-actividades-restaurantes": {
+          "title": "Book the key activities and restaurants",
+          "hint": "Excursions and special dinners sell out; book the must-haves.",
+          "when": "1–3 months before"
+        },
+        "planificar-traslado-desde-boda": {
+          "title": "Plan the transfer from the wedding to the airport",
+          "hint": "Think about how you leave the venue, where you leave the car and what time your flight is.",
+          "when": "1 month before"
+        },
+        "hacer-las-maletas-semana": {
+          "title": "Pack your suitcases the week before the wedding",
+          "hint": "So you don't stress; keep a corner for documents and chargers.",
+          "when": "1 week before"
+        },
+        "dejar-alguien-encargado-casa": {
+          "title": "Ask someone to look after the house and pets",
+          "hint": "Plants, mail, pets and keys: let a relative or neighbor know.",
+          "when": "1–2 weeks before"
+        }
+      },
+      "tareas_generales": {
+        "elegir-una-persona-confianza": {
+          "title": "Choose a trusted person as the day-of coordinator",
+          "hint": "Someone who isn't the bride or groom and can answer questions from vendors and guests.",
+          "when": "2–3 months before"
+        },
+        "hacer-una-cuenta-atras": {
+          "title": "Make a month-by-month task countdown",
+          "hint": "Spreading tasks across the months stops everything piling up in the last weeks.",
+          "when": "12 months before"
+        },
+        "comprar-las-alianzas": {
+          "title": "Buy the wedding rings",
+          "hint": "Engrave names or the date; engraving usually takes a few weeks.",
+          "when": "4–6 months before"
+        },
+        "preparar-los-detalles-para": {
+          "title": "Prepare the guest favors",
+          "hint": "Ideas: fans, sweets, plants or a note; work out the exact number.",
+          "when": "2–3 months before"
+        },
+        "planificar-los-discursos-quien": {
+          "title": "Plan the speeches and who speaks",
+          "hint": "Tell the speakers in advance and ask them to keep it short.",
+          "when": "1–2 months before"
+        },
+        "preparar-video-sorpresa-una": {
+          "title": "Prepare a surprise video or photo slideshow",
+          "hint": "Ask family and friends for photos ahead of time; a few minutes is plenty.",
+          "when": "2–3 months before"
+        },
+        "cuidar-vosotros-citas-descanso": {
+          "title": "Look after yourselves: date nights, rest and exercise",
+          "hint": "Set aside time for the two of you, without talking about the wedding or lists.",
+          "when": "Throughout the process"
+        },
+        "contratar-seguro-bodas": {
+          "title": "Get wedding insurance",
+          "hint": "It covers cancellations, damage or vendor failures; compare coverage.",
+          "when": "6–9 months before"
+        },
+        "preparar-una-bolsa-emergencia": {
+          "title": "Pack an emergency bag for the day",
+          "hint": "Medication, chargers, spare shoes, plasters, cash.",
+          "when": "1 week before"
+        },
+        "preparar-una-caja-regalo": {
+          "title": "Prepare a gift box and keepsakes for your parents",
+          "hint": "A thank-you gesture for parents, the wedding party and everyone who helped.",
+          "when": "1 month before"
+        },
+        "planificar-quien-recoge-decoracion": {
+          "title": "Plan who collects the decor at the end",
+          "hint": "Flowers, signs, gifts and personal items all need to go home.",
+          "when": "1–2 weeks before"
+        },
+        "preparar-noche-bodas-manana": {
+          "title": "Plan the wedding night and the morning after",
+          "hint": "Book the accommodation, pack a bag and plan a relaxed breakfast.",
+          "when": "1–2 months before"
+        }
+      },
+      "title": "Ideas for {{title}}",
+      "description": "Tap + to add a task to this step. You decide.",
+      "added": "Task added",
+      "error": "We couldn't add the task.",
+      "empty": "You already have all of these tasks. So organized!",
+      "filter": "Filter tasks by timing"
+    },
+    "vendors": {
+      "venue": {
+        "hint": "It sets the date, capacity and style of the wedding. It's the first thing to book.",
+        "when": "12–18 months before"
+      },
+      "catering": {
+        "hint": "Cocktail hour, banquet, late-night snack and open bar. Always ask for a menu tasting.",
+        "when": "10–14 months before"
+      },
+      "photographer": {
+        "hint": "The good ones book up fast. Look at full weddings, not just the portfolio.",
+        "when": "10–14 months before"
+      },
+      "video": {
+        "hint": "A short film or a full-length feature; coordinate with the photographer so you don't get in each other's way.",
+        "when": "9–12 months before"
+      },
+      "music": {
+        "hint": "A DJ or band for the cocktail hour and the party. Ask about equipment, repertoire and hours.",
+        "when": "8–12 months before"
+      },
+      "ceremonyMusic": {
+        "hint": "A choir, violin or string quartet for the entrance, signing and exit.",
+        "when": "4–6 months before"
+      },
+      "flowers": {
+        "hint": "Bouquet, ceremony and centerpieces. Seasonal flowers save money.",
+        "when": "6–9 months before"
+      },
+      "decor": {
+        "hint": "Ambience, lighting and extra furniture; the venue may include it.",
+        "when": "6–9 months before"
+      },
+      "cake": {
+        "hint": "Wedding cake or dessert table. Ask for a flavor tasting and delivery on site.",
+        "when": "3–6 months before"
+      },
+      "hairMakeup": {
+        "hint": "Book with a trial run and check whether they travel to the wedding location.",
+        "when": "6–9 months before"
+      },
+      "dress": {
+        "hint": "A bridal boutique or atelier. Book an appointment early: made-to-measure takes 6 to 10 months.",
+        "when": "10–12 months before"
+      },
+      "suit": {
+        "hint": "Made-to-measure, bought or rented. Leave time for fittings and alterations.",
+        "when": "5–8 months before"
+      },
+      "rings": {
+        "hint": "A jeweler or workshop. Engraving and resizing take a few weeks.",
+        "when": "4–6 months before"
+      },
+      "transport": {
+        "hint": "A car for the couple and buses for guests if the venue is far away.",
+        "when": "4–6 months before"
+      },
+      "kidsEntertainment": {
+        "hint": "Entertainers and games for the little ones: parents enjoy the banquet more.",
+        "when": "3–6 months before"
+      },
+      "photoBooth": {
+        "hint": "It entertains guests and leaves a keepsake; ask about prints and props.",
+        "when": "4–6 months before"
+      },
+      "weddingPlanner": {
+        "hint": "Coordinates vendors and the wedding day. Handy if you're short on time.",
+        "when": "12–14 months before"
+      },
+      "invitations": {
+        "hint": "A printer or designer. Ask for a paper proof and timelines before sending.",
+        "when": "8–10 months before"
+      },
+      "title": "Vendor ideas",
+      "description": "You might be missing these types. Choosing one opens the form with the category filled in.",
+      "essential": "Essential",
+      "book": "Book: {{when}}",
+      "addAria": "Add a “{{title}}” vendor",
+      "added": "Vendor added",
+      "error": "We couldn't open the form.",
+      "empty": "You have all the usual vendor types. Nice work!"
+    },
+    "moments": {
+      "preparativos-vestirse": {
+        "title": "Getting ready",
+        "hint": "Hair, makeup and getting-ready photos."
+      },
+      "fotos-pareja-antes": {
+        "title": "Couple photos before the ceremony",
+        "hint": "The “first look” option: you see each other beforehand and relax."
+      },
+      "llegada-invitados": {
+        "title": "Guest arrival",
+        "hint": "Soft music, water or fans while they take their seats."
+      },
+      "entrada-del-novio": {
+        "title": "Groom's entrance",
+        "hint": "Usually accompanied by his mother or the maid of honor."
+      },
+      "entrada-novia": {
+        "title": "Bride's entrance",
+        "hint": "With your chosen music, accompanied by her father or someone special."
+      },
+      "lecturas": {
+        "title": "Readings",
+        "hint": "Two or three short readings by family or friends."
+      },
+      "lectura-votos": {
+        "title": "Vows",
+        "hint": "A minute each; best written on paper in case of nerves."
+      },
+      "intercambio-alianzas": {
+        "title": "Exchange of rings",
+        "hint": "The ring bearer hands over the rings at this moment."
+      },
+      "firma-del-acta": {
+        "title": "Signing of the register",
+        "hint": "With witnesses and background music; a good moment for a photo."
+      },
+      "salida-con-arroz": {
+        "title": "Exit with rice or petals",
+        "hint": "Check beforehand that the venue allows it."
+      },
+      "fotos-familia": {
+        "title": "Family photos",
+        "hint": "Bring a list of groups with names so it goes quickly."
+      },
+      "coctel-bienvenida": {
+        "title": "Welcome cocktail hour",
+        "hint": "While the couple takes their photos, guests enjoy the appetizers."
+      },
+      "fotos-pareja": {
+        "title": "Couple photos",
+        "hint": "Make the most of the afternoon light; the cocktail hour covers you without anyone missing you."
+      },
+      "entrada-banquete": {
+        "title": "Entrance to the banquet",
+        "hint": "The couple's entrance with their favorite song."
+      },
+      "banquete-discursos": {
+        "title": "Banquet and speeches",
+        "hint": "Speak between courses so the food doesn't go cold; ask for brevity."
+      },
+      "video-sorpresa": {
+        "title": "Surprise video",
+        "hint": "Check the projector and sound beforehand; best between the main course and dessert."
+      },
+      "corte-tarta": {
+        "title": "Cake cutting",
+        "hint": "Do it with a photo and a toast; it's then served with coffee."
+      },
+      "entrega-detalles": {
+        "title": "Handing out favors",
+        "hint": "The couple visits the tables or leaves them at each seat with a note."
+      },
+      "lanzamiento-del-ramo": {
+        "title": "Bouquet toss",
+        "hint": "Optional; sometimes swapped for a bouquet for the maid of honor or grandmother."
+      },
+      "primer-baile": {
+        "title": "First dance",
+        "hint": "Rehearse a little and tell the DJ the song and the moment."
+      },
+      "apertura-barra-libre": {
+        "title": "Open bar opens",
+        "hint": "Confirm the start and end times with the caterer."
+      },
+      "recena": {
+        "title": "Late-night snack",
+        "hint": "Sandwiches, mini burgers, croquettes or chocolate with churros."
+      },
+      "fin-fiesta": {
+        "title": "End of the party",
+        "hint": "Last song and goodbyes; agree the exact time with the venue."
+      },
+      "autobus-vuelta": {
+        "title": "Bus back",
+        "hint": "Let guests know the times and stops for getting back."
+      }
+    },
+    "common": {
+      "button": "Ideas",
+      "all": "All",
+      "filter": "Filter ideas",
+      "added_f": "Added",
+      "added_m": "Added",
+      "present_f": "You already have it",
+      "present_m": "You already have it",
+      "show_f": "Also show the ones you already have",
+      "show_m": "Also show the ones you already have",
+      "hide_f": "Hide the ones you already have",
+      "hide_m": "Hide the ones you already have",
+      "addAria": "Add “{{title}}”",
+      "addedAria": "“{{title}}” {{added}}"
+    },
+    "lead": {
+      "early": "9+ months",
+      "mid": "3–8 months",
+      "late": "< 3 months",
+      "after": "After the wedding",
+      "other": "It depends"
+    },
+    "timeline": {
+      "title": "Ideas for your timeline",
+      "withCeremony": "They're placed around the ceremony ({{time}}). You can adjust the time afterwards.",
+      "noCeremony": "There's no “Ceremony” moment: ideas are added after what you already have. You can adjust the time afterwards.",
+      "added": "Moment added",
+      "error": "We couldn't add the moment.",
+      "empty": "You already have all the usual moments.",
+      "filter": "Filter moments by time of day",
+      "phases": {
+        "before": "Before",
+        "ceremony": "Ceremony",
+        "cocktail": "Cocktail hour",
+        "party": "Banquet and party"
+      }
+    }
+  }
+}

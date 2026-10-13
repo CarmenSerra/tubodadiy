@@ -16,15 +16,17 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { es } from "date-fns/locale";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { dateFnsLocale } from "@/lib/date-locale";
+import { useLanguage } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
 const VALUE_FORMAT = "yyyy-MM-dd";
-const WEEK = { weekStartsOn: 1 as const, locale: es };
-const WEEKDAY_LABELS = ["L", "M", "X", "J", "V", "S", "D"];
+// Lunes como primer día de la semana en todos los idiomas.
+const WEEK_STARTS_ON = 1 as const;
 
 function parseValue(value?: string | null): Date | null {
   if (!value) return null;
@@ -65,6 +67,12 @@ export interface CalendarPanelProps {
  * tanto dentro del popover de `DatePicker` como incrustado en otros popovers.
  */
 export function CalendarPanel({ value, onChange, min, autoFocus, className }: CalendarPanelProps) {
+  const { t } = useTranslation("dashboard");
+  const { lang } = useLanguage();
+  const locale = dateFnsLocale(lang);
+  const WEEK = React.useMemo(() => ({ weekStartsOn: WEEK_STARTS_ON, locale }), [locale]);
+  // Formato del día completo («sábado, 12 de junio de 2027» / «Saturday, 12 June 2027»), por idioma.
+  const fullDateFormat = t("ui.datePicker.fullDateFormat");
   const selected = React.useMemo(() => parseValue(value), [value]);
   const minDate = React.useMemo(() => {
     const parsed = parseValue(min);
@@ -118,7 +126,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
     return Array.from({ length: count }, (_, w) =>
       Array.from({ length: 7 }, (_, d) => addDays(first, w * 7 + d))
     );
-  }, [monthStart]);
+  }, [monthStart, WEEK]);
 
   const today = new Date();
   const prevMonthBlocked = minDate !== null && endOfMonth(addMonths(monthStart, -1)) < minDate;
@@ -171,7 +179,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
     setFocusDate(withMonth(focusDate, focusDate.getFullYear(), month));
   };
 
-  const monthLabel = capitalize(format(focusDate, "LLLL yyyy", { locale: es }));
+  const monthLabel = capitalize(format(focusDate, "LLLL yyyy", { locale }));
 
   return (
     <div ref={rootRef} className={className}>
@@ -179,7 +187,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
       <button
         type="button"
         className={NAV_BUTTON}
-        aria-label={view === "days" ? "Mes anterior" : "Año anterior"}
+        aria-label={view === "days" ? t("ui.datePicker.prevMonth") : t("ui.datePicker.prevYear")}
         disabled={view === "days" ? prevMonthBlocked : prevYearBlocked}
         onClick={() => setFocusDate(view === "days" ? addMonths(focusDate, -1) : addYears(focusDate, -1))}
       >
@@ -190,8 +198,8 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
         aria-live="polite"
         aria-label={
           view === "days"
-            ? `${monthLabel}. Cambiar mes y año`
-            : `${focusDate.getFullYear()}. Volver a los días`
+            ? t("ui.datePicker.changeMonthYear", { month: monthLabel })
+            : t("ui.datePicker.backToDays", { year: focusDate.getFullYear() })
         }
         className="font-display min-w-0 flex-1 rounded-full px-3 py-1.5 text-lg leading-tight font-medium text-ink outline-none transition-colors hover:bg-sage-pale focus-visible:ring-2 focus-visible:ring-lilac-bright"
         onClick={() => {
@@ -204,7 +212,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
       <button
         type="button"
         className={NAV_BUTTON}
-        aria-label={view === "days" ? "Mes siguiente" : "Año siguiente"}
+        aria-label={view === "days" ? t("ui.datePicker.nextMonth") : t("ui.datePicker.nextYear")}
         onClick={() => setFocusDate(view === "days" ? addMonths(focusDate, 1) : addYears(focusDate, 1))}
       >
         <ChevronRight aria-hidden className="size-5" />
@@ -214,16 +222,19 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
     {view === "days" ? (
       <div role="grid" aria-label={monthLabel} onKeyDown={onDayKeyDown}>
         <div role="row" className="grid grid-cols-7">
-          {WEEKDAY_LABELS.map((label, i) => (
-            <div
-              key={label}
-              role="columnheader"
-              aria-label={format(addDays(startOfWeek(monthStart, WEEK), i), "EEEE", { locale: es })}
-              className="flex h-7 items-center justify-center text-xs font-medium tracking-wide text-ink-muted"
-            >
-              {label}
-            </div>
-          ))}
+          {Array.from({ length: 7 }, (_, i) => {
+            const weekday = addDays(startOfWeek(monthStart, WEEK), i);
+            return (
+              <div
+                key={i}
+                role="columnheader"
+                aria-label={format(weekday, "EEEE", { locale })}
+                className="flex h-7 items-center justify-center text-xs font-medium tracking-wide text-ink-muted"
+              >
+                {format(weekday, "EEEEE", { locale }).toUpperCase()}
+              </div>
+            );
+          })}
         </div>
         {weeks.map((week) => (
           <div key={week[0].toISOString()} role="row" className="grid grid-cols-7">
@@ -243,7 +254,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
                   aria-selected={isSelected}
                   aria-disabled={dayDisabled || undefined}
                   aria-current={isToday ? "date" : undefined}
-                  aria-label={format(day, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })}
+                  aria-label={format(day, fullDateFormat, { locale })}
                   onClick={() => commit(day)}
                   className={cn(
                     "mx-auto flex size-9 max-w-full items-center justify-center rounded-full text-sm tabular-nums outline-none transition-colors",
@@ -265,7 +276,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
         ))}
       </div>
     ) : (
-      <div role="group" aria-label="Meses" className="grid grid-cols-3 gap-2" onKeyDown={onMonthKeyDown}>
+      <div role="group" aria-label={t("ui.datePicker.months")} className="grid grid-cols-3 gap-2" onKeyDown={onMonthKeyDown}>
         {Array.from({ length: 12 }, (_, month) => {
           const date = new Date(focusDate.getFullYear(), month, 1);
           const isCurrent = month === focusDate.getMonth();
@@ -282,7 +293,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
               data-roving={isCurrent ? "true" : undefined}
               disabled={monthDisabled}
               aria-pressed={isSelectedMonth}
-              aria-label={capitalize(format(date, "LLLL yyyy", { locale: es }))}
+              aria-label={capitalize(format(date, "LLLL yyyy", { locale }))}
               onClick={() => {
                 requestFocus();
                 setFocusDate(withMonth(focusDate, date.getFullYear(), month));
@@ -300,7 +311,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
                   "ring-1 ring-inset ring-lilac-bright focus-visible:ring-2"
               )}
             >
-              {capitalize(format(date, "LLL", { locale: es })).replace(".", "")}
+              {capitalize(format(date, "LLL", { locale })).replace(".", "")}
             </button>
           );
         })}
@@ -314,7 +325,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
           className={TEXT_BUTTON}
           onClick={() => onChange("")}
         >
-          Borrar
+          {t("ui.clear")}
         </button>
       ) : (
         <span />
@@ -325,7 +336,7 @@ export function CalendarPanel({ value, onChange, min, autoFocus, className }: Ca
         disabled={isDisabledDay(startOfDay(today))}
         onClick={() => commit(startOfDay(today))}
       >
-        Hoy
+        {t("ui.datePicker.today")}
       </button>
     </div>
     </div>
@@ -342,6 +353,7 @@ export function CalendarPopoverContent({
   className,
   ...panel
 }: Omit<CalendarPanelProps, "autoFocus"> & { align?: "start" | "center" | "end" }) {
+  const { t } = useTranslation("dashboard");
   const contentRef = React.useRef<HTMLDivElement>(null);
   return (
     <PopoverContent
@@ -349,7 +361,7 @@ export function CalendarPopoverContent({
       align={align}
       sideOffset={6}
       collisionPadding={16}
-      aria-label="Elegir fecha"
+      aria-label={t("ui.datePicker.choose")}
       // El foco se lleva al día aquí (no al montar el panel): dentro de un
       // diálogo modal, antes de este momento su trampa de foco lo devolvería.
       onOpenAutoFocus={(event) => {
@@ -385,9 +397,11 @@ export function DatePicker({
   "aria-describedby": ariaDescribedBy,
   disabled,
   min,
-  placeholder = "Elige una fecha",
+  placeholder,
   className,
 }: DatePickerProps) {
+  const { t } = useTranslation("dashboard");
+  const { lang } = useLanguage();
   const selected = React.useMemo(() => parseValue(value), [value]);
   const [open, setOpen] = React.useState(false);
 
@@ -409,7 +423,9 @@ export function DatePicker({
           )}
         >
           <span className={cn("truncate", !selected && "text-ink-muted")}>
-            {selected ? format(selected, "d 'de' MMMM 'de' yyyy", { locale: es }) : placeholder}
+            {selected
+              ? format(selected, t("ui.datePicker.valueFormat"), { locale: dateFnsLocale(lang) })
+              : (placeholder ?? t("ui.datePicker.placeholder"))}
           </span>
           <CalendarDays aria-hidden className="size-4 shrink-0 text-lilac" />
         </button>

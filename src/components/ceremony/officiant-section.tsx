@@ -3,9 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { Loader2, UserRoundCheckIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { formatMoney } from "@/components/budget/budget-math";
 import {
   EMPTY_OFFICIANT,
   OFFICIANT_KIND_OPTIONS,
@@ -21,7 +21,7 @@ import {
   SELECT_ITEM,
   SELECT_TRIGGER,
 } from "@/components/guests/brand-dialog";
-import { OFFICIANT_BUDGET_CATEGORY, saveOfficiant } from "@/lib/firebase/plan-tools";
+import { saveOfficiant } from "@/lib/firebase/plan-tools";
 import { isLooseEmail } from "@/components/vendors/vendor-model";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlanContext } from "@/lib/context/plan-context";
+import { formatMoney } from "@/lib/i18n/format";
+import { useLanguage } from "@/lib/i18n/provider";
 import type { OfficiantKind, PlanOfficiant } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -76,6 +78,7 @@ function Field({
 
 /** «Oficiante»: ficha sencilla (no es un proveedor) con honorarios enlazables al presupuesto. */
 export function OfficiantSection() {
+  const { t } = useTranslation("ceremony");
   const { planId, plan } = usePlanContext();
   const saved = plan?.officiant ?? null;
   // Se reinicia el formulario cuando cambia lo guardado (por esta persona o por otra).
@@ -84,8 +87,8 @@ export function OfficiantSection() {
     <CeremonySection
       id="oficiante"
       icon={<UserRoundCheckIcon />}
-      title="Oficiante"
-      description="Quién oficia la ceremonia: sus datos de contacto, si está confirmado y sus honorarios."
+      title={t("officiant.title")}
+      description={t("officiant.description")}
     >
       <OfficiantForm key={formKey} planId={planId} saved={saved} />
     </CeremonySection>
@@ -93,6 +96,8 @@ export function OfficiantSection() {
 }
 
 function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant | null }) {
+  const { t } = useTranslation("ceremony");
+  const { lang } = useLanguage();
   const initial = React.useMemo(() => toDraft(saved), [saved]);
   const [draft, setDraft] = React.useState<OfficiantDraft>(initial);
   const [feeText, setFeeText] = React.useState(initial.fee !== null ? String(initial.fee) : "");
@@ -115,14 +120,14 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
     setSaving(mode);
     try {
       await saveOfficiant(planId, value && !isOfficiantEmpty(value) ? value : null);
-      toast.success(mode === "clear" ? "Ficha del oficiante quitada" : "Ficha del oficiante guardada");
+      toast.success(mode === "clear" ? t("officiant.toast.cleared") : t("officiant.toast.saved"));
       // El formulario se reinicia solo al llegar lo guardado; al quitarla, se vacía.
       if (mode === "clear") {
         setDraft(EMPTY_OFFICIANT);
         setFeeText("");
       }
     } catch {
-      toast.error("No se ha podido guardar la ficha del oficiante.");
+      toast.error(t("officiant.toast.error"));
     } finally {
       setSaving(null);
     }
@@ -132,12 +137,12 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
     e.preventDefault();
     const found: typeof errors = {};
     if (draft.confirmed && !draft.name.trim()) {
-      found.name = "Para marcarlo como confirmado, escribe su nombre.";
+      found.name = t("officiant.errors.name");
     }
     if (draft.email.trim() && !isLooseEmail(draft.email)) {
-      found.email = "Revisa el correo electrónico: debería parecerse a nombre@dominio.com.";
+      found.email = t("officiant.errors.email");
     }
-    if (!feeValid) found.fee = "Escribe un importe válido, sin símbolos.";
+    if (!feeValid) found.fee = t("officiant.errors.fee");
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     void commit(
@@ -159,7 +164,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field id={id("name")} label="Nombre" error={errors.name}>
+        <Field id={id("name")} label={t("officiant.fields.name")} error={errors.name}>
           <Input
             id={id("name")}
             className={FIELD}
@@ -170,7 +175,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
             autoComplete="off"
           />
         </Field>
-        <Field id={id("kind")} label="Tipo">
+        <Field id={id("kind")} label={t("officiant.fields.kind")}>
           <Select
             value={draft.kind ?? NO_KIND}
             onValueChange={(v) => patch({ kind: v === NO_KIND ? null : (v as OfficiantKind) })}
@@ -180,17 +185,17 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
             </SelectTrigger>
             <SelectContent className={SELECT_CONTENT}>
               <SelectItem value={NO_KIND} className={SELECT_ITEM}>
-                Sin indicar
+                {t("officiant.kinds.none")}
               </SelectItem>
               {OFFICIANT_KIND_OPTIONS.map((o) => (
                 <SelectItem key={o.value} value={o.value} className={SELECT_ITEM}>
-                  {o.label}
+                  {t(`officiant.kinds.${o.value}`)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </Field>
-        <Field id={id("phone")} label="Teléfono">
+        <Field id={id("phone")} label={t("officiant.fields.phone")}>
           <Input
             id={id("phone")}
             type="tel"
@@ -200,7 +205,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
             autoComplete="off"
           />
         </Field>
-        <Field id={id("email")} label="Correo electrónico" error={errors.email}>
+        <Field id={id("email")} label={t("officiant.fields.email")} error={errors.email}>
           <Input
             id={id("email")}
             type="email"
@@ -216,11 +221,11 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
 
       <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-field px-4 py-3">
         <Label htmlFor={id("confirmed")} className="flex min-w-0 flex-1 cursor-pointer flex-col items-start gap-1">
-          <span className="text-sm font-medium text-ink">Confirmado</span>
+          <span className="text-sm font-medium text-ink">{t("officiant.confirmed.label")}</span>
           <span className="text-sm font-normal leading-snug text-ink-muted">
             {draft.confirmed
-              ? "Sí: ya tenéis su palabra. La tarea «Confirmar oficiante» se marca sola."
-              : "No: todavía falta confirmarlo."}
+              ? t("officiant.confirmed.yes")
+              : t("officiant.confirmed.no")}
           </span>
         </Label>
         <Switch
@@ -234,7 +239,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
       <div className="flex flex-col gap-4 rounded-xl border border-line bg-field p-4">
         <Field
           id={id("fee")}
-          label="Honorarios (€, opcional)"
+          label={t("officiant.fee.label")}
           error={errors.fee}
         >
           <Input
@@ -258,13 +263,16 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
               fee === null ? "cursor-not-allowed opacity-60" : "cursor-pointer"
             )}
           >
-            <span className="text-sm font-medium text-ink">Añadir al presupuesto</span>
+            <span className="text-sm font-medium text-ink">{t("officiant.fee.addToBudget")}</span>
             <span className="text-sm font-normal leading-snug text-ink-muted">
               {fee === null
-                ? "Escribe los honorarios para poder añadirlos."
+                ? t("officiant.fee.needFee")
                 : next.feeInBudget
-                  ? `Se guarda como gasto pendiente de ${formatMoney(fee)} en «${OFFICIANT_BUDGET_CATEGORY}». Si cambias el importe o lo quitas, el gasto se actualiza.`
-                  : "Crea un gasto pendiente en la categoría «Ceremonia»."}
+                  ? t("officiant.fee.linked", {
+                      amount: formatMoney(fee, lang),
+                      category: t("officiant.fee.category"),
+                    })
+                  : t("officiant.fee.willCreate", { category: t("officiant.fee.category") })}
             </span>
           </Label>
           <Switch
@@ -277,15 +285,15 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
         </div>
         {linked && (
           <p className="text-sm text-ink-muted">
-            Ya está en el presupuesto.{" "}
+            {t("officiant.fee.inBudget")}{" "}
             <Link href={`/plan/${planId}/budget`} className={LINK}>
-              Ver presupuesto
+              {t("officiant.fee.viewBudget")}
             </Link>
           </p>
         )}
       </div>
 
-      <Field id={id("notes")} label="Notas">
+      <Field id={id("notes")} label={t("officiant.fields.notes")}>
         <Textarea
           id={id("notes")}
           rows={3}
@@ -304,7 +312,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
             className={cn(CTA_SECONDARY, "sm:mr-auto")}
           >
             {saving === "clear" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-            Quitar ficha
+            {t("officiant.clear")}
           </button>
         )}
         <button
@@ -313,7 +321,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
           className={cn(CTA_PRIMARY, "disabled:opacity-50")}
         >
           {saving === "save" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("officiant.save")}
         </button>
       </div>
     </form>

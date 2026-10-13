@@ -1,23 +1,28 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_SECONDARY } from "@/components/dashboard/ui";
-import { formatMoney } from "@/components/budget/budget-math";
+import { categoryLabel, formatMoney } from "@/components/budget/budget-math";
 import { IdeasList, type IdeaItem } from "@/components/ideas/ideas-list";
 import { IdeasPanel, type IdeasPanelContext } from "@/components/ideas/ideas-panel";
-import { ideaKey } from "@/components/ideas/ideas-text";
+import { ideaKey, titlesInAllLanguages } from "@/components/ideas/ideas-text";
 import { addBudgetItem, addBudgetItems } from "@/lib/firebase/mutations";
+import { useLanguage } from "@/lib/i18n/provider";
 import { BUDGET_CATEGORY_IDEAS, suggestBudget } from "@/lib/ideas";
 import type { BudgetItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type NewItem = Omit<BudgetItem, "id" | "createdAt">;
 
-/** Partida nueva: la categoría da nombre al concepto y el importe es el orientativo. */
-function toBudgetItem(category: string, amount: number): NewItem {
-  return { category, concept: category, amount, state: "pending", dueDate: null };
+/**
+ * Partida nueva: la categoría se guarda con su nombre de siempre (español); el concepto es texto del
+ * usuario y lleva el nombre de la categoría en el idioma activo; el importe es el orientativo.
+ */
+function toBudgetItem(category: string, concept: string, amount: number): NewItem {
+  return { category, concept, amount, state: "pending", dueDate: null };
 }
 
 /**
@@ -38,6 +43,8 @@ export function BudgetIdeas({
   align?: "start" | "center" | "end";
   className?: string;
 }) {
+  const { t } = useTranslation("budget");
+  const { lang } = useLanguage();
   const hasTotal = Number.isFinite(budgetTotal) && budgetTotal > 0;
   const amounts = React.useMemo(
     () => new Map(suggestBudget(budgetTotal).map((row) => [row.category, row.amount])),
@@ -47,35 +54,42 @@ export function BudgetIdeas({
     () => new Set(items.flatMap((i) => [ideaKey(i.category), ideaKey(i.concept)])),
     [items]
   );
+  const conceptOf = React.useCallback((category: string) => categoryLabel(category, t), [t]);
 
   const rows = React.useMemo<IdeaItem[]>(
     () =>
       BUDGET_CATEGORY_IDEAS.map((idea) => {
         const amount = amounts.get(idea.category) ?? 0;
+        const title = conceptOf(idea.category);
+        const concepts = Object.values(
+          t(`ideas.items.${idea.slug}.concepts`, { returnObjects: true }) as Record<string, string>
+        );
         return {
-          key: ideaKey(idea.category),
-          title: idea.category,
+          key: idea.slug,
+          title,
           // Un solo texto: el consejo si lo hay y, si no, qué suele incluir la partida.
-          hint:
-            idea.hint ??
-            `Suele incluir: ${idea.concepts.slice(0, 3).join(", ")}${idea.concepts.length > 3 ? "…" : "."}`,
-          pills: hasTotal ? [`${idea.share} %`, `≈ ${formatMoney(amount)}`] : [`${idea.share} %`],
-          present: existing.has(ideaKey(idea.category)),
-          addLabel: `Añadir «${idea.category}»`,
-          onAdd: () => addBudgetItem(planId, toBudgetItem(idea.category, amount)),
+          hint: idea.hasHint
+            ? t(`ideas.items.${idea.slug}.hint`)
+            : t("ideas.usuallyIncludes", {
+                list: concepts.slice(0, 3).join(", "),
+                more: concepts.length > 3 ? "…" : ".",
+              }),
+          pills: hasTotal ? [`${idea.share} %`, `≈ ${formatMoney(amount, lang)}`] : [`${idea.share} %`],
+          // Se reconoce por el nombre guardado (español) o por el del concepto, en cualquier idioma.
+          present:
+            existing.has(ideaKey(idea.category)) ||
+            titlesInAllLanguages(`categories.${idea.slug}`, "budget").some((text) => existing.has(ideaKey(text))),
+          addLabel: t("ideas.addAria", { title }),
+          onAdd: () => addBudgetItem(planId, toBudgetItem(idea.category, title, amount)),
         };
       }),
-    [amounts, existing, hasTotal, planId]
+    [amounts, existing, hasTotal, planId, conceptOf, t, lang]
   );
 
   return (
     <IdeasPanel
-      title="Ideas para tu presupuesto"
-      description={
-        hasTotal
-          ? "Un reparto orientativo de tu presupuesto. Cada partida se crea con un importe estimado que puedes cambiar."
-          : "Partidas típicas con su % orientativo. Si indicas tu presupuesto total en el plan, verás también los importes."
-      }
+      title={t("ideas.title")}
+      description={hasTotal ? t("ideas.descriptionWithTotal") : t("ideas.descriptionNoTotal")}
       align={align}
       className={className}
       footer={
@@ -88,9 +102,9 @@ export function BudgetIdeas({
         <IdeasList
           items={rows}
           ctx={ctx}
-          addedMessage="Partida añadida"
-          errorMessage="No se ha podido añadir la partida."
-          emptyText="Ya tienes todas las partidas habituales."
+          addedMessage={t("ideas.added")}
+          errorMessage={t("ideas.error")}
+          emptyText={t("ideas.empty")}
         />
       )}
     </IdeasPanel>
@@ -109,6 +123,7 @@ function AddAllFooter({
   amounts: Map<string, number>;
   ctx: IdeasPanelContext;
 }) {
+  const { t } = useTranslation("budget");
   const [confirming, setConfirming] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const confirmRef = React.useRef<HTMLButtonElement>(null);
@@ -124,12 +139,14 @@ function AddAllFooter({
     try {
       await addBudgetItems(
         planId,
-        BUDGET_CATEGORY_IDEAS.map((idea) => toBudgetItem(idea.category, amounts.get(idea.category) ?? 0))
+        BUDGET_CATEGORY_IDEAS.map((idea) =>
+          toBudgetItem(idea.category, categoryLabel(idea.category, t), amounts.get(idea.category) ?? 0)
+        )
       );
-      toast.success(`${count} partidas añadidas`, { id: "ideas-added" });
+      toast.success(t("ideas.addAll.done", { number: count }), { id: "ideas-added" });
       ctx.close();
     } catch {
-      toast.error("No se han podido añadir las partidas.");
+      toast.error(t("ideas.addAll.error"));
       setSaving(false);
     }
   }
@@ -147,18 +164,17 @@ function AddAllFooter({
         onClick={() => setConfirming(true)}
         className={cn(CTA_SECONDARY, "h-10 w-full focus-visible:ring-offset-surface")}
       >
-        Añadir todas las partidas sugeridas
+        {t("ideas.addAll.button")}
       </button>
     );
   }
 
   return (
-    <div role="group" aria-label="Confirmar partidas sugeridas" className="flex flex-col gap-3">
+    <div role="group" aria-label={t("ideas.addAll.confirmLabel")} className="flex flex-col gap-3">
       <p className="text-[13px] leading-snug text-ink">
-        Se crearán {count} partidas
         {hasTotal
-          ? " con el importe estimado según tu presupuesto total. Podrás editarlas después."
-          : " sin importe; podrás ponerlo y editarlas después."}
+          ? t("ideas.addAll.confirmWithTotal", { number: count })
+          : t("ideas.addAll.confirmNoTotal", { number: count })}
       </p>
       <div className="flex gap-2">
         <button
@@ -167,7 +183,7 @@ function AddAllFooter({
           disabled={saving}
           className={cn(CTA_SECONDARY, "h-10 flex-1 px-3 focus-visible:ring-offset-surface")}
         >
-          Cancelar
+          {t("form.cancel")}
         </button>
         <button
           ref={confirmRef}
@@ -179,7 +195,7 @@ function AddAllFooter({
             "outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           )}
         >
-          {saving ? "Añadiendo…" : `Sí, añadir las ${count}`}
+          {saving ? t("ideas.addAll.adding") : t("ideas.addAll.confirm", { number: count })}
         </button>
       </div>
     </div>

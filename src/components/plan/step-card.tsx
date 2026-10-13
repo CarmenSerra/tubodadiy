@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowRightIcon, ChevronDownIcon, ClockIcon, PlusIcon, XIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import { StepIdeas } from "@/components/ideas/step-ideas";
 import { useAppointmentsLauncher } from "@/components/appointments/appointments-launcher";
 import { usePlanToolsLauncher } from "@/components/plan-tools/plan-tools-launcher";
 import { useEditPlanLauncher } from "@/components/plan/edit-plan-launcher";
-import { STATUS_LABEL, StepStatusControl } from "@/components/plan/step-status";
+import { STATUS_LABEL_KEY, StepStatusControl } from "@/components/plan/step-status";
 import { taskTarget } from "@/components/plan/task-links";
 import { useSaveTheDateLauncher } from "@/components/stationery/stationery-launcher";
 import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
@@ -27,7 +28,12 @@ import {
   toggleTaskInStep,
   updateStepNotes,
 } from "@/lib/firebase/mutations";
-import { TIMELINE_CATEGORY } from "@/lib/steps";
+import {
+  TIMELINE_CATEGORY,
+  displayStepDescription,
+  displayStepTitle,
+  displayTaskTitle,
+} from "@/lib/steps";
 import type { PlanStep } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
@@ -60,9 +66,14 @@ export function StepCard({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation("plan");
   const [notes, setNotes] = React.useState(step.notes);
   const [newTask, setNewTask] = React.useState("");
-  const doneCount = step.tasks.filter((t) => t.done).length;
+  const doneCount = step.tasks.filter((task) => task.done).length;
+  // Secciones y tareas base: se muestran traducidas; lo que la persona escribió o editó, tal cual.
+  const stepTitle = displayStepTitle(step.category, t, step.title);
+  const stepDescription = displayStepDescription(step.category, t, step.description);
+  const taskTitle = (task: PlanStep["tasks"][number]) => displayTaskTitle(step.category, task, t);
   const bodyId = `step-body-${step.id}`;
   const completed = step.status === "completed";
   const muted = step.status === "skipped";
@@ -83,7 +94,8 @@ export function StepCard({
   function taskArrow(task: PlanStep["tasks"][number]) {
     const target = taskTarget(task.auto, planId);
     if (!target) return null;
-    const label = `${target.label}: ${task.title}`;
+    const targetLabel = t(target.labelKey);
+    const label = `${targetLabel}: ${taskTitle(task)}`;
     const className = cn(
       "size-8 shrink-0 rounded-full focus-visible:ring-lilac",
       completed
@@ -94,7 +106,7 @@ export function StepCard({
     if (target.kind === "href") {
       return (
         <Button asChild variant="ghost" size="icon" className={className}>
-          <Link href={target.href} aria-label={label} title={target.label}>
+          <Link href={target.href} aria-label={label} title={targetLabel}>
             {icon}
           </Link>
         </Button>
@@ -124,7 +136,7 @@ export function StepCard({
         variant="ghost"
         size="icon"
         aria-label={label}
-        title={target.label}
+        title={targetLabel}
         className={className}
         onClick={open}
       >
@@ -145,7 +157,7 @@ export function StepCard({
     try {
       await updateStepNotes(planId, step.id, notes);
     } catch {
-      toast.error("No se han podido guardar las notas.");
+      toast.error(t("step.errors.notes"));
     }
   }
 
@@ -153,7 +165,7 @@ export function StepCard({
     try {
       await replaceStepTasks(planId, step, toggleTaskInStep(step, taskId));
     } catch {
-      toast.error("No se ha podido actualizar la tarea.");
+      toast.error(t("step.errors.updateTask"));
     }
   }
 
@@ -163,9 +175,9 @@ export function StepCard({
       // sigue a las tareas: quitar la última pendiente completa el paso).
       const { id, tasks, status } = step;
       await replaceStepTasks(planId, step, removeTaskFromStep(step, taskId));
-      toastWithUndo("Tarea eliminada", () => restoreStepTasks(planId, id, tasks, status));
+      toastWithUndo(t("step.taskRemoved"), () => restoreStepTasks(planId, id, tasks, status));
     } catch {
-      toast.error("No se ha podido eliminar la tarea.");
+      toast.error(t("step.errors.removeTask"));
     }
   }
 
@@ -177,7 +189,7 @@ export function StepCard({
     try {
       await replaceStepTasks(planId, step, addTaskToStep(step, title));
     } catch {
-      toast.error("No se ha podido añadir la tarea.");
+      toast.error(t("step.errors.addTask"));
     }
   }
 
@@ -210,7 +222,7 @@ export function StepCard({
         >
           <span className="text-base leading-none">🎉</span>
           <span className="rotate-180 text-[0.7rem] font-bold uppercase leading-none tracking-[0.1em] [writing-mode:vertical-rl]">
-            ¡Completado!
+            {t("step.completedStrip")}
           </span>
         </div>
       )}
@@ -219,7 +231,7 @@ export function StepCard({
           <StepStatusControl
             planId={planId}
             stepId={step.id}
-            title={step.title}
+            title={stepTitle}
             status={step.status}
             onDone={completed}
           />
@@ -240,12 +252,12 @@ export function StepCard({
                 <span className="mb-1 flex flex-wrap items-center gap-1.5">
                   {recommended && (
                     <span className="rounded-full bg-lilac-soft px-2 py-0.5 text-xs font-medium text-ink">
-                      Siguiente
+                      {t("step.next")}
                     </span>
                   )}
                   {(step.status === "in_progress" || step.status === "skipped") && (
                     <span className={cn("text-xs font-medium", soft)}>
-                      {STATUS_LABEL[step.status]}
+                      {t(STATUS_LABEL_KEY[step.status])}
                     </span>
                   )}
                 </span>
@@ -257,19 +269,19 @@ export function StepCard({
                   step.status === "skipped" && "line-through decoration-ink-muted/50"
                 )}
               >
-                {step.title}
+                {stepTitle}
               </span>
-              {step.description && (
+              {stepDescription && (
                 <span className={cn("mt-0.5 line-clamp-2 block text-sm sm:line-clamp-1", soft)}>
-                  {step.description}
+                  {stepDescription}
                 </span>
               )}
             </span>
             {step.tasks.length > 0 && (
               <span className={cn("shrink-0 whitespace-nowrap text-sm", soft)}>
                 {doneCount}/{step.tasks.length}
-                <span className="hidden sm:inline"> tareas</span>
-                <span className="sr-only sm:hidden"> tareas</span>
+                <span className="hidden sm:inline"> {t("step.tasksWord")}</span>
+                <span className="sr-only sm:hidden"> {t("step.tasksWord")}</span>
               </span>
             )}
             <ChevronDownIcon
@@ -285,7 +297,7 @@ export function StepCard({
             <button
               type="button"
               onClick={openTimeline}
-              aria-label="Abrir cronograma"
+              aria-label={t("step.openTimeline")}
               className={cn(
                 "inline-flex size-10 shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-medium transition-colors motion-reduce:transition-none sm:w-auto sm:px-3",
                 completed
@@ -297,7 +309,7 @@ export function StepCard({
             >
               <ClockIcon aria-hidden="true" className="size-4" />
               <span aria-hidden="true" className="hidden sm:inline">
-                Abrir
+                {t("step.openShort")}
               </span>
             </button>
           )}
@@ -320,11 +332,11 @@ export function StepCard({
               )}
             >
               <ClockIcon aria-hidden="true" className="size-4" />
-              Abrir cronograma
+              {t("step.openTimeline")}
             </button>
           )}
           <div className="flex flex-col gap-2">
-            <span className={cn("text-sm font-medium", soft)}>Tareas</span>
+            <span className={cn("text-sm font-medium", soft)}>{t("step.tasks")}</span>
             {step.tasks.length > 0 && (
               <ul className="flex flex-col">
                 {step.tasks.map((task) => (
@@ -332,7 +344,7 @@ export function StepCard({
                     <Checkbox
                       checked={task.done}
                       onCheckedChange={() => handleToggleTask(task.id)}
-                      aria-label={task.title}
+                      aria-label={taskTitle(task)}
                       className={cn(
                         "size-5 rounded-md border-lilac bg-field shadow-none focus-visible:ring-lilac data-[state=checked]:border-lilac data-[state=checked]:bg-cta data-[state=checked]:text-on-cta",
                         completed &&
@@ -346,14 +358,14 @@ export function StepCard({
                         task.done && cn(soft, "line-through")
                       )}
                     >
-                      {task.title}
+                      {taskTitle(task)}
                     </span>
                     {taskArrow(task)}
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      aria-label={`Eliminar tarea: ${task.title}`}
+                      aria-label={t("step.removeTask", { title: taskTitle(task) })}
                       className={cn(
                         "size-8 rounded-full focus-visible:ring-lilac",
                         completed
@@ -372,14 +384,14 @@ export function StepCard({
               <Input
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
-                placeholder="Añadir una tarea…"
-                aria-label="Añadir tarea"
+                placeholder={t("step.addTaskPlaceholder")}
+                aria-label={t("step.addTask")}
                 className={cn(FIELD, "h-10")}
               />
               <Button
                 type="submit"
                 size="icon"
-                aria-label="Añadir tarea"
+                aria-label={t("step.addTask")}
                 className={cn(
                   "size-10 shrink-0 rounded-full shadow-none hover:opacity-90 focus-visible:ring-lilac focus-visible:ring-offset-surface",
                   completed
@@ -404,14 +416,14 @@ export function StepCard({
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={`step-notes-${step.id}`} className={cn("text-sm font-medium", soft)}>
-              Notas
+              {t("step.notes")}
             </label>
             <Textarea
               id={`step-notes-${step.id}`}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onBlur={handleNotesBlur}
-              placeholder="Apunta aquí lo que quieras recordar…"
+              placeholder={t("step.notesPlaceholder")}
               rows={2}
               className={cn(FIELD, "h-auto min-h-16 py-2.5")}
             />

@@ -19,5 +19,14 @@
     "unavailable": "The service is not available right now. Please try again in a few minutes.",
     "deadline-exceeded": "The operation took too long. Please try again.",
     "unknown": "Something went wrong. Please try again."
+  },
+  "invite": {
+    "accept": {
+      "serverNotConfigured": "The server doesn't have the Firebase Admin credentials set up (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY).",
+      "invalidSession": "Invalid session. Please log in again and retry.",
+      "notFound": "This invitation doesn't exist or has expired.",
+      "unavailable": "This invitation is no longer available.",
+      "planGone": "The wedding plan linked to this invitation no longer exists."
+    }
   }
 }

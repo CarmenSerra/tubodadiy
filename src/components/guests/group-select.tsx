@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   FIELD,
@@ -15,18 +16,21 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-/** Grupos que siempre se ofrecen, además de los que ya usa el plan. */
-export const DEFAULT_GROUPS = ["Familia", "Amigos", "Otros"] as const;
+/**
+ * Grupos que siempre se ofrecen, además de los que ya usa el plan. El grupo es texto libre del
+ * usuario: se ofrece (y se guarda) con el nombre del idioma activo (guests:groups.<clave>).
+ */
+export const DEFAULT_GROUP_KEYS = ["family", "friends", "other"] as const;
 
 // Radix Select no admite "" como valor: se usan centinelas para estas dos opciones.
 const NONE = "__none__";
 const CUSTOM = "__custom__";
 
 /** Opciones del desplegable: las de siempre, los grupos del plan y, si hace falta, el valor actual. */
-export function groupOptions(used: string[], current: string): string[] {
+export function groupOptions(defaults: string[], used: string[], current: string): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const label of [...DEFAULT_GROUPS, ...used, current]) {
+  for (const label of [...defaults, ...used, current]) {
     const trimmed = label.trim();
     const key = normalizeText(trimmed);
     if (!trimmed || seen.has(key)) continue;
@@ -55,10 +59,14 @@ export function GroupSelect({
   groups: string[];
   className?: string;
 }) {
+  const { t } = useTranslation("guests");
   // Las opciones se fijan al abrir el formulario: si no, al teclear un grupo nuevo
   // aparecería (y se seleccionaría) a cada letra.
   const [initial] = React.useState(value);
-  const options = React.useMemo(() => groupOptions(groups, initial), [groups, initial]);
+  const options = React.useMemo(
+    () => groupOptions(DEFAULT_GROUP_KEYS.map((key) => t(`groups.${key}`)), groups, initial),
+    [groups, initial, t]
+  );
   const [custom, setCustom] = React.useState(false);
   const [customText, setCustomText] = React.useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -96,7 +104,7 @@ export function GroupSelect({
     <div className={cn("flex flex-col gap-2", className)}>
       <Select value={selected} onValueChange={handleSelect}>
         <SelectTrigger id={id} className={SELECT_TRIGGER}>
-          <SelectValue placeholder="Elige un grupo" />
+          <SelectValue placeholder={t("groupSelect.placeholder")} />
         </SelectTrigger>
         <SelectContent
           className={SELECT_CONTENT}
@@ -108,7 +116,7 @@ export function GroupSelect({
           }}
         >
           <SelectItem value={NONE} className={SELECT_ITEM}>
-            Sin grupo
+            {t("groupSelect.none")}
           </SelectItem>
           {options.map((o) => (
             <SelectItem key={o} value={o} className={SELECT_ITEM}>
@@ -116,14 +124,14 @@ export function GroupSelect({
             </SelectItem>
           ))}
           <SelectItem value={CUSTOM} className={SELECT_ITEM}>
-            Escribir otro grupo…
+            {t("groupSelect.custom")}
           </SelectItem>
         </SelectContent>
       </Select>
       {custom && (
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-custom`} className={FIELD_LABEL}>
-            Nombre del nuevo grupo
+            {t("groupSelect.newName")}
           </Label>
           <Input
             id={`${id}-custom`}
@@ -133,7 +141,7 @@ export function GroupSelect({
               onChange(e.target.value.trim());
             }}
             onBlur={handleCustomBlur}
-            placeholder="Compañeros de trabajo, vecinos…"
+            placeholder={t("groupSelect.newPlaceholder")}
             maxLength={60}
             autoComplete="off"
             ref={inputRef}

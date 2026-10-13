@@ -9,15 +9,15 @@ export async function GET(request: NextRequest) {
   if (denied) return denied;
 
   const raw = (request.nextUrl.searchParams.get("url") ?? "").trim();
-  if (!raw || raw.length > 2048) return jsonError(400, "Indica la dirección web.");
+  if (!raw || raw.length > 2048) return jsonError(400, "webRequired");
   let url: URL;
   try {
     url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`);
   } catch {
-    return jsonError(400, "La dirección web no es válida.");
+    return jsonError(400, "webInvalid");
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") {
-    return jsonError(400, "Solo se admiten direcciones http o https.");
+    return jsonError(400, "webProtocol");
   }
 
   // Best effort: un fallo del sitio (DNS, timeout, bloqueo, HTML raro) nunca es un error del servidor.

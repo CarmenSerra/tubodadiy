@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ArrowLeftIcon, Loader2, Trash2Icon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -47,6 +48,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
 import { createTimelineItem, deleteTimelineItem, updateTimelineItem } from "@/lib/firebase/timeline";
+import { useLanguage } from "@/lib/i18n/provider";
 import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -118,10 +120,6 @@ interface FormError {
   text: string;
 }
 
-function durationLabel(min: number): string {
-  return min === 0 ? "Sin duración (momento puntual)" : formatDuration(min);
-}
-
 function MomentForm({
   planId,
   item,
@@ -137,6 +135,10 @@ function MomentForm({
   onCreated?: () => void;
   onChange?: (change: TimelineChange) => void;
 }) {
+  const { t } = useTranslation("timeline");
+  const { lang } = useLanguage();
+  const durationLabel = (min: number) =>
+    min === 0 ? t("form.noDuration") : formatDuration(min, lang);
   const isEdit = Boolean(item);
   const initialStart = item?.startMin ?? defaultStartMin;
   const initialDuration = item?.durationMin ?? 30;
@@ -175,9 +177,9 @@ function MomentForm({
   }
 
   function validate(): FormError | { clock: number; duration: number } {
-    if (!title.trim()) return { field: "title", text: "Ponle un nombre al momento." };
+    if (!title.trim()) return { field: "title", text: t("form.errors.title") };
     const clock = parseClock(time);
-    if (clock === null) return { field: "time", text: "Escribe una hora válida, por ejemplo 12:30." };
+    if (clock === null) return { field: "time", text: t("form.errors.time") };
     const duration = durationChoice === CUSTOM ? Number(customMin) : Number(durationChoice);
     if (
       (durationChoice === CUSTOM && customMin.trim() === "") ||
@@ -185,7 +187,7 @@ function MomentForm({
       duration < 0 ||
       duration > MAX_DURATION_MIN
     ) {
-      return { field: "duration", text: "Escribe una duración en minutos, entre 0 y 1440." };
+      return { field: "duration", text: t("form.errors.duration") };
     }
     return { clock, duration };
   }
@@ -221,7 +223,7 @@ function MomentForm({
       }
       onDone();
     } catch {
-      toast.error("No se ha podido guardar el momento.");
+      toast.error(t("form.errors.save"));
     } finally {
       setSubmitting(false);
     }
@@ -234,7 +236,7 @@ function MomentForm({
       onChange?.({ type: "deleted", item });
       onDone();
     } catch {
-      toast.error("No se ha podido eliminar el momento.");
+      toast.error(t("form.errors.delete"));
     }
   }
 
@@ -250,18 +252,18 @@ function MomentForm({
           )}
         >
           <ArrowLeftIcon aria-hidden="true" className="size-4" />
-          Volver al cronograma
+          {t("form.back")}
         </button>
-        <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar momento" : "Nuevo momento"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{isEdit ? t("form.editTitle") : t("form.newTitle")}</DialogTitle>
         <DialogDescription className="sr-only">
-          Hora, duración y detalles de este momento del día.
+          {t("form.description")}
         </DialogDescription>
       </DialogHeader>
 
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor={titleId} className={FIELD_LABEL}>
-            Título
+            {t("form.fields.title")}
           </Label>
           <Input
             id={titleId}
@@ -270,7 +272,7 @@ function MomentForm({
               setTitle(e.target.value);
               clearError("title");
             }}
-            placeholder="Ceremonia, cóctel, primer baile…"
+            placeholder={t("form.placeholders.title")}
             autoFocus={!isEdit}
             autoComplete="off"
             required
@@ -288,7 +290,7 @@ function MomentForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor={timeId} className={FIELD_LABEL}>
-              Hora
+              {t("form.fields.time")}
             </Label>
             <TimePicker
               id={timeId}
@@ -312,13 +314,13 @@ function MomentForm({
                 onCheckedChange={(v) => setNextDay(Boolean(v))}
                 className={CHECKBOX}
               />
-              Madrugada del día siguiente
+              {t("form.nextDay")}
             </label>
           </div>
 
           <div className="flex flex-col gap-2">
             <Label htmlFor={durationId} className={FIELD_LABEL}>
-              Duración
+              {t("form.fields.duration")}
             </Label>
             <Select
               value={durationChoice}
@@ -341,14 +343,14 @@ function MomentForm({
                   </SelectItem>
                 ))}
                 <SelectItem value={CUSTOM} className={SELECT_ITEM}>
-                  Otra duración…
+                  {t("form.otherDuration")}
                 </SelectItem>
               </SelectContent>
             </Select>
             {durationChoice === CUSTOM && (
               <div className="flex items-center gap-2">
                 <Label htmlFor={customId} className="sr-only">
-                  Duración en minutos
+                  {t("form.durationMinutesLabel")}
                 </Label>
                 <Input
                   id={customId}
@@ -366,7 +368,7 @@ function MomentForm({
                   aria-describedby={error?.field === "duration" ? `${durationId}-error` : undefined}
                   className={cn(FIELD, "w-28 tabular-nums")}
                 />
-                <span className="text-sm text-ink-muted">minutos</span>
+                <span className="text-sm text-ink-muted">{t("form.minutes")}</span>
               </div>
             )}
             {error?.field === "duration" && (
@@ -380,26 +382,26 @@ function MomentForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor={locationId} className={FIELD_LABEL}>
-              Lugar
+              {t("form.fields.location")}
             </Label>
             <Input
               id={locationId}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Iglesia de San Juan"
+              placeholder={t("form.placeholders.location")}
               autoComplete="off"
               className={FIELD}
             />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor={responsibleId} className={FIELD_LABEL}>
-              Responsable
+              {t("form.fields.responsible")}
             </Label>
             <Input
               id={responsibleId}
               value={responsible}
               onChange={(e) => setResponsible(e.target.value)}
-              placeholder="Ana, el fotógrafo…"
+              placeholder={t("form.placeholders.responsible")}
               autoComplete="off"
               className={FIELD}
             />
@@ -408,13 +410,13 @@ function MomentForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor={notesId} className={FIELD_LABEL}>
-            Notas
+            {t("form.fields.notes")}
           </Label>
           <Textarea
             id={notesId}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Algo que tengan que saber los proveedores o la familia…"
+            placeholder={t("form.placeholders.notes")}
             rows={3}
             className="min-h-20 rounded-xl border-line-strong bg-field text-base text-ink-strong shadow-none placeholder:text-ink-placeholder focus-visible:ring-lilac focus-visible:ring-offset-0 sm:text-sm"
           />
@@ -427,8 +429,8 @@ function MomentForm({
             className={cn(CHECKBOX, "mt-0.5")}
           />
           <span>
-            Momento clave
-            <span className="block text-ink-muted">Se marca con un punto destacado en el cronograma.</span>
+            {t("form.highlight.label")}
+            <span className="block text-ink-muted">{t("form.highlight.help")}</span>
           </span>
         </label>
       </div>
@@ -445,15 +447,15 @@ function MomentForm({
             )}
           >
             <Trash2Icon aria-hidden="true" className="size-4" />
-            Eliminar momento
+            {t("form.delete")}
           </button>
         )}
         <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
-          Cancelar
+          {t("form.cancel")}
         </button>
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
           {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("form.save")}
         </button>
       </DialogFooter>
     </form>

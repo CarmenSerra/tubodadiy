@@ -3,8 +3,13 @@
 import * as React from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
+import type { Lang } from "@/lib/i18n/config";
+import { getServerT } from "@/lib/i18n/server";
+
 /** Copia un dato (IBAN, Bizum) con un toque. Funciona también sin la API moderna. */
-export function CopyButton({ value, label }: { value: string; label: string }) {
+export function CopyButton({ value, label, lang }: { value: string; label: string; lang: Lang }) {
+  // Texto en el idioma de la invitación (no el de quien la abre).
+  const t = getServerT(lang, "invitation");
   const [copied, setCopied] = React.useState(false);
   const timer = React.useRef<number | undefined>(undefined);
 
@@ -37,9 +42,9 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
   }
 
   return (
-    <button type="button" onClick={copy} className="inv-copyBtn" aria-label={`Copiar ${label}`}>
+    <button type="button" onClick={copy} className="inv-copyBtn" aria-label={t("view.copy.aria", { label })}>
       {copied ? <CheckIcon aria-hidden="true" /> : <CopyIcon aria-hidden="true" />}
-      <span aria-live="polite">{copied ? "Copiado" : "Copiar"}</span>
+      <span aria-live="polite">{copied ? t("view.copy.done") : t("view.copy.action")}</span>
     </button>
   );
 }

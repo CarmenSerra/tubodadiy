@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -16,20 +17,23 @@ import type { StepStatus } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
-/** Opciones del menú de estado, en el orden en que se muestran. */
-export const STATUS_OPTIONS: { value: StepStatus; label: string }[] = [
-  { value: "pending", label: "Pendiente" },
-  { value: "in_progress", label: "En progreso" },
-  { value: "completed", label: "Completado" },
-  { value: "skipped", label: "Omitir" },
+/**
+ * Opciones del menú de estado, en el orden en que se muestran. `labelKey` es una
+ * clave del namespace `plan` (el valor guardado en Firestore es `value`).
+ */
+export const STATUS_OPTIONS: { value: StepStatus; labelKey: string }[] = [
+  { value: "pending", labelKey: "status.options.pending" },
+  { value: "in_progress", labelKey: "status.options.in_progress" },
+  { value: "completed", labelKey: "status.options.completed" },
+  { value: "skipped", labelKey: "status.options.skipped" },
 ];
 
-/** Texto del estado actual (para lectores de pantalla y la fila). */
-export const STATUS_LABEL: Record<StepStatus, string> = {
-  pending: "Pendiente",
-  in_progress: "En progreso",
-  completed: "Completado",
-  skipped: "Omitido",
+/** Clave (namespace `plan`) del texto del estado actual, para lectores de pantalla y la fila. */
+export const STATUS_LABEL_KEY: Record<StepStatus, string> = {
+  pending: "status.labels.pending",
+  in_progress: "status.labels.in_progress",
+  completed: "status.labels.completed",
+  skipped: "status.labels.skipped",
 };
 
 /** Círculo de estado: vacío, medio lleno, con check u omitido (discontinuo). */
@@ -98,23 +102,25 @@ export function StepStatusControl({
   /** El paso está en la tarjeta violeta de «completado». */
   onDone?: boolean;
 }) {
+  const { t } = useTranslation("plan");
+
   async function handleChange(next: string) {
     if (next === status) return;
     try {
       const previous = status;
       await updateStepStatus(planId, stepId, next as StepStatus);
-      toastWithUndo(`Estado: ${STATUS_LABEL[next as StepStatus]}`, () =>
+      toastWithUndo(t("status.toast", { status: t(STATUS_LABEL_KEY[next as StepStatus]) }), () =>
         updateStepStatus(planId, stepId, previous)
       );
     } catch {
-      toast.error("No se ha podido actualizar el estado.");
+      toast.error(t("status.error"));
     }
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={`Estado de «${title}»: ${STATUS_LABEL[status]}. Cambiar`}
+        aria-label={t("status.controlAria", { title, status: t(STATUS_LABEL_KEY[status]) })}
         className={cn(
           "flex size-11 shrink-0 items-center justify-center rounded-full transition-colors motion-reduce:transition-none sm:size-10",
           onDone
@@ -139,7 +145,7 @@ export function StepStatusControl({
               value={opt.value}
               className="rounded-lg py-2.5 text-sm focus:bg-lilac-soft focus:text-ink sm:py-2"
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>

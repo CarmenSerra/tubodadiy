@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPinIcon, XIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   ROW_FOCUS,
@@ -9,6 +10,7 @@ import {
   SELECT_TRIGGER,
 } from "@/components/vendors/vendor-brand";
 import {
+  OTHER_PLACES,
   hasLocations,
   isFilterAvailable,
   type LocationFilter,
@@ -47,26 +49,27 @@ export function VendorLocationFilter({
   shown: number;
   total: number;
 }) {
+  const { t } = useTranslation("vendors");
   if (!hasLocations(options)) return null;
   const current = isFilterAvailable(value, options) ? value : null;
 
   return (
     <section
-      aria-label="Filtrar proveedores por lugar"
+      aria-label={t("filter.section")}
       className="flex flex-wrap items-center gap-x-4 gap-y-2"
     >
       <div className="flex min-w-0 items-center gap-2">
         <MapPinIcon className="size-4 shrink-0 text-ink-muted" aria-hidden="true" />
         <Select value={encode(current)} onValueChange={(v) => onChange(decode(v))}>
           <SelectTrigger
-            aria-label="Filtrar por lugar"
+            aria-label={t("filter.label")}
             className={cn(SELECT_TRIGGER, "w-full min-w-0 sm:w-72")}
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent className={SELECT_CONTENT}>
             <SelectItem value={ALL} className={SELECT_ITEM}>
-              Todos los lugares
+              {t("filter.all")}
             </SelectItem>
             {options.communities.map((community) => (
               <CommunityItems key={community.name} community={community} />
@@ -77,7 +80,7 @@ export function VendorLocationFilter({
       {current && (
         <p className="flex items-center gap-3 text-sm text-ink-muted" aria-live="polite">
           <span>
-            {shown === 1 ? "1 opción" : `${shown} opciones`} de {total}
+            {t("filter.shownOf", { count: shown, total })}
           </span>
           <button
             type="button"
@@ -88,7 +91,7 @@ export function VendorLocationFilter({
             )}
           >
             <XIcon className="size-3.5" aria-hidden="true" />
-            Quitar filtro
+            {t("filter.clear")}
           </button>
         </p>
       )}
@@ -97,12 +100,13 @@ export function VendorLocationFilter({
 }
 
 function CommunityItems({ community }: { community: { name: string; provinces: string[] } }) {
+  const { t } = useTranslation("vendors");
   // Con una sola provincia que coincide con la comunidad no hace falta repetirla.
   const onlyProvince = community.provinces.length === 1 ? community.provinces[0] : null;
   return (
     <>
       <SelectItem value={`c:${community.name}`} className={cn(SELECT_ITEM, "font-semibold")}>
-        {community.name}
+        {community.name === OTHER_PLACES ? t("filter.otherPlaces") : community.name}
       </SelectItem>
       {onlyProvince && onlyProvince !== community.name && (
         <SelectItem value={`p:${onlyProvince}`} className={cn(SELECT_ITEM, "pl-6")}>

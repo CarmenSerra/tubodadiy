@@ -1,12 +1,7 @@
 import type { GiftMode, PlanGift } from "@/lib/types";
 
-/** Texto de ejemplo para el mensaje a invitados (sin género). */
-export const GIFT_MESSAGE_EXAMPLE =
-  "Vuestra presencia es el mejor regalo. Si queréis tener un detalle con nosotros, lo recibiremos con mucho cariño en forma de aportación para estrenar esta nueva etapa.";
-
-/** Texto de ejemplo para el mensaje cuando el regalo es una lista de cosas. */
-export const GIFT_LIST_MESSAGE_EXAMPLE =
-  "Lo que más ilusión nos hace es compartir este día con vosotros. Si queréis tener un detalle, hemos preparado una lista con cosas que nos vendrán muy bien en casa; no hace falta regalar nada de ella.";
+// Los textos de ejemplo del mensaje a invitados salen de
+// `tools:planTools.gift.money.messageExample` y `tools:planTools.gift.list.messageExample`.
 
 export const GIFT_MESSAGE_MAX = 280;
 
@@ -45,20 +40,16 @@ function mod97(iban: string): number {
   return remainder;
 }
 
-/** Mensaje de error de un IBAN, o `null` si es válido (o está vacío). */
-export function ibanError(value: string): string | null {
+export type IbanProblem = "format" | "spanishLength" | "length" | "checksum";
+
+/** Problema de un IBAN (texto en `tools:planTools.gift.money.ibanErrors.<problema>`), o `null` si es válido (o está vacío). */
+export function ibanError(value: string): IbanProblem | null {
   const iban = normalizeIban(value);
   if (!iban) return null;
-  if (!/^[A-Z]{2}\d{2}/.test(iban)) {
-    return "El IBAN empieza por dos letras y dos números, por ejemplo ES91 2100…";
-  }
-  if (iban.startsWith("ES") && iban.length !== 24) {
-    return "Un IBAN español tiene 24 caracteres: ES y 22 números.";
-  }
-  if (iban.length < 15 || iban.length > 34 || !/^[A-Z0-9]+$/.test(iban)) {
-    return "Este IBAN no tiene la longitud habitual. Revísalo.";
-  }
-  if (mod97(iban) !== 1) return "Revisa el IBAN: algún número no cuadra.";
+  if (!/^[A-Z]{2}\d{2}/.test(iban)) return "format";
+  if (iban.startsWith("ES") && iban.length !== 24) return "spanishLength";
+  if (iban.length < 15 || iban.length > 34 || !/^[A-Z0-9]+$/.test(iban)) return "length";
+  if (mod97(iban) !== 1) return "checksum";
   return null;
 }
 
@@ -75,13 +66,11 @@ export function formatBizum(value: string): string {
   return digits.length === 9 ? digits.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3") : digits;
 }
 
-export function bizumError(value: string): string | null {
+/** `"format"` (texto en `tools:planTools.gift.money.bizumError`) si no es un móvil español válido. */
+export function bizumError(value: string): "format" | null {
   const digits = normalizeBizum(value);
   if (!digits) return null;
-  if (!/^[67]\d{8}$/.test(digits)) {
-    return "Escribe un móvil español de 9 cifras que empiece por 6 o 7.";
-  }
-  return null;
+  return /^[67]\d{8}$/.test(digits) ? null : "format";
 }
 
 /** ¿Hay forma de recibir dinero (IBAN o Bizum)? Lo que marca la tarea del paso. */
@@ -131,17 +120,11 @@ export function giftHasData(gift: PlanGift | null | undefined, itemCount: number
 
 export type GiftPriority = "high" | "medium" | "low";
 
-export const GIFT_PRIORITIES: { id: GiftPriority; label: string; hint: string }[] = [
-  { id: "high", label: "Imprescindible", hint: "Lo necesitamos pronto" },
-  { id: "medium", label: "Nos vendría bien", hint: "Útil, sin prisa" },
-  { id: "low", label: "Capricho", hint: "Un extra que nos haría ilusión" },
-];
+/** Textos en `tools:planTools.gift.list.priorities.<id>.label|hint`. */
+export const GIFT_PRIORITIES: { id: GiftPriority }[] = [{ id: "high" }, { id: "medium" }, { id: "low" }];
 
 export const isGiftPriority = (value: unknown): value is GiftPriority =>
   value === "high" || value === "medium" || value === "low";
-
-export const giftPriorityLabel = (priority: GiftPriority) =>
-  GIFT_PRIORITIES.find((p) => p.id === priority)?.label ?? "";
 
 /** Una cosa de la lista de regalos: `weddingPlans/{planId}/giftItems/{id}`. */
 export interface GiftItem {
@@ -184,12 +167,5 @@ export function giftListSummary(items: Pick<GiftItem, "achieved" | "price">[]) {
   };
 }
 
-/** Ideas para empezar una lista vacía (rellenan el nombre al añadir). */
-export const GIFT_ITEM_SUGGESTIONS = [
-  "Juego de sábanas",
-  "Set de toallas",
-  "Robot de cocina",
-  "Vajilla",
-  "Cafetera",
-  "Aspirador robot",
-];
+/** Ideas para empezar una lista vacía (rellenan el nombre al añadir); texto en `tools:planTools.gift.list.suggestions.<clave>`. */
+export const GIFT_ITEM_SUGGESTIONS = ["sheets", "towels", "foodProcessor", "dinnerware", "coffeeMaker", "robotVacuum"] as const;

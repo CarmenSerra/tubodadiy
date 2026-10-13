@@ -1,4 +1,7 @@
 import { sortGiftItems, type GiftItem } from "@/components/plan-tools/gift-model";
+import { DEFAULT_LANG, normalizeLang, type Lang } from "@/lib/i18n/config";
+import { dateFormatter } from "@/lib/i18n/format";
+import { getServerT } from "@/lib/i18n/server";
 import type { GiftMode, PlanGift } from "@/lib/types";
 
 /**
@@ -44,6 +47,11 @@ export interface InvitationGift {
 /** Lo que edita la pareja. */
 export interface InvitationContent {
   template: InvitationTemplateId;
+  /**
+   * Idioma de la invitación pública (lo elige la pareja; el invitado no tiene
+   * selector). Las invitaciones anteriores a este campo son en español.
+   */
+  lang: Lang;
   /** «Ana & Luis». */
   names: string;
   /** `yyyy-MM-dd` o vacío. */
@@ -92,46 +100,39 @@ export const LIMITS = {
   rsvpMessage: 1000,
 } as const;
 
+/** Plantillas. El nombre y la descripción salen de `invitation:templates.<id>.*`. */
 export const TEMPLATES: {
   id: InvitationTemplateId;
-  label: string;
-  hint: string;
   /** Colores de la miniatura del selector. */
   swatch: { bg: string; ink: string; accent: string };
 }[] = [
-  {
-    id: "botanico",
-    label: "Botánico",
-    hint: "Lila y salvia, con hojas",
-    swatch: { bg: "#f6f2ec", ink: "#26413c", accent: "#927aac" },
-  },
-  {
-    id: "minimal",
-    label: "Minimal",
-    hint: "Limpio y tipográfico",
-    swatch: { bg: "#ffffff", ink: "#1f1f26", accent: "#7a6a93" },
-  },
-  {
-    id: "elegante",
-    label: "Elegante",
-    hint: "Ciruela oscuro",
-    swatch: { bg: "#2f2e41", ink: "#f4f1eb", accent: "#d4c0ea" },
-  },
+  { id: "botanico", swatch: { bg: "#f6f2ec", ink: "#26413c", accent: "#927aac" } },
+  { id: "minimal", swatch: { bg: "#ffffff", ink: "#1f1f26", accent: "#7a6a93" } },
+  { id: "elegante", swatch: { bg: "#2f2e41", ink: "#f4f1eb", accent: "#d4c0ea" } },
 ];
 
-export const DEFAULT_MESSAGE =
-  "Nos haría muchísima ilusión que nos acompañes en un día tan especial. Confirma tu asistencia con un par de toques.";
+/** Mensaje de bienvenida que lleva una invitación nueva, en el idioma de la invitación. */
+export function defaultMessage(lang: Lang = DEFAULT_LANG): string {
+  return getServerT(lang, "invitation")("defaults.message");
+}
+
+/** ¿El mensaje es el de serie de algún idioma (o está vacío)? Entonces se puede cambiar al cambiar de idioma. */
+export function isDefaultMessage(message: string): boolean {
+  const value = message.trim();
+  return !value || (["es", "en"] as const).some((l) => defaultMessage(l) === value);
+}
 
 const EMPTY_PLACE: InvitationPlace = { name: "", address: "", mapUrl: "", time: "" };
 
-export function defaultContent(weddingDate: string | null): InvitationContent {
+export function defaultContent(weddingDate: string | null, lang: Lang = DEFAULT_LANG): InvitationContent {
   return {
     template: "botanico",
+    lang,
     names: "",
     date: weddingDate ?? "",
     ceremony: { ...EMPTY_PLACE },
     banquet: { ...EMPTY_PLACE },
-    message: DEFAULT_MESSAGE,
+    message: defaultMessage(lang),
     rsvpDeadline: "",
     showGift: true,
   };
@@ -184,6 +185,7 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     template: TEMPLATE_IDS.includes(value.template as InvitationTemplateId)
       ? (value.template as InvitationTemplateId)
       : "botanico",
+    lang: normalizeLang(value.lang),
     names: clip(value.names, LIMITS.names),
     date: cleanDate(value.date),
     ceremony: cleanPlace(value.ceremony),
@@ -298,32 +300,30 @@ function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/** «Sábado, 12 de septiembre de 2026». */
-export function formatLongDate(value: string): string {
+/** «Sábado, 12 de septiembre de 2026» / «Saturday 12 September 2026». */
+export function formatLongDate(value: string, lang: Lang = DEFAULT_LANG): string {
   const date = parseDay(value);
   if (!date) return "";
   return capitalize(
-    new Intl.DateTimeFormat("es-ES", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(date)
+    dateFormatter(lang, { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(date)
   );
 }
 
-/** «12 de septiembre». */
-export function formatShortDate(value: string): string {
+/** «12 de septiembre» / «12 September». */
+export function formatShortDate(value: string, lang: Lang = DEFAULT_LANG): string {
   const date = parseDay(value);
   if (!date) return "";
-  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long" }).format(date);
+  return dateFormatter(lang, { day: "numeric", month: "long" }).format(date);
 }
 
 /** Partes para el sello de fecha: día, mes, año. */
-export function dateParts(value: string): { day: string; month: string; year: string; weekday: string } | null {
+export function dateParts(
+  value: string,
+  lang: Lang = DEFAULT_LANG
+): { day: string; month: string; year: string; weekday: string } | null {
   const date = parseDay(value);
   if (!date) return null;
-  const f = (opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("es-ES", opts).format(date);
+  const f = (opts: Intl.DateTimeFormatOptions) => dateFormatter(lang, opts).format(date);
   return {
     day: f({ day: "numeric" }),
     month: f({ month: "long" }),
@@ -332,9 +332,9 @@ export function dateParts(value: string): { day: string; month: string; year: st
   };
 }
 
-/** `HH:mm` → «17:30 h». */
-export function formatTime(value: string): string {
-  return TIME_RE.test(value) ? `${value} h` : "";
+/** `HH:mm` → «17:30 h» (es) / «17:30» (en). */
+export function formatTime(value: string, lang: Lang = DEFAULT_LANG): string {
+  return TIME_RE.test(value) ? getServerT(lang, "invitation")("view.time", { time: value }) : "";
 }
 
 /** Hoy en España como `yyyy-MM-dd` (el plazo vence al acabar ese día). */
@@ -364,13 +364,17 @@ export function mapLink(place: InvitationPlace): string {
   return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : "";
 }
 
-export function whatsappLink(data: { names: string; date: string }, url: string): string {
-  const when = formatLongDate(data.date);
+/** Enlace de WhatsApp con el texto en el idioma de la invitación (lo leerán los invitados). */
+export function whatsappLink(data: { names: string; date: string; lang?: Lang }, url: string): string {
+  const lang = normalizeLang(data.lang);
+  const t = getServerT(lang, "invitation");
+  const when = formatLongDate(data.date, lang);
   const who = data.names.trim();
-  const text =
-    `${who ? `${who} os invitan a su boda` : "Estás invitado/a a nuestra boda"}` +
-    `${when ? ` (${when})` : ""}. ` +
-    `Aquí tienes la invitación y puedes confirmar tu asistencia: ${url}`;
+  const text = t("share.whatsapp", {
+    intro: who ? t("share.introNames", { names: who }) : t("share.introGeneric"),
+    when: when ? ` (${when})` : "",
+    url,
+  });
   return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }
 

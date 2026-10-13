@@ -3,14 +3,14 @@ import { honeymoonHref } from "@/lib/honeymoon-model";
 import type { AppointmentCategory } from "@/lib/firebase/appointments";
 import type { StepTaskAuto } from "@/lib/types";
 
-/** A dónde lleva la flecha de una tarea base. */
+/** A dónde lleva la flecha de una tarea base. `labelKey` es una clave del namespace `plan`. */
 export type TaskTarget =
-  | { kind: "href"; href: string; label: string }
-  | { kind: "edit-plan"; label: string }
-  | { kind: "timeline"; label: string }
-  | { kind: "tool"; tool: PlanTool; label: string }
-  | { kind: "agenda"; category: AppointmentCategory; label: string }
-  | { kind: "save-the-date"; label: string };
+  | { kind: "href"; href: string; labelKey: string }
+  | { kind: "edit-plan"; labelKey: string }
+  | { kind: "timeline"; labelKey: string }
+  | { kind: "tool"; tool: PlanTool; labelKey: string }
+  | { kind: "agenda"; category: AppointmentCategory; labelKey: string }
+  | { kind: "save-the-date"; labelKey: string };
 
 /** Herramientas de la app que se abren en un diálogo desde la flecha de una tarea. */
 export type PlanTool = "ceremony" | "legal-docs" | "gift";
@@ -25,9 +25,9 @@ export function ceremonyHref(planId: string, section?: "tipo" | "oficiante" | "d
   return `/plan/${planId}/ceremonia${section ? `#${section}` : ""}`;
 }
 
-function vendors(planId: string, category: string, label: string): TaskTarget {
+function vendors(planId: string, category: string, labelKey: string): TaskTarget {
   const query = new URLSearchParams({ [NEW_VENDOR_PARAM]: category });
-  return { kind: "href", href: `/plan/${planId}/vendors?${query}`, label };
+  return { kind: "href", href: `/plan/${planId}/vendors?${query}`, labelKey };
 }
 
 /**
@@ -38,55 +38,55 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
   switch (auto) {
     case "date":
     case "budget":
-      return { kind: "edit-plan", label: "Ir a editar el plan" };
+      return { kind: "edit-plan", labelKey: "taskLinks.editPlan" };
     case "budget-split":
-      return { kind: "href", href: `/plan/${planId}/budget`, label: "Ir al presupuesto" };
+      return { kind: "href", href: `/plan/${planId}/budget`, labelKey: "taskLinks.budget" };
     case "guests-draft":
-      return { kind: "href", href: `/plan/${planId}/guests`, label: "Ir a invitados" };
+      return { kind: "href", href: `/plan/${planId}/guests`, labelKey: "taskLinks.guests" };
     case "guests-final":
       return {
         kind: "href",
         href: `/plan/${planId}/guests?${GUEST_STATUS_PARAM}=pending`,
-        label: "Ir a invitados pendientes de respuesta",
+        labelKey: "taskLinks.guestsPending",
       };
     case "vendor-catering":
-      return vendors(planId, "Catering", "Ir a proveedores de catering");
+      return vendors(planId, "Catering", "taskLinks.vendorCatering");
     case "vendor-photo":
-      return vendors(planId, "Fotógrafo", "Ir a proveedores de fotografía");
+      return vendors(planId, "Fotógrafo", "taskLinks.vendorPhoto");
     case "vendor-music":
-      return vendors(planId, "Música", "Ir a proveedores de música");
+      return vendors(planId, "Música", "taskLinks.vendorMusic");
     case "venue-ceremony":
     case "venue-banquet":
-      return vendors(planId, "Finca", "Ir a proveedores de lugar");
+      return vendors(planId, "Finca", "taskLinks.vendorVenue");
     case "venue-visit":
-      return { kind: "agenda", category: "lugar", label: "Abrir la agenda de visitas" };
+      return { kind: "agenda", category: "lugar", labelKey: "taskLinks.agendaVisits" };
     case "outfit-fitting":
-      return { kind: "agenda", category: "vestuario", label: "Abrir la agenda de pruebas" };
+      return { kind: "agenda", category: "vestuario", labelKey: "taskLinks.agendaFittings" };
     case "stationery-save-date":
-      return { kind: "save-the-date", label: "Diseñar la tarjeta «reserva la fecha»" };
+      return { kind: "save-the-date", labelKey: "taskLinks.saveTheDate" };
     case "invitations-send":
       return {
         kind: "href",
         href: `/plan/${planId}/guests?${INVITATION_PARAM}=1`,
-        label: "Ir al editor de la invitación",
+        labelKey: "taskLinks.invitation",
       };
     case "honeymoon-destination":
-      return { kind: "href", href: honeymoonHref(planId), label: "Ir a la luna de miel" };
+      return { kind: "href", href: honeymoonHref(planId), labelKey: "taskLinks.honeymoon" };
     case "honeymoon-book":
-      return { kind: "href", href: honeymoonHref(planId), label: "Ir a las reservas de la luna de miel" };
+      return { kind: "href", href: honeymoonHref(planId), labelKey: "taskLinks.honeymoonBook" };
     case "timeline-draft":
     case "timeline-share":
-      return { kind: "timeline", label: "Ir al cronograma" };
+      return { kind: "timeline", labelKey: "taskLinks.timeline" };
     case "ceremony-type":
-      return { kind: "href", href: ceremonyHref(planId, "tipo"), label: "Ir a la pestaña Ceremonia" };
+      return { kind: "href", href: ceremonyHref(planId, "tipo"), labelKey: "taskLinks.ceremonyTab" };
     case "officiant-confirmed":
-      return { kind: "href", href: ceremonyHref(planId, "oficiante"), label: "Ir a la ficha del oficiante" };
+      return { kind: "href", href: ceremonyHref(planId, "oficiante"), labelKey: "taskLinks.officiant" };
     case "legal-start":
     case "legal-docs":
-      return { kind: "href", href: ceremonyHref(planId, "documentos"), label: "Ver la guía de documentos legales" };
+      return { kind: "href", href: ceremonyHref(planId, "documentos"), labelKey: "taskLinks.legalDocs" };
     case "gift-decide":
     case "gift-data":
-      return { kind: "tool", tool: "gift", label: "Abrir los datos del regalo" };
+      return { kind: "tool", tool: "gift", labelKey: "taskLinks.gift" };
     default:
       return null;
   }

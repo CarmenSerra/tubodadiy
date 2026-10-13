@@ -3,6 +3,7 @@
 import * as React from "react";
 import { CheckIcon, CopyIcon, Loader2, LockIcon, UserPlusIcon } from "lucide-react";
 import { toast } from "sonner";
+import { Trans, useTranslation } from "react-i18next";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { CTA_PRIMARY, CTA_SECONDARY, FOCUS, Skeleton } from "@/components/dashboard/ui";
@@ -11,7 +12,7 @@ import { useCollection } from "@/lib/hooks/use-collection";
 import { createInvite, mapInvite, pendingInvitesQuery } from "@/lib/firebase/invites";
 import { cn, initials } from "@/lib/utils";
 import type { PlanInvite, PlanMember, PlanRole } from "@/lib/types";
-import { INVITE_ROLE_OPTIONS, ROLE_LABEL } from "./roles";
+import { INVITE_ROLES, roleDescription, roleLabel } from "./roles";
 
 // Estilos de marca propios del modal (mismos tokens que la home).
 const INPUT =
@@ -24,6 +25,7 @@ function inviteLink(token: string) {
 }
 
 function RoleChip({ role }: { role: PlanRole }) {
+  const { t } = useTranslation("dashboard");
   return (
     <span
       className={cn(
@@ -31,20 +33,21 @@ function RoleChip({ role }: { role: PlanRole }) {
         role === "owner" ? "bg-sage-pale" : "bg-lilac-mid"
       )}
     >
-      {ROLE_LABEL[role]}
+      {roleLabel(role, t)}
     </span>
   );
 }
 
 function StatusChip({ pending }: { pending: boolean }) {
+  const { t } = useTranslation("dashboard");
   return pending ? (
     <span className="inline-flex items-center rounded-full border border-line-strong px-2.5 py-0.5 text-xs font-medium text-ink-muted">
-      Pendiente
+      {t("team.status.pending")}
     </span>
   ) : (
     <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-muted">
       <CheckIcon className="size-3.5" aria-hidden="true" />
-      En el plan
+      {t("team.status.inPlan")}
     </span>
   );
 }
@@ -64,8 +67,9 @@ function Avatar({ label, index }: { label: string; index: number }) {
 }
 
 function RowSkeleton() {
+  const { t } = useTranslation("dashboard");
   return (
-    <div className={cn(ROW, "flex items-center gap-3")} role="status" aria-label="Cargando">
+    <div className={cn(ROW, "flex items-center gap-3")} role="status" aria-label={t("team.loading")}>
       <Skeleton className="size-10" />
       <span className="flex flex-1 flex-col gap-2">
         <Skeleton className="h-3.5 w-1/2" />
@@ -120,32 +124,34 @@ function CopyLinkButton({
   onFallback: () => void;
   className?: string;
 }) {
+  const { t } = useTranslation("dashboard");
   const [copied, setCopied] = React.useState(false);
   React.useEffect(() => {
     if (!copied) return;
-    const t = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
   }, [copied]);
 
   async function handleCopy() {
     if (await copyText(link)) {
       setCopied(true);
-      toast.success("Enlace copiado");
+      toast.success(t("team.copy.toastCopied"));
     } else {
       onFallback();
-      toast("Selecciona el enlace y cópialo con Ctrl+C.");
+      toast(t("team.copy.toastManual"));
     }
   }
 
   return (
     <button type="button" onClick={handleCopy} className={cn(CTA_SECONDARY, "h-9 px-4", className)}>
       {copied ? <CheckIcon className="size-4" aria-hidden="true" /> : <CopyIcon className="size-4" aria-hidden="true" />}
-      {copied ? "Copiado" : "Copiar enlace"}
+      {copied ? t("team.copy.copied") : t("team.copy.copy")}
     </button>
   );
 }
 
 function PendingInviteRow({ invite }: { invite: PlanInvite }) {
+  const { t } = useTranslation("dashboard");
   const [manual, setManual] = React.useState(false);
   const link = inviteLink(invite.token);
   return (
@@ -160,7 +166,7 @@ function PendingInviteRow({ invite }: { invite: PlanInvite }) {
         </div>
         <CopyLinkButton link={link} onFallback={() => setManual(true)} />
       </div>
-      {manual && <LinkField link={link} autoSelect label={`Enlace de invitación para ${invite.email}`} />}
+      {manual && <LinkField link={link} autoSelect label={t("team.pending.linkFor", { email: invite.email })} />}
     </li>
   );
 }
@@ -174,6 +180,7 @@ function InviteForm({
   planTitle: string;
   onCreated: (invite: { token: string; email: string }) => void;
 }) {
+  const { t } = useTranslation("dashboard");
   const { user } = useAuth();
   const [email, setEmail] = React.useState("");
   const [role, setRole] = React.useState<PlanRole>("partner");
@@ -193,7 +200,7 @@ function InviteForm({
       });
       onCreated({ token, email: email.trim().toLowerCase() });
     } catch {
-      toast.error("No se ha podido crear la invitación.");
+      toast.error(t("team.invite.createError"));
     } finally {
       setSubmitting(false);
     }
@@ -203,7 +210,7 @@ function InviteForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="team-invite-email" className="text-sm font-medium text-ink">
-          Correo electrónico de la persona invitada
+          {t("team.invite.emailLabel")}
         </label>
         <input
           id="team-invite-email"
@@ -212,26 +219,26 @@ function InviteForm({
           autoComplete="off"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="pareja@ejemplo.com"
+          placeholder={t("team.invite.emailPlaceholder")}
           className={INPUT}
         />
       </div>
       <fieldset className="flex flex-col gap-1.5">
-        <legend className="mb-1.5 text-sm font-medium text-ink">Rol</legend>
+        <legend className="mb-1.5 text-sm font-medium text-ink">{t("team.invite.role")}</legend>
         <div className="grid gap-2 sm:grid-cols-2">
-          {INVITE_ROLE_OPTIONS.map((opt) => (
-            <label key={opt.value} className="block cursor-pointer">
+          {INVITE_ROLES.map((value) => (
+            <label key={value} className="block cursor-pointer">
               <input
                 type="radio"
                 name="team-invite-role"
-                value={opt.value}
-                checked={role === opt.value}
-                onChange={() => setRole(opt.value)}
+                value={value}
+                checked={role === value}
+                onChange={() => setRole(value)}
                 className="peer sr-only"
               />
               <span className="block h-full rounded-xl border border-line-strong bg-raised p-3 transition-colors peer-checked:border-lilac peer-checked:bg-lilac-soft peer-focus-visible:ring-2 peer-focus-visible:ring-lilac">
-                <span className="block text-sm font-medium text-ink-strong">{opt.label}</span>
-                <span className="mt-0.5 block text-xs text-ink-muted">{opt.description}</span>
+                <span className="block text-sm font-medium text-ink-strong">{roleLabel(value, t)}</span>
+                <span className="mt-0.5 block text-xs text-ink-muted">{roleDescription(value, t)}</span>
               </span>
             </label>
           ))}
@@ -239,7 +246,7 @@ function InviteForm({
       </fieldset>
       <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "w-full disabled:opacity-60 sm:w-auto sm:self-start")}>
         {submitting ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <UserPlusIcon className="size-4" aria-hidden="true" />}
-        Crear enlace de invitación
+        {t("team.invite.submit")}
       </button>
     </form>
   );
@@ -253,16 +260,22 @@ function CreatedInvite({
   created: { token: string; email: string };
   onAnother: () => void;
 }) {
+  const { t } = useTranslation("dashboard");
   const [manual, setManual] = React.useState(false);
   const link = inviteLink(created.token);
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-line-strong bg-lilac-soft p-4" role="status">
       <p className="text-sm text-ink">
-        <span className="font-medium">Invitación creada.</span> Comparte este enlace con{" "}
-        <span className="break-all font-medium">{created.email}</span> por WhatsApp, correo o como prefieras. Podrá
-        aceptarla tras crear una cuenta o iniciar sesión.
+        <Trans
+          i18nKey="team.created.message"
+          ns="dashboard"
+          components={{
+            strong: <span className="font-medium" />,
+            email: <span className="break-all font-medium">{created.email}</span>,
+          }}
+        />
       </p>
-      <LinkField link={link} autoSelect={manual} label="Enlace de invitación" />
+      <LinkField link={link} autoSelect={manual} label={t("team.created.linkLabel")} />
       <div className="flex flex-wrap items-center gap-2">
         <CopyLinkButton link={link} onFallback={() => setManual(true)} className="bg-raised" />
         <button
@@ -273,7 +286,7 @@ function CreatedInvite({
             "h-9 rounded-full px-3 text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80"
           )}
         >
-          Invitar a otra persona
+          {t("team.created.another")}
         </button>
       </div>
     </div>
@@ -289,6 +302,7 @@ function TeamBody({
   currentUserId,
   userName,
 }: Omit<TeamDialogProps, "open" | "onOpenChange" | "returnFocusRef">) {
+  const { t } = useTranslation("dashboard");
   const { user } = useAuth();
   const isOwner = Boolean(currentUserId) && ownerId === currentUserId;
   const invitesQuery = React.useMemo(() => pendingInvitesQuery(planId), [planId]);
@@ -304,18 +318,18 @@ function TeamBody({
 
   function memberName(m: PlanMember): { name: string; email: string | null } {
     if (m.userId === currentUserId) {
-      const name = userName?.trim() || "Tú";
+      const name = userName?.trim() || t("team.you");
       return { name, email: user?.email ?? null };
     }
     if (m.invitedEmail) return { name: m.invitedEmail, email: null };
-    return { name: m.role === "owner" ? "Dueño/a del plan" : "Invitado/a", email: null };
+    return { name: m.role === "owner" ? t("team.planOwner") : t("team.guestFallback"), email: null };
   }
 
   return (
     <div className="flex flex-col gap-6">
       <section aria-labelledby="team-members-title" className="flex flex-col gap-3">
         <h3 id="team-members-title" className={H3}>
-          En el plan
+          {t("team.sections.inPlan")}
         </h3>
         {membersLoading && members.length === 0 ? (
           <div className="flex flex-col gap-2">
@@ -332,8 +346,8 @@ function TeamBody({
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-ink-strong">
                       {name}
-                      {m.userId === currentUserId && name !== "Tú" && (
-                        <span className="font-normal text-ink-muted"> (tú)</span>
+                      {m.userId === currentUserId && name !== t("team.you") && (
+                        <span className="font-normal text-ink-muted"> {t("team.youSuffix")}</span>
                       )}
                     </p>
                     {email && <p className="truncate text-xs text-ink-muted">{email}</p>}
@@ -352,7 +366,7 @@ function TeamBody({
       {(invitesLoading || visibleInvites.length > 0) && (
         <section aria-labelledby="team-pending-title" className="flex flex-col gap-3">
           <h3 id="team-pending-title" className={H3}>
-            Invitaciones pendientes
+            {t("team.sections.pending")}
           </h3>
           {invitesLoading ? (
             <RowSkeleton />
@@ -368,7 +382,7 @@ function TeamBody({
 
       <section aria-labelledby="team-invite-title" className="flex flex-col gap-3">
         <h3 id="team-invite-title" className={H3}>
-          Invitar a alguien
+          {t("team.sections.invite")}
         </h3>
         {isOwner ? (
           created ? (
@@ -376,7 +390,7 @@ function TeamBody({
           ) : (
             <>
               <p className="text-sm text-ink-muted">
-                Genera un enlace para que tu pareja o tu wedding planner vean y editen el plan contigo.
+                {t("team.invite.intro")}
               </p>
               <InviteForm planId={planId} planTitle={planTitle} onCreated={setCreated} />
             </>
@@ -384,10 +398,7 @@ function TeamBody({
         ) : (
           <p className="flex items-start gap-2.5 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge p-3.5 text-sm text-ink">
             <LockIcon className="mt-0.5 size-4 shrink-0 text-ink-on-tint" aria-hidden="true" />
-            <span>
-              Solo la persona dueña del plan puede enviar invitaciones. Si quieres sumar a alguien, coméntaselo y lo
-              invitará encantada.
-            </span>
+            <span>{t("team.ownerOnly")}</span>
           </p>
         )}
       </section>
@@ -415,6 +426,7 @@ export interface TeamDialogProps {
  * Firestore: `invites` create exige ser dueño del plan).
  */
 export function TeamDialog({ open, onOpenChange, returnFocusRef, ...body }: TeamDialogProps) {
+  const { t } = useTranslation("dashboard");
   const contentRef = React.useRef<HTMLDivElement>(null);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -439,10 +451,10 @@ export function TeamDialog({ open, onOpenChange, returnFocusRef, ...body }: Team
       >
         <div className="flex flex-col gap-1.5 pr-8">
           <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink">
-            Equipo
+            {t("team.title")}
           </DialogTitle>
           <DialogDescription className="text-sm text-ink-muted">
-            Las personas que organizan esta boda contigo.
+            {t("team.description")}
           </DialogDescription>
         </div>
         <TeamBody {...body} />

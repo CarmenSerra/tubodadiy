@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
 
   const placeId = request.nextUrl.searchParams.get("placeId") ?? "";
   const session = request.nextUrl.searchParams.get("session") ?? "";
-  if (!PLACE_ID_RE.test(placeId)) return jsonError(400, "Identificador de lugar no válido.");
-  if (session && !SESSION_RE.test(session)) return jsonError(400, "Sesión de búsqueda no válida.");
+  if (!PLACE_ID_RE.test(placeId)) return jsonError(400, "invalidPlaceId");
+  if (session && !SESSION_RE.test(session)) return jsonError(400, "invalidSession");
 
   const qs = new URLSearchParams({ languageCode: "es", regionCode: "ES" });
   if (session) qs.set("sessionToken", session);
@@ -23,14 +23,14 @@ export async function GET(request: NextRequest) {
       mask: DETAILS_MASK,
     });
     const place = toPlaceDetails(raw);
-    if (!place) return jsonError(404, "No encontramos ese lugar en Google Maps.");
+    if (!place) return jsonError(404, "placeNotFound");
     return json({ place });
   } catch (error) {
     if (error instanceof GoogleError) {
       // Un ID inexistente o caducado llega de Google como 400/404.
-      if (error.status === 400) return jsonError(404, "No encontramos ese lugar en Google Maps.");
-      return jsonError(error.status, error.message);
+      if (error.status === 400) return jsonError(404, "placeNotFound");
+      return jsonError(error.status, error.code);
     }
-    return jsonError(500, "No se pudo obtener el lugar.");
+    return jsonError(500, "placeFailed");
   }
 }

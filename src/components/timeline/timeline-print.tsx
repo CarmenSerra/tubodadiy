@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, Loader2, PrinterIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { RequireAuth } from "@/components/auth/require-auth";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -18,6 +19,7 @@ import {
 import { PlanProvider, usePlanContext } from "@/lib/context/plan-context";
 import { mapTimelineItem, timelineItemsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { useLanguage } from "@/lib/i18n/provider";
 import type { TimelineItem } from "@/lib/types";
 
 function DayMark({ day }: { day: number }) {
@@ -26,13 +28,15 @@ function DayMark({ day }: { day: number }) {
 }
 
 function PrintRow({ item }: { item: TimelineItem }) {
+  const { t } = useTranslation("timeline");
+  const { lang } = useLanguage();
   const end = endMin(item);
   const startDay = dayIndex(item.startMin);
   const endDay = dayIndex(end);
   const meta = [
-    item.durationMin > 0 ? formatDuration(item.durationMin) : null,
+    item.durationMin > 0 ? formatDuration(item.durationMin, lang) : null,
     item.location.trim() || null,
-    item.responsible.trim() ? `Responsable: ${item.responsible.trim()}` : null,
+    item.responsible.trim() ? t("text.responsible", { name: item.responsible.trim() }) : null,
   ].filter(Boolean);
 
   return (
@@ -54,7 +58,7 @@ function PrintRow({ item }: { item: TimelineItem }) {
           {item.title}
           {item.highlight && (
             <span className="ml-2 align-middle font-sans text-xs font-medium uppercase tracking-wide text-ink">
-              ● Momento clave
+              ● {t("print.highlight")}
             </span>
           )}
         </p>
@@ -70,6 +74,8 @@ function PrintRow({ item }: { item: TimelineItem }) {
 }
 
 function PrintDocument() {
+  const { t } = useTranslation("timeline");
+  const { lang } = useLanguage();
   const { planId, plan, loading, isMember } = usePlanContext();
   const { data, loading: itemsLoading, error } = useCollection(
     timelineItemsQuery(planId),
@@ -99,7 +105,7 @@ function PrintDocument() {
 
   if (loading || itemsLoading) {
     return (
-      <div role="status" aria-label="Preparando el cronograma" className="flex justify-center py-24">
+      <div role="status" aria-label={t("print.preparing")} className="flex justify-center py-24">
         <Loader2 className="size-6 animate-spin text-ink-muted" />
       </div>
     );
@@ -108,12 +114,12 @@ function PrintDocument() {
   if (!plan || !isMember) {
     return (
       <p className="mx-auto max-w-md px-4 py-24 text-center text-sm text-ink">
-        No tienes acceso a este plan.
+        {t("print.noAccess")}
       </p>
     );
   }
 
-  const date = formatWeekdayDate(plan.weddingDate);
+  const date = formatWeekdayDate(plan.weddingDate, lang);
   const backHref = `/plan/${planId}?cronograma=1`;
 
   return (
@@ -122,15 +128,15 @@ function PrintDocument() {
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-8">
           <Link href={backHref} className={CTA_SECONDARY}>
             <ArrowLeftIcon aria-hidden="true" className="size-4" />
-            Volver al cronograma
+            {t("print.back")}
           </Link>
           <div className="flex items-center gap-3">
             <p className="hidden text-sm text-ink-muted sm:block">
-              Para guardarlo como PDF, elige «Guardar como PDF» al imprimir.
+              {t("print.pdfHint")}
             </p>
             <button type="button" onClick={() => window.print()} className={CTA_PRIMARY}>
               <PrinterIcon aria-hidden="true" className="size-4" />
-              Imprimir / PDF
+              {t("print.button")}
             </button>
           </div>
         </div>
@@ -139,21 +145,21 @@ function PrintDocument() {
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-8 print:max-w-none print:p-0">
         <header className="border-b-2 border-ink pb-4">
           <h1 className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-            Cronograma del día
+            {t("dialog.title")}
           </h1>
           <p className="mt-1 font-display text-lg text-ink-strong">
-            {weddingName(plan.title)}
+            {weddingName(plan.title, lang)}
             {date ? ` · ${date}` : ""}
           </p>
         </header>
 
         {error ? (
           <p role="alert" className="py-8 text-sm text-ink">
-            No se ha podido cargar el cronograma.
+            {t("print.loadError")}
           </p>
         ) : items.length === 0 ? (
           <p className="py-8 text-sm text-ink">
-            Todavía no hay momentos en el cronograma. Vuelve al plan para añadirlos.
+            {t("print.empty")}
           </p>
         ) : (
           <>
@@ -163,7 +169,7 @@ function PrintDocument() {
               ))}
             </ol>
             {items.some((i) => dayIndex(endMin(i)) > 0) && (
-              <p className="mt-4 text-sm text-ink">+1: ya de madrugada, del día siguiente.</p>
+              <p className="mt-4 text-sm text-ink">{t("print.nextDayNote")}</p>
             )}
           </>
         )}

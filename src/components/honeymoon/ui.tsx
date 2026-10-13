@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { DestinationScene } from "@/components/honeymoon/motifs";
 import type { SceneVariant } from "@/lib/honeymoon-model";
@@ -100,8 +101,9 @@ export function HeroStat({ icon, label, value, detail }: { icon: React.ReactNode
 
 /** Esqueleto de carga. */
 export function HoneymoonSkeleton() {
+  const { t } = useTranslation("honeymoon");
   return (
-    <div className="flex flex-col gap-5" role="status" aria-label="Cargando la luna de miel">
+    <div className="flex flex-col gap-5" role="status" aria-label={t("page.loading")}>
       <span className="block h-44 animate-pulse rounded-3xl bg-lilac-soft motion-reduce:animate-none" aria-hidden="true" />
       <span className="block h-14 animate-pulse rounded-2xl bg-lilac-soft motion-reduce:animate-none" aria-hidden="true" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">

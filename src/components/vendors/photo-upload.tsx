@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ImagePlusIcon, Loader2, Trash2Icon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CTA_SECONDARY } from "@/components/dashboard/ui";
 import { compressImageToDataUri } from "@/lib/image-compress";
@@ -16,6 +17,7 @@ interface PhotoUploadProps {
 
 /** Sube una foto, la reduce en el navegador (~400 px, WebP, ≤30 KB) y devuelve un data URI. */
 export function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
+  const { t } = useTranslation("vendors");
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -26,14 +28,14 @@ export function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
     if (!file) return;
     setError("");
     if (!file.type.startsWith("image/")) {
-      setError("Elige un archivo de imagen (JPG, PNG, WebP…).");
+      setError(t("photo.notImage"));
       return;
     }
     setBusy(true);
     try {
       onChange(await compressImageToDataUri(file));
-    } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : "No se ha podido procesar la foto.");
+    } catch {
+      setError(t("photo.processError"));
     } finally {
       setBusy(false);
     }
@@ -46,7 +48,7 @@ export function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
           // eslint-disable-next-line @next/next/no-img-element -- data URI local, ya reducida
           <img
             src={value}
-            alt="Vista previa de la foto"
+            alt={t("photo.preview")}
             className="size-16 shrink-0 rounded-xl border border-line object-cover"
           />
         )}
@@ -58,7 +60,7 @@ export function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
           className="sr-only"
           onChange={handleFile}
           tabIndex={-1}
-          aria-label="Subir una foto"
+          aria-label={t("photo.upload")}
         />
         <button
           type="button"
@@ -71,7 +73,7 @@ export function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
           ) : (
             <ImagePlusIcon className="size-4" aria-hidden="true" />
           )}
-          {value ? "Cambiar foto" : "Subir una foto"}
+          {value ? t("photo.change") : t("photo.upload")}
         </button>
         {value && (
           <button
@@ -83,12 +85,12 @@ export function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
             }}
           >
             <Trash2Icon className="size-4" aria-hidden="true" />
-            Quitar foto
+            {t("photo.remove")}
           </button>
         )}
       </div>
       <p role={error ? "alert" : undefined} className={cn("text-sm", error ? "font-medium text-ink" : "text-ink-muted")}>
-        {error || "Se reduce automáticamente para que ocupe poco."}
+        {error || t("photo.hint")}
       </p>
     </div>
   );

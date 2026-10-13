@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { IdeasList, type IdeaItem } from "@/components/ideas/ideas-list";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
-import { ideaKey, keySet, type IdeaGroup } from "@/components/ideas/ideas-text";
+import { ideaKey, keySet, titlesInAllLanguages, type IdeaGroup } from "@/components/ideas/ideas-text";
 import {
   findCeremony,
   formatClock,
@@ -12,16 +13,12 @@ import {
   suggestStart,
 } from "@/components/timeline/timeline-model";
 import { addTimelineItem } from "@/lib/firebase/timeline";
+import { useLanguage } from "@/lib/i18n/provider";
 import { TIMELINE_MOMENT_IDEAS } from "@/lib/ideas";
 import type { TimelineItem } from "@/lib/types";
 
-/** Fases del día para filtrar, según la hora típica respecto a la ceremonia. */
-const PHASES: IdeaGroup[] = [
-  { id: "before", label: "Antes" },
-  { id: "ceremony", label: "Ceremonia" },
-  { id: "cocktail", label: "Cóctel" },
-  { id: "party", label: "Banquete y fiesta" },
-];
+/** Fases del día para filtrar, según la hora típica respecto a la ceremonia (vendors:ideas.timeline.phases.<id>). */
+const PHASE_IDS = ["before", "ceremony", "cocktail", "party"] as const;
 
 function phaseOf(offset: number | undefined): string {
   if (offset === undefined || offset >= 150) return "party";
@@ -46,6 +43,9 @@ export function TimelineIdeas({
   align?: "start" | "center" | "end";
   className?: string;
 }) {
+  const { t } = useTranslation("vendors");
+  const { lang } = useLanguage();
+  const phases: IdeaGroup[] = PHASE_IDS.map((id) => ({ id, label: t(`ideas.timeline.phases.${id}`) }));
   const ceremony = findCeremony(items);
   const existing = React.useMemo(() => keySet(items.map((i) => i.title)), [items]);
 
@@ -53,17 +53,21 @@ export function TimelineIdeas({
     () =>
       TIMELINE_MOMENT_IDEAS.map((idea) => {
         const startMin = suggestStart(items, idea.typicalOffsetMin);
+        const title = t(`ideas.moments.${idea.id}.title`);
         return {
-          key: ideaKey(idea.title),
-          title: idea.title,
-          hint: idea.hint,
+          key: idea.id,
+          title,
+          hint: t(`ideas.moments.${idea.id}.hint`, { defaultValue: "" }) || undefined,
           // Dónde caerá: la hora y cuánto dura.
-          pills: [`${formatClock(startMin)} · ${formatDuration(idea.durationMin)}`],
+          pills: [`${formatClock(startMin)} · ${formatDuration(idea.durationMin, lang)}`],
           group: phaseOf(idea.typicalOffsetMin),
-          present: existing.has(ideaKey(idea.title)),
+          // El momento puede estar guardado en cualquiera de los idiomas.
+          present: titlesInAllLanguages(`ideas.moments.${idea.id}.title`).some((text) =>
+            existing.has(ideaKey(text))
+          ),
           onAdd: () =>
             addTimelineItem(planId, {
-              title: idea.title,
+              title,
               startMin,
               durationMin: idea.durationMin,
               location: "",
@@ -73,16 +77,16 @@ export function TimelineIdeas({
             }),
         };
       }),
-    [items, existing, planId]
+    [items, existing, planId, t, lang]
   );
 
   return (
     <IdeasPanel
-      title="Ideas para tu cronograma"
+      title={t("ideas.timeline.title")}
       description={
         ceremony
-          ? `Se colocan alrededor de la ceremonia (${formatClock(ceremony.startMin)}). Luego puedes ajustar la hora.`
-          : "No hay un momento «Ceremonia»: las ideas se añaden al final de lo que ya tienes. Luego puedes ajustar la hora."
+          ? t("ideas.timeline.withCeremony", { time: formatClock(ceremony.startMin) })
+          : t("ideas.timeline.noCeremony")
       }
       align={align}
       className={className}
@@ -92,11 +96,11 @@ export function TimelineIdeas({
           items={rows}
           ctx={ctx}
           gender="m"
-          addedMessage="Momento añadido"
-          errorMessage="No se ha podido añadir el momento."
-          emptyText="Ya tienes todos los momentos habituales."
-          groups={PHASES}
-          groupsLabel="Filtrar momentos por fase del día"
+          addedMessage={t("ideas.timeline.added")}
+          errorMessage={t("ideas.timeline.error")}
+          emptyText={t("ideas.timeline.empty")}
+          groups={phases}
+          groupsLabel={t("ideas.timeline.filter")}
         />
       )}
     </IdeasPanel>

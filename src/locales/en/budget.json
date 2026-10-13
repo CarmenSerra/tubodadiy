@@ -1,1 +1,295 @@
-{}
+{
+  "uncategorised": "Uncategorized",
+  "categories": {
+    "venue": "Venue",
+    "venueSpace": "Venue or space",
+    "catering": "Catering",
+    "banquet": "Banquet and catering",
+    "attire": "Attire",
+    "brideAttire": "Bride's attire",
+    "groomAttire": "Groom's attire",
+    "photography": "Photography",
+    "photoVideo": "Photo and video",
+    "music": "Music",
+    "musicDance": "Music and dancing",
+    "flowersDecor": "Flowers and decor",
+    "stationery": "Stationery",
+    "rings": "Wedding rings",
+    "beauty": "Beauty",
+    "transport": "Transport",
+    "guestGifts": "Guest favors",
+    "honeymoon": "Honeymoon",
+    "ceremony": "Ceremony and paperwork",
+    "contingency": "Contingency",
+    "ceremonyOfficiant": "Ceremony"
+  },
+  "summary": {
+    "title": "Budget summary",
+    "overTotal": "Over your total",
+    "remaining": "You have left",
+    "ofTotal": "of your <hl>{{total}}</hl> total budget",
+    "barLabel": "Paid: {{paid}}. Pending: {{pending}}. Planned in total: {{percent}}% of the budget.",
+    "paid": "Paid",
+    "pending": "Pending",
+    "overNote": "What you've planned goes over the total: a good moment to calmly rebalance a few items.",
+    "noExpenses": "No expenses recorded yet.",
+    "withinNote": "What you've planned is {{percent}}% of the total. You're within budget.",
+    "noTotal": "You haven't set a total budget yet.",
+    "tiles": {
+      "total": "Total budget",
+      "undefined": "Not set",
+      "totalDetail": "your spending ceiling",
+      "paid": "Total paid",
+      "nothingPaid": "nothing paid yet",
+      "paidCount_one": "{{count}} expense already paid",
+      "paidCount_other": "{{count}} expenses already paid",
+      "pending": "Left to pay",
+      "nothingPending": "nothing pending",
+      "expenseCount_one": "{{count}} expense",
+      "expenseCount_other": "{{count}} expenses",
+      "nextOn": "next one on {{date}}",
+      "planned": "Total planned",
+      "plannedDetail": "paid + pending"
+    }
+  },
+  "breakdown": {
+    "title": "By category",
+    "total": "Total planned:",
+    "note": "Amount = paid + pending. The percentage is of the total planned.",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "paid": "Paid",
+    "pending": "Pending"
+  },
+  "form": {
+    "addExpense": "Add expense",
+    "newTitle": "New expense",
+    "editTitle": "Edit expense",
+    "editNamed": "Edit “{{name}}”",
+    "added": "Expense added",
+    "updated": "Expense updated",
+    "saveError": "We couldn't save the expense.",
+    "concept": "Description",
+    "conceptPlaceholder": "Wedding dress",
+    "category": "Category",
+    "categoryPlaceholder": "Choose a category",
+    "customOption": "✨ Choose your own…",
+    "customName": "Your category name",
+    "customPlaceholder": "Mariachi band, fireworks, surprise cake…",
+    "errors": {
+      "customCategory": "Enter your category name or choose one from the list.",
+      "category": "Choose a category or create your own."
+    },
+    "amount": "Amount (€)",
+    "status": "Status",
+    "state": {
+      "pending": {
+        "title": "Pending",
+        "hint": "Planned, not paid yet"
+      },
+      "paid": {
+        "title": "Paid",
+        "hint": "Already spent"
+      }
+    },
+    "dueDate": "Payment deadline",
+    "optional": "(optional)",
+    "duePlaceholder": "When does it need to be paid?",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "list": {
+    "title": "Budget",
+    "description": "What you've already paid, what's left to pay and how much budget you have to spare.",
+    "loading": "Loading budget",
+    "state": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "overdue": "Was due {{date}}",
+      "due": "Due {{date}}"
+    },
+    "markPaid": "Mark as paid",
+    "markPaidAria": "Mark “{{name}}” as paid",
+    "markPaidError": "We couldn't mark it as paid. Please try again.",
+    "paidAnnouncement": "“{{name}}”: paid",
+    "markedPaid": "“{{name}}” marked as paid",
+    "deleted": "Expense deleted",
+    "deleteError": "We couldn't delete the expense.",
+    "deleteAria": "Delete “{{name}}”",
+    "empty": {
+      "title": "No expenses recorded yet",
+      "text": "Record each expense with its amount and mark it as paid or pending, so you'll always know how much you've paid and how much is left. You can start with the biggest ones: the venue or the catering."
+    },
+    "items": "Items",
+    "itemsLabel": "Budget items",
+    "columns": {
+      "concept": "Description",
+      "category": "Category",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions"
+    }
+  },
+  "ideas": {
+    "items": {
+      "banquet": {
+        "hint": "Usually the biggest item: it multiplies with every guest.",
+        "concepts": {
+          "0": "Welcome cocktail hour",
+          "1": "Banquet menu",
+          "2": "Drinks and wines",
+          "3": "Kids' menu and dietary needs",
+          "4": "Late-night snack",
+          "5": "Wedding cake"
+        }
+      },
+      "venueSpace": {
+        "hint": "Some venues already include furniture and a menu; others charge separately.",
+        "concepts": {
+          "0": "Venue rental",
+          "1": "Furniture and setup",
+          "2": "Marquee or plan B",
+          "3": "Extra hours of use",
+          "4": "Security or cleaning staff"
+        }
+      },
+      "photoVideo": {
+        "hint": "You pay once and keep it forever: don't cut it back too much.",
+        "concepts": {
+          "0": "Photo coverage",
+          "1": "Wedding video",
+          "2": "Printed album",
+          "3": "Engagement shoot",
+          "4": "Drone or second photographer"
+        }
+      },
+      "musicDance": {
+        "hint": "Check whether the open bar is paid separately or included in the catering.",
+        "concepts": {
+          "0": "DJ or band for the party",
+          "1": "Ceremony music",
+          "2": "Cocktail hour music",
+          "3": "Sound and lighting equipment",
+          "4": "Open bar"
+        }
+      },
+      "brideAttire": {
+        "concepts": {
+          "0": "Dress",
+          "1": "Alterations and fittings",
+          "2": "Veil and accessories",
+          "3": "Shoes",
+          "4": "Underwear"
+        }
+      },
+      "groomAttire": {
+        "concepts": {
+          "0": "Suit",
+          "1": "Shirt and tie",
+          "2": "Shoes",
+          "3": "Accessories",
+          "4": "Alterations"
+        }
+      },
+      "flowersDecor": {
+        "concepts": {
+          "0": "Bridal bouquet",
+          "1": "Centerpieces",
+          "2": "Ceremony decor",
+          "3": "Ambient lighting",
+          "4": "Decorative furniture rental"
+        }
+      },
+      "stationery": {
+        "concepts": {
+          "0": "Invitations",
+          "1": "Save the dates",
+          "2": "Menus and seating chart",
+          "3": "Place cards",
+          "4": "Postage"
+        }
+      },
+      "rings": {
+        "concepts": {
+          "0": "Her ring",
+          "1": "His ring",
+          "2": "Engraving",
+          "3": "Ring cushion or box"
+        }
+      },
+      "beauty": {
+        "hint": "Ask for a price that includes travel if you want them to come to the wedding location.",
+        "concepts": {
+          "0": "Bride's hair",
+          "1": "Bride's makeup",
+          "2": "Trial run",
+          "3": "Hair for the maid of honor and family",
+          "4": "Groom's barber"
+        }
+      },
+      "transport": {
+        "concepts": {
+          "0": "Couple's car",
+          "1": "Buses for guests",
+          "2": "Taxis home",
+          "3": "Parking or valet"
+        }
+      },
+      "guestGifts": {
+        "concepts": {
+          "0": "A gift for each guest",
+          "1": "Flip-flop or fan kit",
+          "2": "Welcome bag",
+          "3": "Gift for parents and the wedding party",
+          "4": "Photo booth"
+        }
+      },
+      "honeymoon": {
+        "hint": "If you've already saved for it separately, you can spread this % across other items.",
+        "concepts": {
+          "0": "Flights",
+          "1": "Accommodation",
+          "2": "Activities",
+          "3": "Travel insurance",
+          "4": "Meals and transport"
+        }
+      },
+      "ceremony": {
+        "concepts": {
+          "0": "Fees and certificates",
+          "1": "Donation to the parish or officiant",
+          "2": "Pre-marriage course",
+          "3": "Altar flowers",
+          "4": "Choir or live music"
+        }
+      },
+      "contingency": {
+        "hint": "Setting it aside from the start avoids surprises at the end.",
+        "concepts": {
+          "0": "Last-minute extras",
+          "1": "Tips",
+          "2": "Extra hours",
+          "3": "Extra guests"
+        }
+      }
+    },
+    "title": "Ideas for your budget",
+    "descriptionWithTotal": "A suggested split of your budget. Each item is created with an estimated amount that you can change.",
+    "descriptionNoTotal": "Typical items with their suggested %. If you set your total budget in the plan, you'll see the amounts too.",
+    "added": "Item added",
+    "error": "We couldn't add the item.",
+    "empty": "You already have all the usual items.",
+    "usuallyIncludes": "Usually includes: {{list}}{{more}}",
+    "addAria": "Add “{{title}}”",
+    "addAll": {
+      "button": "Add all suggested items",
+      "confirmLabel": "Confirm suggested items",
+      "confirmWithTotal": "{{number}} items will be created with the estimated amount based on your total budget. You can edit them afterwards.",
+      "confirmNoTotal": "{{number}} items will be created without an amount; you can fill it in and edit them afterwards.",
+      "adding": "Adding…",
+      "confirm": "Yes, add all {{number}}",
+      "done": "{{number}} items added",
+      "error": "We couldn't add the items."
+    }
+  }
+}

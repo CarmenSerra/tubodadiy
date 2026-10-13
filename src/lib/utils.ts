@@ -22,12 +22,16 @@ export function formatCurrency(value: number | null | undefined, lang: Lang = DE
 
 /**
  * Interpreta un importe escrito a la española: "12.000", "12000,50", "12 000 €",
- * "12000.5". Devuelve NaN si no es un número.
+ * "12000.5". Con `lang = "en"` se lee a la inglesa ("12,000.50"). Devuelve NaN
+ * si no es un número.
  */
-export function parseAmount(raw: string): number {
+export function parseAmount(raw: string, lang: Lang = DEFAULT_LANG): number {
   let text = raw.replace(/[\s €]/g, "");
   if (!text || !/^-?[\d.,]+$/.test(text)) return Number.NaN;
-  if (text.includes(",")) {
+  if (lang === "en") {
+    // En inglés la coma agrupa millares y el punto es el decimal: "12,000.50".
+    text = text.replace(/,/g, "");
+  } else if (text.includes(",")) {
     // La coma es el decimal; los puntos, miles.
     text = text.replace(/\./g, "").replace(",", ".");
   } else if (/^-?\d{1,3}(\.\d{3})+$/.test(text)) {

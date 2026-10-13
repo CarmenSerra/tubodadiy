@@ -1,1 +1,515 @@
-{}
+{
+  "planTools": {
+    "actions": {
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "close": "Cerrar",
+      "back": "Volver"
+    },
+    "ceremony": {
+      "title": "Tipo de ceremonia",
+      "description": "Elige cómo os queréis casar. Puedes cambiarlo cuando quieras.",
+      "disclaimer": "Es orientativo y puede cambiar según el municipio o la comunidad. Confirma los detalles en tu Registro Civil, notaría o parroquia.",
+      "clear": "Quitar elección",
+      "toasts": {
+        "saved": "Tipo de ceremonia guardado",
+        "cleared": "Tipo de ceremonia quitado",
+        "error": "No se ha podido guardar el tipo de ceremonia."
+      },
+      "options": {
+        "civil": {
+          "label": "Civil",
+          "tagline": "La celebra una autoridad civil y tiene plena validez legal.",
+          "implies": [
+            "La oficia una autoridad: alcalde o concejal, juez de paz, notario o letrado de la Administración de Justicia.",
+            "Antes hay que tramitar el expediente matrimonial (en el Registro Civil o ante notario).",
+            "Suele ser corta y se puede hacer en el ayuntamiento, el juzgado, la notaría o, según el municipio, en otro lugar acordado."
+          ],
+          "legal": "El matrimonio queda inscrito en el Registro Civil y es legal desde ese momento.",
+          "legalBadge": "Validez legal plena"
+        },
+        "religiosa": {
+          "label": "Religiosa",
+          "tagline": "Se celebra según el rito de una confesión religiosa.",
+          "implies": [
+            "La oficia quien corresponda en vuestra confesión (sacerdote, pastor, rabino, imán…).",
+            "En la católica hay expediente en la parroquia, partida de bautismo y, normalmente, cursillo prematrimonial.",
+            "Los tiempos y el lugar dependen de la parroquia o la comunidad: conviene hablar con ellas pronto."
+          ],
+          "legal": "La católica tiene efectos civiles si se inscribe en el Registro Civil (normalmente lo tramita la parroquia). Otras confesiones con acuerdo con el Estado (evangélica, judía, islámica) también pueden tenerlos, con sus propios requisitos.",
+          "legalBadge": "Efectos civiles al inscribirla"
+        },
+        "simbolica": {
+          "label": "Simbólica",
+          "tagline": "Una ceremonia a vuestra medida, sin efectos legales por sí sola.",
+          "implies": [
+            "Elegís el lugar, los textos, los rituales y quién la oficia, sin un guion obligatorio.",
+            "No cambia vuestro estado civil ni se inscribe en ningún registro.",
+            "Se puede hacer el mismo día de la boda civil o en otra fecha."
+          ],
+          "legal": "No tiene validez legal por sí sola. Para que el matrimonio sea legal necesitáis, además, una boda civil (o religiosa con efectos civiles).",
+          "legalBadge": "Necesita también la civil"
+        }
+      }
+    },
+    "legal": {
+      "title": "Documentos legales",
+      "description": "Guía de papeles y trámites para casaros en España.",
+      "disclaimer": {
+        "title": "Orientativo, confirma en tu Registro Civil.",
+        "text": "Los requisitos cambian según el municipio, la notaría o la parroquia, y esta guía no sustituye su información oficial."
+      },
+      "noType": {
+        "title": "Primero, elige el tipo de ceremonia",
+        "text": "Los papeles son distintos si la boda es civil, religiosa o simbólica. Cuando lo elijas, aquí verás la lista que os corresponde.",
+        "action": "Elegir tipo de ceremonia"
+      },
+      "toastError": "No se ha podido guardar el cambio.",
+      "ceremony": "Ceremonia:",
+      "changeCeremony": "Cambiar tipo de ceremonia",
+      "intro": {
+        "symbolic": "La ceremonia simbólica no tiene validez legal por sí sola, así que esta lista es la de la boda civil: es la que os da validez ante la ley.",
+        "religious": "Esta lista es la de una ceremonia católica. Si es de otra confesión, pregunta a vuestra comunidad qué pide y si necesitáis tramitar antes el certificado de capacidad matrimonial en el Registro Civil.",
+        "civil": "Esta es la lista de una boda civil en España. Cada Registro Civil o notaría puede pedir algo más o algo menos."
+      },
+      "progressLabel": "Progreso de los papeles",
+      "progress_one": "{{done}} de {{count}} papel",
+      "progress_other": "{{done}} de {{count}} papeles",
+      "situationsLegend": "¿Se da alguno de estos casos?",
+      "situations": {
+        "foreign": {
+          "label": "Alguna de las dos personas es extranjera o tiene documentos de otro país",
+          "hint": "Añade los papeles apostillados, traducidos y el certificado de capacidad matrimonial."
+        },
+        "previous": {
+          "label": "Alguna de las dos personas ha estado casada antes",
+          "hint": "Añade el certificado del matrimonio anterior con el divorcio, la nulidad o el fallecimiento."
+        }
+      },
+      "optional": "Opcional",
+      "groups": {
+        "civil": "Expediente matrimonial civil",
+        "religiosa": "Papeles de la ceremonia religiosa",
+        "foreign": "Si hay documentos de otro país",
+        "previous": "Si hubo un matrimonio anterior"
+      },
+      "docs": {
+        "civil": {
+          "cita": {
+            "title": "Pedir cita en el Registro Civil o en una notaría",
+            "hint": "Es el primer paso. Se hace en el Registro Civil del domicilio de cualquiera de los dos, o ante notario."
+          },
+          "dni": {
+            "title": "DNI, NIE o pasaporte en vigor de las dos personas",
+            "hint": "Comprueba que no caducan antes de la boda."
+          },
+          "nacimiento": {
+            "title": "Certificado literal de nacimiento",
+            "hint": "Se pide online en la sede electrónica del Ministerio de Justicia o en el Registro Civil. Suele exigirse reciente."
+          },
+          "empadronamiento": {
+            "title": "Certificado de empadronamiento",
+            "hint": "Lo da el ayuntamiento (a menudo online). Sirve para saber qué Registro Civil os corresponde."
+          },
+          "declaracion": {
+            "title": "Declaración jurada de estado civil",
+            "hint": "Cada persona declara su estado civil y que no hay impedimento para casarse. Normalmente se firma al iniciar el expediente."
+          },
+          "testigos": {
+            "title": "Datos de dos testigos mayores de edad",
+            "hint": "Nombre, apellidos y DNI. Pregunta si tienen que acudir al expediente o solo a la boda."
+          },
+          "resolucion": {
+            "title": "Resolución favorable del expediente",
+            "hint": "Es el papel que os permite casaros. Tiene un plazo de validez limitado: confirma el vuestro antes de fijar la fecha."
+          }
+        },
+        "religiosa": {
+          "parroquia": {
+            "title": "Hablar con la parroquia o comunidad y fijar fecha",
+            "hint": "Es el primer paso: ellos os dirán qué piden y con cuánta antelación."
+          },
+          "dni": {
+            "title": "DNI, NIE o pasaporte en vigor de las dos personas",
+            "hint": "Comprueba que no caducan antes de la boda."
+          },
+          "nacimiento": {
+            "title": "Certificado literal de nacimiento",
+            "hint": "Se pide online en la sede electrónica del Ministerio de Justicia o en el Registro Civil. Suele exigirse reciente."
+          },
+          "bautismo": {
+            "title": "Partida de bautismo reciente",
+            "hint": "En la parroquia donde se bautizó cada persona. Se pide con anotaciones y suele exigirse de hace pocos meses."
+          },
+          "confirmacion": {
+            "title": "Partida de confirmación",
+            "hint": "Solo si la pide vuestra parroquia."
+          },
+          "cursillo": {
+            "title": "Cursillo prematrimonial",
+            "hint": "Charlas que organizan parroquias y diócesis. Las plazas se llenan: apúntate con tiempo y guarda el certificado de asistencia."
+          },
+          "expediente-parroquial": {
+            "title": "Expediente matrimonial en la parroquia",
+            "hint": "Entrevista con quien oficia y firma de los documentos. La parroquia lo tramita con el obispado."
+          },
+          "empadronamiento": {
+            "title": "Certificado de empadronamiento",
+            "hint": "Algunas parroquias lo piden para fijar a cuál corresponde casaros."
+          },
+          "testigos": {
+            "title": "Datos de dos testigos",
+            "hint": "Nombre, apellidos y DNI."
+          },
+          "inscripcion": {
+            "title": "Inscripción en el Registro Civil tras la boda",
+            "hint": "Es lo que da efectos civiles. Pregunta a la parroquia si lo tramita ella y cuándo tendréis el certificado."
+          }
+        },
+        "foreign": {
+          "ext-capacidad": {
+            "title": "Certificado de capacidad matrimonial o de estado civil del país de origen",
+            "hint": "Lo emite la autoridad o el consulado del país. Pregunta qué admite tu Registro Civil."
+          },
+          "ext-apostilla": {
+            "title": "Documentos extranjeros apostillados o legalizados",
+            "hint": "La apostilla de La Haya los hace válidos en España. Se tramita en el país que los emite."
+          },
+          "ext-traduccion": {
+            "title": "Traducción jurada de los documentos que no estén en castellano",
+            "hint": "La debe hacer un traductor o traductora jurada. Cuenta con unos días de plazo."
+          },
+          "ext-residencia": {
+            "title": "Documento de residencia en España (NIE o certificado de registro)",
+            "hint": "Solo si vivís en España y no tenéis DNI."
+          }
+        },
+        "previous": {
+          "matrimonio-anterior": {
+            "title": "Certificado literal del matrimonio anterior con la anotación de divorcio, nulidad o fallecimiento",
+            "hint": "Se pide en el Registro Civil donde se inscribió. Si el divorcio es de otro país, hará falta su documento apostillado y traducido."
+          },
+          "sentencia": {
+            "title": "Sentencia o convenio de divorcio, o certificado de defunción",
+            "hint": "Si lo piden, además del certificado anterior."
+          }
+        }
+      }
+    },
+    "gift": {
+      "title": "Regalo",
+      "descriptions": {
+        "choose": "Elegid cómo queréis recibir el regalo. Podéis cambiarlo cuando queráis.",
+        "money": "Recibe el regalo en dinero: cuenta bancaria, Bizum o las dos.",
+        "list": "Una lista de cosas que os harían falta, para que quien quiera regalar algo sepa por dónde ir."
+      },
+      "messageLabel": "Mensaje para los invitados",
+      "useExample": "Usar un texto de ejemplo",
+      "messagePlaceholder": "Algo breve y cariñoso para quien quiera tener un detalle con vosotros…",
+      "showOnInvitation": "Mostrar en la invitación",
+      "showOff": "Nada se mostrará a los invitados: solo lo veis vosotros.",
+      "choice": {
+        "error": "No se ha podido guardar la elección. Inténtalo de nuevo.",
+        "current": "Lo que tenéis ahora",
+        "note": "Si cambiáis de opinión, lo que ya hayáis escrito en la otra no se pierde.",
+        "money": {
+          "title": "Dinero (lo más habitual)",
+          "text": "Dais un IBAN, un Bizum o los dos, y cada persona aporta lo que quiere. Sin duplicados ni cambios.",
+          "points": [
+            "IBAN y Bizum",
+            "Cómodo para quien viaja"
+          ]
+        },
+        "list": {
+          "title": "Lista de cosas (más tradicional)",
+          "text": "Preparáis una lista de lo que os hace falta, con enlaces y precios aproximados, y los invitados la ven.",
+          "points": [
+            "Con enlaces y precios",
+            "Marcáis lo que ya tenéis"
+          ]
+        }
+      },
+      "money": {
+        "intro": "Muchas parejas dan un IBAN para quien prefiere transferencia y un Bizum para quien quiere hacerlo al momento. Puedes poner uno, otro o los dos.",
+        "switchToList": "Cambiar a lista de cosas",
+        "ibanLabel": "IBAN de la cuenta",
+        "ibanHelp": "Usa una cuenta que controléis los dos. Se muestra oculto en cuanto lo guardas.",
+        "ibanErrors": {
+          "format": "El IBAN empieza por dos letras y dos números, por ejemplo ES91 2100…",
+          "spanishLength": "Un IBAN español tiene 24 caracteres: ES y 22 números.",
+          "length": "Este IBAN no tiene la longitud habitual. Revísalo.",
+          "checksum": "Revisa el IBAN: algún número no cuadra."
+        },
+        "ibanShown": "IBAN: {{iban}}",
+        "ibanHidden": "IBAN oculto",
+        "showIban": "Mostrar IBAN",
+        "hideIban": "Ocultar IBAN",
+        "changeIban": "Cambiar IBAN",
+        "change": "Cambiar",
+        "bizumLabel": "Teléfono para Bizum",
+        "bizumHelp": "Opcional. El móvil donde queréis recibir los Bizum.",
+        "bizumError": "Escribe un móvil español de 9 cifras que empiece por 6 o 7.",
+        "reviewErrors": "Revisa los datos marcados antes de guardar.",
+        "saved": "Datos del regalo guardados",
+        "cleared": "Datos del regalo quitados",
+        "saveError": "No se han podido guardar los datos del regalo.",
+        "messageExample": "Vuestra presencia es el mejor regalo. Si queréis tener un detalle con nosotros, lo recibiremos con mucho cariño en forma de aportación para estrenar esta nueva etapa.",
+        "showOn": "El IBAN, el Bizum y el mensaje aparecerán en la invitación que compartas.",
+        "addFirst": "Añade antes un IBAN o un Bizum."
+      },
+      "list": {
+        "intro": "Cosas que os harían falta. Los invitados solo la verán: nadie reserva ni marca nada.",
+        "switchToMoney": "Cambiar a dinero",
+        "heading": "Vuestra lista",
+        "summary": {
+          "empty": "Todavía no hay nada. Los cambios se guardan al momento.",
+          "pending": "{{count}} por conseguir",
+          "achieved_one": "{{count}} ya conseguida",
+          "achieved_other": "{{count}} ya conseguidas",
+          "price": "unos {{price}} en total"
+        },
+        "addItem": "Añadir una cosa",
+        "loadError": "No se ha podido cargar la lista. Recarga la página e inténtalo de nuevo.",
+        "loading": "Cargando la lista",
+        "emptyHint": "Empieza por lo que de verdad os falta en casa. Puedes poner un enlace y un precio aproximado para que sea fácil encontrarlo.",
+        "suggestions": {
+          "sheets": "Juego de sábanas",
+          "towels": "Set de toallas",
+          "foodProcessor": "Robot de cocina",
+          "dinnerware": "Vajilla",
+          "coffeeMaker": "Cafetera",
+          "robotVacuum": "Aspirador robot"
+        },
+        "have": "Ya lo tenemos",
+        "haveAria": "Ya tenemos «{{name}}»",
+        "newTab": "(se abre en una pestaña nueva)",
+        "editAria": "Editar «{{name}}»",
+        "removeAria": "Quitar «{{name}}» de la lista",
+        "achievedHint": "Marca la casilla de lo que ya tengáis: dejará de enseñarse a los invitados.",
+        "messageExample": "Lo que más ilusión nos hace es compartir este día con vosotros. Si queréis tener un detalle, hemos preparado una lista con cosas que nos vendrán muy bien en casa; no hace falta regalar nada de ella.",
+        "showOn": "La lista (sin lo que ya tenéis) y el mensaje aparecerán en la invitación que compartas.",
+        "addFirst": "Añade antes alguna cosa a la lista.",
+        "priorities": {
+          "high": {
+            "label": "Imprescindible"
+          },
+          "medium": {
+            "label": "Nos vendría bien"
+          },
+          "low": {
+            "label": "Capricho"
+          }
+        },
+        "toasts": {
+          "changesSaved": "Cambios guardados",
+          "added": "«{{name}}» añadido a la lista",
+          "removed": "«{{name}}» eliminado de la lista",
+          "saved": "Lista de regalos guardada"
+        },
+        "errors": {
+          "saveChanges": "No se han podido guardar los cambios.",
+          "add": "No se ha podido añadir a la lista.",
+          "remove": "No se ha podido eliminar de la lista.",
+          "update": "No se ha podido actualizar la lista.",
+          "saveMessage": "No se ha podido guardar el mensaje."
+        },
+        "form": {
+          "addAria": "Añadir una cosa a la lista",
+          "name": "¿Qué es?",
+          "namePlaceholder": "Robot de cocina",
+          "price": "Precio aproximado (€)",
+          "priceHelp": "Opcional. Una idea, no tiene que ser exacto.",
+          "priority": "Prioridad",
+          "noPriority": "Sin prioridad",
+          "priorityHelp": "Opcional. Lo más importante sale primero.",
+          "link": "Enlace",
+          "linkHelp": "Opcional. La tienda o el producto, para que sea fácil de encontrar.",
+          "note": "Nota",
+          "notePlaceholder": "Color, talla o modelo que preferís",
+          "saveChanges": "Guardar cambios",
+          "addToList": "Añadir a la lista",
+          "errors": {
+            "name": "Escribe qué es, por ejemplo «Juego de sábanas».",
+            "link": "Escribe una dirección web válida, por ejemplo https://tienda.es/producto.",
+            "price": "Escribe un importe en euros, por ejemplo 45 o 45,90."
+          }
+        }
+      }
+    }
+  },
+  "stationery": {
+    "title": "Reserva la fecha",
+    "description": "Diseña un aviso para tus invitados y compártelo antes de enviar la invitación.",
+    "loadError": "No se ha podido cargar tu diseño. Recarga la página e inténtalo de nuevo.",
+    "loading": "Cargando el diseñador",
+    "defaults": {
+      "heading": "Reserva la fecha",
+      "message": "Muy pronto recibirás la invitación con todos los detalles."
+    },
+    "sampleName": "Nombre",
+    "and": "y",
+    "fileName": "reserva-la-fecha",
+    "optional": "(opcional)",
+    "style": "Estilo",
+    "templates": {
+      "jardin": {
+        "label": "Jardín",
+        "blurb": "Lila y salvia con ramitas de eucalipto"
+      },
+      "arco": {
+        "label": "Arco",
+        "blurb": "Un arco suave sobre fondo lila"
+      },
+      "minimal": {
+        "label": "Minimal",
+        "blurb": "Limpio, con mucho aire"
+      },
+      "noche": {
+        "label": "Noche",
+        "blurb": "Elegante, en ciruela oscuro"
+      }
+    },
+    "tabs": {
+      "edit": "Editar",
+      "preview": "Vista previa"
+    },
+    "fields": {
+      "heading": "Encabezado",
+      "name1": "Primer nombre",
+      "name2": "Segundo nombre",
+      "date": "Fecha",
+      "usePlanDate": "Usar la fecha de la boda ({{date}})",
+      "place": "Lugar o ciudad",
+      "placePlaceholder": "Sevilla",
+      "message": "Mensaje"
+    },
+    "preview": {
+      "aria": "Vista previa de la tarjeta: {{details}}",
+      "caption": "Así se verá tu tarjeta al descargarla."
+    },
+    "share": {
+      "title": "Descargar o compartir",
+      "png": "Imagen PNG",
+      "pngAria": "Descargar imagen PNG",
+      "pdfAria": "Descargar PDF",
+      "whatsapp": "Compartir por WhatsApp",
+      "hintReady": "WhatsApp se abre con el texto listo; descarga la imagen y adjúntala en el chat.",
+      "hintNotReady": "Escribe al menos un nombre y elige la fecha para descargar o compartir.",
+      "heading": "¡{{heading}}!",
+      "marryPlural": "{{names}} se casan",
+      "marrySingular": "{{names}} se casa",
+      "weMarry": "Nos casamos",
+      "when": "el {{weekday}} {{dayMonth}} de {{year}}",
+      "where": "en {{place}}"
+    },
+    "status": {
+      "saving": "Guardando…",
+      "dirty": "Cambios sin guardar",
+      "saved": "Diseño guardado",
+      "new": "Aún sin guardar"
+    },
+    "save": "Guardar diseño",
+    "toasts": {
+      "saved": "Diseño guardado",
+      "saveError": "No se ha podido guardar el diseño.",
+      "pngError": "No se ha podido crear la imagen.",
+      "pdfError": "No se ha podido crear el PDF."
+    },
+    "confirm": {
+      "title": "¿Guardar los cambios?",
+      "text": "Has cambiado la tarjeta y todavía no la has guardado.",
+      "keepEditing": "Seguir editando",
+      "discard": "Descartar",
+      "saveAndClose": "Guardar y cerrar"
+    }
+  },
+  "appointments": {
+    "title": "Citas",
+    "description": "Visitas, pruebas y reuniones de tu boda, en un solo sitio.",
+    "new": "Nueva cita",
+    "loading": "Cargando las citas",
+    "dayLabel": "Día:",
+    "markDoneAria": "Marcar «{{title}}» como hecha",
+    "editAria": "Editar «{{title}}»",
+    "deleteAria": "Eliminar «{{title}}»",
+    "relative": {
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "inDays_one": "En {{count}} día",
+      "inDays_other": "En {{count}} días"
+    },
+    "categories": {
+      "lugar": {
+        "label": "Visita de lugar",
+        "suggestedTitle": "Visita a un posible lugar"
+      },
+      "vestuario": {
+        "label": "Prueba de vestuario",
+        "suggestedTitle": "Prueba de vestuario"
+      },
+      "proveedor": {
+        "label": "Reunión con proveedor",
+        "suggestedTitle": "Reunión con proveedor"
+      },
+      "degustacion": {
+        "label": "Degustación",
+        "suggestedTitle": "Degustación"
+      },
+      "otro": {
+        "label": "Otro",
+        "suggestedTitle": ""
+      }
+    },
+    "groups": {
+      "upcoming": "Próximas",
+      "upcomingEmpty": "No tienes citas próximas. Cuando apuntes una, saldrá aquí.",
+      "past": "Pasadas"
+    },
+    "empty": {
+      "title": "Aún no hay citas apuntadas",
+      "text": "Apunta las visitas a lugares, las pruebas de vestuario, las degustaciones y las reuniones con proveedores para no perderte ninguna.",
+      "action": "Apuntar una cita",
+      "startWith": "O empieza por:"
+    },
+    "toasts": {
+      "added": "Cita añadida",
+      "updated": "«{{title}}» actualizada",
+      "deleted": "«{{title}}» eliminada"
+    },
+    "errors": {
+      "load": "No se han podido cargar las citas. Recarga la página e inténtalo de nuevo.",
+      "update": "No se ha podido actualizar la cita.",
+      "delete": "No se ha podido eliminar la cita."
+    },
+    "form": {
+      "back": "Volver a las citas",
+      "newTitle": "Nueva cita",
+      "editTitle": "Editar cita",
+      "description": "Tipo, día, hora y detalles de la cita.",
+      "type": "Tipo de cita",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Visita a la finca, prueba del vestido…",
+      "day": "Día",
+      "time": "Hora",
+      "optional": "(opcional)",
+      "place": "Lugar o dirección",
+      "placePlaceholder": "Finca Los Olivos, Calle Mayor 3…",
+      "vendor": "Proveedor",
+      "noVendor": "Sin proveedor",
+      "unnamedVendor": "Sin nombre",
+      "deletedVendor": "Proveedor eliminado",
+      "notes": "Notas",
+      "notesPlaceholder": "Qué preguntar, qué llevar, con quién ir…",
+      "done": "Ya hecha",
+      "delete": "Eliminar cita",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "errors": {
+        "title": "Ponle un título a la cita.",
+        "date": "Elige el día de la cita.",
+        "time": "Escribe una hora válida, por ejemplo 18:30.",
+        "save": "No se ha podido guardar la cita."
+      }
+    }
+  }
+}

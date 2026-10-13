@@ -1,5 +1,5 @@
+import type { TFunction } from "i18next";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   CalendarCheck2Icon,
   ShirtIcon,
@@ -10,25 +10,27 @@ import {
 } from "lucide-react";
 
 import type { Appointment, AppointmentCategory } from "@/lib/firebase/appointments";
+import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { dateFormatter, noDateLabel } from "@/lib/i18n/format";
 
 /** Parámetros del enlace directo: /plan/{id}?citas=1[&tipo=lugar] */
 export const APPOINTMENTS_PARAM = "citas";
 export const APPOINTMENTS_TYPE_PARAM = "tipo";
 
 interface CategoryInfo {
-  /** Etiqueta del tipo (selector y chip). */
-  label: string;
-  /** Título que se sugiere al crear una cita de este tipo. */
-  suggestedTitle: string;
   icon: LucideIcon;
 }
 
+/**
+ * Icono de cada tipo. La etiqueta y el título sugerido salen de
+ * `tools:appointments.categories.<tipo>.label|suggestedTitle`.
+ */
 export const CATEGORY_INFO: Record<AppointmentCategory, CategoryInfo> = {
-  lugar: { label: "Visita de lugar", suggestedTitle: "Visita a un posible lugar", icon: LandmarkIcon },
-  vestuario: { label: "Prueba de vestuario", suggestedTitle: "Prueba de vestuario", icon: ShirtIcon },
-  proveedor: { label: "Reunión con proveedor", suggestedTitle: "Reunión con proveedor", icon: HandshakeIcon },
-  degustacion: { label: "Degustación", suggestedTitle: "Degustación", icon: UtensilsCrossedIcon },
-  otro: { label: "Otro", suggestedTitle: "", icon: CalendarCheck2Icon },
+  lugar: { icon: LandmarkIcon },
+  vestuario: { icon: ShirtIcon },
+  proveedor: { icon: HandshakeIcon },
+  degustacion: { icon: UtensilsCrossedIcon },
+  otro: { icon: CalendarCheck2Icon },
 };
 
 export function isCategory(value: string | null | undefined): value is AppointmentCategory {
@@ -64,16 +66,20 @@ function parseDay(date: string): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/** «sáb 12 jun» */
-export function formatShortDate(date: string): string {
+/** «sáb 12 jun» / «Sat 12 Jun» */
+export function formatShortDate(date: string, lang: Lang = DEFAULT_LANG): string {
   const d = parseDay(date);
-  return d ? format(d, "EEE d MMM", { locale: es }).replace(/\./g, "") : "Sin fecha";
+  return d
+    ? dateFormatter(lang, { weekday: "short", day: "numeric", month: "short" }).format(d).replace(/\./g, "")
+    : noDateLabel(lang);
 }
 
-/** «sábado, 12 de junio de 2027» */
-export function formatLongDate(date: string): string {
+/** «sábado, 12 de junio de 2027» / «Saturday 12 June 2027» */
+export function formatLongDate(date: string, lang: Lang = DEFAULT_LANG): string {
   const d = parseDay(date);
-  return d ? format(d, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es }) : "Sin fecha";
+  return d
+    ? dateFormatter(lang, { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(d)
+    : noDateLabel(lang);
 }
 
 export function dayNumber(date: string): string {
@@ -81,21 +87,21 @@ export function dayNumber(date: string): string {
   return d ? String(d.getDate()) : "–";
 }
 
-export function monthShort(date: string): string {
+export function monthShort(date: string, lang: Lang = DEFAULT_LANG): string {
   const d = parseDay(date);
-  return d ? format(d, "MMM", { locale: es }).replace(/\./g, "") : "";
+  return d ? dateFormatter(lang, { month: "short" }).format(d).replace(/\./g, "") : "";
 }
 
-/** «Hoy», «Mañana», «En 5 días»; null si ya pasó o no hay fecha. */
-export function relativeDay(date: string, today: string = todayKey()): string | null {
+/** «Hoy», «Mañana», «En 5 días» (`tools:appointments.relative.*`); null si ya pasó o no hay fecha. */
+export function relativeDay(date: string, t: TFunction, today: string = todayKey()): string | null {
   const a = parseDay(date);
   const b = parseDay(today);
   if (!a || !b) return null;
   const days = Math.round((a.getTime() - b.getTime()) / 86400000);
   if (days < 0) return null;
-  if (days === 0) return "Hoy";
-  if (days === 1) return "Mañana";
-  return `En ${days} días`;
+  if (days === 0) return t("appointments.relative.today");
+  if (days === 1) return t("appointments.relative.tomorrow");
+  return t("appointments.relative.inDays", { count: days });
 }
 
 /** «18:30 · Calle Mayor 3» (las partes vacías se omiten). */

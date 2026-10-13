@@ -1,1 +1,295 @@
-{}
+{
+  "uncategorised": "Sin categoría",
+  "categories": {
+    "venue": "Lugar",
+    "venueSpace": "Finca o espacio",
+    "catering": "Catering",
+    "banquet": "Banquete y catering",
+    "attire": "Vestuario",
+    "brideAttire": "Vestuario de la novia",
+    "groomAttire": "Vestuario del novio",
+    "photography": "Fotografía",
+    "photoVideo": "Fotografía y vídeo",
+    "music": "Música",
+    "musicDance": "Música y baile",
+    "flowersDecor": "Flores y decoración",
+    "stationery": "Papelería",
+    "rings": "Alianzas",
+    "beauty": "Belleza",
+    "transport": "Transporte",
+    "guestGifts": "Detalles para invitados",
+    "honeymoon": "Luna de miel",
+    "ceremony": "Ceremonia y trámites",
+    "contingency": "Imprevistos",
+    "ceremonyOfficiant": "Ceremonia"
+  },
+  "summary": {
+    "title": "Resumen del presupuesto",
+    "overTotal": "Por encima del total",
+    "remaining": "Te queda",
+    "ofTotal": "de <hl>{{total}}</hl> de presupuesto total",
+    "barLabel": "Pagado: {{paid}}. Pendiente: {{pending}}. Previsto en total: el {{percent}}% del presupuesto.",
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "overNote": "Lo previsto supera el total: es buen momento para reajustar partidas con calma.",
+    "noExpenses": "Aún no hay gastos apuntados.",
+    "withinNote": "Lo previsto es el {{percent}}% del total. Vas dentro de tu presupuesto.",
+    "noTotal": "Aún no has fijado un presupuesto total.",
+    "tiles": {
+      "total": "Presupuesto total",
+      "undefined": "Sin definir",
+      "totalDetail": "tu techo de gasto",
+      "paid": "Total pagado",
+      "nothingPaid": "aún nada pagado",
+      "paidCount_one": "{{count}} gasto ya pagado",
+      "paidCount_other": "{{count}} gastos ya pagados",
+      "pending": "Pendiente por pagar",
+      "nothingPending": "nada pendiente",
+      "expenseCount_one": "{{count}} gasto",
+      "expenseCount_other": "{{count}} gastos",
+      "nextOn": "próximo, el {{date}}",
+      "planned": "Total previsto",
+      "plannedDetail": "pagado + pendiente"
+    }
+  },
+  "breakdown": {
+    "title": "Por categorías",
+    "total": "Total previsto:",
+    "note": "Importe = pagado + pendiente. El porcentaje es sobre el total previsto.",
+    "items_one": "{{count}} partida",
+    "items_other": "{{count}} partidas",
+    "paid": "Pagado",
+    "pending": "Pendiente"
+  },
+  "form": {
+    "addExpense": "Añadir gasto",
+    "newTitle": "Nuevo gasto",
+    "editTitle": "Editar gasto",
+    "editNamed": "Editar «{{name}}»",
+    "added": "Gasto añadido",
+    "updated": "Gasto actualizado",
+    "saveError": "No se ha podido guardar el gasto.",
+    "concept": "Concepto",
+    "conceptPlaceholder": "Vestido de novia",
+    "category": "Categoría",
+    "categoryPlaceholder": "Elige una categoría",
+    "customOption": "✨ Elige lo que quieras…",
+    "customName": "Nombre de tu categoría",
+    "customPlaceholder": "Mariachis, fuegos artificiales, tarta sorpresa…",
+    "errors": {
+      "customCategory": "Escribe el nombre de tu categoría o elige una de la lista.",
+      "category": "Elige una categoría o crea la tuya."
+    },
+    "amount": "Importe (€)",
+    "status": "Estado",
+    "state": {
+      "pending": {
+        "title": "Pendiente",
+        "hint": "Previsto, aún sin pagar"
+      },
+      "paid": {
+        "title": "Pagado",
+        "hint": "Ya está gastado"
+      }
+    },
+    "dueDate": "Fecha límite de pago",
+    "optional": "(opcional)",
+    "duePlaceholder": "¿Para cuándo hay que pagarlo?",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "list": {
+    "title": "Presupuesto",
+    "description": "Lo que ya has pagado, lo que te queda por pagar y cuánto presupuesto te sobra.",
+    "loading": "Cargando presupuesto",
+    "state": {
+      "paid": "Pagado",
+      "pending": "Pendiente",
+      "overdue": "Venció el {{date}}",
+      "due": "Vence el {{date}}"
+    },
+    "markPaid": "Marcar pagado",
+    "markPaidAria": "Marcar «{{name}}» como pagado",
+    "markPaidError": "No se ha podido marcar como pagado. Inténtalo de nuevo.",
+    "paidAnnouncement": "«{{name}}»: pagado",
+    "markedPaid": "«{{name}}» marcado como pagado",
+    "deleted": "Gasto eliminado",
+    "deleteError": "No se ha podido eliminar el gasto.",
+    "deleteAria": "Eliminar «{{name}}»",
+    "empty": {
+      "title": "Aún no hay gastos apuntados",
+      "text": "Apunta cada gasto con su importe y márcalo como pagado o pendiente: así sabrás siempre cuánto llevas pagado y cuánto te queda por pagar. Puedes empezar por lo más grande: el lugar o el catering."
+    },
+    "items": "Partidas",
+    "itemsLabel": "Partidas del presupuesto",
+    "columns": {
+      "concept": "Concepto",
+      "category": "Categoría",
+      "amount": "Importe",
+      "status": "Estado",
+      "actions": "Acciones"
+    }
+  },
+  "ideas": {
+    "items": {
+      "banquet": {
+        "hint": "Suele ser la partida más grande: se multiplica por cada invitado.",
+        "concepts": {
+          "0": "Cóctel de bienvenida",
+          "1": "Menú del banquete",
+          "2": "Bebidas y vinos",
+          "3": "Menú infantil y dietas",
+          "4": "Recena",
+          "5": "Tarta nupcial"
+        }
+      },
+      "venueSpace": {
+        "hint": "Algunas fincas ya incluyen mobiliario y menú; otras cobran aparte.",
+        "concepts": {
+          "0": "Alquiler del espacio",
+          "1": "Mobiliario y montaje",
+          "2": "Carpa o plan B",
+          "3": "Horas extra de uso",
+          "4": "Personal de seguridad o limpieza"
+        }
+      },
+      "photoVideo": {
+        "hint": "Se paga una vez y queda para siempre: no la recortéis demasiado.",
+        "concepts": {
+          "0": "Reportaje de fotos",
+          "1": "Vídeo de la boda",
+          "2": "Álbum impreso",
+          "3": "Sesión de preboda",
+          "4": "Dron o segundo fotógrafo"
+        }
+      },
+      "musicDance": {
+        "hint": "Comprobad si la barra libre se paga a parte o va incluida en el catering.",
+        "concepts": {
+          "0": "DJ o grupo para la fiesta",
+          "1": "Música de la ceremonia",
+          "2": "Música del cóctel",
+          "3": "Equipo de sonido e iluminación",
+          "4": "Barra libre"
+        }
+      },
+      "brideAttire": {
+        "concepts": {
+          "0": "Vestido",
+          "1": "Arreglos y pruebas",
+          "2": "Velo y complementos",
+          "3": "Zapatos",
+          "4": "Ropa interior"
+        }
+      },
+      "groomAttire": {
+        "concepts": {
+          "0": "Traje",
+          "1": "Camisa y corbata",
+          "2": "Zapatos",
+          "3": "Complementos",
+          "4": "Arreglos"
+        }
+      },
+      "flowersDecor": {
+        "concepts": {
+          "0": "Ramo de novia",
+          "1": "Centros de mesa",
+          "2": "Decoración de la ceremonia",
+          "3": "Iluminación ambiental",
+          "4": "Alquiler de mobiliario decorativo"
+        }
+      },
+      "stationery": {
+        "concepts": {
+          "0": "Invitaciones",
+          "1": "Reserva la fecha",
+          "2": "Minutas y plano de mesas",
+          "3": "Marcasitios",
+          "4": "Gastos de envío"
+        }
+      },
+      "rings": {
+        "concepts": {
+          "0": "Alianza de ella",
+          "1": "Alianza de él",
+          "2": "Grabado",
+          "3": "Cojín o caja para las alianzas"
+        }
+      },
+      "beauty": {
+        "hint": "Pedid precio con desplazamiento si queréis que vayan al lugar de la boda.",
+        "concepts": {
+          "0": "Peluquería de la novia",
+          "1": "Maquillaje de la novia",
+          "2": "Prueba previa",
+          "3": "Peluquería de madrina y familiares",
+          "4": "Barbería del novio"
+        }
+      },
+      "transport": {
+        "concepts": {
+          "0": "Coche de los novios",
+          "1": "Autobuses para invitados",
+          "2": "Taxis de vuelta",
+          "3": "Aparcamiento o valet"
+        }
+      },
+      "guestGifts": {
+        "concepts": {
+          "0": "Regalo para cada invitado",
+          "1": "Kit de chanclas o abanicos",
+          "2": "Bolsa de bienvenida",
+          "3": "Detalle para padres y padrinos",
+          "4": "Fotomatón"
+        }
+      },
+      "honeymoon": {
+        "hint": "Si ya la tenéis ahorrada aparte, podéis repartir este % en otras partidas.",
+        "concepts": {
+          "0": "Vuelos",
+          "1": "Alojamiento",
+          "2": "Actividades",
+          "3": "Seguro de viaje",
+          "4": "Comidas y transporte"
+        }
+      },
+      "ceremony": {
+        "concepts": {
+          "0": "Tasas y certificados",
+          "1": "Donativo a la parroquia o al oficiante",
+          "2": "Cursillo prematrimonial",
+          "3": "Flores del altar",
+          "4": "Coro o música en directo"
+        }
+      },
+      "contingency": {
+        "hint": "Reservarlo desde el principio evita sustos al final.",
+        "concepts": {
+          "0": "Extras de última hora",
+          "1": "Propinas",
+          "2": "Horas extra",
+          "3": "Invitados de más"
+        }
+      }
+    },
+    "title": "Ideas para tu presupuesto",
+    "descriptionWithTotal": "Un reparto orientativo de tu presupuesto. Cada partida se crea con un importe estimado que puedes cambiar.",
+    "descriptionNoTotal": "Partidas típicas con su % orientativo. Si indicas tu presupuesto total en el plan, verás también los importes.",
+    "added": "Partida añadida",
+    "error": "No se ha podido añadir la partida.",
+    "empty": "Ya tienes todas las partidas habituales.",
+    "usuallyIncludes": "Suele incluir: {{list}}{{more}}",
+    "addAria": "Añadir «{{title}}»",
+    "addAll": {
+      "button": "Añadir todas las partidas sugeridas",
+      "confirmLabel": "Confirmar partidas sugeridas",
+      "confirmWithTotal": "Se crearán {{number}} partidas con el importe estimado según tu presupuesto total. Podrás editarlas después.",
+      "confirmNoTotal": "Se crearán {{number}} partidas sin importe; podrás ponerlo y editarlas después.",
+      "adding": "Añadiendo…",
+      "confirm": "Sí, añadir las {{number}}",
+      "done": "{{number}} partidas añadidas",
+      "error": "No se han podido añadir las partidas."
+    }
+  }
+}

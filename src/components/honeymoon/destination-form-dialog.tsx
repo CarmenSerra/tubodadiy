@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Loader2, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createDestination, updateDestination } from "@/lib/firebase/honeymoon";
 import { normalizeUrl, type Destination } from "@/lib/honeymoon-model";
+import { useLanguage } from "@/lib/i18n/provider";
 import { cn, parseAmount } from "@/lib/utils";
 
 export const TEXTAREA = cn(FIELD, "h-auto min-h-24 resize-y py-2.5 leading-relaxed");
@@ -33,6 +35,7 @@ export function DestinationFormDialog({
   destination?: Destination;
   trigger?: React.ReactNode;
 }) {
+  const { t } = useTranslation("honeymoon");
   const [open, setOpen] = React.useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -40,7 +43,7 @@ export function DestinationFormDialog({
         {trigger ?? (
           <button type="button" className={CTA_PRIMARY}>
             <PlusIcon aria-hidden="true" className="size-4" />
-            Añadir destino
+            {t("destinations.form.add")}
           </button>
         )}
       </DialogTrigger>
@@ -60,6 +63,8 @@ function DestinationForm({
   destination?: Destination;
   onDone: () => void;
 }) {
+  const { t } = useTranslation("honeymoon");
+  const { lang } = useLanguage();
   const isEdit = Boolean(destination);
   const [name, setName] = React.useState(destination?.name ?? "");
   const [country, setCountry] = React.useState(destination?.country ?? "");
@@ -79,13 +84,13 @@ function DestinationForm({
     const next: typeof errors = {};
     let approxPrice: number | null = null;
     if (price.trim()) {
-      approxPrice = parseAmount(price);
-      if (Number.isNaN(approxPrice) || approxPrice < 0) next.price = "Escribe un importe válido, por ejemplo 1800.";
+      approxPrice = parseAmount(price, lang);
+      if (Number.isNaN(approxPrice) || approxPrice < 0) next.price = t("destinations.form.errors.price");
     }
     const cleanLink = normalizeUrl(link);
-    if (link.trim() && !cleanLink) next.link = "El enlace no es válido. Debe empezar por http o https.";
+    if (link.trim() && !cleanLink) next.link = t("destinations.form.errors.link");
     const cleanImage = normalizeUrl(imageUrl);
-    if (imageUrl.trim() && !cleanImage) next.imageUrl = "La dirección de la imagen no es válida.";
+    if (imageUrl.trim() && !cleanImage) next.imageUrl = t("destinations.form.errors.image");
     setErrors(next);
     if (next.price || next.link || next.imageUrl) {
       const first = next.price ? "price" : next.link ? "link" : "imageUrl";
@@ -105,14 +110,14 @@ function DestinationForm({
       };
       if (destination) {
         await updateDestination(planId, destination.id, data);
-        toast.success("Destino actualizado");
+        toast.success(t("destinations.form.toasts.updated"));
       } else {
         await createDestination(planId, data);
-        toast.success("Destino añadido");
+        toast.success(t("destinations.form.toasts.added"));
       }
       onDone();
     } catch {
-      toast.error("No se ha podido guardar el destino.");
+      toast.error(t("destinations.form.toasts.error"));
     } finally {
       setSubmitting(false);
     }
@@ -121,19 +126,19 @@ function DestinationForm({
   return (
     <form onSubmit={handleSubmit} noValidate>
       <DialogHeader>
-        <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar destino" : "Nuevo destino"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{isEdit ? t("destinations.form.editTitle") : t("destinations.form.newTitle")}</DialogTitle>
       </DialogHeader>
       <div className="mt-5 flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor={id("name")} className={FIELD_LABEL}>
-              Destino
+              {t("destinations.form.name")}
             </Label>
             <Input
               id={id("name")}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Bali, Maldivas, Costa Rica…"
+              placeholder={t("destinations.form.namePlaceholder")}
               required
               autoFocus
               autoComplete="off"
@@ -142,13 +147,13 @@ function DestinationForm({
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor={id("country")} className={FIELD_LABEL}>
-              País
+              {t("destinations.form.country")}
             </Label>
             <Input
               id={id("country")}
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              placeholder="Indonesia"
+              placeholder={t("destinations.form.countryPlaceholder")}
               autoComplete="off"
               className={FIELD}
             />
@@ -156,7 +161,7 @@ function DestinationForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor={id("price")} className={FIELD_LABEL}>
-            Precio aproximado (€)
+            {t("destinations.form.price")}
           </Label>
           <Input
             id={id("price")}
@@ -172,19 +177,19 @@ function DestinationForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor={id("notes")} className={FIELD_LABEL}>
-            Notas
+            {t("destinations.form.notes")}
           </Label>
           <Textarea
             id={id("notes")}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Mejor época, qué nos atrae, cómo se llega…"
+            placeholder={t("destinations.form.notesPlaceholder")}
             className={TEXTAREA}
           />
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor={id("link")} className={FIELD_LABEL}>
-            Enlace <span className="font-normal text-ink-muted">(opcional)</span>
+            {t("destinations.form.link")} <span className="font-normal text-ink-muted">{t("destinations.form.optional")}</span>
           </Label>
           <Input
             id={id("link")}
@@ -201,7 +206,7 @@ function DestinationForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor={id("image")} className={FIELD_LABEL}>
-            Imagen <span className="font-normal text-ink-muted">(dirección web, opcional)</span>
+            {t("destinations.form.image")} <span className="font-normal text-ink-muted">{t("destinations.form.imageOptional")}</span>
           </Label>
           <Input
             id={id("image")}
@@ -209,7 +214,7 @@ function DestinationForm({
             inputMode="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://…/foto.jpg"
+            placeholder={t("destinations.form.imagePlaceholder")}
             aria-invalid={Boolean(errors.imageUrl)}
             aria-describedby={errors.imageUrl ? id("imageUrl-error") : id("image-help")}
             className={FIELD}
@@ -218,18 +223,18 @@ function DestinationForm({
             <FieldError id={id("imageUrl-error")}>{errors.imageUrl}</FieldError>
           ) : (
             <p id={id("image-help")} className="text-sm text-ink-muted">
-              Se verá como miniatura. Sin imagen, se muestra un dibujo.
+              {t("destinations.form.imageHelp")}
             </p>
           )}
         </div>
       </div>
       <DialogFooter className="mt-6 gap-2 sm:gap-3">
         <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
-          Cancelar
+          {t("actions.cancel")}
         </button>
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
           {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("actions.save")}
         </button>
       </DialogFooter>
     </form>
@@ -238,5 +243,6 @@ function DestinationForm({
 
 /** Disparador de edición; recibe las props que le inyecta DialogTrigger. */
 export function EditDestinationTrigger({ name, ...props }: React.ComponentProps<"button"> & { name: string }) {
-  return <EditIconButton label={`Editar «${name}»`} {...props} />;
+  const { t } = useTranslation("honeymoon");
+  return <EditIconButton label={t("destinations.actions.editAria", { name })} {...props} />;
 }

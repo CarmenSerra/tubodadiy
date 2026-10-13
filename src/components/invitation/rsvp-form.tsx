@@ -5,6 +5,8 @@ import { HeartIcon, Loader2Icon, SendIcon } from "lucide-react";
 
 import { LIMITS, type RsvpAnswer } from "@/components/invitation/invitation-model";
 import { loadRsvp, submitRsvp } from "@/lib/actions/invitation-rsvp";
+import type { Lang } from "@/lib/i18n/config";
+import { getServerT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 const storageKey = (slug: string) => `tubodadiy:rsvp:${slug}`;
@@ -55,7 +57,9 @@ type FieldKey = "name" | "attending" | "plusOneName" | "dietary" | "message";
  * Formulario de respuesta de la invitación. Recuerda en este navegador el id de
  * la respuesta (localStorage, con try/catch) para poder editarla después.
  */
-export function RsvpForm({ slug, preview = false }: { slug: string; preview?: boolean }) {
+export function RsvpForm({ slug, lang, preview = false }: { slug: string; lang: Lang; preview?: boolean }) {
+  // El formulario habla el idioma de la invitación (no el de quien la abre).
+  const t = React.useMemo(() => getServerT(lang, "invitation"), [lang]);
   const [form, setForm] = React.useState<FormState>(EMPTY);
   const [phase, setPhase] = React.useState<"form" | "thanks">("form");
   const [rsvpId, setRsvpId] = React.useState<string | null>(null);
@@ -99,8 +103,8 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
 
   function validate(): boolean {
     const next: Partial<Record<FieldKey, string>> = {};
-    if (form.name.trim().length < 2) next.name = "Escribe tu nombre y apellidos.";
-    if (!form.attending) next.attending = "Cuéntanos si vienes.";
+    if (form.name.trim().length < 2) next.name = t("rsvp.errors.name");
+    if (!form.attending) next.attending = t("rsvp.errors.attending");
     setErrors(next);
     if (next.name) document.getElementById("rsvp-name")?.focus();
     else if (next.attending) document.getElementById("rsvp-attending")?.focus();
@@ -117,6 +121,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
       try {
         const result = await submitRsvp({
           slug,
+          lang,
           rsvpId,
           name: form.name,
           attending,
@@ -138,7 +143,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
           if (result.field) document.getElementById(`rsvp-${result.field}`)?.focus();
         }
       } catch {
-        setFormError("No hemos podido enviar tu respuesta. Revisa tu conexión e inténtalo de nuevo.");
+        setFormError(t("rsvp.errors.network"));
       }
     });
   }
@@ -151,15 +156,13 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
         <span className="inv-thanksIcon">
           <HeartIcon aria-hidden="true" />
         </span>
-        <h3 className="inv-thanksTitle">¡Gracias{first ? `, ${first}` : ""}!</h3>
+        <h3 className="inv-thanksTitle">{first ? t("rsvp.thanks.titleName", { name: first }) : t("rsvp.thanks.title")}</h3>
         <p className="inv-thanksText">
-          {attending
-            ? "Hemos recibido tu confirmación. ¡Nos hace mucha ilusión que vengas!"
-            : "Hemos recibido tu respuesta. Sentimos que no puedas venir; gracias por avisarnos."}
+          {attending ? t("rsvp.thanks.yes") : t("rsvp.thanks.no")}
         </p>
         {form.plusOne === "yes" && attending && (
           <p className="inv-thanksText">
-            Vienes con acompañante{form.plusOneName ? `: ${form.plusOneName}` : ""}.
+            {form.plusOneName ? t("rsvp.thanks.plusOneName", { name: form.plusOneName }) : t("rsvp.thanks.plusOne")}
           </p>
         )}
         <button
@@ -170,7 +173,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
             setPhase("form");
           }}
         >
-          Cambiar mi respuesta
+          {t("rsvp.thanks.change")}
         </button>
       </div>
     );
@@ -181,11 +184,11 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
   return (
     <form className="inv-form" onSubmit={onSubmit} noValidate aria-describedby={formError ? "rsvp-form-error" : undefined}>
       <fieldset disabled={preview || pending} className="inv-fields">
-        <legend className="sr-only">Confirmación de asistencia</legend>
+        <legend className="sr-only">{t("rsvp.legend")}</legend>
 
         <div className="inv-field">
           <label htmlFor="rsvp-name" className="inv-label">
-            Nombre y apellidos
+            {t("rsvp.name.label")}
           </label>
           <input
             id="rsvp-name"
@@ -198,7 +201,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
             required
             aria-invalid={Boolean(errors.name)}
             aria-describedby={errors.name ? "rsvp-name-error" : undefined}
-            placeholder="Tu nombre"
+            placeholder={t("rsvp.name.placeholder")}
           />
           {errors.name && (
             <p id="rsvp-name-error" className="inv-error" role="alert">
@@ -209,7 +212,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
 
         <div className="inv-field" role="radiogroup" aria-labelledby="rsvp-attending-label">
           <span id="rsvp-attending-label" className="inv-label">
-            ¿Vienes a la boda?
+            {t("rsvp.attending.label")}
           </span>
           <div className="inv-choices">
             <label className="inv-choice">
@@ -221,7 +224,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
                 checked={form.attending === "yes"}
                 onChange={() => set("attending", "yes")}
               />
-              <span>¡Sí, allí estaré!</span>
+              <span>{t("rsvp.attending.yes")}</span>
             </label>
             <label className="inv-choice">
               <input
@@ -231,7 +234,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
                 checked={form.attending === "no"}
                 onChange={() => set("attending", "no")}
               />
-              <span>No podré ir</span>
+              <span>{t("rsvp.attending.no")}</span>
             </label>
           </div>
           {errors.attending && (
@@ -245,7 +248,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
           <>
             <div className="inv-field" role="radiogroup" aria-labelledby="rsvp-plus-label">
               <span id="rsvp-plus-label" className="inv-label">
-                ¿Vienes con acompañante?
+                {t("rsvp.plusOne.label")}
               </span>
               <div className="inv-choices">
                 <label className="inv-choice">
@@ -256,7 +259,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
                     checked={form.plusOne === "yes"}
                     onChange={() => set("plusOne", "yes")}
                   />
-                  <span>Sí</span>
+                  <span>{t("rsvp.plusOne.yes")}</span>
                 </label>
                 <label className="inv-choice">
                   <input
@@ -266,7 +269,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
                     checked={form.plusOne === "no"}
                     onChange={() => set("plusOne", "no")}
                   />
-                  <span>No, voy sin acompañante</span>
+                  <span>{t("rsvp.plusOne.no")}</span>
                 </label>
               </div>
             </div>
@@ -274,7 +277,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
             {form.plusOne === "yes" && (
               <div className="inv-field">
                 <label htmlFor="rsvp-plusOneName" className="inv-label">
-                  Nombre del acompañante
+                  {t("rsvp.plusOne.nameLabel")}
                 </label>
                 <input
                   id="rsvp-plusOneName"
@@ -285,7 +288,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
                   maxLength={LIMITS.plusOneName}
                   autoComplete="off"
                   aria-invalid={Boolean(errors.plusOneName)}
-                  placeholder="Nombre y apellidos"
+                  placeholder={t("rsvp.plusOne.namePlaceholder")}
                 />
                 {errors.plusOneName && (
                   <p className="inv-error" role="alert">
@@ -297,7 +300,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
 
             <div className="inv-field">
               <label htmlFor="rsvp-dietary" className="inv-label">
-                Alergias o dieta <span className="inv-optional">(opcional)</span>
+                {t("rsvp.dietary.label")} <span className="inv-optional">{t("rsvp.optional")}</span>
               </label>
               <textarea
                 id="rsvp-dietary"
@@ -308,7 +311,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
                 maxLength={LIMITS.dietary}
                 rows={2}
                 aria-invalid={Boolean(errors.dietary)}
-                placeholder="Vegetariano, celiaquía, alergia a los frutos secos…"
+                placeholder={t("rsvp.dietary.placeholder")}
               />
               {errors.dietary && (
                 <p className="inv-error" role="alert">
@@ -321,7 +324,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
 
         <div className="inv-field">
           <label htmlFor="rsvp-message" className="inv-label">
-            Un mensaje para la pareja <span className="inv-optional">(opcional)</span>
+            {t("rsvp.message.label")} <span className="inv-optional">{t("rsvp.optional")}</span>
           </label>
           <textarea
             id="rsvp-message"
@@ -332,7 +335,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
             maxLength={LIMITS.rsvpMessage}
             rows={3}
             aria-invalid={Boolean(errors.message)}
-            placeholder="Unas palabras para recordar…"
+            placeholder={t("rsvp.message.placeholder")}
           />
           {errors.message && (
             <p className="inv-error" role="alert">
@@ -344,7 +347,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
         {/* Señuelo anti-bots: las personas no lo ven. */}
         <div className="inv-hp" aria-hidden="true">
           <label>
-            No rellenar este campo
+            {t("rsvp.honeypot")}
             <input ref={honeypot} type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
           </label>
         </div>
@@ -357,7 +360,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
 
         <button type={preview ? "button" : "submit"} className={cn("inv-submit")} disabled={pending}>
           {pending ? <Loader2Icon aria-hidden="true" className="animate-spin" /> : <SendIcon aria-hidden="true" />}
-          {editing || rsvpId ? "Guardar cambios" : "Enviar respuesta"}
+          {editing || rsvpId ? t("rsvp.submit.save") : t("rsvp.submit.send")}
         </button>
       </fieldset>
       {editing && (
@@ -372,7 +375,7 @@ export function RsvpForm({ slug, preview = false }: { slug: string; preview?: bo
             setPhase("thanks");
           }}
         >
-          Cancelar
+          {t("rsvp.cancel")}
         </button>
       )}
     </form>

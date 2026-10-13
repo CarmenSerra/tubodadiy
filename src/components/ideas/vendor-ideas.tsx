@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { IdeasList, type IdeaItem } from "@/components/ideas/ideas-list";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
@@ -22,6 +23,7 @@ export function VendorIdeas({
   align?: "start" | "center" | "end";
   className?: string;
 }) {
+  const { t } = useTranslation("vendors");
   const { data: vendors } = useCollection(vendorsQuery(planId), mapVendor);
   const [form, setForm] = React.useState<{ open: boolean; category?: string; opener?: HTMLElement | null }>({
     open: false,
@@ -31,24 +33,27 @@ export function VendorIdeas({
     const missing = missingVendorTypes(vendors.map((v) => v.category));
     // Estable: imprescindibles primero y, dentro de cada bloque, el orden curado.
     const sorted = [...missing].sort((a, b) => Number(b.essential) - Number(a.essential));
-    return sorted.map((idea) => ({
-      key: idea.category,
-      title: idea.category,
-      hint: idea.hint,
-      tag: idea.essential ? "Imprescindible" : undefined,
-      pills: idea.whenToBook ? [`Reservar: ${idea.whenToBook}`] : undefined,
-      // No crea nada: abre el formulario con la categoría puesta.
-      markAdded: false,
-      addLabel: `Añadir proveedor de «${idea.category}»`,
-      onAdd: (ctx) => ctx.handoff((opener) => setForm({ open: true, category: idea.category, opener })),
-    }));
-  }, [vendors]);
+    return sorted.map((idea) => {
+      const title = t(`categories.${idea.slug}`);
+      return {
+        key: idea.category,
+        title,
+        hint: t(`ideas.vendors.${idea.slug}.hint`),
+        tag: idea.essential ? t("ideas.vendors.essential") : undefined,
+        pills: idea.hasWhen ? [t("ideas.vendors.book", { when: t(`ideas.vendors.${idea.slug}.when`) })] : undefined,
+        // No crea nada: abre el formulario con la categoría puesta (el valor guardado sigue en español).
+        markAdded: false,
+        addLabel: t("ideas.vendors.addAria", { title }),
+        onAdd: (ctx) => ctx.handoff((opener) => setForm({ open: true, category: idea.category, opener })),
+      };
+    });
+  }, [vendors, t]);
 
   return (
     <>
       <IdeasPanel
-        title="Ideas de proveedores"
-        description="Te pueden faltar estos tipos. Al elegir uno se abre el formulario con la categoría puesta."
+        title={t("ideas.vendors.title")}
+        description={t("ideas.vendors.description")}
         align={align}
         className={className}
       >
@@ -57,9 +62,9 @@ export function VendorIdeas({
             items={items}
             ctx={ctx}
             gender="m"
-            addedMessage="Proveedor añadido"
-            errorMessage="No se ha podido abrir el formulario."
-            emptyText="Tienes todos los tipos de proveedor habituales. ¡Buen trabajo!"
+            addedMessage={t("ideas.vendors.added")}
+            errorMessage={t("ideas.vendors.error")}
+            emptyText={t("ideas.vendors.empty")}
           />
         )}
       </IdeasPanel>

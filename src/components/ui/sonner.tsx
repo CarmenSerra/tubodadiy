@@ -2,16 +2,18 @@
 
 import type * as React from "react";
 import { CircleAlertIcon, CircleCheckIcon, InfoIcon, Loader2Icon, TriangleAlertIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 // Avisos de marca: tarjeta crema con borde lila suave y texto verde oscuro.
 // El color solo vive en el icono (salvia = hecho, ladrillo = error, lila =
 // info); no se usa richColors porque pinta el fondo entero de verde/rojo.
 const Toaster = ({ toastOptions, style, ...props }: ToasterProps) => {
+  const { t } = useTranslation("dashboard");
   return (
     <Sonner
       theme="light"
-      containerAriaLabel="Notificaciones"
+      containerAriaLabel={t("ui.notifications")}
       className="toaster group"
       style={
         {

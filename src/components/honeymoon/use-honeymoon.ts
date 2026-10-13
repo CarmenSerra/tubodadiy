@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -40,6 +41,7 @@ export interface HoneymoonData {
 
 /** Suscripción a todo lo de la luna de miel de un plan, ya ordenado, y siembra de la maleta. */
 export function useHoneymoon(planId: string): HoneymoonData {
+  const { t } = useTranslation("honeymoon");
   const dest = useCollection(destinationsQuery(planId), mapDestination);
   const days = useCollection(daysQuery(planId), mapDay);
   const bookings = useCollection(bookingsQuery(planId), mapBooking);
@@ -56,9 +58,9 @@ export function useHoneymoon(planId: string): HoneymoonData {
     if (!needsSeed || seedAttempted.current) return;
     seedAttempted.current = true;
     ensurePackingSeeded(planId).catch(() => {
-      toast.error("No se ha podido preparar la lista de la maleta. Puedes cargarla desde «Maleta y papeles».");
+      toast.error(t("page.seedError"));
     });
-  }, [needsSeed, planId]);
+  }, [needsSeed, planId, t]);
 
   const destinations = React.useMemo(
     () =>

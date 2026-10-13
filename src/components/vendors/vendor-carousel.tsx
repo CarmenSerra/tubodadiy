@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROW_FOCUS } from "@/components/vendors/vendor-brand";
 import { cn } from "@/lib/utils";
@@ -61,6 +62,7 @@ const ARROW = cn(
  * al dejar el cursor encima un instante. También se arrastra con ratón o dedo.
  */
 export function VendorCarousel({ label, slides }: { label: string; slides: CarouselSlide[] }) {
+  const { t } = useTranslation("vendors");
   const count = slides.length;
   // Se guarda la clave (no el índice) para que reordenar por estado no cambie la tarjeta central.
   const [state, setState] = React.useState<{ active: string | null; prev: string | null }>({
@@ -87,7 +89,7 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
     setSeen({ signature: keysSignature, keys });
     if (seen.keys.length > 0 && keys.length > 0 && !seen.keys.includes(keys[0])) {
       setState({ active: keys[0], prev: state.active ?? seen.keys[0] });
-      setAnnouncement(`Nueva opción: ${slides[0].name}`);
+      setAnnouncement(t("carousel.newOption", { name: slides[0].name }));
     }
   }
 
@@ -211,8 +213,8 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
     <div
       ref={regionRef}
       role="region"
-      aria-roledescription="carrusel"
-      aria-label={`Opciones de ${label}`}
+      aria-roledescription={t("carousel.roleCarousel")}
+      aria-label={t("carousel.options", { label })}
       tabIndex={0}
       onKeyDown={onKeyDown}
       className={cn(
@@ -258,8 +260,8 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
                 data-slide=""
                 data-offset={offset}
                 role="group"
-                aria-roledescription="diapositiva"
-                aria-label={`${index + 1} de ${count}`}
+                aria-roledescription={t("carousel.roleSlide")}
+                aria-label={t("carousel.slideOf", { index: index + 1, count })}
                 aria-hidden={isCenter ? undefined : true}
                 onClick={isCenter || isHidden ? undefined : () => goTo(index)}
                 onPointerEnter={isCenter || isHidden ? undefined : (event) => armHover(index, event)}
@@ -293,7 +295,7 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
           <>
             <button
               type="button"
-              aria-label={`Opción anterior de ${label}`}
+              aria-label={t("carousel.previous", { label })}
               onClick={() => goTo(active - 1)}
               className={cn(ARROW, "left-5 sm:left-8 md:left-4")}
             >
@@ -301,7 +303,7 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
             </button>
             <button
               type="button"
-              aria-label={`Opción siguiente de ${label}`}
+              aria-label={t("carousel.next", { label })}
               onClick={() => goTo(active + 1)}
               className={cn(ARROW, "right-5 left-auto sm:right-8 md:right-4")}
             >
@@ -317,7 +319,7 @@ export function VendorCarousel({ label, slides }: { label: string; slides: Carou
             <button
               key={slide.key}
               type="button"
-              aria-label={`Ir a la opción ${index + 1} de ${count}: ${slide.name}`}
+              aria-label={t("carousel.goTo", { index: index + 1, count, name: slide.name })}
               aria-current={index === active ? "true" : undefined}
               onClick={() => goTo(index)}
               className={cn("group/dot inline-flex size-6 items-center justify-center rounded-full", ROW_FOCUS)}

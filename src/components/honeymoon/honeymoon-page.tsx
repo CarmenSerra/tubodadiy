@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { BriefcaseIcon, CompassIcon, MapIcon, WalletIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Bookings } from "@/components/honeymoon/bookings";
 import { Destinations } from "@/components/honeymoon/destinations";
@@ -15,10 +16,10 @@ import { useAuth } from "@/lib/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
 const SECTIONS = [
-  { value: "destinos", label: "Destinos", icon: CompassIcon },
-  { value: "itinerario", label: "Itinerario", icon: MapIcon },
-  { value: "reservas", label: "Reservas", icon: WalletIcon },
-  { value: "maleta", label: "Maleta", icon: BriefcaseIcon },
+  { value: "destinations", icon: CompassIcon },
+  { value: "itinerary", icon: MapIcon },
+  { value: "bookings", icon: WalletIcon },
+  { value: "packing", icon: BriefcaseIcon },
 ] as const;
 
 type SectionValue = (typeof SECTIONS)[number]["value"];
@@ -29,9 +30,10 @@ function isSection(value: string): value is SectionValue {
 
 /** Página «Luna de miel» de un plan: banner, selector de sección y la sección activa. */
 export function HoneymoonPage({ planId }: { planId: string }) {
+  const { t } = useTranslation("honeymoon");
   const { user } = useAuth();
   const data = useHoneymoon(planId);
-  const [section, setSection] = React.useState<SectionValue>("destinos");
+  const [section, setSection] = React.useState<SectionValue>("destinations");
   const [announcement, setAnnouncement] = React.useState("");
 
   // Mensajes para lectores de pantalla (votos, borrados, reorden…). El espacio final
@@ -47,9 +49,9 @@ export function HoneymoonPage({ planId }: { planId: string }) {
   if (data.failed) {
     return (
       <div className={cn(HM_CARD, "mx-auto flex max-w-md flex-col items-center p-8 text-center")} role="alert">
-        <h2 className="font-display text-xl font-semibold text-ink">No hemos podido cargar la luna de miel</h2>
+        <h2 className="font-display text-xl font-semibold text-ink">{t("page.loadError.title")}</h2>
         <p className="mt-2 text-sm text-ink-muted">
-          Comprueba tu conexión y vuelve a intentarlo en unos segundos. Tus datos siguen guardados.
+          {t("page.loadError.text")}
         </p>
       </div>
     );
@@ -61,10 +63,10 @@ export function HoneymoonPage({ planId }: { planId: string }) {
 
       <Tabs value={section} onValueChange={(v) => isSection(v) && setSection(v)} className="gap-5">
         <TabsList
-          aria-label="Secciones de la luna de miel"
+          aria-label={t("page.tabsLabel")}
           className="grid h-auto w-full grid-cols-4 gap-1 rounded-2xl bg-surface p-1.5 shadow-pop ring-1 ring-line"
         >
-          {SECTIONS.map(({ value, label, icon: Icon }) => (
+          {SECTIONS.map(({ value, icon: Icon }) => (
             <TabsTrigger
               key={value}
               value={value}
@@ -75,12 +77,12 @@ export function HoneymoonPage({ planId }: { planId: string }) {
               )}
             >
               <Icon aria-hidden="true" className="size-5 sm:size-4" />
-              {label}
+              {t(`page.tabs.${value}`)}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        <TabsContent value="destinos">
+        <TabsContent value="destinations">
           <Destinations
             planId={planId}
             uid={user?.uid ?? ""}
@@ -88,10 +90,10 @@ export function HoneymoonPage({ planId }: { planId: string }) {
             announce={announce}
           />
         </TabsContent>
-        <TabsContent value="itinerario">
+        <TabsContent value="itinerary">
           <Itinerary planId={planId} days={data.days} announce={announce} />
         </TabsContent>
-        <TabsContent value="reservas">
+        <TabsContent value="bookings">
           <Bookings
             planId={planId}
             bookings={data.bookings}
@@ -99,7 +101,7 @@ export function HoneymoonPage({ planId }: { planId: string }) {
             announce={announce}
           />
         </TabsContent>
-        <TabsContent value="maleta">
+        <TabsContent value="packing">
           <Packing
             planId={planId}
             items={data.packing}

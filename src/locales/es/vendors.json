@@ -1,1 +1,1302 @@
-{}
+{
+  "categories": {
+    "venue": "Finca",
+    "catering": "Catering",
+    "photographer": "Fotógrafo",
+    "video": "Vídeo",
+    "music": "Música",
+    "flowers": "Flores",
+    "cake": "Pastel",
+    "transport": "Transporte",
+    "decor": "Decoración",
+    "ceremonyMusic": "Música para la ceremonia",
+    "hairMakeup": "Peluquería y maquillaje",
+    "dress": "Vestido",
+    "suit": "Traje",
+    "rings": "Alianzas",
+    "kidsEntertainment": "Animación infantil",
+    "photoBooth": "Fotomatón",
+    "weddingPlanner": "Wedding planner",
+    "invitations": "Invitaciones",
+    "other": "Otros"
+  },
+  "card": {
+    "deleted": "Proveedor eliminado",
+    "deleteError": "No se ha podido eliminar el proveedor.",
+    "edit": "Editar {{name}}",
+    "delete": "Eliminar {{name}}",
+    "priceTbc": "Precio por confirmar"
+  },
+  "empty": {
+    "venue": {
+      "title": "Añade tu primera finca",
+      "cta": "Añadir finca"
+    },
+    "catering": {
+      "title": "Añade tu primer catering",
+      "cta": "Añadir catering"
+    },
+    "photographer": {
+      "title": "Añade tu primer fotógrafo",
+      "cta": "Añadir fotógrafo"
+    },
+    "custom": {
+      "title": "Añade tu primera opción de {{category}}",
+      "cta": "Añadir opción"
+    },
+    "hint": "Guarda aquí las opciones que estás comparando."
+  },
+  "contact": {
+    "button": "Contacto",
+    "ariaLabel": "Contacto de {{name}}",
+    "description": "{{category}} · datos de contacto",
+    "location": "Ubicación",
+    "viewOnMaps": "Ver en Google Maps",
+    "newTab": "(se abre en una pestaña nueva)",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "notes": "Notas",
+    "empty": "Todavía no has guardado datos de contacto de esta opción. Edítala con el lápiz de la tarjeta para añadir la dirección, el correo electrónico o el teléfono."
+  },
+  "status": {
+    "exploring": "Explorando",
+    "visited": "Visitada",
+    "favorite": "Favorita",
+    "chosen": "Elegida"
+  },
+  "photo": {
+    "notImage": "Elige un archivo de imagen (JPG, PNG, WebP…).",
+    "processError": "No se ha podido procesar la foto.",
+    "preview": "Vista previa de la foto",
+    "upload": "Subir una foto",
+    "change": "Cambiar foto",
+    "remove": "Quitar foto",
+    "hint": "Se reduce automáticamente para que ocupe poco."
+  },
+  "carousel": {
+    "newOption": "Nueva opción: {{name}}",
+    "roleCarousel": "carrusel",
+    "roleSlide": "diapositiva",
+    "options": "Opciones de {{label}}",
+    "slideOf": "{{index}} de {{count}}",
+    "previous": "Opción anterior de {{label}}",
+    "next": "Opción siguiente de {{label}}",
+    "goTo": "Ir a la opción {{index}} de {{count}}: {{name}}"
+  },
+  "list": {
+    "loading": "Cargando proveedores",
+    "noOptions": "Sin opciones aún",
+    "optionCount_one": "{{count}} opción",
+    "optionCount_other": "{{count}} opciones",
+    "discover": "Descubrir fincas",
+    "addAnother": "Añadir otra",
+    "invitation": "¿Quieres ver fincas para bodas? Te enseñamos algunas por provincia para que guardes las que te gusten.",
+    "seeVenues": "Ver fincas para bodas"
+  },
+  "filter": {
+    "section": "Filtrar proveedores por lugar",
+    "label": "Filtrar por lugar",
+    "all": "Todos los lugares",
+    "otherPlaces": "Otras ubicaciones",
+    "shownOf_one": "{{count}} opción de {{total}}",
+    "shownOf_other": "{{count}} opciones de {{total}}",
+    "clear": "Quitar filtro"
+  },
+  "placeSearch": {
+    "searchError": "No se ha podido buscar ahora. Puedes rellenar los datos a mano.",
+    "detailsError": "No se han podido cargar los datos de ese lugar. Prueba de nuevo o rellénalos a mano.",
+    "linkProtocol": "El enlace debe empezar por http:// o https://.",
+    "linkNotFound": "No hemos encontrado ese lugar. Revisa el enlace o busca por nombre.",
+    "linkError": "No se ha podido leer el enlace ahora. Prueba de nuevo.",
+    "loadingPlace": "Cargando los datos del lugar…",
+    "searching": "Buscando…",
+    "results_one": "{{count}} resultado. Usa las flechas y Intro para elegir.",
+    "results_other": "{{count}} resultados. Usa las flechas y Intro para elegir.",
+    "noResults": "Sin resultados.",
+    "label": "Busca el lugar o la empresa",
+    "placeholder": "Por ejemplo: Finca Los Lavaderos de Rojas",
+    "listLabel": "Lugares encontrados",
+    "help": "Elige un resultado de Google Maps y rellenamos los datos por ti; todo se puede editar después.",
+    "filled": "Datos de «{{name}}» añadidos. Revísalos abajo.",
+    "haveLink": "¿Tienes un enlace de Google Maps?",
+    "linkLabel": "Enlace de Google Maps",
+    "fill": "Rellenar"
+  },
+  "form": {
+    "addVendor": "Añadir proveedor",
+    "newTitle": "Nuevo proveedor",
+    "editTitle": "Editar proveedor",
+    "description": "Solo el nombre es obligatorio; el resto puedes completarlo cuando quieras.",
+    "added": "Proveedor añadido",
+    "updated": "Proveedor actualizado",
+    "saveError": "No se ha podido guardar el proveedor.",
+    "save": "Guardar",
+    "otherCategory": "Otra categoría…",
+    "linkedToMaps": "Enlazado con Google Maps: el enlace se crea automáticamente.",
+    "unlink": "Desvincular",
+    "errors": {
+      "name": "Ponle un nombre para reconocerlo.",
+      "category": "Escribe el nombre de la categoría.",
+      "email": "Revisa el correo electrónico: debería parecerse a nombre@dominio.com.",
+      "link": "El enlace debe empezar por http:// o https://.",
+      "website": "Escribe una web válida, por ejemplo https://mifinca.es.",
+      "cost": "Escribe un importe válido, sin símbolos."
+    },
+    "fields": {
+      "name": "Nombre",
+      "category": "Categoría",
+      "customCategory": "Nombre de la categoría",
+      "customCategoryPlaceholder": "Por ejemplo: Invitaciones",
+      "price": "Precio (€)",
+      "status": "Estado",
+      "photo": "Foto",
+      "photoLink": "O enlace de la foto",
+      "photoLinkHint": "Pega el enlace de una imagen. Si no hay foto, verás una ilustración.",
+      "website": "Web",
+      "address": "Dirección",
+      "municipality": "Municipio",
+      "province": "Provincia",
+      "community": "Comunidad: {{name}}",
+      "provincePlaceholder": "Elige provincia",
+      "noProvince": "Sin provincia",
+      "mapsLink": "Enlace de Google Maps",
+      "email": "Correo de contacto",
+      "phone": "Teléfono",
+      "notes": "Notas"
+    }
+  },
+  "discovery": {
+    "title": "Descubre fincas para tu boda",
+    "description": "Elige dónde buscar y guarda las que te gusten: se añaden a tus proveedores como «Explorando».",
+    "where": "Dónde",
+    "wherePlaceholder": "Elige provincias o comunidades",
+    "style": "Estilo",
+    "optional": "(opcional)",
+    "styles": {
+      "rustic": "Rústica",
+      "garden": "Con jardín",
+      "seaside": "Junto al mar",
+      "cortijo": "Cortijo",
+      "masia": "Masía",
+      "palace": "Palacio",
+      "mountain": "En la montaña",
+      "modern": "Moderna"
+    },
+    "start": {
+      "title": "Elige una o varias provincias para empezar",
+      "text": "Buscaremos fincas para bodas en cada una y verás los resultados aquí."
+    },
+    "error": {
+      "title": "No hemos podido buscar fincas ahora mismo",
+      "text": "Puede ser un fallo de conexión. Inténtalo de nuevo en unos segundos.",
+      "retry": "Reintentar"
+    },
+    "none": {
+      "title": "No hemos encontrado fincas con estos filtros",
+      "text": "Prueba a quitar algún estilo o a añadir más provincias."
+    },
+    "count_one": "{{count}} finca",
+    "count_other": "{{count}} fincas",
+    "partialFail": "No hemos podido consultar {{places}}. El resto de resultados sí se muestran.",
+    "loading": "Cargando…",
+    "more": "Ver más",
+    "loadMoreError": "No se han podido cargar todas las fincas. Inténtalo de nuevo.",
+    "resultsFrom": "Resultados de",
+    "pickerHint": "Elige una comunidad para marcar todas sus provincias, o provincias sueltas. Máximo {{max}}.",
+    "rating": "Valoración {{rating}} de 5",
+    "viewOnMaps": "Ver en Maps",
+    "savedBadge": "Guardada",
+    "saveAria": "Guardar {{name}}",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "«{{name}}» guardada en Fincas",
+    "saveError": "No se ha podido guardar la finca. Inténtalo de nuevo.",
+    "searchingVenues": "Buscando fincas"
+  },
+  "page": {
+    "title": "Proveedores",
+    "description": "Compara tus opciones por categoría y quédate con la que más te enamore."
+  },
+  "places": {
+    "errors": {
+      "signInRequired": "Inicia sesión para usar la búsqueda de Google Maps.",
+      "verifyUnavailable": "El servidor no puede verificar tu sesión en este momento.",
+      "sessionExpired": "Tu sesión ha caducado. Vuelve a iniciar sesión e inténtalo de nuevo.",
+      "missingSession": "Falta la sesión de búsqueda.",
+      "invalidSession": "Sesión de búsqueda no válida.",
+      "searchFailed": "No se pudo completar la búsqueda.",
+      "invalidPlaceId": "Identificador de lugar no válido.",
+      "placeNotFound": "No encontramos ese lugar en Google Maps.",
+      "placeFailed": "No se pudo obtener el lugar.",
+      "invalidLink": "El enlace no es válido.",
+      "notMapsLink": "Pega un enlace de Google Maps (por ejemplo, de «Compartir» en la app).",
+      "linkFailed": "No se pudo leer el enlace.",
+      "chooseProvince": "Elige una provincia de España.",
+      "invalidPage": "Página no válida.",
+      "webRequired": "Indica la dirección web.",
+      "webInvalid": "La dirección web no es válida.",
+      "webProtocol": "Solo se admiten direcciones http o https.",
+      "notConfigured": "La búsqueda en Google Maps no está configurada en el servidor.",
+      "googleTimeout": "Google Maps no responde ahora mismo. Inténtalo de nuevo en un momento.",
+      "googleBadRequest": "Google Maps no ha entendido la consulta.",
+      "tooManyRequests": "Demasiadas búsquedas seguidas. Espera un momento.",
+      "googleUnavailable": "No se pudo consultar Google Maps ahora mismo.",
+      "signIn": "Inicia sesión para buscar en Google Maps.",
+      "network": "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
+      "generic": "No se pudo completar la búsqueda. Inténtalo de nuevo."
+    }
+  },
+  "ideas": {
+    "steps": {
+      "fecha_presupuesto": {
+        "hablar-que-importa-mas": {
+          "title": "Hablar de qué os importa más en la boda",
+          "hint": "Decidir prioridades os ayuda a repartir el dinero sin discutir.",
+          "when": "12–18 meses antes"
+        },
+        "preguntar-con-cuanta-ayuda": {
+          "title": "Preguntar con cuánta ayuda familiar contáis",
+          "hint": "Aclarad pronto si padres o abuelos aportan, y cómo, para ajustar el total.",
+          "when": "12–18 meses antes"
+        },
+        "abrir-una-cuenta-conjunta": {
+          "title": "Abrir una cuenta conjunta para la boda",
+          "hint": "Facilita ahorrar, pagar señales y ver los gastos en un solo sitio.",
+          "when": "12 meses antes"
+        },
+        "comparar-temporada-alta-baja": {
+          "title": "Comparar temporada alta y baja",
+          "hint": "Entre semana o fuera de mayo–septiembre, fincas y catering suelen salir más baratos.",
+          "when": "12–15 meses antes"
+        },
+        "consultar-fechas-con-familiares": {
+          "title": "Consultar fechas con familiares clave",
+          "hint": "Evitad coincidir con otras bodas, puentes, comuniones o fiestas locales.",
+          "when": "12–15 meses antes"
+        },
+        "calcular-coste-por-invitado": {
+          "title": "Calcular el coste por invitado",
+          "hint": "Banquete y finca se multiplican por comensal: probad con 60, 80 y 100.",
+          "when": "12 meses antes"
+        },
+        "apuntar-los-sobres-regalos": {
+          "title": "Apuntar los sobres y regalos que esperáis recibir",
+          "hint": "Una estimación prudente del dinero de invitados ayuda, pero no lo deis por seguro.",
+          "when": "9–12 meses antes"
+        },
+        "reservar-colchon-del-5": {
+          "title": "Reservar un colchón del 5–10 % para imprevistos",
+          "hint": "Siempre surgen extras: pruebas, arreglos, propinas, horas de más.",
+          "when": "12 meses antes"
+        },
+        "revisar-presupuesto-con-contratado": {
+          "title": "Revisar el presupuesto con lo ya contratado",
+          "hint": "Cada trimestre, comparad lo previsto con lo pagado y ajustad.",
+          "when": "Cada 3 meses"
+        },
+        "pactar-quien-paga-cada": {
+          "title": "Pactar quién paga cada cosa y cuándo",
+          "hint": "Anotad señales y fechas de pago de cada proveedor para no llevaros sustos.",
+          "when": "6–9 meses antes"
+        }
+      },
+      "invitados": {
+        "definir-cuantos-invitados-quereis": {
+          "title": "Definir cuántos invitados queréis como máximo",
+          "hint": "Fijad un tope realista antes de empezar la lista: condiciona finca y presupuesto.",
+          "when": "12–15 meses antes"
+        },
+        "acordar-los-criterios-invitacion": {
+          "title": "Acordar los criterios de invitación",
+          "hint": "Por ejemplo: gente con la que habéis hablado este año, parejas, niños, compañeros.",
+          "when": "12–15 meses antes"
+        },
+        "repartir-cupos-entre-vosotros": {
+          "title": "Repartir cupos entre vosotros y las familias",
+          "hint": "Un reparto claro (por ejemplo, 40/40/20) evita tensiones con padres y suegros.",
+          "when": "12 meses antes"
+        },
+        "separar-lista-lista": {
+          "title": "Separar la lista A y la lista B",
+          "hint": "La B se invita solo si hay bajas; ayuda a ajustar sin agobios.",
+          "when": "10–12 meses antes"
+        },
+        "recoger-direcciones-telefonos-todos": {
+          "title": "Recoger direcciones y teléfonos de todos",
+          "hint": "Pedid la dirección postal si vais a enviar invitaciones en papel.",
+          "when": "8–10 meses antes"
+        },
+        "preguntar-por-alergias-intolerancias": {
+          "title": "Preguntar por alergias e intolerancias",
+          "hint": "Lo necesita el catering con antelación: celíacos, alergias, vegetarianos.",
+          "when": "3–4 meses antes"
+        },
+        "decidir-invita-ninos-que": {
+          "title": "Decidir si se invita a niños y a qué edades",
+          "hint": "Si hay niños, pensad en menú infantil y una zona o animación para ellos.",
+          "when": "10–12 meses antes"
+        },
+        "confirmar-asistentes-por-llamada": {
+          "title": "Confirmar asistentes por llamada o mensaje",
+          "hint": "Perseguid con cariño las respuestas pendientes antes de la fecha límite.",
+          "when": "2–3 meses antes"
+        },
+        "pedir-confirmacion-menu-cada": {
+          "title": "Pedir confirmación de menú a cada invitado",
+          "hint": "Si hay opciones de menú, anotadlas en la lista para pasarlas al catering.",
+          "when": "2–3 meses antes"
+        },
+        "asignar-cada-invitado-una": {
+          "title": "Asignar a cada invitado una mesa",
+          "hint": "Agrupad por afinidad y repartid las posibles tensiones familiares.",
+          "when": "3–4 semanas antes"
+        },
+        "preparar-plano-mesas-con": {
+          "title": "Preparar el plano de mesas con el catering",
+          "hint": "Compartid el plano definitivo y la lista de dietas con el espacio.",
+          "when": "2–3 semanas antes"
+        },
+        "avisar-los-invitados-bajas": {
+          "title": "Avisar a los invitados de bajas de última hora",
+          "hint": "Si hay cambios, comunicadlo al catering cuanto antes para evitar cobros de más.",
+          "when": "1–2 semanas antes"
+        }
+      },
+      "lugar": {
+        "hacer-una-lista-corta": {
+          "title": "Hacer una lista corta de fincas y espacios",
+          "hint": "Buscad por zona, aforo y precio; descartad según vuestra lista de invitados.",
+          "when": "12–15 meses antes"
+        },
+        "preguntar-fechas-libres-precio": {
+          "title": "Preguntar fechas libres y precio por invitado",
+          "hint": "Con un solo correo a varias fincas comparáis disponibilidad y tarifas a la vez.",
+          "when": "12–15 meses antes"
+        },
+        "comprobar-espacio-incluye-catering": {
+          "title": "Comprobar si el espacio incluye catering propio",
+          "hint": "Algunas fincas obligan a su catering; otras permiten elegir el vuestro.",
+          "when": "12–15 meses antes"
+        },
+        "preguntar-por-horario-maximo": {
+          "title": "Preguntar por el horario máximo y el límite de ruido",
+          "hint": "Confirmad hasta qué hora hay música y si la barra libre tiene coste por hora.",
+          "when": "Al visitar"
+        },
+        "ver-plan-llueve": {
+          "title": "Ver el plan B si llueve",
+          "hint": "Pedid ver el salón o carpa alternativa y cuánto cuesta montarla.",
+          "when": "Al visitar"
+        },
+        "confirmar-accesos-parking-accesibilidad": {
+          "title": "Confirmar accesos, parking y accesibilidad",
+          "hint": "Pensad en personas mayores, sillas de ruedas, tacones y carritos de bebé.",
+          "when": "Al visitar"
+        },
+        "preguntar-que-mobiliario-decoracion": {
+          "title": "Preguntar qué mobiliario y decoración incluye",
+          "hint": "Mesas, sillas, mantelería, vajilla y cristalería: ahorra o encarece mucho.",
+          "when": "Al visitar"
+        },
+        "pedir-contrato-revisar-politica": {
+          "title": "Pedir el contrato y revisar la política de cancelación",
+          "hint": "Leed señal, plazos de pago y qué pasa si cambia el número de invitados.",
+          "when": "Antes de reservar"
+        },
+        "preguntar-por-hora-acceso": {
+          "title": "Preguntar por la hora de acceso para montaje",
+          "hint": "Proveedores de flores, decoración y música necesitan entrar con tiempo.",
+          "when": "6–8 meses antes"
+        },
+        "repasar-con-espacio-distribucion": {
+          "title": "Repasar con el espacio la distribución del salón",
+          "hint": "Mesas, pista de baile, barra y escenario: dibujadlo con el equipo de la finca.",
+          "when": "3–4 meses antes"
+        },
+        "pedir-lista-proveedores-recomendados": {
+          "title": "Pedir la lista de proveedores recomendados del espacio",
+          "hint": "Conocen el sitio y suelen tener tarifas cerradas o permisos de acceso ya resueltos.",
+          "when": "Tras reservar"
+        },
+        "hacer-una-ultima-visita": {
+          "title": "Hacer una última visita técnica con proveedores clave",
+          "hint": "Con fotógrafo, DJ y decoración repasáis tomas de corriente, luz y espacios.",
+          "when": "1–2 meses antes"
+        }
+      },
+      "proveedores": {
+        "hacer-una-lista-proveedores": {
+          "title": "Hacer una lista de proveedores imprescindibles",
+          "hint": "Fijad qué es esencial (catering, fotógrafo, música) y qué puede esperar.",
+          "when": "12 meses antes"
+        },
+        "pedir-presupuesto-3-fotografos": {
+          "title": "Pedir presupuesto a 3 fotógrafos o videógrafos",
+          "hint": "Comparad estilo, horas de cobertura, entregables y plazo de entrega.",
+          "when": "10–12 meses antes"
+        },
+        "ver-albumes-completos-bodas": {
+          "title": "Ver álbumes completos de bodas anteriores",
+          "hint": "Una boda entera os enseña más que el portafolio de las mejores fotos.",
+          "when": "10–12 meses antes"
+        },
+        "reservar-peluqueria-maquillaje": {
+          "title": "Reservar peluquería y maquillaje",
+          "hint": "Incluid prueba previa y preguntad si se desplazan al lugar de la boda.",
+          "when": "6–9 meses antes"
+        },
+        "elegir-florista-definir-estilo": {
+          "title": "Elegir florista y definir estilo floral",
+          "hint": "Llevad fotos de inspiración y vuestra paleta de colores.",
+          "when": "6–9 meses antes"
+        },
+        "encargar-tarta-nupcial": {
+          "title": "Encargar la tarta nupcial",
+          "hint": "Pedid prueba de sabores y preguntad si incluye montaje y entrega.",
+          "when": "4–6 meses antes"
+        },
+        "probar-menu-con-catering": {
+          "title": "Probar el menú con el catering",
+          "hint": "Escoged entrantes, principales y postre, y revisad el menú infantil y dietas.",
+          "when": "4–6 meses antes"
+        },
+        "preguntar-por-recena-barra": {
+          "title": "Preguntar por recena y barra libre",
+          "hint": "Aclarad qué incluye, hasta cuándo y si lleva recargo por hora extra.",
+          "when": "4–6 meses antes"
+        },
+        "contratar-animacion-cuidadores-para": {
+          "title": "Contratar animación o cuidadores para los niños",
+          "hint": "Una persona de apoyo libera a los padres y evita sustos durante el banquete.",
+          "when": "3–6 meses antes"
+        },
+        "firmar-todos-los-contratos": {
+          "title": "Firmar todos los contratos y guardar copias",
+          "hint": "Revisad servicios, horarios, extras y política de cancelación antes de firmar.",
+          "when": "Al contratar"
+        },
+        "anotar-fechas-pago-senales": {
+          "title": "Anotar fechas de pago y señales de cada proveedor",
+          "hint": "Metedlas en el calendario para no olvidar ningún pago.",
+          "when": "Al contratar"
+        },
+        "dar-cada-proveedor-cronograma": {
+          "title": "Dar a cada proveedor el cronograma definitivo",
+          "hint": "Incluid horas, contactos y direcciones; todos deben saber qué pasa y cuándo.",
+          "when": "2–3 semanas antes"
+        },
+        "confirmar-por-telefono-con": {
+          "title": "Confirmar por teléfono con cada proveedor",
+          "hint": "Una llamada la semana anterior evita malentendidos de última hora.",
+          "when": "1 semana antes"
+        },
+        "preparar-sobres-con-pago": {
+          "title": "Preparar sobres con el pago final de cada proveedor",
+          "hint": "Etiquetadlos y dejad a una persona de confianza encargada de entregarlos.",
+          "when": "1 semana antes"
+        }
+      },
+      "ceremonia": {
+        "decidir-ceremonia-mismo-sitio": {
+          "title": "Decidir si la ceremonia es en el mismo sitio que el banquete",
+          "hint": "Ahorra traslados y tiempo; en iglesia o ayuntamiento hay que organizar el traslado.",
+          "when": "12 meses antes"
+        },
+        "preguntar-por-horarios-disponibilidad": {
+          "title": "Preguntar por horarios y disponibilidad del lugar",
+          "hint": "Iglesias, juzgados y ayuntamientos tienen franjas fijas: reservad con antelación.",
+          "when": "10–12 meses antes"
+        },
+        "elegir-las-personas-que": {
+          "title": "Elegir a las personas que os acompañan en la ceremonia",
+          "hint": "Padrinos, testigos, madrina, pajes y portadores de alianzas.",
+          "when": "6–9 meses antes"
+        },
+        "elegir-lecturas-poemas-textos": {
+          "title": "Elegir lecturas, poemas o textos para la ceremonia",
+          "hint": "Pueden leerlos familiares o amigos; avisadles con tiempo para ensayar.",
+          "when": "3–4 meses antes"
+        },
+        "escribir-los-votos": {
+          "title": "Escribir los votos",
+          "hint": "Breves y personales: un minuto cada uno es suficiente y suele emocionar.",
+          "when": "1–2 meses antes"
+        },
+        "elegir-musica-entrada-firma": {
+          "title": "Elegir la música de la entrada, firma y salida",
+          "hint": "Tres momentos clave: la entrada, el momento de la firma y la salida.",
+          "when": "3–4 meses antes"
+        },
+        "preparar-ensayo-ceremonia": {
+          "title": "Preparar un ensayo de la ceremonia",
+          "hint": "Repasad con oficiante y acompañantes la colocación y el orden de entrada.",
+          "when": "1–2 semanas antes"
+        },
+        "decidir-como-colocar-familia": {
+          "title": "Decidir cómo colocar a la familia durante la ceremonia",
+          "hint": "Reservad primeras filas para padres y abuelos; avisadles de dónde sentarse.",
+          "when": "1 mes antes"
+        },
+        "comprar-encargar-ramo-las": {
+          "title": "Comprar o encargar el ramo y las flores de la ceremonia",
+          "hint": "Incluye ramo, prendidos de familiares y decoración del altar o mesa.",
+          "when": "3–4 meses antes"
+        },
+        "preparar-cojin-caja-para": {
+          "title": "Preparar el cojín o caja para las alianzas",
+          "hint": "Alguien de confianza las custodia hasta el momento del intercambio.",
+          "when": "1 mes antes"
+        },
+        "imprimir-programa-misal-ceremonia": {
+          "title": "Imprimir el programa o misal de la ceremonia",
+          "hint": "Opcional: ayuda a los invitados a seguir lecturas y cantos.",
+          "when": "1–2 meses antes"
+        },
+        "preparar-arroz-petalos-confeti": {
+          "title": "Preparar el arroz, pétalos o confeti para la salida",
+          "hint": "Preguntad antes qué permite el lugar; algunos prohíben el arroz.",
+          "when": "2–4 semanas antes"
+        }
+      },
+      "documentos_legales": {
+        "pedir-cita-registro-civil": {
+          "title": "Pedir cita en el Registro Civil o notaría",
+          "hint": "Para boda civil, pedid cita para el expediente según vuestro municipio.",
+          "when": "6–8 meses antes"
+        },
+        "pedir-certificado-literal-nacimiento": {
+          "title": "Pedir el certificado literal de nacimiento",
+          "hint": "Se solicita online o en el Registro Civil; suele pedirse reciente.",
+          "when": "5–6 meses antes"
+        },
+        "obtener-certificado-empadronamiento": {
+          "title": "Obtener el certificado de empadronamiento",
+          "hint": "Se pide en el ayuntamiento o por sede electrónica; para ambos si viven distinto.",
+          "when": "4–5 meses antes"
+        },
+        "conseguir-certificado-estado-civil": {
+          "title": "Conseguir el certificado de estado civil si hace falta",
+          "hint": "Necesario si habéis estado casados antes o vivís fuera de España.",
+          "when": "5–6 meses antes"
+        },
+        "preparar-copias-del-dni": {
+          "title": "Preparar copias del DNI o pasaporte de ambos",
+          "hint": "Comprobad que no caduquen antes de la boda ni del viaje.",
+          "when": "5–6 meses antes"
+        },
+        "elegir-los-testigos-del": {
+          "title": "Elegir a los testigos del matrimonio",
+          "hint": "Suelen ser dos (civil); mayores de edad, con DNI en vigor y presentes ese día.",
+          "when": "3–4 meses antes"
+        },
+        "pedir-partida-bautismo-reciente": {
+          "title": "Pedir la partida de bautismo reciente",
+          "hint": "Si la ceremonia es religiosa, se solicita en la parroquia donde fuisteis bautizados.",
+          "when": "5–6 meses antes"
+        },
+        "hacer-expediente-parroquial": {
+          "title": "Hacer el expediente parroquial",
+          "hint": "Si la ceremonia es religiosa, se tramita en la parroquia, con documentos y entrevista.",
+          "when": "5–6 meses antes"
+        },
+        "apuntarse-cursillo-prematrimonial": {
+          "title": "Apuntarse al cursillo prematrimonial",
+          "hint": "Si es religiosa, suele ser obligatorio; las plazas se llenan: reservad pronto.",
+          "when": "6–8 meses antes"
+        },
+        "confirmar-con-parroquia-oficiante": {
+          "title": "Confirmar con la parroquia o el oficiante la documentación",
+          "hint": "Cada diócesis y municipio pide algo distinto: confirmad antes de ir a por papeles.",
+          "when": "6–8 meses antes"
+        },
+        "preguntar-por-posibles-tramites": {
+          "title": "Preguntar por posibles trámites para ceremonia simbólica",
+          "hint": "No tiene validez legal por sí sola; decidid si queréis firmar antes en el Registro.",
+          "when": "6–8 meses antes"
+        },
+        "decidir-regimen-economico-matrimonial": {
+          "title": "Decidir el régimen económico matrimonial",
+          "hint": "Gananciales o separación de bienes; consultadlo con notaría si tenéis dudas.",
+          "when": "2–4 meses antes"
+        },
+        "anotar-fechas-horas-todas": {
+          "title": "Anotar fechas y horas de todas las citas legales",
+          "hint": "Poned alertas en el calendario: los plazos de validez de certificados son cortos.",
+          "when": "Al pedir cita"
+        },
+        "pedir-libro-familia-tras": {
+          "title": "Pedir el libro de familia tras la boda",
+          "hint": "Se tramita en el Registro Civil después del enlace; guardad el certificado.",
+          "when": "Tras la boda"
+        },
+        "cambiar-domicilio-titulares-contratos": {
+          "title": "Cambiar domicilio y titulares de contratos si procede",
+          "hint": "Banco, seguros, hipoteca o alquiler: actualizadlos tras la boda con el libro de familia.",
+          "when": "Tras la boda"
+        }
+      },
+      "vestuario": {
+        "guardar-fotos-inspiracion-looks": {
+          "title": "Guardar fotos de inspiración de looks",
+          "hint": "Crea una carpeta con estilos, cortes y colores antes de ir a las tiendas.",
+          "when": "12–14 meses antes"
+        },
+        "fijar-presupuesto-vestuario": {
+          "title": "Fijar un presupuesto de vestuario",
+          "hint": "Incluid arreglos, complementos, ropa interior y segundo look si lo hay.",
+          "when": "12 meses antes"
+        },
+        "pedir-cita-varios-talleres": {
+          "title": "Pedir cita en varios talleres o tiendas",
+          "hint": "Un vestido a medida puede tardar de 6 a 10 meses: pedid cita pronto.",
+          "when": "10–12 meses antes"
+        },
+        "elegir-zapatos-comprobar-que": {
+          "title": "Elegir zapatos y comprobar que son cómodos",
+          "hint": "Estrenadlos en casa unos días y llevad un segundo par para bailar.",
+          "when": "3–4 meses antes"
+        },
+        "elegir-velo-tocado-complementos": {
+          "title": "Elegir velo, tocado y complementos",
+          "hint": "Combinadlos con el peinado y el escote; probadlos con el vestido.",
+          "when": "4–6 meses antes"
+        },
+        "elegir-ropa-interior-para": {
+          "title": "Elegir ropa interior para el vestido",
+          "hint": "Hay que llevarla a las pruebas para que los ajustes sean correctos.",
+          "when": "3–4 meses antes"
+        },
+        "elegir-camisa-corbata-pajarita": {
+          "title": "Elegir camisa, corbata o pajarita y zapatos del novio",
+          "hint": "Coordinad colores con el ramo y los acompañantes.",
+          "when": "3–4 meses antes"
+        },
+        "decidir-vestuario-pajes-damas": {
+          "title": "Decidir el vestuario de pajes, damas y padrinos",
+          "hint": "Avisadles con tiempo; informadlos del color o estilo que queréis.",
+          "when": "4–6 meses antes"
+        },
+        "hacer-prueba-final-los": {
+          "title": "Hacer la prueba final y los últimos arreglos",
+          "hint": "Ir con los zapatos y complementos definitivos; confirmad cuándo se recoge.",
+          "when": "3–4 semanas antes"
+        },
+        "preparar-kit-emergencia-para": {
+          "title": "Preparar un kit de emergencia para el día",
+          "hint": "Alfileres, hilo, tiritas, pañuelos, imperdibles, maquillaje y calzado de recambio.",
+          "when": "1–2 semanas antes"
+        },
+        "encargar-quien-cuidara-del": {
+          "title": "Encargar quién cuidará del vestido y del traje",
+          "hint": "Asignad a alguien para colgarlos, trasladarlos y ayudar con botones o cremallera.",
+          "when": "1 semana antes"
+        },
+        "planificar-limpieza-conservacion-posterior": {
+          "title": "Planificar la limpieza y conservación posterior",
+          "hint": "Llevad el vestido a una tintorería especializada y guardadlo en una funda.",
+          "when": "Tras la boda"
+        }
+      },
+      "papeleria": {
+        "definir-estilo-visual-boda": {
+          "title": "Definir el estilo visual de la boda",
+          "hint": "Paleta de colores, tipografía y motivos que se repitan en toda la papelería.",
+          "when": "10–12 meses antes"
+        },
+        "pedir-presupuesto-3-imprentas": {
+          "title": "Pedir presupuesto a 3 imprentas",
+          "hint": "Comparad papel, acabados, cantidad mínima y plazos de entrega.",
+          "when": "8–10 meses antes"
+        },
+        "redactar-texto-invitacion": {
+          "title": "Redactar el texto de la invitación",
+          "hint": "Incluid quién invita, fecha, hora, lugares, vestimenta y fecha límite de respuesta.",
+          "when": "6–8 meses antes"
+        },
+        "crear-una-web-codigo": {
+          "title": "Crear una web o un código QR para la boda",
+          "hint": "Un enlace con mapas, horarios, alojamiento y lista de regalos ahorra preguntas.",
+          "when": "6–8 meses antes"
+        },
+        "imprimir-una-prueba-antes": {
+          "title": "Imprimir una prueba antes de encargar toda la tirada",
+          "hint": "Revisad erratas, colores y medidas; el papel real cambia mucho respecto a pantalla.",
+          "when": "5–6 meses antes"
+        },
+        "encargar-sobres-sellos-lacre": {
+          "title": "Encargar sobres y sellos o lacre",
+          "hint": "Contad invitaciones extra por si hay errores o invitados de última hora.",
+          "when": "5–6 meses antes"
+        },
+        "disenar-menu-seating-los": {
+          "title": "Diseñar el menú, el seating y los marcasitios",
+          "hint": "Menú, plano de mesas, nombres en mesa: pedidlos cuando la lista esté cerrada.",
+          "when": "2–3 meses antes"
+        },
+        "preparar-cartel-bienvenida": {
+          "title": "Preparar el cartel de bienvenida",
+          "hint": "Un cartel a la entrada de la finca o del banquete con vuestros nombres.",
+          "when": "2–3 meses antes"
+        },
+        "encargar-las-tarjetas-agradecimiento": {
+          "title": "Encargar las tarjetas de agradecimiento",
+          "hint": "Se entregan en la mesa o se envían después a cada invitado.",
+          "when": "2–3 meses antes"
+        },
+        "preparar-libro-firmas-dedicatorias": {
+          "title": "Preparar el libro de firmas o de dedicatorias",
+          "hint": "Una alternativa: tarjetas para dejar un mensaje o una foto instantánea.",
+          "when": "2–3 meses antes"
+        },
+        "fijar-fecha-limite-para": {
+          "title": "Fijar la fecha límite para confirmar asistencia",
+          "hint": "Ponedla 4–6 semanas antes de la boda y repetidla en la invitación.",
+          "when": "3–4 meses antes"
+        }
+      },
+      "alojamiento_transporte": {
+        "hacer-una-lista-invitados": {
+          "title": "Hacer una lista de invitados que vienen de fuera",
+          "hint": "Sabréis cuántas habitaciones y plazas de transporte necesitáis.",
+          "when": "8–10 meses antes"
+        },
+        "pedir-bloqueo-habitaciones-hoteles": {
+          "title": "Pedir un bloqueo de habitaciones en hoteles cercanos",
+          "hint": "Preguntad tarifa de grupo y fecha límite para liberar plazas sin coste.",
+          "when": "8–10 meses antes"
+        },
+        "reservar-alojamiento-para-familia": {
+          "title": "Reservar alojamiento para familia cercana y padrinos",
+          "hint": "Evita carreras de última hora y facilita los preparativos del día.",
+          "when": "6–8 meses antes"
+        },
+        "reservar-suite-habitacion-los": {
+          "title": "Reservar la suite o habitación de los novios",
+          "hint": "Para vestiros, descansar y pasar la noche de bodas, si no vais a casa.",
+          "when": "6–8 meses antes"
+        },
+        "contratar-autobuses-microbuses-para": {
+          "title": "Contratar autobuses o microbuses para invitados",
+          "hint": "Ida y vuelta entre hotel, ceremonia y finca; ajustad horas al cronograma.",
+          "when": "4–6 meses antes"
+        },
+        "reservar-coche-los-novios": {
+          "title": "Reservar el coche de los novios",
+          "hint": "Un coche clásico o con conductor para la ceremonia o la salida del banquete.",
+          "when": "4–6 meses antes"
+        },
+        "dar-los-invitados-una": {
+          "title": "Dar a los invitados una guía con horarios y rutas",
+          "hint": "Incluid mapas, aparcamiento, paradas del autobús y teléfonos de taxis locales.",
+          "when": "2–3 meses antes"
+        },
+        "hacer-una-lista-taxis": {
+          "title": "Hacer una lista de taxis y VTC de la zona",
+          "hint": "Para quienes no quieran conducir tras la fiesta; apuntad teléfonos de contacto.",
+          "when": "2–3 meses antes"
+        },
+        "preparar-una-bolsa-bienvenida": {
+          "title": "Preparar una bolsa de bienvenida para quienes se alojan",
+          "hint": "Agua, mapa, aperitivo y programa del fin de semana.",
+          "when": "1 mes antes"
+        },
+        "confirmar-horarios-del-autobus": {
+          "title": "Confirmar horarios del autobús con la empresa",
+          "hint": "Revisad paradas, número de plazas y hora de la vuelta después de la fiesta.",
+          "when": "1–2 semanas antes"
+        },
+        "designar-una-persona-contacto": {
+          "title": "Designar a una persona de contacto para el transporte",
+          "hint": "Alguien de confianza que coordine llegadas, subidas y bajadas durante el día.",
+          "when": "1–2 semanas antes"
+        }
+      },
+      "lista_regalos": {
+        "decidir-preferis-recibir-dinero": {
+          "title": "Decidir si preferís recibir dinero o una lista de cosas",
+          "hint": "El dinero es lo más habitual y no genera duplicados; la lista es más tradicional y a mucha gente le resulta más cercana. Podéis cambiar de opinión.",
+          "when": "6–8 meses antes"
+        },
+        "decidir-quereis-cuenta-bancaria": {
+          "title": "Decidir si queréis cuenta bancaria, Bizum o las dos",
+          "hint": "La transferencia vale para todas las edades; el Bizum es rápido para quien tiene la app.",
+          "when": "6–8 meses antes"
+        },
+        "repasar-que-falta-casa": {
+          "title": "Repasar qué os falta en casa antes de montar la lista",
+          "hint": "Recorred cocina, baño y dormitorio con una libreta: lo que se rompe, lo que está viejo y lo que nunca habéis tenido.",
+          "when": "5–6 meses antes"
+        },
+        "incluir-cosas-distinto-precio": {
+          "title": "Incluir cosas de distinto precio en la lista",
+          "hint": "Mezclad detalles pequeños con otros más grandes para que cada persona encuentre algo a su medida.",
+          "when": "4–5 meses antes"
+        },
+        "anadir-enlace-precio-aproximado": {
+          "title": "Añadir un enlace y un precio aproximado a cada cosa de la lista",
+          "hint": "Si el invitado lo encuentra en un clic, es más fácil que acierte con el modelo y el color que queréis.",
+          "when": "4–5 meses antes"
+        },
+        "marcar-las-cosas-mas": {
+          "title": "Marcar las cosas más importantes de la lista",
+          "hint": "Poned prioridad a lo que necesitáis de verdad (electrodomésticos, ropa de cama) y dejad los caprichos para el final.",
+          "when": "4–5 meses antes"
+        },
+        "marcando-lista-que-teneis": {
+          "title": "Ir marcando en la lista lo que ya tenéis",
+          "hint": "Así la invitación solo enseña lo que sigue pendiente y evitáis recibir dos veces lo mismo.",
+          "when": "Desde que lleguen"
+        },
+        "pedir-los-invitados-que": {
+          "title": "Pedir a los invitados que os avisen antes de comprar algo de la lista",
+          "hint": "Una frase en el mensaje basta: «Escribidnos antes de comprar para que no se repita».",
+          "when": "3–4 meses antes"
+        },
+        "guardar-los-tickets-los": {
+          "title": "Guardar los tickets de los regalos para poder cambiarlos",
+          "hint": "Pedid el ticket regalo en la tienda y apuntad quién regaló cada cosa para los agradecimientos.",
+          "when": "Desde que lleguen"
+        },
+        "elegir-una-cuenta-que": {
+          "title": "Elegir una cuenta que controléis los dos",
+          "hint": "Puede ser conjunta o una de las vuestras; comprobad que no tiene comisiones por recibir transferencias.",
+          "when": "6–8 meses antes"
+        },
+        "decidir-para-que-quereis": {
+          "title": "Decidir para qué queréis destinar el dinero",
+          "hint": "Luna de miel, entrada de una casa, reformas o un ahorro común: contarlo ayuda a quien regala.",
+          "when": "6–8 meses antes"
+        },
+        "redactar-mensaje-breve-carinoso": {
+          "title": "Redactar un mensaje breve y cariñoso para pedir dinero en vez de regalos",
+          "hint": "Dos o tres frases, sin presionar: lo importante es que vengan. Mejor en positivo.",
+          "when": "5–6 meses antes"
+        },
+        "revisar-iban-bizum-antes": {
+          "title": "Revisar el IBAN y el Bizum antes de compartirlos",
+          "hint": "Copiad y pegad en lugar de teclear, y pedid a otra persona que lo compruebe.",
+          "when": "4–6 meses antes"
+        },
+        "decidir-donde-veran-los": {
+          "title": "Decidir dónde se verán los datos",
+          "hint": "En la invitación, en la web de la boda o solo a quien pregunte; elegid qué os resulta más cómodo.",
+          "when": "4–6 meses antes"
+        },
+        "preparar-una-respuesta-para": {
+          "title": "Preparar una respuesta para quien insista en regalar algo físico",
+          "hint": "Una frase amable y lista para repetir: «Lo mejor es vuestra compañía; si queréis, aportación para la luna de miel».",
+          "when": "2–3 meses antes"
+        },
+        "decidir-como-recoger-los": {
+          "title": "Decidir cómo recoger los sobres y paquetes que lleguen el día de la boda",
+          "hint": "Una caja o urna discreta y una persona de confianza que la custodie y lo lleve todo a casa.",
+          "when": "1–2 meses antes"
+        },
+        "anotar-quien-regalado-cuanto": {
+          "title": "Anotar quién ha regalado cuánto",
+          "hint": "Facilita los agradecimientos y evita olvidos; una nota rápida en el móvil basta.",
+          "when": "Desde que lleguen"
+        },
+        "enviar-mensajes-agradecimiento-personalizados": {
+          "title": "Enviar mensajes de agradecimiento personalizados",
+          "hint": "Una nota breve y sincera a cada persona, mejor en las primeras semanas, contando en qué usaréis el dinero.",
+          "when": "1–2 meses después"
+        }
+      },
+      "timeline": {
+        "repasar-cronograma-con-padrinos": {
+          "title": "Repasar el cronograma con padrinos y testigos",
+          "hint": "Es más fácil si saben cuándo deben estar y qué se espera de ellos.",
+          "when": "3–4 semanas antes"
+        },
+        "dejar-margen-entre-los": {
+          "title": "Dejar margen entre los momentos clave",
+          "hint": "Los imprevistos pasan; 10–15 minutos de colchón entre momentos ayudan mucho.",
+          "when": "Al hacer el borrador"
+        },
+        "acordar-con-fotografo-las": {
+          "title": "Acordar con el fotógrafo las fotos imprescindibles",
+          "hint": "Preparad una lista de fotos de familia con nombres, para ahorrar tiempo.",
+          "when": "1–2 meses antes"
+        },
+        "calcular-horas-peluqueria-maquillaje": {
+          "title": "Calcular horas de peluquería, maquillaje y vestirse",
+          "hint": "Contad con tiempo de más: siempre se alarga y las fotos previas requieren hueco.",
+          "when": "1–2 meses antes"
+        },
+        "avisar-los-invitados-hora": {
+          "title": "Avisar a los invitados de la hora a la que deben llegar",
+          "hint": "Poned una hora de llegada 20–30 minutos antes de la ceremonia.",
+          "when": "1 mes antes"
+        },
+        "planificar-las-comidas-los": {
+          "title": "Planificar las comidas de los novios durante el día",
+          "hint": "Algo ligero antes de vestirse; después hay poco tiempo para comer con calma.",
+          "when": "1 mes antes"
+        },
+        "pasar-cronograma-catering-finca": {
+          "title": "Pasar el cronograma al catering y a la finca",
+          "hint": "Servicios, horas de cóctel, banquete y recena deben encajar con los tiempos.",
+          "when": "2–3 semanas antes"
+        },
+        "asignar-responsable-del-dia": {
+          "title": "Asignar un responsable del día para cada tarea",
+          "hint": "Una persona de confianza se encarga de proveedores, regalos o niños.",
+          "when": "2–3 semanas antes"
+        },
+        "imprimir-copias-del-cronograma": {
+          "title": "Imprimir copias del cronograma",
+          "hint": "Una para cada padrino, el fotógrafo y el responsable de la finca.",
+          "when": "1 semana antes"
+        },
+        "preparar-lista-musica-para": {
+          "title": "Preparar la lista de música para cada momento",
+          "hint": "Entrada, cóctel, banquete, primer baile y fiesta: pasadla al DJ o grupo.",
+          "when": "1–2 meses antes"
+        }
+      },
+      "luna_de_miel": {
+        "decidir-cuanto-presupuesto-dedicais": {
+          "title": "Decidir cuánto presupuesto dedicáis al viaje",
+          "hint": "Un tope por persona os ayuda a elegir destino y duración.",
+          "when": "10–12 meses antes"
+        },
+        "elegir-epoca-del-ano": {
+          "title": "Elegir la época del año adecuada para el destino",
+          "hint": "Comprobad clima, temporada de lluvias o monzones y precios en esas fechas.",
+          "when": "8–10 meses antes"
+        },
+        "decidir-que-tipo-viaje": {
+          "title": "Decidir qué tipo de viaje queréis hacer",
+          "hint": "Playa, ciudad, aventura o ruta en coche; ¿descanso o ver mucho?",
+          "when": "8–10 meses antes"
+        },
+        "comprobar-visados-vacunas-requisitos": {
+          "title": "Comprobar visados, vacunas y requisitos de entrada",
+          "hint": "Algunos países piden pasaporte con meses de validez o permisos de entrada.",
+          "when": "5–6 meses antes"
+        },
+        "contratar-seguro-viaje": {
+          "title": "Contratar un seguro de viaje",
+          "hint": "Revisad cancelación y asistencia médica, sobre todo si es un viaje lejos.",
+          "when": "Al reservar"
+        },
+        "valorar-viaje-novios-posterior": {
+          "title": "Valorar un viaje de novios posterior en vez de inmediato",
+          "hint": "Si el trabajo o el presupuesto no cuadra, podéis hacerlo meses después.",
+          "when": "8–10 meses antes"
+        },
+        "avisar-hotel-que-viaje": {
+          "title": "Avisar al hotel de que es un viaje de luna de miel",
+          "hint": "Muchos hoteles regalan un detalle o mejoran la habitación.",
+          "when": "1 mes antes"
+        },
+        "reservar-las-actividades-restaurantes": {
+          "title": "Reservar las actividades y restaurantes importantes",
+          "hint": "Excursiones y cenas especiales se agotan; reservad lo imprescindible.",
+          "when": "1–3 meses antes"
+        },
+        "planificar-traslado-desde-boda": {
+          "title": "Planificar el traslado desde la boda al aeropuerto",
+          "hint": "Pensad cómo salís de la finca, dónde dejáis el coche y a qué hora es el vuelo.",
+          "when": "1 mes antes"
+        },
+        "hacer-las-maletas-semana": {
+          "title": "Hacer las maletas la semana antes de la boda",
+          "hint": "Así no os agobiáis; dejad un rincón con documentación y cargadores.",
+          "when": "1 semana antes"
+        },
+        "dejar-alguien-encargado-casa": {
+          "title": "Dejar a alguien encargado de la casa y las mascotas",
+          "hint": "Plantas, correo, mascotas y llaves: avisad a un familiar o vecino.",
+          "when": "1–2 semanas antes"
+        }
+      },
+      "tareas_generales": {
+        "elegir-una-persona-confianza": {
+          "title": "Elegir a una persona de confianza como coordinadora del día",
+          "hint": "Alguien que no sea novio ni novia y resuelva dudas de proveedores e invitados.",
+          "when": "2–3 meses antes"
+        },
+        "hacer-una-cuenta-atras": {
+          "title": "Hacer una cuenta atrás de tareas por meses",
+          "hint": "Repartir tareas mes a mes evita acumular todo en las últimas semanas.",
+          "when": "12 meses antes"
+        },
+        "comprar-las-alianzas": {
+          "title": "Comprar las alianzas",
+          "hint": "Grabad nombres o fecha; el grabado suele tardar unas semanas.",
+          "when": "4–6 meses antes"
+        },
+        "preparar-los-detalles-para": {
+          "title": "Preparar los detalles para invitados",
+          "hint": "Ideas: abanicos, dulces, plantas o una nota; calculad el número exacto.",
+          "when": "2–3 meses antes"
+        },
+        "planificar-los-discursos-quien": {
+          "title": "Planificar los discursos y quién habla",
+          "hint": "Avisad a los oradores con tiempo y pedidles que sean breves.",
+          "when": "1–2 meses antes"
+        },
+        "preparar-video-sorpresa-una": {
+          "title": "Preparar un vídeo sorpresa o una presentación de fotos",
+          "hint": "Pedid fotos a familia y amigos con antelación; conviene que dure pocos minutos.",
+          "when": "2–3 meses antes"
+        },
+        "cuidar-vosotros-citas-descanso": {
+          "title": "Cuidar de vosotros: citas, descanso y deporte",
+          "hint": "Reservad tiempo para vosotros, sin hablar de la boda ni de listas.",
+          "when": "Durante todo el proceso"
+        },
+        "contratar-seguro-bodas": {
+          "title": "Contratar un seguro de bodas",
+          "hint": "Cubre cancelaciones, daños o fallos de proveedores; comparad coberturas.",
+          "when": "6–9 meses antes"
+        },
+        "preparar-una-bolsa-emergencia": {
+          "title": "Preparar una bolsa de emergencia para el día",
+          "hint": "Medicinas, cargadores, calzado de repuesto, tiritas, dinero en efectivo.",
+          "when": "1 semana antes"
+        },
+        "preparar-una-caja-regalo": {
+          "title": "Preparar una caja de regalo y detalles para los padres",
+          "hint": "Un gesto de agradecimiento a padres, padrinos y quienes os han ayudado.",
+          "when": "1 mes antes"
+        },
+        "planificar-quien-recoge-decoracion": {
+          "title": "Planificar quién recoge la decoración al terminar",
+          "hint": "Flores, carteles, regalos y objetos personales deben volver a casa.",
+          "when": "1–2 semanas antes"
+        },
+        "preparar-noche-bodas-manana": {
+          "title": "Preparar la noche de bodas y la mañana siguiente",
+          "hint": "Reservad el alojamiento, una maleta y un desayuno tranquilo.",
+          "when": "1–2 meses antes"
+        }
+      },
+      "title": "Ideas para {{title}}",
+      "description": "Toca + para añadir una tarea a este paso. Tú decides.",
+      "added": "Tarea añadida",
+      "error": "No se ha podido añadir la tarea.",
+      "empty": "Ya tienes todas estas tareas. ¡Qué organizados!",
+      "filter": "Filtrar tareas por plazo"
+    },
+    "vendors": {
+      "venue": {
+        "hint": "Marca fecha, aforo y estilo de la boda. Es lo primero que se reserva.",
+        "when": "12–18 meses antes"
+      },
+      "catering": {
+        "hint": "Cóctel, banquete, recena y barra libre. Pedid siempre una prueba de menú.",
+        "when": "10–14 meses antes"
+      },
+      "photographer": {
+        "hint": "Los buenos se agotan pronto. Mirad bodas completas, no solo portafolio.",
+        "when": "10–14 meses antes"
+      },
+      "video": {
+        "hint": "Un vídeo corto o largometraje; coordinadlo con el fotógrafo para no estorbaros.",
+        "when": "9–12 meses antes"
+      },
+      "music": {
+        "hint": "DJ o grupo para cóctel y fiesta. Preguntad por equipo, repertorio y horas.",
+        "when": "8–12 meses antes"
+      },
+      "ceremonyMusic": {
+        "hint": "Coro, violín o cuarteto de cuerda para entrada, firma y salida.",
+        "when": "4–6 meses antes"
+      },
+      "flowers": {
+        "hint": "Ramo, ceremonia y centros de mesa. Mejor flor de temporada para ahorrar.",
+        "when": "6–9 meses antes"
+      },
+      "decor": {
+        "hint": "Ambientación, iluminación y mobiliario extra; puede incluirlo la finca.",
+        "when": "6–9 meses antes"
+      },
+      "cake": {
+        "hint": "Tarta nupcial o mesa de dulces. Pedid prueba de sabores y entrega en el sitio.",
+        "when": "3–6 meses antes"
+      },
+      "hairMakeup": {
+        "hint": "Reservad con prueba previa y confirmad si se desplazan al lugar de la boda.",
+        "when": "6–9 meses antes"
+      },
+      "dress": {
+        "hint": "Taller o tienda de novias. Pide cita pronto: a medida tarda de 6 a 10 meses.",
+        "when": "10–12 meses antes"
+      },
+      "suit": {
+        "hint": "A medida, compra o alquiler. Dejad margen para pruebas y arreglos.",
+        "when": "5–8 meses antes"
+      },
+      "rings": {
+        "hint": "Joyería o taller. El grabado y los ajustes de talla tardan unas semanas.",
+        "when": "4–6 meses antes"
+      },
+      "transport": {
+        "hint": "Coche de novios y autobuses para invitados si la finca está lejos.",
+        "when": "4–6 meses antes"
+      },
+      "kidsEntertainment": {
+        "hint": "Monitores y juegos para los peques: los padres disfrutan más del banquete.",
+        "when": "3–6 meses antes"
+      },
+      "photoBooth": {
+        "hint": "Divierte a los invitados y deja recuerdo; preguntad por impresiones e props.",
+        "when": "4–6 meses antes"
+      },
+      "weddingPlanner": {
+        "hint": "Coordina proveedores y el día de la boda. Útil si vais cortos de tiempo.",
+        "when": "12–14 meses antes"
+      },
+      "invitations": {
+        "hint": "Imprenta o diseñador. Pedid prueba de papel y plazos antes del envío.",
+        "when": "8–10 meses antes"
+      },
+      "title": "Ideas de proveedores",
+      "description": "Te pueden faltar estos tipos. Al elegir uno se abre el formulario con la categoría puesta.",
+      "essential": "Imprescindible",
+      "book": "Reservar: {{when}}",
+      "addAria": "Añadir proveedor de «{{title}}»",
+      "added": "Proveedor añadido",
+      "error": "No se ha podido abrir el formulario.",
+      "empty": "Tienes todos los tipos de proveedor habituales. ¡Buen trabajo!"
+    },
+    "moments": {
+      "preparativos-vestirse": {
+        "title": "Preparativos y vestirse",
+        "hint": "Peluquería, maquillaje y fotos de los preparativos."
+      },
+      "fotos-pareja-antes": {
+        "title": "Fotos de pareja antes de la ceremonia",
+        "hint": "Opción «first look»: os veis antes y os relajáis."
+      },
+      "llegada-invitados": {
+        "title": "Llegada de invitados",
+        "hint": "Música suave, agua o abanicos mientras se sientan."
+      },
+      "entrada-del-novio": {
+        "title": "Entrada del novio",
+        "hint": "Suele ir acompañado de su madre o de la madrina."
+      },
+      "entrada-novia": {
+        "title": "Entrada de la novia",
+        "hint": "Con la música elegida y acompañada por su padre o una persona especial."
+      },
+      "lecturas": {
+        "title": "Lecturas",
+        "hint": "Dos o tres lecturas breves de familiares o amigos."
+      },
+      "lectura-votos": {
+        "title": "Lectura de votos",
+        "hint": "Un minuto cada uno, mejor escritos en papel por si hay nervios."
+      },
+      "intercambio-alianzas": {
+        "title": "Intercambio de alianzas",
+        "hint": "El portador de las alianzas las entrega en este momento."
+      },
+      "firma-del-acta": {
+        "title": "Firma del acta",
+        "hint": "Con testigos y música de fondo; buen momento para una foto."
+      },
+      "salida-con-arroz": {
+        "title": "Salida con arroz o pétalos",
+        "hint": "Comprobad antes que el lugar lo permite."
+      },
+      "fotos-familia": {
+        "title": "Fotos de familia",
+        "hint": "Llevad una lista de grupos con nombres para que sea rápido."
+      },
+      "coctel-bienvenida": {
+        "title": "Cóctel de bienvenida",
+        "hint": "Mientras los novios hacen sus fotos, los invitados disfrutan del aperitivo."
+      },
+      "fotos-pareja": {
+        "title": "Fotos de pareja",
+        "hint": "Aprovechad la luz de la tarde; el cóctel os cubre sin que echen de menos."
+      },
+      "entrada-banquete": {
+        "title": "Entrada al banquete",
+        "hint": "Entrada de los novios con su canción favorita."
+      },
+      "banquete-discursos": {
+        "title": "Banquete y discursos",
+        "hint": "Hablad entre platos para no enfriar la comida; pedid brevedad."
+      },
+      "video-sorpresa": {
+        "title": "Vídeo sorpresa",
+        "hint": "Comprobad proyector y sonido antes; mejor entre plato y postre."
+      },
+      "corte-tarta": {
+        "title": "Corte de la tarta",
+        "hint": "Hacedlo con foto y brindis; luego se reparte con el café."
+      },
+      "entrega-detalles": {
+        "title": "Entrega de detalles",
+        "hint": "Los novios pasan por mesas o los dejan en cada sitio con una nota."
+      },
+      "lanzamiento-del-ramo": {
+        "title": "Lanzamiento del ramo",
+        "hint": "Opcional; a veces se cambia por un ramo para la madrina o la abuela."
+      },
+      "primer-baile": {
+        "title": "Primer baile",
+        "hint": "Ensayad un poco y avisad al DJ de la canción y del momento."
+      },
+      "apertura-barra-libre": {
+        "title": "Apertura de barra libre",
+        "hint": "Confirmad hora de inicio y fin con el catering."
+      },
+      "recena": {
+        "title": "Recena",
+        "hint": "Bocadillos, mini hamburguesas, croquetas o chocolate con churros."
+      },
+      "fin-fiesta": {
+        "title": "Fin de fiesta",
+        "hint": "Última canción y despedida; acordad la hora exacta con la finca."
+      },
+      "autobus-vuelta": {
+        "title": "Autobús de vuelta",
+        "hint": "Avisad a los invitados de las horas y paradas para volver."
+      }
+    },
+    "common": {
+      "button": "Ideas",
+      "all": "Todas",
+      "filter": "Filtrar ideas",
+      "added_f": "Añadida",
+      "added_m": "Añadido",
+      "present_f": "Ya la tienes",
+      "present_m": "Ya lo tienes",
+      "show_f": "Mostrar también las que ya tienes",
+      "show_m": "Mostrar también los que ya tienes",
+      "hide_f": "Ocultar las que ya tienes",
+      "hide_m": "Ocultar los que ya tienes",
+      "addAria": "Añadir «{{title}}»",
+      "addedAria": "«{{title}}» {{added}}"
+    },
+    "lead": {
+      "early": "9+ meses",
+      "mid": "3–8 meses",
+      "late": "< 3 meses",
+      "after": "Tras la boda",
+      "other": "Según el caso"
+    },
+    "timeline": {
+      "title": "Ideas para tu cronograma",
+      "withCeremony": "Se colocan alrededor de la ceremonia ({{time}}). Luego puedes ajustar la hora.",
+      "noCeremony": "No hay un momento «Ceremonia»: las ideas se añaden al final de lo que ya tienes. Luego puedes ajustar la hora.",
+      "added": "Momento añadido",
+      "error": "No se ha podido añadir el momento.",
+      "empty": "Ya tienes todos los momentos habituales.",
+      "filter": "Filtrar momentos por fase del día",
+      "phases": {
+        "before": "Antes",
+        "ceremony": "Ceremonia",
+        "cocktail": "Cóctel",
+        "party": "Banquete y fiesta"
+      }
+    }
+  }
+}

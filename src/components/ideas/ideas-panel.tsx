@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { SparklesIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { FOCUS } from "@/components/dashboard/ui";
 import { useIsDesktop } from "@/components/ideas/use-is-desktop";
@@ -44,7 +45,7 @@ interface IdeasPanelProps {
   children: (ctx: IdeasPanelContext) => React.ReactNode;
   /** Pie fijo bajo el contenido (opcional). */
   footer?: (ctx: IdeasPanelContext) => React.ReactNode;
-  /** Texto del botón; por defecto «Ideas». */
+  /** Texto del botón; por defecto «Ideas» (vendors:ideas.common.button). */
   label?: string;
   /** Alineación del panel respecto al botón (escritorio). */
   align?: "start" | "center" | "end";
@@ -61,10 +62,11 @@ export function IdeasPanel({
   description,
   children,
   footer,
-  label = "Ideas",
+  label,
   align = "start",
   className,
 }: IdeasPanelProps) {
+  const { t } = useTranslation("vendors");
   const [open, setOpen] = React.useState(false);
   const desktop = useIsDesktop();
   const [triggerEl, setTriggerEl] = React.useState<HTMLButtonElement | null>(null);
@@ -93,7 +95,7 @@ export function IdeasPanel({
   const trigger = (
     <button type="button" ref={setTriggerEl} className={cn(TRIGGER, FOCUS, className)}>
       <SparklesIcon aria-hidden="true" className="size-4" />
-      {label}
+      {label ?? t("ideas.common.button")}
     </button>
   );
 

@@ -1,1 +1,150 @@
-{}
+{
+  "duration": {
+    "instant": "Momento puntual"
+  },
+  "quoted": "«{{text}}»",
+  "template": {
+    "getReady": "Preparativos",
+    "guestsArrive": "Llegada de invitados",
+    "ceremony": "Ceremonia",
+    "cocktail": "Cóctel",
+    "couplePhotos": "Fotos de pareja",
+    "banquetEntrance": "Entrada al banquete",
+    "banquet": "Banquete",
+    "cakeSpeeches": "Tarta y discursos",
+    "firstDance": "Primer baile",
+    "party": "Fiesta",
+    "partyEnd": "Fin de fiesta"
+  },
+  "weddingName": {
+    "default": "Nuestra boda",
+    "of": "Boda de {{names}}"
+  },
+  "text": {
+    "heading": "Cronograma",
+    "responsible": "Responsable: {{name}}",
+    "notes": "Notas: {{notes}}"
+  },
+  "undo": {
+    "action": "Deshacer",
+    "done": "Deshecho: {{message}}",
+    "error": "No se ha podido deshacer el cambio."
+  },
+  "empty": {
+    "title": "Tu día, hora a hora",
+    "description": "Pon en orden todo lo que pasará el gran día y ve afinando las horas con calma. Puedes partir de una plantilla y cambiar lo que quieras, o empezar desde cero.",
+    "ceremonyTime": "¿A qué hora es la ceremonia?",
+    "invalid": "Elige una hora entre las {{min}} y las {{max}}.",
+    "hint": "Lo habitual es a las 12:00 o a las 18:00. Después podrás cambiar cualquier hora.",
+    "back": "Atrás",
+    "create": "Crear mi cronograma",
+    "fromTemplate": "Empezar con una plantilla",
+    "blank": "Empezar en blanco"
+  },
+  "roadmap": {
+    "dayTitle_one": "Día siguiente",
+    "dayTitle_other": "{{count}} días después",
+    "daySr_one": "del día siguiente",
+    "daySr_other": "{{count}} días después",
+    "editAria": "Editar «{{title}}»",
+    "placeSr": "Lugar:",
+    "responsibleSr": "Responsable:",
+    "seeLess": "Ver menos",
+    "seeMore": "Ver más",
+    "overlaps": "Coincide con {{titles}}",
+    "adjustAria": "Ajustar la hora de «{{title}}»",
+    "earlierAria": "Adelantar {{minutes}} minutos «{{title}}»",
+    "earlier": "Adelantar {{minutes}} minutos",
+    "laterAria": "Retrasar {{minutes}} minutos «{{title}}»",
+    "later": "Retrasar {{minutes}} minutos",
+    "gap": "Hueco de {{duration}}",
+    "untilSr": "hasta las",
+    "add": "Añadir momento"
+  },
+  "form": {
+    "back": "Volver al cronograma",
+    "editTitle": "Editar momento",
+    "newTitle": "Nuevo momento",
+    "description": "Hora, duración y detalles de este momento del día.",
+    "fields": {
+      "title": "Título",
+      "time": "Hora",
+      "duration": "Duración",
+      "location": "Lugar",
+      "responsible": "Responsable",
+      "notes": "Notas"
+    },
+    "placeholders": {
+      "title": "Ceremonia, cóctel, primer baile…",
+      "location": "Iglesia de San Juan",
+      "responsible": "Ana, el fotógrafo…",
+      "notes": "Algo que tengan que saber los proveedores o la familia…"
+    },
+    "nextDay": "Madrugada del día siguiente",
+    "noDuration": "Sin duración (momento puntual)",
+    "otherDuration": "Otra duración…",
+    "durationMinutesLabel": "Duración en minutos",
+    "minutes": "minutos",
+    "highlight": {
+      "label": "Momento clave",
+      "help": "Se marca con un punto destacado en el cronograma."
+    },
+    "delete": "Eliminar momento",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "errors": {
+      "title": "Ponle un nombre al momento.",
+      "time": "Escribe una hora válida, por ejemplo 12:30.",
+      "duration": "Escribe una duración en minutos, entre 0 y 1440.",
+      "save": "No se ha podido guardar el momento.",
+      "delete": "No se ha podido eliminar el momento."
+    }
+  },
+  "dialog": {
+    "title": "Cronograma del día",
+    "noDate": "Aún no tienes fecha",
+    "undoAria": "Deshacer: {{message}}",
+    "loading": "Cargando el cronograma",
+    "created": "Cronograma creado. Ya puedes ajustar las horas.",
+    "nudge": {
+      "announceOne": "«{{title}}»: ahora a las {{time}}",
+      "announceMany": "«{{title}}» y lo que viene después: ahora a las {{time}}",
+      "movedOne": "«{{title}}» movido a las {{time}}",
+      "movedMany": "«{{title}}» y lo que viene después movidos a las {{time}}"
+    },
+    "changes": {
+      "created": "Momento añadido",
+      "updated": "«{{title}}» actualizado",
+      "deleted": "«{{title}}» eliminado"
+    },
+    "copied": "Cronograma copiado",
+    "add": "Añadir momento",
+    "copy": "Copiar como texto",
+    "print": "Imprimir / PDF",
+    "newTab": "(se abre en una pestaña nueva)",
+    "cascade": {
+      "label": "Mover también lo que viene después",
+      "hint": "(al ajustar una hora con −15 / +15)"
+    },
+    "errors": {
+      "create": "No se ha podido crear el cronograma.",
+      "nudge": "No se ha podido cambiar la hora.",
+      "copy": "No se ha podido copiar. Prueba con «Imprimir / PDF».",
+      "load": "No se ha podido cargar el cronograma. Recarga la página e inténtalo de nuevo."
+    }
+  },
+  "print": {
+    "meta": {
+      "title": "Cronograma del día — tubodadiy"
+    },
+    "highlight": "Momento clave",
+    "preparing": "Preparando el cronograma",
+    "noAccess": "No tienes acceso a este plan.",
+    "back": "Volver al cronograma",
+    "pdfHint": "Para guardarlo como PDF, elige «Guardar como PDF» al imprimir.",
+    "button": "Imprimir / PDF",
+    "loadError": "No se ha podido cargar el cronograma.",
+    "empty": "Todavía no hay momentos en el cronograma. Vuelve al plan para añadirlos.",
+    "nextDayNote": "+1: ya de madrugada, del día siguiente."
+  }
+}

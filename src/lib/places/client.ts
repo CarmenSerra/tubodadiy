@@ -4,13 +4,19 @@ import { getFirebaseAuth } from "@/lib/firebase/client";
 
 import type { PlaceDetails, PlaceSuggestion, VenueResult } from "./types";
 
-/** Error de las llamadas a /api/places con un mensaje ya listo para enseñar. */
+/**
+ * Error de las llamadas a /api/places. Los que vienen del servidor traen el mensaje ya traducido
+ * (el servidor lee el idioma de la cookie). Los generados aquí llevan solo un `code`
+ * (vendors:places.errors.<code>) y ningún componente los enseña tal cual: se traducen al mostrarlos.
+ */
 export class PlacesError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  code?: string;
+  constructor(message: string, status: number, code?: string) {
     super(message);
     this.name = "PlacesError";
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -23,7 +29,7 @@ async function authHeader(): Promise<Record<string, string>> {
   const auth = getFirebaseAuth();
   await auth.authStateReady();
   const user = auth.currentUser;
-  if (!user) throw new PlacesError("Inicia sesión para buscar en Google Maps.", 401);
+  if (!user) throw new PlacesError("signIn", 401, "signIn");
   return { Authorization: `Bearer ${await user.getIdToken()}` };
 }
 
@@ -36,7 +42,7 @@ async function call<T>(path: string, params: Record<string, string | undefined>,
     res = await fetch(`/api/places/${path}?${qs.toString()}`, { headers, cache: "no-store", signal });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") throw error;
-    throw new PlacesError("No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.", 0);
+    throw new PlacesError("network", 0, "network");
   }
   let body: unknown = null;
   try {
@@ -48,8 +54,8 @@ async function call<T>(path: string, params: Record<string, string | undefined>,
     const message =
       body && typeof body === "object" && "error" in body && typeof body.error === "string"
         ? body.error
-        : "No se pudo completar la búsqueda. Inténtalo de nuevo.";
-    throw new PlacesError(message, res.status);
+        : null;
+    throw message ? new PlacesError(message, res.status) : new PlacesError("generic", res.status, "generic");
   }
   return body as T;
 }

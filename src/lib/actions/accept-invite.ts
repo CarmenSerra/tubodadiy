@@ -4,10 +4,18 @@ import { FieldValue } from "firebase-admin/firestore";
 
 import { getAdminAuth, getAdminDb, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 
+/** Motivo del fallo: el cliente lo traduce con `errors:invite.accept.<code>`. */
+export type AcceptInviteError =
+  | "serverNotConfigured"
+  | "invalidSession"
+  | "notFound"
+  | "unavailable"
+  | "planGone";
+
 interface AcceptInviteResult {
   success: boolean;
   planId?: string;
-  error?: string;
+  error?: AcceptInviteError;
 }
 
 export async function acceptInvite(
@@ -15,18 +23,14 @@ export async function acceptInvite(
   idToken: string
 ): Promise<AcceptInviteResult> {
   if (!isFirebaseAdminConfigured) {
-    return {
-      success: false,
-      error:
-        "El servidor no tiene configuradas las credenciales de Firebase Admin (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY).",
-    };
+    return { success: false, error: "serverNotConfigured" };
   }
 
   let decoded;
   try {
     decoded = await getAdminAuth().verifyIdToken(idToken);
   } catch {
-    return { success: false, error: "Sesión no válida. Vuelve a iniciar sesión e inténtalo de nuevo." };
+    return { success: false, error: "invalidSession" };
   }
 
   const db = getAdminDb();
@@ -34,19 +38,19 @@ export async function acceptInvite(
   const inviteSnap = await inviteRef.get();
 
   if (!inviteSnap.exists) {
-    return { success: false, error: "Esta invitación no existe o ha caducado." };
+    return { success: false, error: "notFound" };
   }
 
   const invite = inviteSnap.data()!;
 
   if (invite.status !== "pending") {
-    return { success: false, error: "Esta invitación ya no está disponible." };
+    return { success: false, error: "unavailable" };
   }
 
   const planRef = db.collection("weddingPlans").doc(invite.planId);
   const planSnap = await planRef.get();
   if (!planSnap.exists) {
-    return { success: false, error: "El plan de boda asociado a esta invitación ya no existe." };
+    return { success: false, error: "planGone" };
   }
 
   const uid = decoded.uid;

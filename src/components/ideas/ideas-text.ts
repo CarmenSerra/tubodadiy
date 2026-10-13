@@ -1,5 +1,10 @@
 // Utilidades puras del botón "Ideas": comparar títulos y agrupar plazos.
 
+import type { TFunction } from "i18next";
+
+import { LANGUAGES, type Namespace } from "@/lib/i18n/config";
+import { getServerT } from "@/lib/i18n/server";
+
 /** Minúsculas, sin tildes ni signos: "Reservar la Finca." y "reservar la finca" coinciden. */
 export function ideaKey(text: string): string {
   return text
@@ -22,27 +27,17 @@ export interface IdeaGroup {
 }
 
 /** Tramos de plazo para filtrar las tareas sugeridas (en el orden en que se muestran). */
-export const LEAD_GROUPS: IdeaGroup[] = [
-  { id: "early", label: "9+ meses" },
-  { id: "mid", label: "3–8 meses" },
-  { id: "late", label: "< 3 meses" },
-  { id: "after", label: "Tras la boda" },
-  { id: "other", label: "Según el caso" },
-];
+export function leadGroups(t: TFunction): IdeaGroup[] {
+  return (["early", "mid", "late", "after", "other"] as const).map((id) => ({
+    id,
+    label: t(`ideas.lead.${id}`, { ns: "vendors" }),
+  }));
+}
 
 /**
- * Tramo de un plazo orientativo («12–18 meses antes», «2–3 semanas antes»,
- * «Tras la boda», «Al visitar»…). Se usa la cifra menor: es cuando empieza a tocar.
+ * Textos de una idea en TODOS los idiomas (<ns>:<key>): se usan para reconocer que ya la
+ * tienes aunque la añadieras con la app en otro idioma.
  */
-export function leadGroup(when?: string): string {
-  if (!when) return "other";
-  const text = when.toLowerCase();
-  if (/despu[eé]s|tras la boda/.test(text)) return "after";
-  if (/cada|durante|desde/.test(text)) return "other";
-  const match = /(\d+)\s*(?:[–-]\s*\d+\s*)?(meses|mes|semanas|semana)/.exec(text);
-  if (!match) return "other";
-  const months = /sem/.test(match[2]) ? Number(match[1]) / 4.3 : Number(match[1]);
-  if (months >= 9) return "early";
-  if (months >= 3) return "mid";
-  return "late";
+export function titlesInAllLanguages(key: string, ns: Namespace = "vendors"): string[] {
+  return LANGUAGES.map((l) => String(getServerT(l.code, ns)(key)));
 }

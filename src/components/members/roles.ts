@@ -1,13 +1,16 @@
+import type { TFunction } from "i18next";
+
 import type { PlanRole } from "@/lib/types";
 
-export const ROLE_LABEL: Record<PlanRole, string> = {
-  owner: "Dueño/a",
-  partner: "Pareja",
-  planner: "Wedding planner",
-};
-
 /** Roles que se pueden asignar al invitar (el dueño no se invita). */
-export const INVITE_ROLE_OPTIONS: { value: PlanRole; label: string; description: string }[] = [
-  { value: "partner", label: "Pareja", description: "Gestiona el plan contigo, con acceso total." },
-  { value: "planner", label: "Wedding planner", description: "Colabora con acceso total." },
-];
+export const INVITE_ROLES: PlanRole[] = ["partner", "planner"];
+
+/** Nombre del rol en el idioma activo (`dashboard:roles.<rol>`). `t` de cualquier namespace. */
+export function roleLabel(role: PlanRole, t: TFunction): string {
+  return t(`roles.${role}.label`, { ns: "dashboard" });
+}
+
+/** Una línea que explica qué puede hacer el rol al invitar (`dashboard:roles.<rol>.description`). */
+export function roleDescription(role: PlanRole, t: TFunction): string {
+  return t(`roles.${role}.description`, { ns: "dashboard" });
+}

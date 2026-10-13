@@ -5,6 +5,8 @@ import { collection, doc, getDocs, Timestamp, writeBatch } from "firebase/firest
 import { statusAfterTasksChange } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { mapStep, stepsQuery } from "@/lib/firebase/plans";
+import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { getServerT } from "@/lib/i18n/server";
 import {
   findTaskTitle,
   formatCount,
@@ -37,15 +39,12 @@ export type ExtraStage = "venue" | "guests" | "vendors" | "steps";
 export type StageState = "active" | "done" | "failed";
 
 export interface ApplyResult {
-  failed: { stage: ExtraStage; label: string }[];
+  failed: { stage: ExtraStage }[];
 }
 
-const STAGE_LABEL: Record<ExtraStage, string> = {
-  venue: "el lugar",
-  guests: "la lista de invitados",
-  vendors: "los proveedores",
-  steps: "el progreso de las secciones",
-};
+// Los nombres de los bloques (para el aviso de «no hemos podido añadir…») viven en
+// `onboarding:create.failedStage.<stage>`; las notas que se guardan en el plan,
+// en `onboarding:notes.*`, en el idioma de la persona al crearlo.
 
 /** Bloques que habrá que escribir, en orden (para pintar el avance). */
 export function stagesFor(extras: OnboardingExtras): ExtraStage[] {
@@ -82,12 +81,13 @@ function orderedStamp(base: number, index: number) {
   return Timestamp.fromMillis(base - index);
 }
 
-async function writeVenue(planId: string, venue: NonNullable<OnboardingExtras["venue"]>) {
+async function writeVenue(planId: string, venue: NonNullable<OnboardingExtras["venue"]>, lang: Lang) {
   const db = getFirebaseDb();
+  const t = getServerT(lang, "onboarding");
   const scopeNote: Record<VenueScope, string> = {
-    ceremonia: "Reservado para la ceremonia.",
-    banquete: "Reservado para el banquete.",
-    ambos: "Reservado para la ceremonia y el banquete.",
+    ceremonia: t("notes.venue.ceremonia"),
+    banquete: t("notes.venue.banquete"),
+    ambos: t("notes.venue.ambos"),
   };
   const batch = writeBatch(db);
   batch.set(doc(collection(db, "weddingPlans", planId, "vendors")), {
@@ -127,19 +127,20 @@ async function writeGuests(planId: string, guests: ParsedGuest[]) {
   }
 }
 
-async function writeVendors(planId: string, vendors: NonNullable<OnboardingExtras["vendors"]>) {
+async function writeVendors(planId: string, vendors: NonNullable<OnboardingExtras["vendors"]>, lang: Lang) {
   const db = getFirebaseDb();
+  const t = getServerT(lang, "onboarding");
   const base = Date.now();
   const batch = writeBatch(db);
   vendors.forEach(({ type, name, cost }, i) => {
     batch.set(doc(collection(db, "weddingPlans", planId, "vendors")), {
       category: type.category,
-      name: name || type.label,
+      name: name || t(`vendorTypes.${type.key}`),
       contactEmail: "",
       contactPhone: "",
       cost,
       status: "chosen",
-      notes: name ? "" : "Falta añadir el nombre y los datos de contacto.",
+      notes: name ? "" : t("notes.vendorMissing"),
       photoUrl: "",
       location: "",
       mapsUrl: "",
@@ -169,8 +170,10 @@ function endSentence(text: string): string {
 /** Qué cambia en cada paso (por categoría) según lo que se ha escrito bien. */
 function planStepPatches(
   extras: OnboardingExtras,
-  written: { venue: boolean; guests: boolean; vendors: boolean }
+  written: { venue: boolean; guests: boolean; vendors: boolean },
+  lang: Lang
 ): Map<string, StepPatch> {
+  const t = getServerT(lang, "onboarding");
   const patches = new Map<string, StepPatch>();
   const patch = (category: string): StepPatch => {
     let p = patches.get(category);
@@ -203,7 +206,7 @@ function planStepPatches(
     raise(p, "in_progress");
   }
   if (extras.guestsApprox) {
-    patch("invitados").notes.push(`Calculamos unos ${formatCount(extras.guestsApprox)} invitados.`);
+    patch("invitados").notes.push(t("notes.guestsApprox", { n: formatCount(extras.guestsApprox, lang) }));
   }
 
   if (extras.vendors?.length && written.vendors) {
@@ -216,16 +219,15 @@ function planStepPatches(
 
   if (extras.ceremony) {
     const p = patch("ceremonia");
-    const label = { civil: "civil", religiosa: "religiosa", simbolica: "simbólica" }[extras.ceremony];
     tick("ceremonia", /tipo de ceremonia/i, p);
-    p.notes.push(`Tipo de ceremonia: ${label}.`);
+    p.notes.push(t("notes.ceremonyType", { type: t(`notes.ceremonyTypes.${extras.ceremony}`) }));
     raise(p, "in_progress");
   }
 
   if (extras.dress || extras.rings) {
     const p = patch("vestuario");
     if (extras.dress) tick("vestuario", /vestido|traje/i, p);
-    if (extras.rings) p.notes.push("Ya tenemos las alianzas.");
+    if (extras.rings) p.notes.push(t("notes.rings"));
     raise(p, "in_progress");
   }
 
@@ -233,7 +235,9 @@ function planStepPatches(
     const p = patch("luna_de_miel");
     const destination = extras.honeymoon.destination.trim();
     tick("luna_de_miel", /destino/i, p);
-    p.notes.push(destination ? endSentence(`Luna de miel: ${destination}`) : "Ya tenemos la luna de miel.");
+    p.notes.push(
+      destination ? endSentence(t("notes.honeymoonTo", { destination })) : t("notes.honeymoonDone")
+    );
     raise(p, "in_progress");
   }
 
@@ -269,7 +273,8 @@ async function writeStepPatches(planId: string, patches: Map<string, StepPatch>)
 export async function applyOnboardingExtras(
   planId: string,
   extras: OnboardingExtras,
-  onStage?: (stage: ExtraStage, state: StageState) => void
+  onStage?: (stage: ExtraStage, state: StageState) => void,
+  lang: Lang = DEFAULT_LANG
 ): Promise<ApplyResult> {
   const failed: ApplyResult["failed"] = [];
   const written = { venue: false, guests: false, vendors: false };
@@ -282,7 +287,7 @@ export async function applyOnboardingExtras(
       return true;
     } catch (error) {
       console.warn(`No se pudo aplicar «${stage}» al crear el plan`, error);
-      failed.push({ stage, label: STAGE_LABEL[stage] });
+      failed.push({ stage });
       onStage?.(stage, "failed");
       return false;
     }
@@ -290,7 +295,7 @@ export async function applyOnboardingExtras(
 
   if (extras.venue) {
     const venue = extras.venue;
-    written.venue = await run("venue", () => writeVenue(planId, venue));
+    written.venue = await run("venue", () => writeVenue(planId, venue, lang));
   }
   if (extras.guests?.length) {
     const guests = extras.guests;
@@ -298,10 +303,10 @@ export async function applyOnboardingExtras(
   }
   if (extras.vendors?.length) {
     const vendors = extras.vendors;
-    written.vendors = await run("vendors", () => writeVendors(planId, vendors));
+    written.vendors = await run("vendors", () => writeVendors(planId, vendors, lang));
   }
   if (hasStepChanges(extras)) {
-    await run("steps", () => writeStepPatches(planId, planStepPatches(extras, written)));
+    await run("steps", () => writeStepPatches(planId, planStepPatches(extras, written, lang)));
   }
 
   return { failed };

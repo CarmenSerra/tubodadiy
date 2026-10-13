@@ -1,1 +1,203 @@
-{}
+{
+  "newPlan": "New wedding plan",
+  "home": {
+    "loading": "Loading your dashboard",
+    "plansError": "We couldn't load your plans. Check your connection and reload the page.",
+    "viewPlan": "View the full plan"
+  },
+  "header": {
+    "greeting": "Hello, {{name}}",
+    "greetingAnon": "Hello"
+  },
+  "empty": {
+    "welcome": "Welcome",
+    "intro": "You don't have a wedding plan yet. Create your first one and start with the fun part: your date, your budget and everything you want to live on that day.",
+    "invited": "Were you invited to a plan? Open the invitation link you were sent.",
+    "howItStarts": "Here's how it begins",
+    "stepN": "Step {{n}}: ",
+    "steps": {
+      "name": {
+        "title": "Give it a name and a date",
+        "text": "Once you set the date, tubodadiy starts the countdown for you."
+      },
+      "budget": {
+        "title": "Set your budget",
+        "text": "A starting figure and, little by little, the breakdown by category."
+      },
+      "tasks": {
+        "title": "Follow your to-do list",
+        "text": "13 sections ready for you to move at your own pace, stress-free."
+      }
+    }
+  },
+  "appointments": {
+    "title": "Upcoming appointments",
+    "emptyTitle": "Schedule your first visit or fitting",
+    "emptyText": "Venues, outfits, tastings and meetings, all in one place.",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDays_one": "In {{count}} day",
+    "inDays_other": "In {{count}} days",
+    "more": "and {{count}} more",
+    "open": "Open the schedule"
+  },
+  "glance": {
+    "title": "At a glance",
+    "loading": "Loading {{label}}",
+    "budget": {
+      "label": "Budget",
+      "add": "Add your budget",
+      "over": "{{amount}} over",
+      "left": "{{amount}} left"
+    },
+    "guests": {
+      "label": "Guests",
+      "add": "Add your guests",
+      "confirmed_one": "{{count}} of {{total}} confirmed",
+      "confirmed_other": "{{count}} of {{total}} confirmed"
+    },
+    "vendors": {
+      "label": "Vendors",
+      "add": "Save your vendors",
+      "booked_one": "{{count}} chosen",
+      "booked_other": "{{count}} chosen",
+      "considering": "{{count}} being considered"
+    }
+  },
+  "now": {
+    "label": "Up next",
+    "loading": "Loading your next step",
+    "loadError": "We couldn't load your steps right now. You can see them in <plan>the plan</plan>.",
+    "noSections": "This plan doesn't have any sections yet.",
+    "openPlan": "Open the plan",
+    "mainDone": "The main things are done",
+    "allDone": "All set!",
+    "onlyGeneralLeft": "All that's left is your free list of general tasks, whenever you like.",
+    "allSectionsDone": "You've completed every section of the plan.",
+    "viewPlan": "View the plan",
+    "continue": "Continue",
+    "start": "Get started",
+    "allTasksDone": "All tasks are done: you can now mark it as completed.",
+    "nextWithProgress": "Next: {{task}} · {{done}} of {{total}} tasks done",
+    "startWith": "Start with: {{task}}",
+    "phaseProgress_one": "{{done}} of {{count}} step",
+    "phaseProgress_other": "{{done}} of {{count}} steps",
+    "phaseN": "Phase {{n}} of {{total}}"
+  },
+  "countdown": {
+    "noDate": "No date yet",
+    "today": "Today is the big day!",
+    "bigDay": "Your big day",
+    "wasOn": "was on {{date}}",
+    "until": "until {{date}}",
+    "days_one": "day",
+    "days_other": "days"
+  },
+  "planSwitcher": {
+    "trigger": "Your plans",
+    "label": "Choose which plan to view",
+    "noDate": "No date yet"
+  },
+  "roles": {
+    "owner": {
+      "label": "Owner"
+    },
+    "partner": {
+      "label": "Partner",
+      "description": "Manages the plan with you, with full access."
+    },
+    "planner": {
+      "label": "Wedding planner",
+      "description": "Collaborates with full access."
+    }
+  },
+  "team": {
+    "title": "Team",
+    "description": "The people planning this wedding with you.",
+    "you": "You",
+    "youSuffix": "(you)",
+    "planOwner": "Plan owner",
+    "guestFallback": "Guest",
+    "loading": "Loading",
+    "loadingTeam": "Loading team",
+    "onlyYou": "just you",
+    "andMore": " and {{count}} more",
+    "buttonAria": "Plan team: {{names}}{{more}}. Open",
+    "inviteSomeone": "Invite someone",
+    "status": {
+      "pending": "Pending",
+      "inPlan": "In the plan"
+    },
+    "sections": {
+      "inPlan": "In the plan",
+      "pending": "Pending invitations",
+      "invite": "Invite someone"
+    },
+    "copy": {
+      "copy": "Copy link",
+      "copied": "Copied",
+      "toastCopied": "Link copied",
+      "toastManual": "Select the link and copy it with Ctrl+C."
+    },
+    "pending": {
+      "linkFor": "Invitation link for {{email}}"
+    },
+    "invite": {
+      "intro": "Create a link so your partner or your wedding planner can view and edit the plan with you.",
+      "createError": "The invitation couldn't be created.",
+      "emailLabel": "Email address of the person you're inviting",
+      "emailPlaceholder": "partner@example.com",
+      "role": "Role",
+      "submit": "Create invitation link"
+    },
+    "created": {
+      "message": "<strong>Invitation created.</strong> Share this link with <email/> by WhatsApp, email or however you prefer. They'll be able to accept it after creating an account or logging in.",
+      "linkLabel": "Invitation link",
+      "another": "Invite someone else"
+    },
+    "ownerOnly": "Only the plan owner can send invitations. If you'd like to add someone, let them know and they'll gladly invite them."
+  },
+  "invite": {
+    "title": "Invitation to a wedding plan",
+    "joined": "You've joined the wedding plan",
+    "acceptFailed": "The invitation couldn't be accepted.",
+    "notFound": "This invitation doesn't exist, has expired or has already been used.",
+    "unavailable": "This invitation is no longer available.",
+    "description": "<email/> has been invited to collaborate on <plan/> as <role/>.",
+    "signInPrompt": "Log in or create an account to accept the invitation.",
+    "login": "Log in",
+    "signup": "Sign up",
+    "accept": "Accept invitation"
+  },
+  "ui": {
+    "close": "Close",
+    "clear": "Clear",
+    "done": "Done",
+    "notifications": "Notifications",
+    "timePicker": {
+      "choose": "Choose time",
+      "type": "Type it",
+      "hour": "Hour",
+      "minute": "Min"
+    },
+    "datePicker": {
+      "choose": "Choose date",
+      "placeholder": "Choose a date",
+      "today": "Today",
+      "months": "Months",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "prevYear": "Previous year",
+      "nextYear": "Next year",
+      "changeMonthYear": "{{month}}. Change month and year",
+      "backToDays": "{{year}}. Back to days",
+      "valueFormat": "d MMMM yyyy",
+      "fullDateFormat": "EEEE, d MMMM yyyy"
+    }
+  },
+  "undo": {
+    "action": "Undo",
+    "done": "Undone: {{message}}",
+    "error": "The change couldn't be undone."
+  }
+}

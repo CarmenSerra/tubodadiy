@@ -1,1 +1,515 @@
-{}
+{
+  "planTools": {
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "close": "Close",
+      "back": "Back"
+    },
+    "ceremony": {
+      "title": "Ceremony type",
+      "description": "Choose how you'd like to marry. You can change it whenever you like.",
+      "disclaimer": "This is a guide and may vary by town or region. Confirm the details with your Civil Registry, notary or parish.",
+      "clear": "Clear choice",
+      "toasts": {
+        "saved": "Ceremony type saved",
+        "cleared": "Ceremony type cleared",
+        "error": "We couldn't save the ceremony type."
+      },
+      "options": {
+        "civil": {
+          "label": "Civil",
+          "tagline": "Performed by a civil authority, with full legal validity.",
+          "implies": [
+            "It's officiated by an authority: a mayor or councillor, a justice of the peace, a notary or a court clerk.",
+            "You first need to process the marriage file (at the Civil Registry or with a notary).",
+            "It's usually short and can be held at the town hall, the court, the notary's office or, depending on the municipality, another agreed venue."
+          ],
+          "legal": "The marriage is entered in the Civil Registry and is legal from that moment.",
+          "legalBadge": "Full legal validity"
+        },
+        "religiosa": {
+          "label": "Religious",
+          "tagline": "Held according to the rite of a religious denomination.",
+          "implies": [
+            "It's officiated by whoever applies in your denomination (priest, pastor, rabbi, imam…).",
+            "In the Catholic Church there is a file at the parish, a baptism certificate and, usually, a pre-marriage course.",
+            "Timing and venue depend on the parish or community: it's best to talk to them early."
+          ],
+          "legal": "A Catholic ceremony has civil effects if it's registered at the Civil Registry (usually handled by the parish). Other denominations with an agreement with the State (Evangelical, Jewish, Islamic) can also have them, with their own requirements.",
+          "legalBadge": "Civil effects once registered"
+        },
+        "simbolica": {
+          "label": "Symbolic",
+          "tagline": "A ceremony tailored to you, with no legal effect on its own.",
+          "implies": [
+            "You choose the place, the readings, the rituals and who officiates, with no mandatory script.",
+            "It doesn't change your marital status and isn't entered in any register.",
+            "It can be held on the same day as the civil wedding or on another date."
+          ],
+          "legal": "It has no legal validity on its own. For the marriage to be legal you also need a civil wedding (or a religious one with civil effects).",
+          "legalBadge": "A civil wedding is also needed"
+        }
+      }
+    },
+    "legal": {
+      "title": "Legal documents",
+      "description": "A guide to the paperwork and procedures for getting married in Spain.",
+      "disclaimer": {
+        "title": "A guide only: confirm with your Civil Registry.",
+        "text": "Requirements vary by municipality, notary or parish, and this guide does not replace their official information."
+      },
+      "noType": {
+        "title": "First, choose the ceremony type",
+        "text": "The paperwork is different for a civil, religious or symbolic wedding. Once you choose, you'll see the list that applies to you here.",
+        "action": "Choose ceremony type"
+      },
+      "toastError": "We couldn't save the change.",
+      "ceremony": "Ceremony:",
+      "changeCeremony": "Change ceremony type",
+      "intro": {
+        "symbolic": "A symbolic ceremony has no legal validity on its own, so this list is the one for a civil wedding: it's the one that makes your marriage valid in law.",
+        "religious": "This list is for a Catholic ceremony. If yours is a different denomination, ask your community what they require and whether you need to get a certificate of legal capacity to marry from the Civil Registry first.",
+        "civil": "This is the list for a civil wedding in Spain. Each Civil Registry or notary may ask for a little more or less."
+      },
+      "progressLabel": "Paperwork progress",
+      "progress_one": "{{done}} of {{count}} document",
+      "progress_other": "{{done}} of {{count}} documents",
+      "situationsLegend": "Does any of these apply?",
+      "situations": {
+        "foreign": {
+          "label": "One of you is a foreign national or has documents from another country",
+          "hint": "This adds apostilled and translated documents and the certificate of legal capacity to marry."
+        },
+        "previous": {
+          "label": "One of you has been married before",
+          "hint": "This adds the certificate of the previous marriage showing the divorce, annulment or death."
+        }
+      },
+      "optional": "Optional",
+      "groups": {
+        "civil": "Civil marriage file",
+        "religiosa": "Religious ceremony paperwork",
+        "foreign": "If there are documents from another country",
+        "previous": "If there was a previous marriage"
+      },
+      "docs": {
+        "civil": {
+          "cita": {
+            "title": "Book an appointment at the Civil Registry or a notary",
+            "hint": "This is the first step. It's done at the Civil Registry of either partner's home address, or with a notary."
+          },
+          "dni": {
+            "title": "Valid ID card, NIE or passport for both of you",
+            "hint": "Check they won't expire before the wedding."
+          },
+          "nacimiento": {
+            "title": "Full birth certificate",
+            "hint": "Request it online from the Ministry of Justice e-office or at the Civil Registry. It usually has to be recent."
+          },
+          "empadronamiento": {
+            "title": "Certificate of residence (empadronamiento)",
+            "hint": "Issued by the town hall (often online). It tells you which Civil Registry is yours."
+          },
+          "declaracion": {
+            "title": "Sworn statement of marital status",
+            "hint": "Each person declares their marital status and that there is no impediment to marrying. Usually signed when the file is opened."
+          },
+          "testigos": {
+            "title": "Details of two adult witnesses",
+            "hint": "Full name and ID number. Ask whether they must attend the file hearing or only the wedding."
+          },
+          "resolucion": {
+            "title": "Favourable decision on the file",
+            "hint": "This is the document that allows you to marry. It's only valid for a limited time: check yours before setting the date."
+          }
+        },
+        "religiosa": {
+          "parroquia": {
+            "title": "Talk to the parish or community and set a date",
+            "hint": "This is the first step: they will tell you what they require and how far ahead."
+          },
+          "dni": {
+            "title": "Valid ID card, NIE or passport for both of you",
+            "hint": "Check they won't expire before the wedding."
+          },
+          "nacimiento": {
+            "title": "Full birth certificate",
+            "hint": "Request it online from the Ministry of Justice e-office or at the Civil Registry. It usually has to be recent."
+          },
+          "bautismo": {
+            "title": "Recent baptism certificate",
+            "hint": "From the parish where each of you was baptised. Ask for it with annotations; it usually has to be from the last few months."
+          },
+          "confirmacion": {
+            "title": "Confirmation certificate",
+            "hint": "Only if your parish asks for it."
+          },
+          "cursillo": {
+            "title": "Pre-marriage course",
+            "hint": "Talks run by parishes and dioceses. Places fill up: sign up early and keep the attendance certificate."
+          },
+          "expediente-parroquial": {
+            "title": "Marriage file at the parish",
+            "hint": "An interview with the officiant and signing of the documents. The parish processes it with the bishopric."
+          },
+          "empadronamiento": {
+            "title": "Certificate of residence (empadronamiento)",
+            "hint": "Some parishes ask for it to decide which one should marry you."
+          },
+          "testigos": {
+            "title": "Details of two witnesses",
+            "hint": "Full name and ID number."
+          },
+          "inscripcion": {
+            "title": "Registration at the Civil Registry after the wedding",
+            "hint": "This is what gives it civil effects. Ask the parish whether it handles it and when you'll get the certificate."
+          }
+        },
+        "foreign": {
+          "ext-capacidad": {
+            "title": "Certificate of legal capacity to marry or of marital status from the country of origin",
+            "hint": "Issued by the country's authority or consulate. Ask what your Civil Registry accepts."
+          },
+          "ext-apostilla": {
+            "title": "Foreign documents with an apostille or legalised",
+            "hint": "The Hague apostille makes them valid in Spain. It's arranged in the country that issued them."
+          },
+          "ext-traduccion": {
+            "title": "Sworn translation of any documents not in Spanish",
+            "hint": "It must be done by a sworn translator. Allow a few days."
+          },
+          "ext-residencia": {
+            "title": "Proof of residence in Spain (NIE or registration certificate)",
+            "hint": "Only if you live in Spain and don't have a DNI."
+          }
+        },
+        "previous": {
+          "matrimonio-anterior": {
+            "title": "Full certificate of the previous marriage noting the divorce, annulment or death",
+            "hint": "Request it at the Civil Registry where it was registered. If the divorce was in another country, you'll need that document apostilled and translated."
+          },
+          "sentencia": {
+            "title": "Divorce ruling or agreement, or death certificate",
+            "hint": "If requested, in addition to the previous certificate."
+          }
+        }
+      }
+    },
+    "gift": {
+      "title": "Gift",
+      "descriptions": {
+        "choose": "Choose how you'd like to receive gifts. You can change it any time.",
+        "money": "Receive gifts as money: bank account, Bizum or both.",
+        "list": "A list of things you'd need, so anyone who wants to give something knows where to start."
+      },
+      "messageLabel": "Message for your guests",
+      "useExample": "Use an example text",
+      "messagePlaceholder": "Something short and warm for anyone who'd like to give you a gift…",
+      "showOnInvitation": "Show on the invitation",
+      "showOff": "Nothing will be shown to your guests: only you can see it.",
+      "choice": {
+        "error": "We couldn't save your choice. Please try again.",
+        "current": "What you have now",
+        "note": "If you change your mind, what you've already written for the other option isn't lost.",
+        "money": {
+          "title": "Money (the most common)",
+          "text": "You give an IBAN, a Bizum number or both, and everyone contributes what they like. No duplicates, no exchanges.",
+          "points": [
+            "IBAN and Bizum",
+            "Easy for guests travelling"
+          ]
+        },
+        "list": {
+          "title": "List of things (more traditional)",
+          "text": "You prepare a list of what you need, with links and approximate prices, and your guests can see it.",
+          "points": [
+            "With links and prices",
+            "You tick off what you already have"
+          ]
+        }
+      },
+      "money": {
+        "intro": "Many couples give an IBAN for those who prefer a bank transfer and a Bizum number for those who'd like to do it on the spot. You can add one or both.",
+        "switchToList": "Switch to a list of things",
+        "ibanLabel": "Account IBAN",
+        "ibanHelp": "Use an account you both control. It's hidden as soon as you save it.",
+        "ibanErrors": {
+          "format": "An IBAN starts with two letters and two digits, for example ES91 2100…",
+          "spanishLength": "A Spanish IBAN has 24 characters: ES followed by 22 digits.",
+          "length": "This IBAN doesn't have the usual length. Please check it.",
+          "checksum": "Check the IBAN: a digit doesn't add up."
+        },
+        "ibanShown": "IBAN: {{iban}}",
+        "ibanHidden": "IBAN hidden",
+        "showIban": "Show IBAN",
+        "hideIban": "Hide IBAN",
+        "changeIban": "Change IBAN",
+        "change": "Change",
+        "bizumLabel": "Phone number for Bizum",
+        "bizumHelp": "Optional. The mobile where you'd like to receive Bizum payments.",
+        "bizumError": "Enter a 9-digit Spanish mobile number starting with 6 or 7.",
+        "reviewErrors": "Please check the highlighted fields before saving.",
+        "saved": "Gift details saved",
+        "cleared": "Gift details removed",
+        "saveError": "We couldn't save the gift details.",
+        "messageExample": "Your presence is the best gift. If you'd like to give us something, we'll gladly receive it as a contribution to start this new chapter together.",
+        "showOn": "The IBAN, the Bizum number and the message will appear on the invitation you share.",
+        "addFirst": "Add an IBAN or a Bizum number first."
+      },
+      "list": {
+        "intro": "Things you'd need. Your guests can only view the list: nobody reserves or ticks anything.",
+        "switchToMoney": "Switch to money",
+        "heading": "Your list",
+        "summary": {
+          "empty": "Nothing here yet. Changes are saved instantly.",
+          "pending": "{{count}} still to get",
+          "achieved_one": "{{count}} already got",
+          "achieved_other": "{{count}} already got",
+          "price": "about {{price}} in total"
+        },
+        "addItem": "Add something",
+        "loadError": "We couldn't load the list. Reload the page and try again.",
+        "loading": "Loading the list",
+        "emptyHint": "Start with what you really need at home. You can add a link and an approximate price to make it easy to find.",
+        "suggestions": {
+          "sheets": "Bed linen set",
+          "towels": "Towel set",
+          "foodProcessor": "Food processor",
+          "dinnerware": "Dinnerware",
+          "coffeeMaker": "Coffee maker",
+          "robotVacuum": "Robot vacuum"
+        },
+        "have": "We already have it",
+        "haveAria": "We already have “{{name}}”",
+        "newTab": "(opens in a new tab)",
+        "editAria": "Edit “{{name}}”",
+        "removeAria": "Remove “{{name}}” from the list",
+        "achievedHint": "Tick the box for anything you already have: it will stop being shown to your guests.",
+        "messageExample": "What matters most to us is sharing this day with you. If you'd like to give us something, we've put together a list of things that will be really useful at home; there's no need to give anything from it.",
+        "showOn": "The list (without what you already have) and the message will appear on the invitation you share.",
+        "addFirst": "Add something to the list first.",
+        "priorities": {
+          "high": {
+            "label": "Essential"
+          },
+          "medium": {
+            "label": "Would be useful"
+          },
+          "low": {
+            "label": "A treat"
+          }
+        },
+        "toasts": {
+          "changesSaved": "Changes saved",
+          "added": "“{{name}}” added to the list",
+          "removed": "“{{name}}” removed from the list",
+          "saved": "Gift list saved"
+        },
+        "errors": {
+          "saveChanges": "We couldn't save the changes.",
+          "add": "We couldn't add it to the list.",
+          "remove": "We couldn't remove it from the list.",
+          "update": "We couldn't update the list.",
+          "saveMessage": "We couldn't save the message."
+        },
+        "form": {
+          "addAria": "Add something to the list",
+          "name": "What is it?",
+          "namePlaceholder": "Food processor",
+          "price": "Approximate price (€)",
+          "priceHelp": "Optional. A rough idea; it doesn't have to be exact.",
+          "priority": "Priority",
+          "noPriority": "No priority",
+          "priorityHelp": "Optional. The most important come first.",
+          "link": "Link",
+          "linkHelp": "Optional. The shop or the product, to make it easy to find.",
+          "note": "Note",
+          "notePlaceholder": "Colour, size or model you prefer",
+          "saveChanges": "Save changes",
+          "addToList": "Add to the list",
+          "errors": {
+            "name": "Enter what it is, for example “Bed linen set”.",
+            "link": "Enter a valid web address, for example https://shop.com/product.",
+            "price": "Enter an amount in euros, for example 45 or 45.90."
+          }
+        }
+      }
+    }
+  },
+  "stationery": {
+    "title": "Save the date",
+    "description": "Design a notice for your guests and share it before sending the invitation.",
+    "loadError": "We couldn't load your design. Reload the page and try again.",
+    "loading": "Loading the designer",
+    "defaults": {
+      "heading": "Save the date",
+      "message": "You'll receive the invitation with all the details very soon."
+    },
+    "sampleName": "Name",
+    "and": "and",
+    "fileName": "save-the-date",
+    "optional": "(optional)",
+    "style": "Style",
+    "templates": {
+      "jardin": {
+        "label": "Garden",
+        "blurb": "Lilac and sage with eucalyptus sprigs"
+      },
+      "arco": {
+        "label": "Arch",
+        "blurb": "A soft arch on a lilac background"
+      },
+      "minimal": {
+        "label": "Minimal",
+        "blurb": "Clean, with plenty of space"
+      },
+      "noche": {
+        "label": "Night",
+        "blurb": "Elegant, in deep plum"
+      }
+    },
+    "tabs": {
+      "edit": "Edit",
+      "preview": "Preview"
+    },
+    "fields": {
+      "heading": "Heading",
+      "name1": "First name",
+      "name2": "Second name",
+      "date": "Date",
+      "usePlanDate": "Use the wedding date ({{date}})",
+      "place": "Place or city",
+      "placePlaceholder": "Seville",
+      "message": "Message"
+    },
+    "preview": {
+      "aria": "Card preview: {{details}}",
+      "caption": "This is how your card will look when you download it."
+    },
+    "share": {
+      "title": "Download or share",
+      "png": "PNG image",
+      "pngAria": "Download PNG image",
+      "pdfAria": "Download PDF",
+      "whatsapp": "Share on WhatsApp",
+      "hintReady": "WhatsApp opens with the text ready; download the image and attach it in the chat.",
+      "hintNotReady": "Enter at least one name and choose the date to download or share.",
+      "heading": "{{heading}}!",
+      "marryPlural": "{{names}} are getting married",
+      "marrySingular": "{{names}} is getting married",
+      "weMarry": "We're getting married",
+      "when": "on {{weekday}} {{dayMonth}} {{year}}",
+      "where": "in {{place}}"
+    },
+    "status": {
+      "saving": "Saving…",
+      "dirty": "Unsaved changes",
+      "saved": "Design saved",
+      "new": "Not saved yet"
+    },
+    "save": "Save design",
+    "toasts": {
+      "saved": "Design saved",
+      "saveError": "We couldn't save the design.",
+      "pngError": "We couldn't create the image.",
+      "pdfError": "We couldn't create the PDF."
+    },
+    "confirm": {
+      "title": "Save your changes?",
+      "text": "You've changed the card and haven't saved it yet.",
+      "keepEditing": "Keep editing",
+      "discard": "Discard",
+      "saveAndClose": "Save and close"
+    }
+  },
+  "appointments": {
+    "title": "Appointments",
+    "description": "Visits, fittings and meetings for your wedding, all in one place.",
+    "new": "New appointment",
+    "loading": "Loading appointments",
+    "dayLabel": "Day:",
+    "markDoneAria": "Mark “{{title}}” as done",
+    "editAria": "Edit “{{title}}”",
+    "deleteAria": "Delete “{{title}}”",
+    "relative": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "inDays_one": "In {{count}} day",
+      "inDays_other": "In {{count}} days"
+    },
+    "categories": {
+      "lugar": {
+        "label": "Venue visit",
+        "suggestedTitle": "Visit to a possible venue"
+      },
+      "vestuario": {
+        "label": "Outfit fitting",
+        "suggestedTitle": "Outfit fitting"
+      },
+      "proveedor": {
+        "label": "Supplier meeting",
+        "suggestedTitle": "Meeting with a supplier"
+      },
+      "degustacion": {
+        "label": "Tasting",
+        "suggestedTitle": "Tasting"
+      },
+      "otro": {
+        "label": "Other",
+        "suggestedTitle": ""
+      }
+    },
+    "groups": {
+      "upcoming": "Upcoming",
+      "upcomingEmpty": "You have no upcoming appointments. Once you add one, it will show up here.",
+      "past": "Past"
+    },
+    "empty": {
+      "title": "No appointments yet",
+      "text": "Note down venue visits, outfit fittings, tastings and supplier meetings so you don't miss any.",
+      "action": "Add an appointment",
+      "startWith": "Or start with:"
+    },
+    "toasts": {
+      "added": "Appointment added",
+      "updated": "“{{title}}” updated",
+      "deleted": "“{{title}}” deleted"
+    },
+    "errors": {
+      "load": "We couldn't load the appointments. Reload the page and try again.",
+      "update": "We couldn't update the appointment.",
+      "delete": "We couldn't delete the appointment."
+    },
+    "form": {
+      "back": "Back to appointments",
+      "newTitle": "New appointment",
+      "editTitle": "Edit appointment",
+      "description": "Type, day, time and details of the appointment.",
+      "type": "Appointment type",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Venue visit, dress fitting…",
+      "day": "Day",
+      "time": "Time",
+      "optional": "(optional)",
+      "place": "Place or address",
+      "placePlaceholder": "Olive Grove Estate, 3 Main Street…",
+      "vendor": "Supplier",
+      "noVendor": "No supplier",
+      "unnamedVendor": "Unnamed",
+      "deletedVendor": "Deleted supplier",
+      "notes": "Notes",
+      "notesPlaceholder": "What to ask, what to bring, who to go with…",
+      "done": "Already done",
+      "delete": "Delete appointment",
+      "cancel": "Cancel",
+      "save": "Save",
+      "errors": {
+        "title": "Give the appointment a title.",
+        "date": "Choose the day of the appointment.",
+        "time": "Enter a valid time, for example 18:30.",
+        "save": "We couldn't save the appointment."
+      }
+    }
+  }
+}

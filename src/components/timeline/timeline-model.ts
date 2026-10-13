@@ -1,4 +1,10 @@
+import { DEFAULT_LANG, localeOf, type Lang } from "@/lib/i18n/config";
+import { dateFormatter, parseDateOnly } from "@/lib/i18n/format";
+import { getServerT } from "@/lib/i18n/server";
 import type { TimelineItem } from "@/lib/types";
+
+/** `t` fijo al namespace `timeline` para funciones puras que reciben el idioma por parámetro. */
+const tl = (lang: Lang = DEFAULT_LANG) => getServerT(lang, "timeline");
 
 // Todas las horas del cronograma son minutos desde las 00:00 del día de la
 // boda. Pueden pasar de 1440 (madrugada del día siguiente).
@@ -36,9 +42,9 @@ export function parseClock(value: string): number | null {
   return h * 60 + mi;
 }
 
-/** 45 → "45 min", 60 → "1 h", 90 → "1 h 30 min". */
-export function formatDuration(min: number): string {
-  if (min <= 0) return "Momento puntual";
+/** 45 → "45 min", 60 → "1 h", 90 → "1 h 30 min"; 0 → «Momento puntual» / «Single moment». */
+export function formatDuration(min: number, lang: Lang = DEFAULT_LANG): string {
+  if (min <= 0) return tl(lang)("duration.instant");
   const h = Math.floor(min / 60);
   const m = min % 60;
   if (h === 0) return `${m} min`;
@@ -80,11 +86,11 @@ export function overlapsById(sorted: TimelineItem[]): Record<string, string[]> {
   return result;
 }
 
-/** "«A»", "«A» y «B»", "«A», «B» y «C»". */
-export function joinTitles(titles: string[]): string {
-  const quoted = titles.map((t) => `«${t}»`);
-  if (quoted.length <= 1) return quoted.join("");
-  return `${quoted.slice(0, -1).join(", ")} y ${quoted[quoted.length - 1]}`;
+/** "«A»", "«A» y «B»", "«A», «B» y «C»" (en inglés: “A”, “A” and “B”…). */
+export function joinTitles(titles: string[], lang: Lang = DEFAULT_LANG): string {
+  const t = tl(lang);
+  const quoted = titles.map((title) => t("quoted", { text: title }));
+  return new Intl.ListFormat(localeOf(lang), { style: "long", type: "conjunction" }).format(quoted);
 }
 
 /** Minutos libres antes de cada momento (solo los que superan GAP_MIN). */
@@ -130,7 +136,8 @@ export function planShift(
 /* ------------------------------------------------------------------ */
 
 interface TemplateMoment {
-  title: string;
+  /** Clave del título en `timeline:template.<key>`. */
+  key: string;
   /** Minutos respecto al inicio de la ceremonia. */
   offset: number;
   durationMin: number;
@@ -142,17 +149,17 @@ const h = (hours: number, minutes = 0) => hours * 60 + minutes;
 // Una boda típica en España: ceremonia, cóctel con fotos en paralelo,
 // banquete, tarta, primer baile y fiesta.
 const TEMPLATE: TemplateMoment[] = [
-  { title: "Preparativos", offset: -h(3), durationMin: 150 },
-  { title: "Llegada de invitados", offset: -30, durationMin: 30 },
-  { title: "Ceremonia", offset: 0, durationMin: 45, highlight: true },
-  { title: "Cóctel", offset: 45, durationMin: 90 },
-  { title: "Fotos de pareja", offset: 60, durationMin: 45 },
-  { title: "Entrada al banquete", offset: h(2, 15), durationMin: 15 },
-  { title: "Banquete", offset: h(2, 30), durationMin: 120, highlight: true },
-  { title: "Tarta y discursos", offset: h(4, 30), durationMin: 30 },
-  { title: "Primer baile", offset: h(5), durationMin: 15, highlight: true },
-  { title: "Fiesta", offset: h(5, 15), durationMin: 180 },
-  { title: "Fin de fiesta", offset: h(8, 15), durationMin: 0 },
+  { key: "getReady", offset: -h(3), durationMin: 150 },
+  { key: "guestsArrive", offset: -30, durationMin: 30 },
+  { key: "ceremony", offset: 0, durationMin: 45, highlight: true },
+  { key: "cocktail", offset: 45, durationMin: 90 },
+  { key: "couplePhotos", offset: 60, durationMin: 45 },
+  { key: "banquetEntrance", offset: h(2, 15), durationMin: 15 },
+  { key: "banquet", offset: h(2, 30), durationMin: 120, highlight: true },
+  { key: "cakeSpeeches", offset: h(4, 30), durationMin: 30 },
+  { key: "firstDance", offset: h(5), durationMin: 15, highlight: true },
+  { key: "party", offset: h(5, 15), durationMin: 180 },
+  { key: "partyEnd", offset: h(8, 15), durationMin: 0 },
 ];
 
 /** La plantilla necesita sitio para los preparativos antes de la ceremonia. */
@@ -165,10 +172,14 @@ export function isValidCeremonyStart(min: number | null): min is number {
 
 export type NewTimelineItem = Omit<TimelineItem, "id" | "createdAt">;
 
-/** Momentos de la plantilla, ya colocados respecto a la hora de la ceremonia. */
-export function buildTemplate(ceremonyStartMin: number): NewTimelineItem[] {
+/**
+ * Momentos de la plantilla, ya colocados respecto a la hora de la ceremonia. Los
+ * títulos se guardan en el idioma indicado (son del plan, luego se pueden editar).
+ */
+export function buildTemplate(ceremonyStartMin: number, lang: Lang = DEFAULT_LANG): NewTimelineItem[] {
+  const t = tl(lang);
   return TEMPLATE.map((m) => ({
-    title: m.title,
+    title: t(`template.${m.key}`),
     startMin: ceremonyStartMin + m.offset,
     durationMin: m.durationMin,
     location: "",
@@ -187,11 +198,14 @@ function plain(text: string): string {
   return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
 }
 
-/** El momento «Ceremonia» (o el primero que empiece por esa palabra), si existe. */
+/** Palabras que identifican el momento de la ceremonia (en cualquiera de los idiomas). */
+const CEREMONY_WORDS = ["ceremonia", "ceremony"];
+
+/** El momento «Ceremonia» / «Ceremony» (o el primero que empiece por esa palabra), si existe. */
 export function findCeremony(items: TimelineItem[]): TimelineItem | null {
   return (
-    items.find((i) => plain(i.title) === "ceremonia") ??
-    items.find((i) => plain(i.title).startsWith("ceremonia")) ??
+    items.find((i) => CEREMONY_WORDS.includes(plain(i.title))) ??
+    items.find((i) => CEREMONY_WORDS.some((word) => plain(i.title).startsWith(word))) ??
     null
   );
 }
@@ -218,26 +232,24 @@ export function suggestStart(items: TimelineItem[], typicalOffsetMin?: number): 
 /* Textos                                                             */
 /* ------------------------------------------------------------------ */
 
-function parseDate(value: string | null | undefined): Date | null {
-  if (!value) return null;
-  const date = new Date(value + "T00:00:00");
-  return Number.isNaN(date.getTime()) ? null : date;
+/** "7 de junio de 2027" / "7 June 2027", o null si no hay fecha. */
+export function formatLongDate(
+  value: string | null | undefined,
+  lang: Lang = DEFAULT_LANG
+): string | null {
+  const date = parseDateOnly(value);
+  if (!date) return null;
+  return dateFormatter(lang, { day: "numeric", month: "long", year: "numeric" }).format(date);
 }
 
-/** "7 de junio de 2027", o null si no hay fecha. */
-export function formatLongDate(value: string | null | undefined): string | null {
-  const date = parseDate(value);
+/** "Sábado, 7 de junio de 2027" / "Saturday 7 June 2027", o null si no hay fecha. */
+export function formatWeekdayDate(
+  value: string | null | undefined,
+  lang: Lang = DEFAULT_LANG
+): string | null {
+  const date = parseDateOnly(value);
   if (!date) return null;
-  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric" }).format(
-    date
-  );
-}
-
-/** "Sábado, 7 de junio de 2027", o null si no hay fecha. */
-export function formatWeekdayDate(value: string | null | undefined): string | null {
-  const date = parseDate(value);
-  if (!date) return null;
-  const text = new Intl.DateTimeFormat("es-ES", {
+  const text = dateFormatter(lang, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -246,11 +258,12 @@ export function formatWeekdayDate(value: string | null | undefined): string | nu
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/** "Boda de Ana y Luis" (o el título tal cual si ya habla de la boda). */
-export function weddingName(planTitle: string): string {
+/** "Boda de Ana y Luis" / "Wedding of Ana & Luis" (o el título tal cual si ya habla de la boda). */
+export function weddingName(planTitle: string, lang: Lang = DEFAULT_LANG): string {
+  const t = tl(lang);
   const title = planTitle.trim();
-  if (!title) return "Nuestra boda";
-  return /boda/i.test(title) ? title : `Boda de ${title}`;
+  if (!title) return t("weddingName.default");
+  return /boda|wedding/i.test(title) ? title : t("weddingName.of", { names: title });
 }
 
 /** Rango legible en texto plano: "12:00–12:45", "23:30–00:30 (+1)". */
@@ -267,15 +280,17 @@ const oneLine = (text: string) => text.replace(/\s+/g, " ").trim();
 /** Cronograma en texto plano, listo para pegar en un mensaje o correo. */
 export function timelineToText(
   sorted: TimelineItem[],
-  plan: { title: string; weddingDate: string | null }
+  plan: { title: string; weddingDate: string | null },
+  lang: Lang = DEFAULT_LANG
 ): string {
-  const date = formatLongDate(plan.weddingDate);
-  const heading = ["Cronograma", weddingName(plan.title), date].filter(Boolean).join(" — ");
+  const t = tl(lang);
+  const date = formatLongDate(plan.weddingDate, lang);
+  const heading = [t("text.heading"), weddingName(plan.title, lang), date].filter(Boolean).join(" — ");
   const lines = sorted.map((item) => {
     const parts = [item.title];
     if (item.location.trim()) parts.push(oneLine(item.location));
-    if (item.responsible.trim()) parts.push(`Responsable: ${oneLine(item.responsible)}`);
-    if (item.notes.trim()) parts.push(`Notas: ${oneLine(item.notes)}`);
+    if (item.responsible.trim()) parts.push(t("text.responsible", { name: oneLine(item.responsible) }));
+    if (item.notes.trim()) parts.push(t("text.notes", { notes: oneLine(item.notes) }));
     return `${formatRangeText(item)} ${parts.join(" · ")}`;
   });
   return [heading, "", ...lines].join("\n");

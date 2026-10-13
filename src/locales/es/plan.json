@@ -1,1 +1,164 @@
-{}
+{
+  "shell": {
+    "loading": "Cargando tu plan",
+    "noAccess": {
+      "title": "No tienes acceso a este plan",
+      "description": "Puede que el plan no exista o que aún no seas miembro. Pide al dueño del plan que te invite de nuevo."
+    },
+    "backHome": "Volver al inicio"
+  },
+  "nav": {
+    "ariaLabel": "Secciones del plan",
+    "overview": "Resumen",
+    "ceremony": "Ceremonia",
+    "guests": "Invitados",
+    "vendors": "Proveedores",
+    "budget": "Presupuesto",
+    "honeymoon": "Luna de miel"
+  },
+  "progress": {
+    "label": "Progreso del plan",
+    "valueText": "{{value}} %"
+  },
+  "lock": {
+    "unlockAria": "Desbloquear fase {{name}}",
+    "tip": "Te recomendamos terminar antes la fase anterior, pero sabemos que te pica la curiosidad. ¿Quieres verla ya?",
+    "tipAction": "Pulsa aquí"
+  },
+  "taskLinks": {
+    "editPlan": "Ir a editar el plan",
+    "budget": "Ir al presupuesto",
+    "guests": "Ir a invitados",
+    "guestsPending": "Ir a invitados pendientes de respuesta",
+    "vendorCatering": "Ir a proveedores de catering",
+    "vendorPhoto": "Ir a proveedores de fotografía",
+    "vendorMusic": "Ir a proveedores de música",
+    "vendorVenue": "Ir a proveedores de lugar",
+    "agendaVisits": "Abrir la agenda de visitas",
+    "agendaFittings": "Abrir la agenda de pruebas",
+    "saveTheDate": "Diseñar la tarjeta «reserva la fecha»",
+    "invitation": "Ir al editor de la invitación",
+    "honeymoon": "Ir a la luna de miel",
+    "honeymoonBook": "Ir a las reservas de la luna de miel",
+    "timeline": "Ir al cronograma",
+    "ceremonyTab": "Ir a la pestaña Ceremonia",
+    "officiant": "Ir a la ficha del oficiante",
+    "legalDocs": "Ver la guía de documentos legales",
+    "gift": "Abrir los datos del regalo"
+  },
+  "status": {
+    "options": {
+      "pending": "Pendiente",
+      "in_progress": "En progreso",
+      "completed": "Completado",
+      "skipped": "Omitir"
+    },
+    "labels": {
+      "pending": "Pendiente",
+      "in_progress": "En progreso",
+      "completed": "Completado",
+      "skipped": "Omitido"
+    },
+    "toast": "Estado: {{status}}",
+    "error": "No se ha podido actualizar el estado.",
+    "controlAria": "Estado de «{{title}}»: {{status}}. Cambiar"
+  },
+  "edit": {
+    "trigger": "Editar",
+    "title": "Editar plan de boda",
+    "defaultTitle": "Nuestra boda",
+    "success": "Plan actualizado",
+    "error": "No se ha podido actualizar el plan.",
+    "fields": {
+      "title": "Nombre del plan",
+      "date": "Fecha objetivo",
+      "dateHelp": "Opcional. Puedes dejarla vacía si aún no la sabes.",
+      "budget": "Presupuesto total (€)"
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "tabs": {
+    "ariaLabel": "Fases del plan",
+    "locked": "(bloqueada)",
+    "recommended": "Recomendado",
+    "complete": "Completada",
+    "progress_one": "{{done}} de {{count}} paso",
+    "progress_other": "{{done}} de {{count}} pasos"
+  },
+  "panel": {
+    "softNote": "Te recomendamos terminar «{{name}}» primero, pero puedes avanzar aquí cuando quieras.",
+    "dismissNote": "Cerrar aviso",
+    "done": "¡{{name}}, listo!",
+    "goToNext": "Seguir con «{{name}}»",
+    "unlock": "Desbloquear fase",
+    "lock": "Bloquear fase"
+  },
+  "phases": {
+    "esencial": {
+      "name": "Lo esencial",
+      "blurb": "Fecha, invitados y lugar: la base de todo lo demás."
+    },
+    "equipo": {
+      "name": "Tu equipo",
+      "blurb": "Las personas y los trámites que necesitan más tiempo."
+    },
+    "detalles": {
+      "name": "Los detalles",
+      "blurb": "Vestuario, papelería, alojamiento y regalos."
+    },
+    "recta_final": {
+      "name": "Recta final",
+      "blurb": "Cronograma y luna de miel, para llegar con calma."
+    }
+  },
+  "general": {
+    "name": "Siempre a mano",
+    "blurb": "Tu lista libre para todo lo que no encaje en otro sitio."
+  },
+  "celebration": {
+    "title": "¡{{name}}, completado!",
+    "opening": "Abrimos «{{name}}»",
+    "finale": "Ya no te queda ninguna fase por terminar.",
+    "toast": "¡{{name}}, completado!",
+    "toastWithNext": "¡{{from}}, completado! Abrimos «{{to}}»"
+  },
+  "overview": {
+    "summaryAria": "Resumen del plan",
+    "date": "Fecha",
+    "daysLeft": "Quedan",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "budget": "Presupuesto",
+    "budgetUndefined": "Sin definir",
+    "progress": "Progreso",
+    "loading": "Cargando secciones",
+    "empty": "Este plan todavía no tiene secciones.",
+    "unlocked": "Fase desbloqueada",
+    "locked": "Fase bloqueada",
+    "errors": {
+      "unlock": "No se ha podido desbloquear la fase.",
+      "lock": "No se ha podido bloquear la fase."
+    }
+  },
+  "step": {
+    "completedStrip": "¡Completado!",
+    "next": "Siguiente",
+    "tasksWord": "tareas",
+    "openTimeline": "Abrir cronograma",
+    "openShort": "Abrir",
+    "tasks": "Tareas",
+    "removeTask": "Eliminar tarea: {{title}}",
+    "taskRemoved": "Tarea eliminada",
+    "addTask": "Añadir tarea",
+    "addTaskPlaceholder": "Añadir una tarea…",
+    "notes": "Notas",
+    "notesPlaceholder": "Apunta aquí lo que quieras recordar…",
+    "errors": {
+      "notes": "No se han podido guardar las notas.",
+      "updateTask": "No se ha podido actualizar la tarea.",
+      "removeTask": "No se ha podido eliminar la tarea.",
+      "addTask": "No se ha podido añadir la tarea."
+    }
+  }
+}

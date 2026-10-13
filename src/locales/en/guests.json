@@ -1,1 +1,151 @@
-{}
+{
+  "rsvp": {
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "declined": "Declined",
+    "changeAria": "{{name}}'s response: {{status}}. Change",
+    "groupAria": "{{name}}'s response"
+  },
+  "groups": {
+    "family": "Family",
+    "friends": "Friends",
+    "other": "Other"
+  },
+  "groupSelect": {
+    "placeholder": "Choose a group",
+    "none": "No group",
+    "custom": "Write another group…",
+    "newName": "New group name",
+    "newPlaceholder": "Coworkers, neighbors…"
+  },
+  "filters": {
+    "section": "Search and filter guests",
+    "searchPlaceholder": "Name, group or notes",
+    "searchLabel": "Search guests by name, group or notes",
+    "clearSearch": "Clear search",
+    "groupLabel": "Filter by group",
+    "allGroups": "All groups",
+    "noGroup": "No group",
+    "statusLabel": "Filter by response",
+    "status": {
+      "all": "All",
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "declined": "Declined"
+    },
+    "shownOf_one": "<hl>{{shown}}</hl> of {{count}} guest",
+    "shownOf_other": "<hl>{{shown}}</hl> of {{count}} guests",
+    "total_one": "{{count}} guest",
+    "total_other": "{{count}} guests",
+    "clear": "Clear filters"
+  },
+  "summary": {
+    "title": "Guest summary",
+    "guests": "Guests",
+    "peopleInList_one": "person on your list",
+    "peopleInList_other": "people on your list",
+    "confirmed": "Confirmed",
+    "ofList": "{{ratio}}% of the list",
+    "pending": "Pending",
+    "pendingDetail": "no response yet",
+    "declined": "Not attending",
+    "declinedDetail_one": "can't make it",
+    "declinedDetail_other": "can't make it",
+    "seats": "Place settings",
+    "seatsDetail": "confirmed guests and their companions",
+    "confirmedCount_one": "{{count}} confirmed",
+    "confirmedCount_other": "{{count}} confirmed",
+    "companionCount_one": "{{count}} companion",
+    "companionCount_other": "{{count}} companions",
+    "withCompanion": "With a companion",
+    "noCompanions": "No guests are bringing a companion. Mark it when editing a guest and it will be added to the place settings.",
+    "companionGuests_one": "{{count}} guest",
+    "companionGuests_other": "{{count}} guests",
+    "extraSeats_one": "{{count}} extra place setting",
+    "extraSeats_other": "{{count}} extra place settings",
+    "companionsConfirmed_one": "{{count}} has already confirmed",
+    "companionsConfirmed_other": "{{count}} have already confirmed",
+    "maxSeats_one": "if everyone who hasn't said no comes, that would be {{count}} place setting",
+    "maxSeats_other": "if everyone who hasn't said no comes, that would be {{count}} place settings",
+    "loading": "Loading guests"
+  },
+  "form": {
+    "addGuest": "Add guest",
+    "newTitle": "New guest",
+    "editTitle": "Edit guest",
+    "editGuestNamed": "Edit {{name}}",
+    "added": "Guest added",
+    "updated": "Guest updated",
+    "saveError": "We couldn't save the guest.",
+    "name": "Name",
+    "namePlaceholder": "Full name",
+    "group": "Group",
+    "response": "Response",
+    "plusOne": "Bringing a companion",
+    "plusOneName": "Companion's name",
+    "plusOnePlaceholder": "Optional: you can add it later",
+    "dietary": "Dietary notes",
+    "dietaryPlaceholder": "Vegetarian, allergies...",
+    "notes": "Notes",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "list": {
+    "title": "Guest list",
+    "description": "Who's coming, who still needs to reply and what each person needs.",
+    "rsvpError": "We couldn't change the response. Please try again.",
+    "deleted": "Guest deleted",
+    "deleteError": "We couldn't delete the guest.",
+    "deleteGuest": "Delete {{name}}",
+    "empty": {
+      "title": "Your guest list starts here",
+      "text": "Add the people who simply have to be there and keep track of who confirms, who's bringing a companion and what each one needs. No rush."
+    },
+    "noMatches": {
+      "title": "We couldn't find anyone with those filters",
+      "text": "Try another name or remove a filter to see your full list again."
+    },
+    "guests": "Guests",
+    "noGroup": "No group",
+    "noNotes": "No notes",
+    "dietaryPrefix": "Dietary notes:",
+    "yes": "Yes",
+    "no": "No",
+    "columns": {
+      "name": "Name",
+      "group": "Group",
+      "response": "Response",
+      "companion": "Companion",
+      "dietary": "Dietary notes",
+      "actions": "Actions"
+    }
+  },
+  "ideas": {
+    "groups": {
+      "familia-novia": "Bride's family",
+      "familia-del-novio": "Groom's family",
+      "padres-abuelos": "Parents and grandparents",
+      "tios-primos": "Aunts, uncles and cousins",
+      "amigos-infancia": "Childhood friends",
+      "amigos-del-cole": "School friends",
+      "amigos-universidad": "University friends",
+      "amigos-pareja": "Couple's friends",
+      "trabajo": "Work",
+      "vecinos-amigos-familia": "Neighbors and family friends",
+      "ninos": "Children"
+    },
+    "tips": {
+      "0": "Start with your “must-have” list and add more later, calmly.",
+      "1": "Set a cap and a clear criterion, so you don't have to explain yourselves.",
+      "2": "Count partners and plus-ones from the start.",
+      "3": "Ask about allergies, intolerances and special menus early.",
+      "4": "Keep a B list in case of cancellations, but invite everyone at the same time."
+    },
+    "title": "Ideas for your list",
+    "description": "A few tips to get started without stress.",
+    "groupsTitle": "Common groups",
+    "groupsHint": "Tap one to add someone straight into that group.",
+    "addInGroup": "Add a guest to “{{group}}”",
+    "addInGroupExists": "Add a guest to “{{group}}” (you already have this group)"
+  }
+}

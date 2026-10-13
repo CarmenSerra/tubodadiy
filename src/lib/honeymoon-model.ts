@@ -68,12 +68,16 @@ export type TripDayInput = Pick<TripDay, "date" | "place" | "activities">;
 export const BOOKING_TYPES = ["vuelo", "hotel", "excursion", "seguro", "otro"] as const;
 export type BookingType = (typeof BOOKING_TYPES)[number];
 
-export const BOOKING_TYPE_LABEL: Record<BookingType, string> = {
-  vuelo: "Vuelo",
-  hotel: "Hotel",
-  excursion: "Excursión",
-  seguro: "Seguro",
-  otro: "Otro",
+/**
+ * Clave de traducción de cada tipo (`honeymoon:bookingTypes.<clave>`). Lo que se
+ * guarda en Firestore sigue siendo el valor en español; se traduce al mostrar.
+ */
+export const BOOKING_TYPE_KEY: Record<BookingType, string> = {
+  vuelo: "flight",
+  hotel: "hotel",
+  excursion: "excursion",
+  seguro: "insurance",
+  otro: "other",
 };
 
 export function isBookingType(value: unknown): value is BookingType {
@@ -136,6 +140,15 @@ export function computeBookingTotals(budget: number, bookings: Booking[]): Booki
 export const PACKING_GROUPS = ["Papeles", "Salud", "Ropa", "Tecnología", "Otros"] as const;
 export type PackingGroup = (typeof PACKING_GROUPS)[number];
 
+/** Clave de traducción de cada grupo (`honeymoon:packing.groups.<clave>`); en Firestore queda el valor en español. */
+export const PACKING_GROUP_KEY: Record<PackingGroup, string> = {
+  Papeles: "documents",
+  Salud: "health",
+  Ropa: "clothing",
+  Tecnología: "tech",
+  Otros: "other",
+};
+
 export function isPackingGroup(value: unknown): value is PackingGroup {
   return typeof value === "string" && (PACKING_GROUPS as readonly string[]).includes(value);
 }
@@ -155,34 +168,53 @@ export interface PackingItem {
 export interface SuggestedPackingItem {
   /** Id estable: sembrar la lista dos veces no la duplica. */
   id: string;
+  /** Clave de traducción (`honeymoon:packing.suggested.<clave>.label|note`). */
+  key: string;
   label: string;
   group: PackingGroup;
   note?: string;
 }
 
 export const SUGGESTED_PACKING: SuggestedPackingItem[] = [
-  { id: "sug-pasaporte", label: "Pasaportes", group: "Papeles", note: "Comprueba que no caducan en los próximos 6 meses." },
-  { id: "sug-dni", label: "DNI", group: "Papeles" },
-  { id: "sug-visados", label: "Visados", group: "Papeles", note: "Mira si el destino los pide y con cuánta antelación." },
-  { id: "sug-billetes", label: "Billetes y reservas a mano", group: "Papeles", note: "En el móvil y, por si acaso, impresos." },
-  { id: "sug-seguro", label: "Seguro de viaje", group: "Papeles", note: "Con la póliza y el teléfono de asistencia guardados." },
-  { id: "sug-tarjetas", label: "Tarjetas y algo de efectivo", group: "Papeles" },
-  { id: "sug-vacunas", label: "Vacunas", group: "Salud", note: "Consúltalas en tu centro de salud con tiempo." },
-  { id: "sug-botiquin", label: "Botiquín y medicación habitual", group: "Salud" },
-  { id: "sug-solar", label: "Protector solar", group: "Salud" },
-  { id: "sug-repelente", label: "Repelente de mosquitos", group: "Salud" },
-  { id: "sug-banador", label: "Bañador", group: "Ropa" },
-  { id: "sug-chanclas", label: "Chanclas y sandalias", group: "Ropa" },
-  { id: "sug-ligera", label: "Ropa ligera y fresca", group: "Ropa" },
-  { id: "sug-gorra", label: "Gorra o sombrero y gafas de sol", group: "Ropa" },
-  { id: "sug-calzado", label: "Calzado cómodo para caminar", group: "Ropa" },
-  { id: "sug-abrigo", label: "Una prenda de abrigo ligera", group: "Ropa", note: "Para vuelos, noches y excursiones." },
-  { id: "sug-adaptador", label: "Adaptador de enchufe", group: "Tecnología" },
-  { id: "sug-cargadores", label: "Cargadores y batería externa", group: "Tecnología" },
-  { id: "sug-datos", label: "Datos móviles o eSIM", group: "Tecnología" },
-  { id: "sug-toalla", label: "Toalla de playa", group: "Otros" },
-  { id: "sug-candado", label: "Candado para la maleta", group: "Otros" },
+  { id: "sug-pasaporte", key: "passports", label: "Pasaportes", group: "Papeles", note: "Comprueba que no caducan en los próximos 6 meses." },
+  { id: "sug-dni", key: "nationalId", label: "DNI", group: "Papeles" },
+  { id: "sug-visados", key: "visas", label: "Visados", group: "Papeles", note: "Mira si el destino los pide y con cuánta antelación." },
+  { id: "sug-billetes", key: "tickets", label: "Billetes y reservas a mano", group: "Papeles", note: "En el móvil y, por si acaso, impresos." },
+  { id: "sug-seguro", key: "insurance", label: "Seguro de viaje", group: "Papeles", note: "Con la póliza y el teléfono de asistencia guardados." },
+  { id: "sug-tarjetas", key: "cards", label: "Tarjetas y algo de efectivo", group: "Papeles" },
+  { id: "sug-vacunas", key: "vaccines", label: "Vacunas", group: "Salud", note: "Consúltalas en tu centro de salud con tiempo." },
+  { id: "sug-botiquin", key: "firstAid", label: "Botiquín y medicación habitual", group: "Salud" },
+  { id: "sug-solar", key: "sunscreen", label: "Protector solar", group: "Salud" },
+  { id: "sug-repelente", key: "repellent", label: "Repelente de mosquitos", group: "Salud" },
+  { id: "sug-banador", key: "swimwear", label: "Bañador", group: "Ropa" },
+  { id: "sug-chanclas", key: "flipFlops", label: "Chanclas y sandalias", group: "Ropa" },
+  { id: "sug-ligera", key: "lightClothes", label: "Ropa ligera y fresca", group: "Ropa" },
+  { id: "sug-gorra", key: "hat", label: "Gorra o sombrero y gafas de sol", group: "Ropa" },
+  { id: "sug-calzado", key: "shoes", label: "Calzado cómodo para caminar", group: "Ropa" },
+  { id: "sug-abrigo", key: "jacket", label: "Una prenda de abrigo ligera", group: "Ropa", note: "Para vuelos, noches y excursiones." },
+  { id: "sug-adaptador", key: "adapter", label: "Adaptador de enchufe", group: "Tecnología" },
+  { id: "sug-cargadores", key: "chargers", label: "Cargadores y batería externa", group: "Tecnología" },
+  { id: "sug-datos", key: "mobileData", label: "Datos móviles o eSIM", group: "Tecnología" },
+  { id: "sug-toalla", key: "towel", label: "Toalla de playa", group: "Otros" },
+  { id: "sug-candado", key: "lock", label: "Candado para la maleta", group: "Otros" },
 ];
+
+/**
+ * Texto de una cosa de la maleta para mostrar. Las sugeridas se guardan en español
+ * al sembrarlas: si siguen igual que el original se traducen por su clave; si la
+ * pareja las ha cambiado (o son propias) se muestran tal cual.
+ */
+export function packingDisplay(
+  item: Pick<PackingItem, "id" | "label" | "note" | "suggested">,
+  t: (key: string) => string
+): { label: string; note: string } {
+  const base = item.suggested ? SUGGESTED_PACKING.find((s) => s.id === item.id) : undefined;
+  if (!base) return { label: item.label, note: item.note };
+  return {
+    label: item.label === base.label ? t(`packing.suggested.${base.key}.label`) : item.label,
+    note: item.note === (base.note ?? "") ? (base.note ? t(`packing.suggested.${base.key}.note`) : "") : item.note,
+  };
+}
 
 export interface PackingProgress {
   done: number;

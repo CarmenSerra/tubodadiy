@@ -1,1 +1,270 @@
-{}
+{
+  "defaults": {
+    "message": "Nos haría muchísima ilusión que nos acompañes en un día tan especial. Confirma tu asistencia con un par de toques."
+  },
+  "templates": {
+    "botanico": {
+      "label": "Botánico",
+      "hint": "Lila y salvia, con hojas"
+    },
+    "minimal": {
+      "label": "Minimal",
+      "hint": "Limpio y tipográfico"
+    },
+    "elegante": {
+      "label": "Elegante",
+      "hint": "Ciruela oscuro"
+    }
+  },
+  "share": {
+    "introNames": "{{names}} os invitan a su boda",
+    "introGeneric": "Estás invitado/a a nuestra boda",
+    "whatsapp": "{{intro}}{{when}}. Aquí tienes la invitación y puedes confirmar tu asistencia: {{url}}"
+  },
+  "page": {
+    "meta": {
+      "title": "Invitación de boda",
+      "titleNames": "{{names}} — Invitación de boda",
+      "description": "Estás invitado/a a la boda{{when}}. Confirma tu asistencia.",
+      "descriptionNames": "Estás invitado/a a la boda de {{names}}{{when}}. Confirma tu asistencia."
+    },
+    "unavailable": {
+      "metaTitle": "Invitación no disponible",
+      "title": "Esta invitación no está disponible",
+      "text": "Puede que el enlace esté mal escrito o que la pareja aún no la haya publicado. Pregúntales por el enlace correcto."
+    }
+  },
+  "view": {
+    "time": "{{time}} h",
+    "eyebrow": "¡Nos casamos!",
+    "eyebrowMinimal": "Nos casamos",
+    "cta": "Confirmar asistencia",
+    "messageLabel": "Mensaje de la pareja",
+    "when": "Cuándo y dónde",
+    "places": {
+      "ceremony": "Ceremonia",
+      "banquet": "Banquete"
+    },
+    "directions": "Cómo llegar",
+    "directionsSr": "a {{place}} (se abre en una pestaña nueva)",
+    "gift": {
+      "titleList": "Lo que nos haría ilusión",
+      "titleMoney": "Si quieres tener un detalle",
+      "listLabel": "Lista de regalos",
+      "hint": "La lista es solo una guía. Si te apetece regalar algo de ella, escríbenos antes para que no se repita.",
+      "priceSr": "Precio aproximado:",
+      "view": "Ver",
+      "viewSr": "«{{name}}» (se abre en una pestaña nueva)",
+      "iban": "Transferencia (IBAN)",
+      "ibanName": "IBAN",
+      "bizum": "Bizum",
+      "bizumName": "número de Bizum"
+    },
+    "copy": {
+      "aria": "Copiar {{label}}",
+      "action": "Copiar",
+      "done": "Copiado"
+    },
+    "rsvpTitle": "¿Nos acompañas?",
+    "deadline": {
+      "closed": "El plazo para confirmar terminó. Si aún quieres avisarnos, escríbenos directamente.",
+      "closedOn": "El plazo para confirmar terminó el {{date}}. Si aún quieres avisarnos, escríbenos directamente.",
+      "beforePrefix": "Por favor, confirma antes del ",
+      "beforeSuffix": "."
+    },
+    "footer": {
+      "withLove": "Con cariño, {{names}}",
+      "madeWith": "Invitación creada con tubodadiy"
+    }
+  },
+  "rsvp": {
+    "legend": "Confirmación de asistencia",
+    "optional": "(opcional)",
+    "name": {
+      "label": "Nombre y apellidos",
+      "placeholder": "Tu nombre"
+    },
+    "attending": {
+      "label": "¿Vienes a la boda?",
+      "yes": "¡Sí, allí estaré!",
+      "no": "No podré ir"
+    },
+    "plusOne": {
+      "label": "¿Vienes con acompañante?",
+      "yes": "Sí",
+      "no": "No, voy sin acompañante",
+      "nameLabel": "Nombre del acompañante",
+      "namePlaceholder": "Nombre y apellidos"
+    },
+    "dietary": {
+      "label": "Alergias o dieta",
+      "placeholder": "Vegetariano, celiaquía, alergia a los frutos secos…"
+    },
+    "message": {
+      "label": "Un mensaje para la pareja",
+      "placeholder": "Unas palabras para recordar…"
+    },
+    "honeypot": "No rellenar este campo",
+    "submit": {
+      "send": "Enviar respuesta",
+      "save": "Guardar cambios"
+    },
+    "cancel": "Cancelar",
+    "thanks": {
+      "title": "¡Gracias!",
+      "titleName": "¡Gracias, {{name}}!",
+      "yes": "Hemos recibido tu confirmación. ¡Nos hace mucha ilusión que vengas!",
+      "no": "Hemos recibido tu respuesta. Sentimos que no puedas venir; gracias por avisarnos.",
+      "plusOne": "Vienes con acompañante.",
+      "plusOneName": "Vienes con acompañante: {{name}}.",
+      "change": "Cambiar mi respuesta"
+    },
+    "errors": {
+      "name": "Escribe tu nombre y apellidos.",
+      "attending": "Cuéntanos si vienes.",
+      "network": "No hemos podido enviar tu respuesta. Revisa tu conexión e inténtalo de nuevo.",
+      "nameTooLong": "El nombre es demasiado largo (máximo {{max}} caracteres).",
+      "plusOneTooLong": "El nombre del acompañante es demasiado largo.",
+      "dietaryTooLong": "Alergias o dieta: máximo {{max}} caracteres.",
+      "messageTooLong": "El mensaje es demasiado largo (máximo {{max}} caracteres).",
+      "unavailable": "Ahora mismo no podemos recibir respuestas. Inténtalo más tarde.",
+      "notFound": "Esta invitación no existe.",
+      "rateLimited": "Demasiados envíos seguidos. Espera unos minutos e inténtalo de nuevo.",
+      "gone": "Esta invitación ya no está disponible.",
+      "closed": "El plazo para confirmar ya ha terminado. Escribe directamente a los novios.",
+      "saveFailed": "No hemos podido guardar tu respuesta. Inténtalo de nuevo en un momento."
+    }
+  },
+  "launcher": {
+    "button": "Invitación"
+  },
+  "responses": {
+    "title": "Respuestas de la invitación",
+    "count_one": "{{count}} respuesta",
+    "count_other": "{{count}} respuestas",
+    "attending_one": "{{count}} asiste",
+    "attending_other": "{{count}} asisten",
+    "showLess": "Ver menos",
+    "showMore": "Ver {{count}} más",
+    "row": {
+      "attending": "Asiste",
+      "notAttending": "No asiste",
+      "plusOne": "Con acompañante",
+      "plusOneName": "Con acompañante: {{name}}"
+    }
+  },
+  "editor": {
+    "title": "Invitación de boda",
+    "description": "Personaliza tu invitación y comparte un único enlace: quien lo abra podrá confirmar sin crear cuenta.",
+    "confirmClose": "Tienes cambios sin guardar. ¿Cerrar sin guardarlos?",
+    "loadError": "No se ha podido cargar la invitación. Recarga la página e inténtalo de nuevo.",
+    "loading": "Cargando la invitación",
+    "tabs": {
+      "label": "Vista",
+      "edit": "Editar",
+      "preview": "Vista previa"
+    },
+    "fill": {
+      "upToDate": "Tu invitación ya está al día con los datos de tu plan.",
+      "updated_one": "Se ha actualizado {{count}} campo con los datos de tu plan.",
+      "updated_other": "Se han actualizado {{count}} campos con los datos de tu plan.",
+      "filledTitle": "Rellenado con los datos de tu plan",
+      "filledNote": "({{fields}}). Cámbialo si quieres: lo que escribas no se pisa.",
+      "canFill": "Los campos vacíos se pueden rellenar con los datos de tu plan.",
+      "refresh": "Actualizar desde el plan",
+      "groups": {
+        "names": "nombres",
+        "date": "fecha",
+        "place": "lugar",
+        "address": "dirección",
+        "map": "mapa",
+        "time": "hora"
+      }
+    },
+    "sections": {
+      "language": "Idioma de la invitación",
+      "style": "Estilo",
+      "couple": "La pareja",
+      "when": "Cuándo",
+      "where": "Dónde",
+      "whereNote": "Si algo no aplica, déjalo en blanco y no aparecerá.",
+      "gift": "Regalo",
+      "publish": "Publicar y compartir"
+    },
+    "language": {
+      "label": "Idioma de la invitación",
+      "note": "Tus invitados verán la invitación y el formulario en este idioma. Tu panel sigue en tu idioma."
+    },
+    "template": {
+      "label": "Plantilla"
+    },
+    "fields": {
+      "names": "Nombres",
+      "message": "Mensaje",
+      "messageHint": "Unas palabras de bienvenida para tus invitados.",
+      "date": "Fecha de la boda",
+      "deadline": "Confirmar antes del",
+      "deadlineHint": "Opcional. Después, el formulario se cierra.",
+      "noDeadline": "Sin fecha límite"
+    },
+    "place": {
+      "name": "Lugar",
+      "time": "Hora",
+      "address": "Dirección",
+      "addressPlaceholder": "Calle, número, localidad",
+      "namePlaceholder": {
+        "ceremony": "Iglesia de San Miguel",
+        "banquet": "Finca Los Olivos"
+      },
+      "map": "Enlace al mapa (opcional)",
+      "mapHint": "Si lo dejas vacío, «Cómo llegar» buscará la dirección en Google Maps.",
+      "mapError": "Pega una dirección web que empiece por http:// o https://."
+    },
+    "gift": {
+      "label": "Mostrar los datos del regalo",
+      "helpList": "Tus invitados verán la lista de cosas que has guardado en el plan (sin lo que ya tenéis).",
+      "helpMoney": "Tus invitados verán el IBAN o Bizum que has guardado en el plan.",
+      "emptyList": "Tu lista de regalos aún no tiene nada que enseñar. Añade alguna cosa en los datos del regalo de tu plan.",
+      "emptyMoney": "Aún no has añadido un IBAN o un Bizum en los datos del regalo de tu plan.",
+      "notShown": "Tienes un regalo preparado, pero no está marcado para mostrarse en la invitación. Actívalo en los datos del regalo de tu plan.",
+      "notChosen": "Aún no has elegido cómo recibir el regalo (dinero o lista de cosas). Hazlo en el paso «Regalo» de tu plan."
+    },
+    "publish": {
+      "label": "Invitación publicada",
+      "helpOn": "Cualquiera con el enlace puede verla y confirmar. Al despublicarla, el enlace deja de funcionar.",
+      "helpOff": "Ahora mismo es un borrador: nadie puede verla. Al publicar se guardan también tus cambios."
+    },
+    "link": {
+      "label": "Enlace para tus invitados",
+      "placeholder": "Publica la invitación para obtener el enlace",
+      "unsaved": "Tienes cambios sin guardar: guárdalos para que se vean en el enlace.",
+      "copy": "Copiar enlace",
+      "whatsapp": "Compartir por WhatsApp",
+      "view": "Ver invitación",
+      "newTab": "(se abre en una pestaña nueva)"
+    },
+    "preview": {
+      "caption": "Así la verán tus invitados"
+    },
+    "status": {
+      "new": "Aún no guardada",
+      "dirty": "Cambios sin guardar",
+      "saved": "Todo guardado"
+    },
+    "actions": {
+      "close": "Cerrar",
+      "save": "Guardar cambios"
+    },
+    "toasts": {
+      "badMapUrl": "Revisa el enlace del mapa: tiene que ser una dirección web válida.",
+      "namesRequired": "Escribe los nombres de la pareja antes de publicar.",
+      "saveFailed": "No se ha podido guardar la invitación. Inténtalo de nuevo.",
+      "saved": "Invitación guardada",
+      "published": "Invitación publicada. Ya puedes compartir el enlace.",
+      "unpublished": "Invitación despublicada. El enlace ya no funciona.",
+      "unpublishFailed": "No se ha podido despublicar. Inténtalo de nuevo.",
+      "linkCopied": "Enlace copiado",
+      "copyFailed": "No se ha podido copiar. Selecciona el enlace y cópialo a mano."
+    }
+  }
+}

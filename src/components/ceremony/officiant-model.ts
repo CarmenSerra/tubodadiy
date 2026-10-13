@@ -1,16 +1,16 @@
 import type { OfficiantKind, PlanOfficiant } from "@/lib/types";
 
-export const OFFICIANT_KIND_OPTIONS: { value: OfficiantKind; label: string }[] = [
-  { value: "juez", label: "Juez/a o concejal/a" },
-  { value: "sacerdote", label: "Sacerdote o párroco" },
-  { value: "celebrante", label: "Oficiante civil o celebrante" },
-  { value: "allegado", label: "Amigo/a o familiar" },
-  { value: "otro", label: "Otro" },
+/**
+ * Tipos de oficiante. Lo guardado en el plan es `value`; el texto se traduce al
+ * mostrarlo con `ceremony:officiant.kinds.<value>`.
+ */
+export const OFFICIANT_KIND_OPTIONS: { value: OfficiantKind }[] = [
+  { value: "juez" },
+  { value: "sacerdote" },
+  { value: "celebrante" },
+  { value: "allegado" },
+  { value: "otro" },
 ];
-
-export function officiantKindLabel(kind: OfficiantKind | null | undefined): string | null {
-  return OFFICIANT_KIND_OPTIONS.find((o) => o.value === kind)?.label ?? null;
-}
 
 /** Ficha sin el enlace al gasto (lo gestiona `saveOfficiant`). */
 export type OfficiantDraft = Omit<PlanOfficiant, "budgetItemId">;

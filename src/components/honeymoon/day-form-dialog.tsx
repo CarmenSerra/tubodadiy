@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ArrowDownIcon, ArrowUpIcon, Loader2, PlusIcon, XIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -38,6 +39,7 @@ export function DayFormDialog({
   defaultDate?: string;
   trigger?: React.ReactNode;
 }) {
+  const { t } = useTranslation("honeymoon");
   const [open, setOpen] = React.useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -45,7 +47,7 @@ export function DayFormDialog({
         {trigger ?? (
           <button type="button" className={CTA_PRIMARY}>
             <PlusIcon aria-hidden="true" className="size-4" />
-            Añadir día
+            {t("itinerary.form.add")}
           </button>
         )}
       </DialogTrigger>
@@ -77,6 +79,7 @@ function DayForm({
   defaultDate: string;
   onDone: () => void;
 }) {
+  const { t } = useTranslation("honeymoon");
   const [place, setPlace] = React.useState(day?.place ?? "");
   const [date, setDate] = React.useState(day ? day.date : defaultDate);
   const [activities, setActivities] = React.useState<DayActivity[]>(day?.activities ?? []);
@@ -132,14 +135,14 @@ function DayForm({
       };
       if (day) {
         await updateDay(planId, day.id, data);
-        toast.success("Día actualizado");
+        toast.success(t("itinerary.form.toasts.updated"));
       } else {
         await createDay(planId, data, nextOrder);
-        toast.success("Día añadido al itinerario");
+        toast.success(t("itinerary.form.toasts.added"));
       }
       onDone();
     } catch {
-      toast.error("No se ha podido guardar el día.");
+      toast.error(t("itinerary.form.toasts.error"));
     } finally {
       setSubmitting(false);
     }
@@ -148,12 +151,12 @@ function DayForm({
   return (
     <form onSubmit={handleSubmit} noValidate>
       <DialogHeader>
-        <DialogTitle className={DIALOG_TITLE}>{day ? "Editar día" : "Nuevo día"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{day ? t("itinerary.form.editTitle") : t("itinerary.form.newTitle")}</DialogTitle>
       </DialogHeader>
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor={placeId} className={FIELD_LABEL}>
-            Lugar
+            {t("itinerary.form.place")}
           </Label>
           <Input
             id={placeId}
@@ -162,7 +165,7 @@ function DayForm({
               setPlace(e.target.value);
               if (placeError) setPlaceError(false);
             }}
-            placeholder="Ubud, isla de Gili, vuelo de ida…"
+            placeholder={t("itinerary.form.placePlaceholder")}
             required
             autoFocus
             autoComplete="off"
@@ -170,19 +173,19 @@ function DayForm({
             aria-describedby={placeError ? `${uid}-place-error` : undefined}
             className={FIELD}
           />
-          {placeError && <FieldError id={`${uid}-place-error`}>Escribe el lugar de este día.</FieldError>}
+          {placeError && <FieldError id={`${uid}-place-error`}>{t("itinerary.form.errors.place")}</FieldError>}
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor={dateId} className={FIELD_LABEL}>
-            Fecha <span className="font-normal text-ink-muted">(opcional)</span>
+            {t("itinerary.form.date")} <span className="font-normal text-ink-muted">{t("itinerary.form.optional")}</span>
           </Label>
           <DatePicker id={dateId} value={date} onChange={setDate} className={FIELD} />
         </div>
 
         <fieldset className="flex flex-col gap-2.5">
-          <legend className={cn(FIELD_LABEL, "mb-2.5")}>Actividades</legend>
+          <legend className={cn(FIELD_LABEL, "mb-2.5")}>{t("itinerary.form.activities")}</legend>
           {activities.length === 0 && (
-            <p className="text-sm text-ink-muted">Sin actividades todavía. Añade planes con su hora si la tienen.</p>
+            <p className="text-sm text-ink-muted">{t("itinerary.form.noActivities")}</p>
           )}
           <ul className="flex flex-col gap-2.5">
             {activities.map((a, i) => (
@@ -190,7 +193,7 @@ function DayForm({
                 <TimePicker
                   value={a.time}
                   onChange={(time) => patchActivity(a.id, { time })}
-                  aria-label={`Hora de la actividad ${i + 1} (opcional)`}
+                  aria-label={t("itinerary.form.timeAria", { n: i + 1 })}
                   className={cn(FIELD, "w-28 shrink-0")}
                 />
                 <Input
@@ -203,8 +206,8 @@ function DayForm({
                       if (a.text.trim()) addActivity(i);
                     }
                   }}
-                  aria-label={`Actividad ${i + 1}`}
-                  placeholder="Snorkel, cena en la playa…"
+                  aria-label={t("itinerary.form.activityAria", { n: i + 1 })}
+                  placeholder={t("itinerary.form.activityPlaceholder")}
                   autoComplete="off"
                   className={cn(FIELD, "min-w-0 flex-1")}
                 />
@@ -214,7 +217,7 @@ function DayForm({
                     className={cn(ICON_BUTTON, "disabled:pointer-events-none disabled:opacity-40")}
                     disabled={i === 0}
                     onClick={() => moveActivity(i, -1)}
-                    aria-label={`Subir la actividad ${i + 1}`}
+                    aria-label={t("itinerary.form.moveUp", { n: i + 1 })}
                   >
                     <ArrowUpIcon aria-hidden="true" />
                   </button>
@@ -223,7 +226,7 @@ function DayForm({
                     className={cn(ICON_BUTTON, "disabled:pointer-events-none disabled:opacity-40")}
                     disabled={i === activities.length - 1}
                     onClick={() => moveActivity(i, 1)}
-                    aria-label={`Bajar la actividad ${i + 1}`}
+                    aria-label={t("itinerary.form.moveDown", { n: i + 1 })}
                   >
                     <ArrowDownIcon aria-hidden="true" />
                   </button>
@@ -231,7 +234,7 @@ function DayForm({
                     type="button"
                     className={ICON_BUTTON}
                     onClick={() => setActivities((list) => list.filter((x) => x.id !== a.id))}
-                    aria-label={`Quitar la actividad ${i + 1}`}
+                    aria-label={t("itinerary.form.remove", { n: i + 1 })}
                   >
                     <XIcon aria-hidden="true" />
                   </button>
@@ -241,17 +244,17 @@ function DayForm({
           </ul>
           <button type="button" onClick={() => addActivity()} className={cn(CTA_SECONDARY, "mt-1 w-fit")}>
             <PlusIcon aria-hidden="true" className="size-4" />
-            Añadir actividad
+            {t("itinerary.form.addActivity")}
           </button>
         </fieldset>
       </div>
       <DialogFooter className="mt-6 gap-2 sm:gap-3">
         <button type="button" onClick={onDone} className={cn(CTA_SECONDARY, "h-11")}>
-          Cancelar
+          {t("actions.cancel")}
         </button>
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
           {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          Guardar
+          {t("actions.save")}
         </button>
       </DialogFooter>
     </form>
@@ -260,5 +263,6 @@ function DayForm({
 
 /** Disparador de edición; recibe las props que le inyecta DialogTrigger. */
 export function EditDayTrigger({ label, ...props }: React.ComponentProps<"button"> & { label: string }) {
-  return <EditIconButton label={`Editar ${label}`} {...props} />;
+  const { t } = useTranslation("honeymoon");
+  return <EditIconButton label={t("itinerary.editAria", { label })} {...props} />;
 }

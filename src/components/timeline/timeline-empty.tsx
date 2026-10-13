@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CalendarClockIcon, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { CARD, CTA_PRIMARY, CTA_SECONDARY, IconCircle } from "@/components/dashboard/ui";
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
@@ -29,6 +30,7 @@ export function TimelineEmpty({
   onTemplate: (ceremonyStartMin: number) => void;
   onBlank: () => void;
 }) {
+  const { t } = useTranslation("timeline");
   const [choosing, setChoosing] = React.useState(false);
   const [time, setTime] = React.useState("12:00");
   const [invalid, setInvalid] = React.useState(false);
@@ -52,18 +54,15 @@ export function TimelineEmpty({
         <CalendarClockIcon />
       </IconCircle>
       <h3 className="mt-4 font-display text-xl font-semibold text-ink sm:text-2xl">
-        Tu día, hora a hora
+        {t("empty.title")}
       </h3>
-      <p className="mt-2 max-w-md text-sm text-ink-muted">
-        Pon en orden todo lo que pasará el gran día y ve afinando las horas con calma. Puedes partir
-        de una plantilla y cambiar lo que quieras, o empezar desde cero.
-      </p>
+      <p className="mt-2 max-w-md text-sm text-ink-muted">{t("empty.description")}</p>
 
       {choosing ? (
         <form onSubmit={handleSubmit} noValidate className="mt-6 flex w-full max-w-xs flex-col gap-4">
           <div className="flex flex-col gap-2 text-left">
             <Label htmlFor={timeId} className={FIELD_LABEL}>
-              ¿A qué hora es la ceremonia?
+              {t("empty.ceremonyTime")}
             </Label>
             <TimePicker
               id={timeId}
@@ -80,8 +79,8 @@ export function TimelineEmpty({
               className={cn("text-sm", invalid ? "font-medium text-ink" : "text-ink-muted")}
             >
               {invalid
-                ? `Elige una hora entre las ${formatClock(MIN_CEREMONY_MIN)} y las ${formatClock(MAX_CEREMONY_MIN)}.`
-                : "Lo habitual es a las 12:00 o a las 18:00. Después podrás cambiar cualquier hora."}
+                ? t("empty.invalid", { min: formatClock(MIN_CEREMONY_MIN), max: formatClock(MAX_CEREMONY_MIN) })
+                : t("empty.hint")}
             </p>
           </div>
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-center sm:gap-3">
@@ -91,21 +90,21 @@ export function TimelineEmpty({
               disabled={creating}
               className={cn(CTA_SECONDARY, "h-11")}
             >
-              Atrás
+              {t("empty.back")}
             </button>
             <button type="submit" disabled={creating} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
               {creating && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-              Crear mi cronograma
+              {t("empty.create")}
             </button>
           </div>
         </form>
       ) : (
         <div className="mt-6 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
           <button type="button" onClick={() => setChoosing(true)} className={CTA_PRIMARY}>
-            Empezar con una plantilla
+            {t("empty.fromTemplate")}
           </button>
           <button type="button" onClick={onBlank} className={cn(CTA_SECONDARY, "h-11")}>
-            Empezar en blanco
+            {t("empty.blank")}
           </button>
         </div>
       )}

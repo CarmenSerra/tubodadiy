@@ -1,1 +1,164 @@
-{}
+{
+  "shell": {
+    "loading": "Loading your plan",
+    "noAccess": {
+      "title": "You don't have access to this plan",
+      "description": "The plan may not exist, or you may not be a member yet. Ask the plan's owner to invite you again."
+    },
+    "backHome": "Back to home"
+  },
+  "nav": {
+    "ariaLabel": "Plan sections",
+    "overview": "Overview",
+    "ceremony": "Ceremony",
+    "guests": "Guests",
+    "vendors": "Vendors",
+    "budget": "Budget",
+    "honeymoon": "Honeymoon"
+  },
+  "progress": {
+    "label": "Plan progress",
+    "valueText": "{{value}}%"
+  },
+  "lock": {
+    "unlockAria": "Unlock phase {{name}}",
+    "tip": "We recommend finishing the previous phase first, but we know you're curious. Want to take a peek now?",
+    "tipAction": "Click here"
+  },
+  "taskLinks": {
+    "editPlan": "Go to edit the plan",
+    "budget": "Go to the budget",
+    "guests": "Go to guests",
+    "guestsPending": "Go to guests who haven't replied",
+    "vendorCatering": "Go to catering vendors",
+    "vendorPhoto": "Go to photography vendors",
+    "vendorMusic": "Go to music vendors",
+    "vendorVenue": "Go to venue vendors",
+    "agendaVisits": "Open the venue visits agenda",
+    "agendaFittings": "Open the fittings agenda",
+    "saveTheDate": "Design the save-the-date card",
+    "invitation": "Go to the invitation editor",
+    "honeymoon": "Go to the honeymoon",
+    "honeymoonBook": "Go to the honeymoon bookings",
+    "timeline": "Go to the timeline",
+    "ceremonyTab": "Go to the Ceremony tab",
+    "officiant": "Go to the officiant's details",
+    "legalDocs": "See the legal documents guide",
+    "gift": "Open the gift details"
+  },
+  "status": {
+    "options": {
+      "pending": "Pending",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "skipped": "Skip"
+    },
+    "labels": {
+      "pending": "Pending",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "skipped": "Skipped"
+    },
+    "toast": "Status: {{status}}",
+    "error": "Couldn't update the status.",
+    "controlAria": "Status of “{{title}}”: {{status}}. Change"
+  },
+  "edit": {
+    "trigger": "Edit",
+    "title": "Edit wedding plan",
+    "defaultTitle": "Our wedding",
+    "success": "Plan updated",
+    "error": "Couldn't update the plan.",
+    "fields": {
+      "title": "Plan name",
+      "date": "Target date",
+      "dateHelp": "Optional. You can leave it empty if you don't know it yet.",
+      "budget": "Total budget (€)"
+    },
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "tabs": {
+    "ariaLabel": "Plan phases",
+    "locked": "(locked)",
+    "recommended": "Recommended",
+    "complete": "Complete",
+    "progress_one": "{{done}} of {{count}} step",
+    "progress_other": "{{done}} of {{count}} steps"
+  },
+  "panel": {
+    "softNote": "We recommend finishing “{{name}}” first, but you're welcome to move ahead whenever you like.",
+    "dismissNote": "Dismiss note",
+    "done": "{{name}}, all done!",
+    "goToNext": "Continue with “{{name}}”",
+    "unlock": "Unlock phase",
+    "lock": "Lock phase"
+  },
+  "phases": {
+    "esencial": {
+      "name": "The essentials",
+      "blurb": "Date, guests and venue: the foundation for everything else."
+    },
+    "equipo": {
+      "name": "Your team",
+      "blurb": "The people and paperwork that need the most lead time."
+    },
+    "detalles": {
+      "name": "The details",
+      "blurb": "Outfits, stationery, accommodation and gifts."
+    },
+    "recta_final": {
+      "name": "Final stretch",
+      "blurb": "Timeline and honeymoon, so you arrive calm and ready."
+    }
+  },
+  "general": {
+    "name": "Always at hand",
+    "blurb": "Your free-form list for everything that doesn't fit anywhere else."
+  },
+  "celebration": {
+    "title": "{{name}}, complete!",
+    "opening": "Opening “{{name}}”",
+    "finale": "You have no phases left to finish.",
+    "toast": "{{name}}, complete!",
+    "toastWithNext": "{{from}}, complete! Opening “{{to}}”"
+  },
+  "overview": {
+    "summaryAria": "Plan summary",
+    "date": "Date",
+    "daysLeft": "Time left",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "budget": "Budget",
+    "budgetUndefined": "Not set",
+    "progress": "Progress",
+    "loading": "Loading sections",
+    "empty": "This plan doesn't have any sections yet.",
+    "unlocked": "Phase unlocked",
+    "locked": "Phase locked",
+    "errors": {
+      "unlock": "Couldn't unlock the phase.",
+      "lock": "Couldn't lock the phase."
+    }
+  },
+  "step": {
+    "completedStrip": "Completed!",
+    "next": "Up next",
+    "tasksWord": "tasks",
+    "openTimeline": "Open timeline",
+    "openShort": "Open",
+    "tasks": "Tasks",
+    "removeTask": "Remove task: {{title}}",
+    "taskRemoved": "Task removed",
+    "addTask": "Add task",
+    "addTaskPlaceholder": "Add a task…",
+    "notes": "Notes",
+    "notesPlaceholder": "Jot down anything you want to remember…",
+    "errors": {
+      "notes": "Couldn't save the notes.",
+      "updateTask": "Couldn't update the task.",
+      "removeTask": "Couldn't remove the task.",
+      "addTask": "Couldn't add the task."
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { TFunction } from "i18next";
 import {
   CalendarHeartIcon,
   ClockIcon,
@@ -27,13 +28,16 @@ import {
   type InvitationPlace,
   type InvitationPublicData,
 } from "@/components/invitation/invitation-model";
+import type { Lang } from "@/lib/i18n/config";
+import { formatMoney } from "@/lib/i18n/format";
+import { getServerT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 import "./invitation.css";
 
 /** «Ana & Luis» → ["Ana", "Luis"]; si no son dos nombres claros, `null`. */
 function splitNames(names: string): [string, string] | null {
-  const parts = names.split(/\s*&\s*|\s+\+\s+|\s+y\s+|\s+e\s+/i).filter(Boolean);
+  const parts = names.split(/\s*&\s*|\s+\+\s+|\s+(?:y|e|and)\s+/i).filter(Boolean);
   return parts.length === 2 ? [parts[0], parts[1]] : null;
 }
 
@@ -52,9 +56,19 @@ function Names({ names }: { names: string }) {
   );
 }
 
-function PlaceCard({ kind, place }: { kind: string; place: InvitationPlace }) {
+function PlaceCard({
+  kind,
+  place,
+  t,
+  lang,
+}: {
+  kind: string;
+  place: InvitationPlace;
+  t: TFunction;
+  lang: Lang;
+}) {
   const map = mapLink(place);
-  const time = formatTime(place.time);
+  const time = formatTime(place.time, lang);
   return (
     <li className="inv-place">
       <p className="inv-placeKind">{kind}</p>
@@ -74,22 +88,15 @@ function PlaceCard({ kind, place }: { kind: string; place: InvitationPlace }) {
       {map && (
         <a href={map} target="_blank" rel="noopener noreferrer" className="inv-mapLink">
           <NavigationIcon aria-hidden="true" />
-          Cómo llegar
-          <span className="sr-only"> a {place.name || kind} (se abre en una pestaña nueva)</span>
+          {t("view.directions")}
+          <span className="sr-only"> {t("view.directionsSr", { place: place.name || kind })}</span>
         </a>
       )}
     </li>
   );
 }
 
-const EURO = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  useGrouping: "always",
-});
-
-function GiftListItem({ item }: { item: InvitationGiftItem }) {
+function GiftListItem({ item, t, lang }: { item: InvitationGiftItem; t: TFunction; lang: Lang }) {
   return (
     <li className="inv-giftItem">
       <div className="inv-giftItemMain">
@@ -99,16 +106,16 @@ function GiftListItem({ item }: { item: InvitationGiftItem }) {
       <div className="inv-giftItemSide">
         {item.price !== null && (
           <p className="inv-giftItemPrice">
-            <span className="sr-only">Precio aproximado: </span>
+            <span className="sr-only">{t("view.gift.priceSr")} </span>
             <span aria-hidden="true">~ </span>
-            {EURO.format(item.price)}
+            {formatMoney(item.price, lang)}
           </p>
         )}
         {item.link && (
           <a href={item.link} target="_blank" rel="noopener noreferrer nofollow" className="inv-giftItemLink">
-            Ver
+            {t("view.gift.view")}
             <ExternalLinkIcon aria-hidden="true" />
-            <span className="sr-only"> «{item.name}» (se abre en una pestaña nueva)</span>
+            <span className="sr-only"> {t("view.gift.viewSr", { name: item.name })}</span>
           </a>
         )}
       </div>
@@ -117,21 +124,20 @@ function GiftListItem({ item }: { item: InvitationGiftItem }) {
 }
 
 /** Lista de cosas que la pareja quiere recibir. Solo se ve: no hay reservas. */
-function GiftList({ gift }: { gift: InvitationGift }) {
+function GiftList({ gift, t, lang }: { gift: InvitationGift; t: TFunction; lang: Lang }) {
   const items = gift.items ?? [];
   return (
     <>
       {gift.message && <p className="inv-giftMessage">{gift.message}</p>}
       {items.length > 0 && (
         <>
-          <ul className="inv-giftList" aria-label="Lista de regalos">
+          <ul className="inv-giftList" aria-label={t("view.gift.listLabel")}>
             {items.map((item, i) => (
-              <GiftListItem key={`${i}-${item.name}`} item={item} />
+              <GiftListItem key={`${i}-${item.name}`} item={item} t={t} lang={lang} />
             ))}
           </ul>
           <p className="inv-giftHint">
-            La lista es solo una guía. Si te apetece regalar algo de ella, escríbenos antes para que no se
-            repita.
+            {t("view.gift.hint")}
           </p>
         </>
       )}
@@ -150,15 +156,18 @@ interface InvitationViewProps {
 }
 
 export function InvitationView({ data, mode = "page", rsvp, closed = false }: InvitationViewProps) {
-  const longDate = formatLongDate(data.date);
-  const parts = dateParts(data.date);
-  const places: [string, InvitationPlace][] = [
-    ["Ceremonia", data.ceremony],
-    ["Banquete", data.banquet],
+  // El texto de la invitación sigue el idioma que eligió la pareja, no el de quien la abre.
+  const lang = data.lang;
+  const t = getServerT(lang, "invitation");
+  const longDate = formatLongDate(data.date, lang);
+  const parts = dateParts(data.date, lang);
+  const places: ["ceremony" | "banquet", InvitationPlace][] = [
+    ["ceremony", data.ceremony],
+    ["banquet", data.banquet],
   ];
   const shownPlaces = places.filter(([, p]) => !placeIsEmpty(p));
   const hasWhen = Boolean(parts) || shownPlaces.length > 0;
-  const deadline = formatShortDate(data.rsvpDeadline);
+  const deadline = formatShortDate(data.rsvpDeadline, lang);
   const preview = mode === "preview";
   const Body = preview ? "div" : "main";
 
@@ -166,6 +175,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
     <div
       className={cn("inv-root", `inv-${data.template}`, preview && "inv-preview")}
       data-template={data.template}
+      lang={lang}
     >
       <header className="inv-hero">
         {data.template === "botanico" && (
@@ -176,7 +186,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
         )}
         <div className="inv-heroInner">
           <p className={cn("inv-eyebrow", "inv-rise")}>
-            {data.template === "minimal" ? "Nos casamos" : "¡Nos casamos!"}
+            {data.template === "minimal" ? t("view.eyebrowMinimal") : t("view.eyebrow")}
           </p>
           <h1 className={cn("inv-names", "inv-rise")} style={{ animationDelay: "80ms" }}>
             <Names names={data.names || "Ana & Luis"} />
@@ -195,7 +205,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
           )}
           {!preview && (
             <a href="#confirmar" className={cn("inv-heroCta", "inv-rise")} style={{ animationDelay: "240ms" }}>
-              Confirmar asistencia
+              {t("view.cta")}
             </a>
           )}
         </div>
@@ -203,7 +213,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
 
       <Body className="inv-body">
         {data.message && (
-          <section className="inv-section" aria-label="Mensaje de la pareja">
+          <section className="inv-section" aria-label={t("view.messageLabel")}>
             <p className="inv-message">{data.message}</p>
           </section>
         )}
@@ -211,7 +221,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
         {hasWhen && (
           <section className="inv-section" aria-labelledby="inv-when">
             <h2 id="inv-when" className="inv-sectionTitle">
-              Cuándo y dónde
+              {t("view.when")}
             </h2>
             {parts && (
               <div className="inv-dateSeal">
@@ -226,7 +236,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
             {shownPlaces.length > 0 && (
               <ul className="inv-places">
                 {shownPlaces.map(([kind, place]) => (
-                  <PlaceCard key={kind} kind={kind} place={place} />
+                  <PlaceCard key={kind} kind={t(`view.places.${kind}`)} place={place} t={t} lang={lang} />
                 ))}
               </ul>
             )}
@@ -236,30 +246,30 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
         {data.gift && (
           <section className="inv-section" aria-labelledby="inv-gift">
             <h2 id="inv-gift" className="inv-sectionTitle">
-              {data.gift.mode === "list" ? "Lo que nos haría ilusión" : "Si quieres tener un detalle"}
+              {data.gift.mode === "list" ? t("view.gift.titleList") : t("view.gift.titleMoney")}
             </h2>
             <div className="inv-gift">
               <GiftIcon aria-hidden="true" className="inv-sealIcon" />
-              {data.gift.mode === "list" && <GiftList gift={data.gift} />}
+              {data.gift.mode === "list" && <GiftList gift={data.gift} t={t} lang={lang} />}
               {data.gift.mode !== "list" && data.gift.message && (
                 <p className="inv-giftMessage">{data.gift.message}</p>
               )}
               {data.gift.mode !== "list" && data.gift.iban && (
                 <div className="inv-giftRow">
                   <div className="inv-giftValue">
-                    <span className="inv-giftLabel">Transferencia (IBAN)</span>
+                    <span className="inv-giftLabel">{t("view.gift.iban")}</span>
                     <span className="inv-giftNumber">{data.gift.iban}</span>
                   </div>
-                  <CopyButton value={data.gift.iban.replace(/\s+/g, "")} label="IBAN" />
+                  <CopyButton value={data.gift.iban.replace(/\s+/g, "")} label={t("view.gift.ibanName")} lang={lang} />
                 </div>
               )}
               {data.gift.mode !== "list" && data.gift.bizum && (
                 <div className="inv-giftRow">
                   <div className="inv-giftValue">
-                    <span className="inv-giftLabel">Bizum</span>
+                    <span className="inv-giftLabel">{t("view.gift.bizum")}</span>
                     <span className="inv-giftNumber">{data.gift.bizum}</span>
                   </div>
-                  <CopyButton value={data.gift.bizum} label="número de Bizum" />
+                  <CopyButton value={data.gift.bizum} label={t("view.gift.bizumName")} lang={lang} />
                 </div>
               )}
             </div>
@@ -268,18 +278,19 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
 
         <section id="confirmar" className={cn("inv-section", "inv-rsvp")} aria-labelledby="inv-rsvp">
           <h2 id="inv-rsvp" className="inv-sectionTitle">
-            ¿Nos acompañas?
+            {t("view.rsvpTitle")}
           </h2>
           {closed ? (
             <p className="inv-deadline">
-              El plazo para confirmar terminó{deadline ? ` el ${deadline}` : ""}. Si aún quieres
-              avisarnos, escríbenos directamente.
+              {deadline ? t("view.deadline.closedOn", { date: deadline }) : t("view.deadline.closed")}
             </p>
           ) : (
             <>
               {deadline && (
                 <p className="inv-deadline">
-                  Por favor, confirma antes del <strong>{deadline}</strong>.
+                  {t("view.deadline.beforePrefix")}
+                  <strong>{deadline}</strong>
+                  {t("view.deadline.beforeSuffix")}
                 </p>
               )}
               {rsvp}
@@ -289,8 +300,8 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
       </Body>
 
       <footer className="inv-footer">
-        <p>Con cariño, {data.names || "Ana & Luis"}</p>
-        <p className="inv-made">Invitación creada con tubodadiy</p>
+        <p>{t("view.footer.withLove", { names: data.names || "Ana & Luis" })}</p>
+        <p className="inv-made">{t("view.footer.madeWith")}</p>
       </footer>
     </div>
   );

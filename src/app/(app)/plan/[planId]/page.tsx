@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { AgendaProviders } from "@/components/appointments/agenda-providers";
@@ -22,7 +23,15 @@ import { stepElementId, stepTriggerId } from "@/components/plan/step-card";
 import { PlanToolsProvider } from "@/components/plan-tools/plan-tools-launcher";
 import { TimelineLauncherProvider } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
-import { computePhases, isStepDone, planProgress, recommendedStep } from "@/lib/phases";
+import { useLanguage } from "@/lib/i18n/provider";
+import {
+  computePhases,
+  displayPhaseBlurb,
+  displayPhaseName,
+  isStepDone,
+  planProgress,
+  recommendedStep,
+} from "@/lib/phases";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
 import { lockPhase, unlockPhase } from "@/lib/firebase/mutations";
@@ -32,7 +41,6 @@ import { cn, daysUntil, formatCurrency, formatDate } from "@/lib/utils";
 
 /** Pestaña de "Siempre a mano" (pasos sin fase). */
 const GENERAL_TAB = "a-mano";
-const GENERAL_BLURB = "Tu lista libre para todo lo que no encaje en otro sitio.";
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -100,6 +108,8 @@ function SummaryItem({
 }
 
 function PlanOverview() {
+  const { t } = useTranslation("plan");
+  const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
   const searchParams = useSearchParams();
   const { data: steps, loading } = useCollection(stepsQuery(planId), mapStep);
@@ -115,7 +125,7 @@ function PlanOverview() {
 
   const tabs: PhaseTab[] = phases.map((p) => ({
     id: p.id,
-    name: p.name,
+    name: displayPhaseName(p, t),
     done: p.done,
     total: p.total,
     complete: p.complete,
@@ -126,7 +136,7 @@ function PlanOverview() {
     const done = general.filter(isStepDone).length;
     tabs.push({
       id: GENERAL_TAB,
-      name: "Siempre a mano",
+      name: t("general.name"),
       done,
       total: general.length,
       complete: false,
@@ -143,7 +153,7 @@ function PlanOverview() {
     setInitialTab(current?.id ?? tabs[0].id);
   }
   const faseParam = searchParams.get("fase");
-  const isTab = (id: string | null): id is string => id !== null && tabs.some((t) => t.id === id);
+  const isTab = (id: string | null): id is string => id !== null && tabs.some((tab) => tab.id === id);
   const selected = isTab(picked) ? picked : isTab(faseParam) ? faseParam : (initialTab ?? "");
 
   function selectTab(id: string) {
@@ -170,9 +180,9 @@ function PlanOverview() {
       if (finished) {
         setCelebration({
           fromId: finished.id,
-          fromName: finished.name,
+          fromName: displayPhaseName(finished, t),
           toId: current?.id ?? null,
-          toName: current?.name ?? null,
+          toName: current ? displayPhaseName(current, t) : null,
           viewing: selected === finished.id,
           animated: !prefersReducedMotion(),
         });
@@ -196,17 +206,19 @@ function PlanOverview() {
     };
     if (!animated || !viewing) {
       // Movimiento reducido (o estabas en otra pestaña): cambio instantáneo y aviso.
-      const t = setTimeout(() => {
+      const timer = setTimeout(() => {
         goNext();
         toast.success(
-          toName ? `¡${fromName}, completado! Abrimos «${toName}»` : `¡${fromName}, completado!`
+          toName
+            ? t("celebration.toastWithNext", { from: fromName, to: toName })
+            : t("celebration.toast", { name: fromName })
         );
         setCelebration(null);
       }, 0);
-      return () => clearTimeout(t);
+      return () => clearTimeout(timer);
     }
     // Lleva las pestañas a la vista para ver cómo se abre la siguiente fase.
-    const list = document.querySelector('[role="tablist"][aria-label="Fases del plan"]');
+    const list = document.querySelector('[role="tablist"][data-phase-tabs]');
     if (list) {
       const top = Math.max(0, list.getBoundingClientRect().top + window.scrollY - 24);
       window.scrollTo({ top, behavior: "smooth" });
@@ -225,7 +237,7 @@ function PlanOverview() {
       clearTimeout(toEnd);
       setLeaving(false);
     };
-  }, [celebration]);
+  }, [celebration, t]);
 
   // Pasos desplegados.
   const [openIds, setOpenIds] = React.useState<string[]>([]);
@@ -263,9 +275,9 @@ function PlanOverview() {
   async function unlock(phaseId: string) {
     try {
       await unlockPhase(planId, phaseId);
-      toastWithUndo("Fase desbloqueada", () => lockPhase(planId, phaseId));
+      toastWithUndo(t("overview.unlocked"), () => lockPhase(planId, phaseId));
     } catch {
-      toast.error("No se ha podido desbloquear la fase.");
+      toast.error(t("overview.errors.unlock"));
     }
   }
 
@@ -273,9 +285,9 @@ function PlanOverview() {
   async function lock(phaseId: string) {
     try {
       await lockPhase(planId, phaseId);
-      toastWithUndo("Fase bloqueada", () => unlockPhase(planId, phaseId));
+      toastWithUndo(t("overview.locked"), () => unlockPhase(planId, phaseId));
     } catch {
-      toast.error("No se ha podido bloquear la fase.");
+      toast.error(t("overview.errors.lock"));
     }
   }
 
@@ -298,30 +310,30 @@ function PlanOverview() {
     <div className="flex flex-col gap-5">
       {celebrating && (
         <PhaseCelebration
-          title={`¡${celebration.fromName}, completado!`}
+          title={t("celebration.title", { name: celebration.fromName })}
           detail={
             celebration.toName
-              ? `Abrimos «${celebration.toName}»`
-              : "Ya no te queda ninguna fase por terminar."
+              ? t("celebration.opening", { name: celebration.toName })
+              : t("celebration.finale")
           }
           finale={!celebration.toName}
         />
       )}
       {plan && (
         <section
-          aria-label="Resumen del plan"
+          aria-label={t("overview.summaryAria")}
           className={`${CARD} flex flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-5`}
         >
           <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
-            <SummaryItem label="Fecha">{plan.weddingDate ? formatDate(plan.weddingDate) : "Sin fecha"}</SummaryItem>
-            <SummaryItem label="Quedan">
-              {days !== null && days >= 0 ? (days === 1 ? "1 día" : `${days} días`) : "—"}
+            <SummaryItem label={t("overview.date")}>{formatDate(plan.weddingDate, lang)}</SummaryItem>
+            <SummaryItem label={t("overview.daysLeft")}>
+              {days !== null && days >= 0 ? t("overview.days", { count: days }) : "—"}
             </SummaryItem>
-            <SummaryItem label="Presupuesto">
-              {plan.budgetTotal > 0 ? formatCurrency(plan.budgetTotal) : "Sin definir"}
+            <SummaryItem label={t("overview.budget")}>
+              {plan.budgetTotal > 0 ? formatCurrency(plan.budgetTotal, lang) : t("overview.budgetUndefined")}
             </SummaryItem>
             {/* En móvil ocupa todo el ancho: así la barra tiene sitio para llenarse. */}
-            <SummaryItem label="Progreso" className="col-span-2 sm:col-span-1">
+            <SummaryItem label={t("overview.progress")} className="col-span-2 sm:col-span-1">
               <PlanProgressBar value={progress} />
             </SummaryItem>
           </dl>
@@ -330,7 +342,7 @@ function PlanOverview() {
       )}
 
       {loading ? (
-        <div className="flex flex-col gap-3" role="status" aria-label="Cargando secciones">
+        <div className="flex flex-col gap-3" role="status" aria-label={t("overview.loading")}>
           <Bone className="h-[4.25rem] w-full rounded-2xl bg-lilac-soft" />
           {[0, 1, 2].map((i) => (
             <StepCardSkeleton key={i} />
@@ -338,7 +350,7 @@ function PlanOverview() {
         </div>
       ) : tabs.length === 0 ? (
         <p className={`${CARD} p-5 text-sm text-ink-muted sm:p-6`}>
-          Este plan todavía no tiene secciones.
+          {t("overview.empty")}
         </p>
       ) : (
         <PhaseTabs
@@ -352,13 +364,15 @@ function PlanOverview() {
               key={selectedPhase.id}
               planId={planId}
               tabId={selectedPhase.id}
-              name={selectedPhase.name}
-              blurb={selectedPhase.blurb}
+              name={displayPhaseName(selectedPhase, t)}
+              blurb={displayPhaseBlurb(selectedPhase, t)}
               steps={selectedPhase.steps}
               complete={selectedPhase.complete}
-              nextPhaseName={current && current.id !== selectedPhase.id ? current.name : null}
+              nextPhaseName={
+                current && current.id !== selectedPhase.id ? displayPhaseName(current, t) : null
+              }
               onGoToNext={() => current && selectTab(current.id)}
-              softNote={showSoftNote && current ? current.name : null}
+              softNote={showSoftNote && current ? displayPhaseName(current, t) : null}
               onDismissNote={() => current && setDismissedNoteFor(current.id)}
               locked={selectedPhase.locked}
               lockable={selectedPhase.lockable}
@@ -375,8 +389,8 @@ function PlanOverview() {
               key={GENERAL_TAB}
               planId={planId}
               tabId={GENERAL_TAB}
-              name="Siempre a mano"
-              blurb={GENERAL_BLURB}
+              name={t("general.name")}
+              blurb={t("general.blurb")}
               steps={general}
               complete={false}
               nextPhaseName={null}

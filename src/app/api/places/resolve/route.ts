@@ -29,10 +29,10 @@ export async function GET(request: NextRequest) {
   try {
     start = new URL(raw);
   } catch {
-    return jsonError(400, "El enlace no es válido.");
+    return jsonError(400, "invalidLink");
   }
   if (raw.length > 2048 || (start.protocol !== "https:" && start.protocol !== "http:") || !isGoogleMapsHost(start.hostname)) {
-    return jsonError(400, "Pega un enlace de Google Maps (por ejemplo, de «Compartir» en la app).");
+    return jsonError(400, "notMapsLink");
   }
 
   try {
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     }
     return json({ place });
   } catch (error) {
-    if (error instanceof GoogleError) return jsonError(error.status, error.message);
-    return jsonError(500, "No se pudo leer el enlace.");
+    if (error instanceof GoogleError) return jsonError(error.status, error.code);
+    return jsonError(500, "linkFailed");
   }
 }

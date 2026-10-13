@@ -81,7 +81,3 @@ export function summarizeVendors(vendors: Vendor[]) {
     ratio: total > 0 ? Math.round((booked / total) * 100) : 0,
   };
 }
-
-export function pluralize(n: number, one: string, many: string): string {
-  return `${n} ${n === 1 ? one : many}`;
-}

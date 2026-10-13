@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Layers2Icon, MapPinIcon, PencilIcon, PlusIcon, UserIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   GAP_MIN,
@@ -15,6 +16,7 @@ import {
   overlapsById,
 } from "@/components/timeline/timeline-model";
 import { ROW_FOCUS } from "@/components/guests/brand-dialog";
+import { useLanguage } from "@/lib/i18n/provider";
 import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -24,14 +26,15 @@ const NODE_CENTER = "1.75rem";
 
 /** Marca "+1": la hora cae en la madrugada del día siguiente. */
 function DayMark({ day }: { day: number }) {
+  const { t } = useTranslation("timeline");
   if (day <= 0) return null;
   return (
     <span
       className="ml-0.5 inline-flex items-center rounded-full bg-lilac-soft px-1 py-px align-middle font-sans text-xs font-medium leading-4 text-ink"
-      title={day === 1 ? "Día siguiente" : `${day} días después`}
+      title={t("roadmap.dayTitle", { count: day })}
     >
       <span aria-hidden="true">+{day}</span>
-      <span className="sr-only">{day === 1 ? "del día siguiente" : `${day} días después`}</span>
+      <span className="sr-only">{t("roadmap.daySr", { count: day })}</span>
     </span>
   );
 }
@@ -57,6 +60,8 @@ function MomentCard({
   onEdit: () => void;
   onNudge: (delta: number) => void;
 }) {
+  const { t } = useTranslation("timeline");
+  const { lang } = useLanguage();
   const [expanded, setExpanded] = React.useState(false);
   const notes = item.notes.trim();
   const longNotes = notes.length > 70 || notes.includes("\n");
@@ -72,7 +77,7 @@ function MomentCard({
       <button
         type="button"
         onClick={onEdit}
-        aria-label={`Editar «${item.title}»`}
+        aria-label={t("roadmap.editAria", { title: item.title })}
         className={cn("col-span-2 -m-1 min-w-0 rounded-xl p-1 text-left sm:col-span-1 sm:col-start-1 sm:row-start-1", ROW_FOCUS)}
       >
         <span className="flex items-start gap-2">
@@ -85,18 +90,18 @@ function MomentCard({
           />
         </span>
         <span className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-sm text-ink-muted">
-          <span>{formatDuration(item.durationMin)}</span>
+          <span>{formatDuration(item.durationMin, lang)}</span>
           {item.location.trim() && (
             <span className="inline-flex min-w-0 items-center gap-1">
               <MapPinIcon aria-hidden="true" className="size-3.5 shrink-0" />
-              <span className="sr-only">Lugar: </span>
+              <span className="sr-only">{t("roadmap.placeSr")} </span>
               <span className="min-w-0 break-words">{item.location}</span>
             </span>
           )}
           {item.responsible.trim() && (
             <span className="inline-flex min-w-0 items-center gap-1">
               <UserIcon aria-hidden="true" className="size-3.5 shrink-0" />
-              <span className="sr-only">Responsable: </span>
+              <span className="sr-only">{t("roadmap.responsibleSr")} </span>
               <span className="min-w-0 break-words">{item.responsible}</span>
             </span>
           )}
@@ -122,7 +127,7 @@ function MomentCard({
                 ROW_FOCUS
               )}
             >
-              {expanded ? "Ver menos" : "Ver más"}
+              {expanded ? t("roadmap.seeLess") : t("roadmap.seeMore")}
             </button>
           )}
         </div>
@@ -131,13 +136,13 @@ function MomentCard({
       {coincidences.length > 0 && (
         <p className="col-span-2 flex items-start gap-1.5 text-sm text-green">
           <Layers2Icon aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-          <span>Coincide con {joinTitles(coincidences)}</span>
+          <span>{t("roadmap.overlaps", { titles: joinTitles(coincidences, lang) })}</span>
         </p>
       )}
       {/* Ajuste fino: en móvil va debajo; en escritorio, arriba a la derecha y solo al pasar el ratón o con foco. */}
       <div
         role="group"
-        aria-label={`Ajustar la hora de «${item.title}»`}
+        aria-label={t("roadmap.adjustAria", { title: item.title })}
         className={cn(
           "col-span-2 flex items-center gap-2 pt-1",
           "sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:self-start sm:pt-0",
@@ -149,8 +154,8 @@ function MomentCard({
           type="button"
           disabled={!canEarlier}
           onClick={() => onNudge(-NUDGE_MIN)}
-          aria-label={`Adelantar ${NUDGE_MIN} minutos «${item.title}»`}
-          title={`Adelantar ${NUDGE_MIN} minutos`}
+          aria-label={t("roadmap.earlierAria", { minutes: NUDGE_MIN, title: item.title })}
+          title={t("roadmap.earlier", { minutes: NUDGE_MIN })}
           className={NUDGE_BUTTON}
         >
           <span aria-hidden="true">−{NUDGE_MIN}</span>
@@ -159,8 +164,8 @@ function MomentCard({
           type="button"
           disabled={!canLater}
           onClick={() => onNudge(NUDGE_MIN)}
-          aria-label={`Retrasar ${NUDGE_MIN} minutos «${item.title}»`}
-          title={`Retrasar ${NUDGE_MIN} minutos`}
+          aria-label={t("roadmap.laterAria", { minutes: NUDGE_MIN, title: item.title })}
+          title={t("roadmap.later", { minutes: NUDGE_MIN })}
           className={NUDGE_BUTTON}
         >
           <span aria-hidden="true">+{NUDGE_MIN}</span>
@@ -214,6 +219,8 @@ export function TimelineRoadmap({
   onNudge: (item: TimelineItem, delta: number) => void;
   onAdd: () => void;
 }) {
+  const { t } = useTranslation("timeline");
+  const { lang } = useLanguage();
   const coincidences = React.useMemo(() => overlapsById(items), [items]);
   const gaps = React.useMemo(() => gapsBefore(items), [items]);
 
@@ -250,7 +257,7 @@ export function TimelineRoadmap({
                   <Rail />
                   <p className="pb-3 pt-0.5">
                     <span className="inline-block rounded-full border border-dashed border-line-strong px-3 py-1 text-sm text-ink-muted">
-                      Hueco de {formatDuration(gap)}
+                      {t("roadmap.gap", { duration: formatDuration(gap, lang) })}
                     </span>
                   </p>
                 </div>
@@ -264,7 +271,7 @@ export function TimelineRoadmap({
                   {item.durationMin > 0 && (
                     <p className="text-sm tabular-nums text-ink-muted">
                       <span aria-hidden="true">→ </span>
-                      <span className="sr-only">hasta las </span>
+                      <span className="sr-only">{t("roadmap.untilSr")} </span>
                       {formatClock(end)}
                       {endDay > startDay && <DayMark day={endDay} />}
                     </p>
@@ -303,7 +310,7 @@ export function TimelineRoadmap({
           )}
         >
           <PlusIcon aria-hidden="true" className="size-4" />
-          Añadir momento
+          {t("roadmap.add")}
         </button>
       </div>
     </div>

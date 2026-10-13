@@ -1,20 +1,50 @@
+import type { TFunction } from "i18next";
+
+import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { dateFormatter } from "@/lib/i18n/format";
 import type { BudgetItem } from "@/lib/types";
 
-const EURO = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  // es-ES no agrupa los números de 4 cifras (3450 €) pero sí los de 5 (20.000 €);
-  // aquí se fuerza siempre para que las cifras de una misma pantalla casen.
-  useGrouping: "always",
-});
+// Importe en euros según el idioma (miles siempre agrupados, también de 4 cifras).
+export { formatMoney } from "@/lib/i18n/format";
 
-export function formatMoney(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return "—";
-  return EURO.format(value);
-}
-
+/** Etiqueta interna de las partidas sin categoría (se enseña traducida: budget:uncategorised). */
 export const UNCATEGORISED = "Sin categoría";
+
+/**
+ * Clave (budget:categories.<clave>) de cada categoría conocida, por su nombre normalizado en
+ * español. Lo guardado en Firestore es el nombre en español: solo se traduce al mostrarlo.
+ * Las categorías propias del usuario se muestran tal cual.
+ */
+const CATEGORY_SLUGS: Record<string, string> = {
+  lugar: "venue",
+  "finca o espacio": "venueSpace",
+  catering: "catering",
+  "banquete y catering": "banquet",
+  vestuario: "attire",
+  "vestuario de la novia": "brideAttire",
+  "vestuario del novio": "groomAttire",
+  fotografia: "photography",
+  "fotografia y video": "photoVideo",
+  musica: "music",
+  "musica y baile": "musicDance",
+  "flores y decoracion": "flowersDecor",
+  papeleria: "stationery",
+  alianzas: "rings",
+  belleza: "beauty",
+  transporte: "transport",
+  "detalles para invitados": "guestGifts",
+  "luna de miel": "honeymoon",
+  "ceremonia y tramites": "ceremony",
+  // OFFICIANT_BUDGET_CATEGORY (plan-tools.ts): partida del oficiante.
+  ceremonia: "ceremonyOfficiant",
+  imprevistos: "contingency",
+};
+
+/** Categoría para enseñar: traducida si es una de las conocidas; si no, tal cual. */
+export function categoryLabel(category: string, t: TFunction): string {
+  const slug = CATEGORY_SLUGS[normalize(category)];
+  return slug ? t(`categories.${slug}`, { ns: "budget" }) : category;
+}
 
 /** Importe de una partida (pagado o previsto). */
 export function itemAmount(item: BudgetItem): number {
@@ -122,20 +152,27 @@ export function listCategories(items: BudgetItem[]): string[] {
   return [...map.values()].sort((a, b) => a.localeCompare(b, "es"));
 }
 
-/** Categoría ya existente que coincide con `name` (sin mayúsculas ni tildes), o `name` tal cual. */
-export function matchCategory(name: string, categories: string[]): string {
+/**
+ * Categoría ya existente que coincide con `name` (sin mayúsculas ni tildes), o `name` tal cual.
+ * Con `label`, también coincide con el nombre traducido que ve el usuario («Venue» → «Lugar»).
+ */
+export function matchCategory(name: string, categories: string[], label?: (category: string) => string): string {
   const clean = name.trim().replace(/\s+/g, " ");
   const key = normalize(clean);
-  return categories.find((c) => normalize(c) === key) ?? clean;
+  return (
+    categories.find((c) => normalize(c) === key) ??
+    (label ? categories.find((c) => normalize(label(c)) === key) : undefined) ??
+    clean
+  );
 }
 
-/** Fecha yyyy-MM-dd → «12 nov» (con el año si no es el actual). */
-export function formatDue(value: string): string {
+/** Fecha yyyy-MM-dd → «12 nov» / «12 Nov» (con el año si no es el actual). */
+export function formatDue(value: string, lang: Lang = DEFAULT_LANG): string {
   const [y, m, d] = value.split("-").map(Number);
   if (!y || !m || !d) return value;
   const date = new Date(y, m - 1, d);
   const sameYear = date.getFullYear() === new Date().getFullYear();
-  return new Intl.DateTimeFormat("es-ES", {
+  return dateFormatter(lang, {
     day: "numeric",
     month: "short",
     ...(sameYear ? {} : { year: "numeric" }),

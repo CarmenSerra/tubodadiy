@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Loader2, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY } from "@/components/dashboard/ui";
@@ -19,13 +20,14 @@ import {
   CATEGORY_OPTIONS,
   OTHER_CATEGORY,
   canonicalCategory,
+  categoryLabel,
   isHttpUrl,
   isLooseEmail,
 } from "@/components/vendors/vendor-model";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { PhotoUpload } from "@/components/vendors/photo-upload";
 import { PlaceSearch } from "@/components/vendors/place-search";
-import { VENDOR_STATUS_OPTIONS } from "@/components/vendors/vendor-status";
+import { VENDOR_STATUS_VALUES } from "@/components/vendors/vendor-status";
 import {
   Dialog,
   DialogContent,
@@ -74,6 +76,7 @@ export function VendorFormDialog({
   onOpenChange,
   returnFocusTo,
 }: VendorFormDialogProps) {
+  const { t } = useTranslation("vendors");
   const [openState, setOpenState] = React.useState(false);
   const controlled = openProp !== undefined;
   const open = controlled ? openProp : openState;
@@ -88,7 +91,7 @@ export function VendorFormDialog({
           {trigger ?? (
             <button type="button" className={CTA_PRIMARY}>
               <PlusIcon className="size-4" aria-hidden="true" />
-              Añadir proveedor
+              {t("form.addVendor")}
             </button>
           )}
         </DialogTrigger>
@@ -184,6 +187,7 @@ function VendorForm({
   defaultCategory?: string;
   onDone: () => void;
 }) {
+  const { t } = useTranslation("vendors");
   const isEdit = Boolean(vendor);
   const initialCategory = canonicalCategory(vendor?.category ?? defaultCategory ?? CATEGORY_OPTIONS[0]);
   const isKnown = (CATEGORY_OPTIONS as readonly string[]).includes(initialCategory);
@@ -257,24 +261,24 @@ function VendorForm({
 
   function validate(): Errors {
     const next: Errors = {};
-    if (!name.trim()) next.name = "Ponle un nombre para reconocerlo.";
+    if (!name.trim()) next.name = t("form.errors.name");
     if (categorySelect === OTHER_CATEGORY && !customCategory.trim()) {
-      next.category = "Escribe el nombre de la categoría.";
+      next.category = t("form.errors.category");
     }
     if (contactEmail.trim() && !isLooseEmail(contactEmail)) {
-      next.email = "Revisa el correo electrónico: debería parecerse a nombre@dominio.com.";
+      next.email = t("form.errors.email");
     }
     if (photoUrl.trim() && !isHttpUrl(photoUrl)) {
-      next.photoUrl = "El enlace debe empezar por http:// o https://.";
+      next.photoUrl = t("form.errors.link");
     }
     if (website.trim() && !isHttpUrl(normalizeWebsite(website))) {
-      next.website = "Escribe una web válida, por ejemplo https://mifinca.es.";
+      next.website = t("form.errors.website");
     }
     if (!placeId && mapsUrl.trim() && !isHttpUrl(mapsUrl)) {
-      next.mapsUrl = "El enlace debe empezar por http:// o https://.";
+      next.mapsUrl = t("form.errors.link");
     }
     if (cost.trim() && (Number.isNaN(Number(cost)) || Number(cost) < 0)) {
-      next.cost = "Escribe un importe válido, sin símbolos.";
+      next.cost = t("form.errors.cost");
     }
     return next;
   }
@@ -317,14 +321,14 @@ function VendorForm({
       };
       if (isEdit && vendor) {
         await updateVendor(planId, vendor.id, data);
-        toast.success("Proveedor actualizado");
+        toast.success(t("form.updated"));
       } else {
         await addVendor(planId, data);
-        toast.success("Proveedor añadido");
+        toast.success(t("form.added"));
       }
       onDone();
     } catch {
-      toast.error("No se ha podido guardar el proveedor.");
+      toast.error(t("form.saveError"));
     } finally {
       setSubmitting(false);
     }
@@ -336,16 +340,16 @@ function VendorForm({
   return (
     <form onSubmit={handleSubmit} noValidate>
       <DialogHeader className="gap-1.5 pr-6">
-        <DialogTitle className={DIALOG_TITLE}>{isEdit ? "Editar proveedor" : "Nuevo proveedor"}</DialogTitle>
+        <DialogTitle className={DIALOG_TITLE}>{isEdit ? t("form.editTitle") : t("form.newTitle")}</DialogTitle>
         <DialogDescription className="text-sm text-ink-muted">
-          Solo el nombre es obligatorio; el resto puedes completarlo cuando quieras.
+          {t("form.description")}
         </DialogDescription>
       </DialogHeader>
 
       <div className="mt-6 flex flex-col gap-5">
         <PlaceSearch onPlace={applyPlace} />
 
-        <Field id="vendor-name" label="Nombre" error={errors.name}>
+        <Field id="vendor-name" label={t("form.fields.name")} error={errors.name}>
           <Input
             id="vendor-name"
             className={FIELD}
@@ -357,7 +361,7 @@ function VendorForm({
           />
         </Field>
 
-        <Field id="vendor-category" label="Categoría" error={errors.category}>
+        <Field id="vendor-category" label={t("form.fields.category")} error={errors.category}>
           <Select value={categorySelect} onValueChange={setCategorySelect}>
             <SelectTrigger id="vendor-category" className={cn(SELECT_TRIGGER, "w-full")}>
               <SelectValue />
@@ -365,18 +369,18 @@ function VendorForm({
             <SelectContent className={SELECT_CONTENT}>
               {CATEGORY_OPTIONS.map((c) => (
                 <SelectItem key={c} value={c} className={SELECT_ITEM}>
-                  {c}
+                  {categoryLabel(c, t)}
                 </SelectItem>
               ))}
               <SelectItem value={OTHER_CATEGORY} className={SELECT_ITEM}>
-                Otra categoría…
+                {t("form.otherCategory")}
               </SelectItem>
             </SelectContent>
           </Select>
           {categorySelect === OTHER_CATEGORY && (
             <Input
-              aria-label="Nombre de la categoría"
-              placeholder="Por ejemplo: Invitaciones"
+              aria-label={t("form.fields.customCategory")}
+              placeholder={t("form.fields.customCategoryPlaceholder")}
               className={FIELD}
               value={customCategory}
               onChange={(e) => setCustomCategory(e.target.value)}
@@ -390,7 +394,7 @@ function VendorForm({
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field id="vendor-cost" label="Precio (€)" error={errors.cost}>
+          <Field id="vendor-cost" label={t("form.fields.price")} error={errors.cost}>
             <Input
               id="vendor-cost"
               type="number"
@@ -404,15 +408,15 @@ function VendorForm({
               aria-describedby={describedBy("cost", "vendor-cost")}
             />
           </Field>
-          <Field id="vendor-status" label="Estado">
+          <Field id="vendor-status" label={t("form.fields.status")}>
             <Select value={status} onValueChange={(v) => setStatus(v as VendorStatus)}>
               <SelectTrigger id="vendor-status" className={cn(SELECT_TRIGGER, "w-full")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className={SELECT_CONTENT}>
-                {VENDOR_STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value} className={SELECT_ITEM}>
-                    {opt.label}
+                {VENDOR_STATUS_VALUES.map((value) => (
+                  <SelectItem key={value} value={value} className={SELECT_ITEM}>
+                    {t(`status.${value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -421,15 +425,15 @@ function VendorForm({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className={FIELD_LABEL}>Foto</span>
+          <span className={FIELD_LABEL}>{t("form.fields.photo")}</span>
           <PhotoUpload value={photoData} onChange={setPhotoData} />
         </div>
 
         <Field
           id="vendor-photo"
-          label="O enlace de la foto"
+          label={t("form.fields.photoLink")}
           error={errors.photoUrl}
-          hint="Pega el enlace de una imagen. Si no hay foto, verás una ilustración."
+          hint={t("form.fields.photoLinkHint")}
         >
           <Input
             id="vendor-photo"
@@ -444,7 +448,7 @@ function VendorForm({
           />
         </Field>
 
-        <Field id="vendor-website" label="Web" error={errors.website}>
+        <Field id="vendor-website" label={t("form.fields.website")} error={errors.website}>
           <Input
             id="vendor-website"
             type="url"
@@ -459,7 +463,7 @@ function VendorForm({
           />
         </Field>
 
-        <Field id="vendor-address" label="Dirección">
+        <Field id="vendor-address" label={t("form.fields.address")}>
           <Input
             id="vendor-address"
             className={FIELD}
@@ -470,7 +474,7 @@ function VendorForm({
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field id="vendor-municipality" label="Municipio">
+          <Field id="vendor-municipality" label={t("form.fields.municipality")}>
             <Input
               id="vendor-municipality"
               className={FIELD}
@@ -481,16 +485,16 @@ function VendorForm({
           </Field>
           <Field
             id="vendor-province"
-            label="Provincia"
-            hint={community ? `Comunidad: ${community}` : undefined}
+            label={t("form.fields.province")}
+            hint={community ? t("form.fields.community", { name: community }) : undefined}
           >
             <Select value={province} onValueChange={handleProvinceChange}>
               <SelectTrigger id="vendor-province" className={cn(SELECT_TRIGGER, "w-full")}>
-                <SelectValue placeholder="Elige provincia" />
+                <SelectValue placeholder={t("form.fields.provincePlaceholder")} />
               </SelectTrigger>
               <SelectContent className={SELECT_CONTENT}>
                 <SelectItem value={NO_PROVINCE} className={SELECT_ITEM}>
-                  Sin provincia
+                  {t("form.fields.noProvince")}
                 </SelectItem>
                 {province && !PROVINCES.includes(province) && (
                   <SelectItem value={province} className={SELECT_ITEM}>
@@ -509,7 +513,7 @@ function VendorForm({
 
         {placeId ? (
           <p className="flex flex-wrap items-center gap-x-2 text-sm text-ink-muted">
-            <span>Enlazado con Google Maps: el enlace se crea automáticamente.</span>
+            <span>{t("form.linkedToMaps")}</span>
             <button
               type="button"
               onClick={() => {
@@ -518,11 +522,11 @@ function VendorForm({
               }}
               className="font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-lilac"
             >
-              Desvincular
+              {t("form.unlink")}
             </button>
           </p>
         ) : (
-          <Field id="vendor-maps" label="Enlace de Google Maps" error={errors.mapsUrl}>
+          <Field id="vendor-maps" label={t("form.fields.mapsLink")} error={errors.mapsUrl}>
             <Input
               id="vendor-maps"
               type="url"
@@ -538,7 +542,7 @@ function VendorForm({
         )}
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field id="vendor-email" label="Correo de contacto" error={errors.email}>
+          <Field id="vendor-email" label={t("form.fields.email")} error={errors.email}>
             <Input
               id="vendor-email"
               type="email"
@@ -549,7 +553,7 @@ function VendorForm({
               aria-describedby={describedBy("email", "vendor-email")}
             />
           </Field>
-          <Field id="vendor-phone" label="Teléfono">
+          <Field id="vendor-phone" label={t("form.fields.phone")}>
             <Input
               id="vendor-phone"
               type="tel"
@@ -560,7 +564,7 @@ function VendorForm({
           </Field>
         </div>
 
-        <Field id="vendor-notes" label="Notas">
+        <Field id="vendor-notes" label={t("form.fields.notes")}>
           <Textarea
             id="vendor-notes"
             rows={3}
@@ -574,7 +578,7 @@ function VendorForm({
       <DialogFooter className="mt-7">
         <button type="submit" disabled={submitting} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
           {submitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-          Guardar
+          {t("form.save")}
         </button>
       </DialogFooter>
     </form>

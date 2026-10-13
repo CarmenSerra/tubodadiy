@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { SearchXIcon, UserPlusIcon, UsersIcon, UtensilsIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CARD, CTA_SECONDARY, IconCircle, SECTION_TITLE } from "@/components/dashboard/ui";
@@ -21,7 +22,7 @@ import {
 } from "@/components/guests/guest-filters";
 import { GuestIdeas } from "@/components/ideas/guest-ideas";
 import { GuestSummary, GuestsSkeleton } from "@/components/guests/guest-summary";
-import { RSVP_CONFIG, RsvpMenu, RsvpSegmented } from "@/components/guests/rsvp";
+import { RsvpMenu, RsvpSegmented } from "@/components/guests/rsvp";
 import { InvitationButton } from "@/components/invitation/invitation-launcher";
 import { InvitationResponses } from "@/components/invitation/invitation-responses";
 import { useCollection } from "@/lib/hooks/use-collection";
@@ -39,6 +40,7 @@ export function GuestsList({
   /** Filtro de respuesta con el que se abre la lista (p. ej. «pendientes»). */
   initialStatus?: RsvpStatus;
 }) {
+  const { t } = useTranslation("guests");
   const { data: stored, loading } = useCollection(guestsQuery(planId), mapGuest);
   const [filters, setFilters] = React.useState<GuestFilters>(() =>
     initialStatus ? { ...NO_FILTERS, status: initialStatus } : NO_FILTERS
@@ -71,9 +73,9 @@ export function GuestsList({
     setPendingRsvp((prev) => ({ ...prev, [guest.id]: status }));
     try {
       await updateGuest(planId, guest.id, { rsvpStatus: status });
-      setAnnouncement(`${guest.name}: ${RSVP_CONFIG[status].label}`);
+      setAnnouncement(`${guest.name}: ${t(`rsvp.${status}`)}`);
     } catch {
-      toast.error("No se ha podido cambiar la respuesta. Inténtalo de nuevo.");
+      toast.error(t("list.rsvpError"));
     } finally {
       setPendingRsvp((prev) => {
         const next = { ...prev };
@@ -88,18 +90,18 @@ export function GuestsList({
     const guest = stored.find((g) => g.id === id);
     try {
       await deleteGuest(planId, id);
-      if (guest) toastWithUndo("Invitado eliminado", () => restoreGuest(planId, guest));
-      else toast.success("Invitado eliminado");
+      if (guest) toastWithUndo(t("list.deleted"), () => restoreGuest(planId, guest));
+      else toast.success(t("list.deleted"));
     } catch {
-      toast.error("No se ha podido eliminar el invitado.");
+      toast.error(t("list.deleteError"));
     }
   }
 
   const header = (
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <div>
-        <h2 className={SECTION_TITLE}>Lista de invitados</h2>
-        <p className="mt-1 text-sm text-ink-muted">Quién viene, quién falta por contestar y qué necesita cada persona.</p>
+        <h2 className={SECTION_TITLE}>{t("list.title")}</h2>
+        <p className="mt-1 text-sm text-ink-muted">{t("list.description")}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <InvitationButton />
@@ -132,11 +134,10 @@ export function GuestsList({
             <UsersIcon />
           </IconCircle>
           <h3 className="mt-4 font-display text-xl font-semibold text-ink">
-            Tu lista de invitados empieza aquí
+            {t("list.empty.title")}
           </h3>
           <p className="mt-2 max-w-sm text-sm text-ink-muted">
-            Añade a las personas que no pueden faltar y ve apuntando quién confirma, quién lleva
-            acompañante y qué necesita cada uno. Sin prisa.
+            {t("list.empty.text")}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <GuestFormDialog planId={planId} />
@@ -174,19 +175,19 @@ export function GuestsList({
             <SearchXIcon />
           </IconCircle>
           <h3 className="mt-4 font-display text-xl font-semibold text-ink">
-            No encontramos a nadie con esos filtros
+            {t("list.noMatches.title")}
           </h3>
           <p className="mt-2 max-w-sm text-sm text-ink-muted">
-            Prueba con otro nombre o quita algún filtro para volver a ver tu lista completa.
+            {t("list.noMatches.text")}
           </p>
           <button type="button" onClick={clearFilters} className={cn(CTA_SECONDARY, "mt-6")}>
-            Limpiar filtros
+            {t("filters.clear")}
           </button>
         </div>
       ) : (
         <>
           {/* Móvil: tarjetas */}
-          <ul className="flex flex-col gap-3 md:hidden" aria-label="Invitados">
+          <ul className="flex flex-col gap-3 md:hidden" aria-label={t("list.guests")}>
             {visible.map((guest) => (
               <li key={guest.id} className={cn(CARD, "flex flex-col gap-3 p-4")}>
                 <div className="flex items-start justify-between gap-2">
@@ -194,7 +195,7 @@ export function GuestsList({
                     <p className="break-words font-display text-lg font-semibold leading-snug text-ink-strong">
                       {guest.name}
                     </p>
-                    <p className="mt-0.5 text-sm text-ink-muted">{guest.groupName || "Sin grupo"}</p>
+                    <p className="mt-0.5 text-sm text-ink-muted">{guest.groupName || t("list.noGroup")}</p>
                   </div>
                   <div className="-mr-2 -mt-1 flex shrink-0">
                     <GuestFormDialog
@@ -204,7 +205,7 @@ export function GuestsList({
                       trigger={<EditGuestTrigger guestName={guest.name} />}
                     />
                     <DeleteIconButton
-                      ariaLabel={`Eliminar a ${guest.name}`}
+                      ariaLabel={t("list.deleteGuest", { name: guest.name })}
                       onDelete={() => handleDelete(guest.id)}
                     />
                   </div>
@@ -215,7 +216,7 @@ export function GuestsList({
                       <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-lilac-soft px-2.5 py-0.5 text-xs font-medium text-ink">
                         <UserPlusIcon className="size-3.5 shrink-0" aria-hidden="true" />
                         <span className="min-w-0 break-words">
-                          Lleva acompañante
+                          {t("form.plusOne")}
                           {companionName(guest) && <>: {companionName(guest)}</>}
                         </span>
                       </span>
@@ -224,7 +225,7 @@ export function GuestsList({
                       <span className="flex items-start gap-1.5">
                         <UtensilsIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                         <span className="min-w-0 break-words">
-                          <span className="sr-only">Notas dietéticas: </span>
+                          <span className="sr-only">{t("list.dietaryPrefix")} </span>
                           {guest.dietaryNotes}
                         </span>
                       </span>
@@ -244,26 +245,26 @@ export function GuestsList({
           {/* Escritorio: tabla */}
           <div className={cn(CARD, "hidden overflow-hidden md:block")}>
             <table className="w-full text-sm">
-              <caption className="sr-only">Lista de invitados</caption>
+              <caption className="sr-only">{t("list.title")}</caption>
               <thead className="bg-page text-left text-xs font-medium text-ink-muted">
                 <tr>
                   <th scope="col" className="px-5 py-3 font-medium">
-                    Nombre
+                    {t("list.columns.name")}
                   </th>
                   <th scope="col" className="px-3 py-3 font-medium">
-                    Grupo
+                    {t("list.columns.group")}
                   </th>
                   <th scope="col" className="px-3 py-3 font-medium">
-                    Respuesta
+                    {t("list.columns.response")}
                   </th>
                   <th scope="col" className="px-3 py-3 font-medium">
-                    Acompañante
+                    {t("list.columns.companion")}
                   </th>
                   <th scope="col" className="px-3 py-3 font-medium">
-                    Notas dietéticas
+                    {t("list.columns.dietary")}
                   </th>
                   <th scope="col" className="px-3 py-3 font-medium">
-                    <span className="sr-only">Acciones</span>
+                    <span className="sr-only">{t("list.columns.actions")}</span>
                   </th>
                 </tr>
               </thead>
@@ -279,7 +280,7 @@ export function GuestsList({
                       )}
                     </td>
                     <td className="px-3 py-3 align-middle text-ink-muted">
-                      {guest.groupName || <span aria-label="Sin grupo">—</span>}
+                      {guest.groupName || <span aria-label={t("list.noGroup")}>—</span>}
                     </td>
                     <td className="px-3 py-3 align-middle">
                       <RsvpMenu
@@ -291,18 +292,18 @@ export function GuestsList({
                     <td className="max-w-48 px-3 py-3 align-middle text-ink-muted">
                       {guest.plusOne ? (
                         <span className="break-words">
-                          <span className="font-medium text-ink-strong">Sí</span>
+                          <span className="font-medium text-ink-strong">{t("list.yes")}</span>
                           {companionName(guest) && <> · {companionName(guest)}</>}
                         </span>
                       ) : (
-                        "No"
+                        t("list.no")
                       )}
                     </td>
                     <td className="max-w-56 px-3 py-3 align-middle text-ink-muted">
                       {guest.dietaryNotes ? (
                         <span className="break-words">{guest.dietaryNotes}</span>
                       ) : (
-                        <span aria-label="Sin notas">—</span>
+                        <span aria-label={t("list.noNotes")}>—</span>
                       )}
                     </td>
                     <td className="px-3 py-3 align-middle">
@@ -314,7 +315,7 @@ export function GuestsList({
                           trigger={<EditGuestTrigger guestName={guest.name} />}
                         />
                         <DeleteIconButton
-                          ariaLabel={`Eliminar a ${guest.name}`}
+                          ariaLabel={t("list.deleteGuest", { name: guest.name })}
                           onDelete={() => handleDelete(guest.id)}
                         />
                       </div>

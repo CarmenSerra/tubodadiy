@@ -9,6 +9,7 @@ import {
   MessageCircleIcon,
   SaveIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
@@ -20,11 +21,12 @@ import {
   whatsappUrl,
 } from "@/components/stationery/save-the-date-export";
 import {
-  DEFAULT_HEADING,
-  TEMPLATE_INFO,
   defaultDesign,
+  defaultHeading,
+  defaultMessage,
   fileBaseName,
   isShareable,
+  localizeDefaults,
   sameDesign,
   whatsappText,
   withSamples,
@@ -73,6 +75,8 @@ import {
   type SaveTheDateTemplate,
 } from "@/lib/firebase/designs";
 import { useDoc } from "@/lib/hooks/use-doc";
+import { type Lang } from "@/lib/i18n/config";
+import { useLanguage } from "@/lib/i18n/provider";
 import { cn, formatDate } from "@/lib/utils";
 
 /** Pantalla completa en móvil; en escritorio, un diálogo grande con cabecera y pie fijos. */
@@ -93,6 +97,7 @@ export function SaveTheDateDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation("tools");
   const contentRef = React.useRef<HTMLDivElement>(null);
   const restoreFocus = useRestoreFocus();
   const guardRef = React.useRef<CloseGuard | null>(null);
@@ -117,11 +122,9 @@ export function SaveTheDateDialog({
       >
         <DialogHeader className="shrink-0 gap-1 px-5 pb-4 pt-5 pr-14 text-left sm:px-8 sm:pt-7">
           <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            Reserva la fecha
+            {t("stationery.title")}
           </DialogTitle>
-          <DialogDescription className="text-sm text-ink-muted">
-            Diseña un aviso para tus invitados y compártelo antes de enviar la invitación.
-          </DialogDescription>
+          <DialogDescription className="text-sm text-ink-muted">{t("stationery.description")}</DialogDescription>
         </DialogHeader>
         {open && (
           <SaveTheDateBody
@@ -143,6 +146,8 @@ function SaveTheDateBody({
   onClose: () => void;
   registerGuard: (guard: CloseGuard | null) => void;
 }) {
+  const { t } = useTranslation("tools");
+  const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
   const { data: saved, loading, error } = useDoc(saveTheDateRef(planId), mapSaveTheDate);
 
@@ -150,14 +155,14 @@ function SaveTheDateBody({
     return (
       <div className="flex-1 px-5 py-6 sm:px-8">
         <p role="alert" className="text-sm text-ink">
-          No se ha podido cargar tu diseño. Recarga la página e inténtalo de nuevo.
+          {t("stationery.loadError")}
         </p>
       </div>
     );
   }
   if (loading || !plan) {
     return (
-      <div role="status" aria-label="Cargando el diseñador" className="flex flex-1 gap-6 px-5 pb-6 sm:px-8">
+      <div role="status" aria-label={t("stationery.loading")} className="flex flex-1 gap-6 px-5 pb-6 sm:px-8">
         <div className="flex flex-1 flex-col gap-3">
           <Skeleton className="h-24 w-full rounded-2xl" />
           <Skeleton className="h-11 w-full rounded-xl" />
@@ -170,7 +175,7 @@ function SaveTheDateBody({
   return (
     <Editor
       // Una instancia por apertura: los datos guardados se leen una sola vez.
-      initial={saved ?? defaultDesign(plan)}
+      initial={localizeDefaults(saved ?? defaultDesign(plan, lang), lang)}
       hasSaved={saved !== null}
       onClose={onClose}
       registerGuard={registerGuard}
@@ -182,10 +187,12 @@ function SaveTheDateBody({
 function CardCanvas({
   design,
   pixels,
+  lang,
   className,
 }: {
   design: SaveTheDateDesign;
   pixels: number;
+  lang: Lang;
   className?: string;
 }) {
   const ref = React.useRef<HTMLCanvasElement>(null);
@@ -194,12 +201,12 @@ function CardCanvas({
     let cancelled = false;
     const fonts = readCardFonts();
     void loadCardFonts(fonts, design).then(() => {
-      if (!cancelled && ref.current) drawSaveTheDate(ref.current, design, fonts);
+      if (!cancelled && ref.current) drawSaveTheDate(ref.current, design, fonts, lang);
     });
     return () => {
       cancelled = true;
     };
-  }, [design]);
+  }, [design, lang]);
 
   return (
     <canvas
@@ -223,6 +230,8 @@ function Editor({
   onClose: () => void;
   registerGuard: (guard: CloseGuard | null) => void;
 }) {
+  const { t } = useTranslation("tools");
+  const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
   const [design, setDesign] = React.useState(initial);
   const [baseline, setBaseline] = React.useState(initial);
@@ -234,7 +243,7 @@ function Editor({
 
   const dirty = !sameDesign(design, baseline);
   const shareable = isShareable(design);
-  const preview = React.useMemo(() => withSamples(design), [design]);
+  const preview = React.useMemo(() => withSamples(design, lang), [design, lang]);
 
   const headingId = React.useId();
   const name1Id = React.useId();
@@ -266,7 +275,7 @@ function Editor({
       setHasSaved(true);
       return true;
     } catch {
-      toast.error("No se ha podido guardar el diseño.");
+      toast.error(t("stationery.toasts.saveError"));
       return false;
     } finally {
       setSaving(false);
@@ -274,13 +283,13 @@ function Editor({
   }
 
   async function handleSave() {
-    if (await save()) toast.success("Diseño guardado");
+    if (await save()) toast.success(t("stationery.toasts.saved"));
   }
 
   async function handleSaveAndClose() {
     if (await save()) {
       setConfirmClose(false);
-      toast.success("Diseño guardado");
+      toast.success(t("stationery.toasts.saved"));
       onClose();
     } else {
       setConfirmClose(false);
@@ -291,14 +300,14 @@ function Editor({
     if (!shareable || busy) return;
     setBusy(kind);
     try {
-      const base = fileBaseName(design);
+      const base = fileBaseName(design, lang);
       if (kind === "png") {
-        downloadBlob(await createPng(design), `${base}.png`);
+        downloadBlob(await createPng(design, lang), `${base}.png`);
       } else {
-        downloadBlob(await createPdf(design, DEFAULT_HEADING), `${base}.pdf`);
+        downloadBlob(await createPdf(design, defaultHeading(lang), lang), `${base}.pdf`);
       }
     } catch {
-      toast.error(kind === "png" ? "No se ha podido crear la imagen." : "No se ha podido crear el PDF.");
+      toast.error(kind === "png" ? t("stationery.toasts.pngError") : t("stationery.toasts.pdfError"));
     } finally {
       setBusy(null);
     }
@@ -306,18 +315,18 @@ function Editor({
 
   function handleWhatsapp() {
     if (!shareable) return;
-    window.open(whatsappUrl(whatsappText(design)), "_blank", "noopener,noreferrer");
+    window.open(whatsappUrl(whatsappText(design, lang)), "_blank", "noopener,noreferrer");
   }
 
   const planDate = plan?.weddingDate ?? "";
   const canUsePlanDate = Boolean(planDate) && planDate !== design.date;
   const status = saving
-    ? "Guardando…"
+    ? t("stationery.status.saving")
     : dirty
-      ? "Cambios sin guardar"
+      ? t("stationery.status.dirty")
       : hasSaved
-        ? "Diseño guardado"
-        : "Aún sin guardar";
+        ? t("stationery.status.saved")
+        : t("stationery.status.new");
 
   return (
     <>
@@ -326,8 +335,8 @@ function Editor({
         <div className="grid grid-cols-2 gap-1 rounded-full bg-lilac-soft p-1 ring-1 ring-lilac-edge">
           {(
             [
-              ["edit", "Editar"],
-              ["preview", "Vista previa"],
+              ["edit", t("stationery.tabs.edit")],
+              ["preview", t("stationery.tabs.preview")],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -350,7 +359,7 @@ function Editor({
         {/* Formulario */}
         <div className={cn("flex min-w-0 flex-col gap-5", mobileTab !== "edit" && "hidden md:flex")}>
           <fieldset className="flex flex-col gap-2">
-            <legend className={cn(FIELD_LABEL, "mb-2")}>Estilo</legend>
+            <legend className={cn(FIELD_LABEL, "mb-2")}>{t("stationery.style")}</legend>
             <div className="grid grid-cols-4 gap-2 sm:gap-3">
               {SAVE_THE_DATE_TEMPLATES.map((id) => (
                 <TemplateOption
@@ -358,6 +367,7 @@ function Editor({
                   id={id}
                   checked={design.template === id}
                   design={preview}
+                  lang={lang}
                   onSelect={() => patch({ template: id })}
                 />
               ))}
@@ -366,14 +376,14 @@ function Editor({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor={headingId} className={FIELD_LABEL}>
-              Encabezado
+              {t("stationery.fields.heading")}
             </Label>
             <Input
               id={headingId}
               value={design.heading}
               maxLength={MAX_HEADING}
               onChange={(e) => patch({ heading: e.target.value })}
-              placeholder={DEFAULT_HEADING}
+              placeholder={defaultHeading(lang)}
               autoComplete="off"
               className={FIELD}
             />
@@ -382,7 +392,7 @@ function Editor({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor={name1Id} className={FIELD_LABEL}>
-                Primer nombre
+                {t("stationery.fields.name1")}
               </Label>
               <Input
                 id={name1Id}
@@ -396,7 +406,7 @@ function Editor({
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor={name2Id} className={FIELD_LABEL}>
-                Segundo nombre
+                {t("stationery.fields.name2")}
               </Label>
               <Input
                 id={name2Id}
@@ -412,7 +422,7 @@ function Editor({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor={dateId} className={FIELD_LABEL}>
-              Fecha
+              {t("stationery.fields.date")}
             </Label>
             <DatePicker
               id={dateId}
@@ -426,21 +436,21 @@ function Editor({
                 onClick={() => patch({ date: planDate })}
                 className="w-fit rounded-md text-left text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-lilac"
               >
-                Usar la fecha de la boda ({formatDate(planDate)})
+                {t("stationery.fields.usePlanDate", { date: formatDate(planDate, lang) })}
               </button>
             )}
           </div>
 
           <div className="flex flex-col gap-2">
             <Label htmlFor={placeId} className={FIELD_LABEL}>
-              Lugar o ciudad <span className="font-normal text-ink-muted">(opcional)</span>
+              {t("stationery.fields.place")} <span className="font-normal text-ink-muted">{t("stationery.optional")}</span>
             </Label>
             <Input
               id={placeId}
               value={design.place}
               maxLength={MAX_PLACE}
               onChange={(e) => patch({ place: e.target.value })}
-              placeholder="Sevilla"
+              placeholder={t("stationery.fields.placePlaceholder")}
               autoComplete="off"
               className={FIELD}
             />
@@ -448,7 +458,7 @@ function Editor({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor={messageId} className={FIELD_LABEL}>
-              Mensaje <span className="font-normal text-ink-muted">(opcional)</span>
+              {t("stationery.fields.message")} <span className="font-normal text-ink-muted">{t("stationery.optional")}</span>
             </Label>
             <Textarea
               id={messageId}
@@ -456,7 +466,7 @@ function Editor({
               maxLength={MAX_MESSAGE}
               onChange={(e) => patch({ message: e.target.value })}
               rows={3}
-              placeholder="Muy pronto recibirás la invitación con todos los detalles."
+              placeholder={defaultMessage(lang)}
               className={TEXTAREA}
             />
             <p className="text-right text-xs tabular-nums text-ink-muted" aria-hidden="true">
@@ -475,26 +485,28 @@ function Editor({
           <figure className="w-full max-w-[22rem] md:max-w-none">
             <div
               role="img"
-              aria-label={`Vista previa de la tarjeta: ${[design.heading, design.name1, design.name2, design.date ? formatDate(design.date) : "", design.place]
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .join(", ")}`}
+              aria-label={t("stationery.preview.aria", {
+                details: [design.heading, design.name1, design.name2, design.date ? formatDate(design.date, lang) : "", design.place]
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .join(", "),
+              })}
               className="overflow-hidden rounded-xl border border-line bg-field shadow-pop"
             >
-              <CardCanvas design={preview} pixels={720} />
+              <CardCanvas design={preview} pixels={720} lang={lang} />
             </div>
-            <figcaption className="sr-only">Así se verá tu tarjeta al descargarla.</figcaption>
+            <figcaption className="sr-only">{t("stationery.preview.caption")}</figcaption>
           </figure>
 
           <div className="flex w-full max-w-[22rem] flex-col gap-2 md:max-w-none">
-            <p className="text-xs font-medium text-ink-muted">Descargar o compartir</p>
+            <p className="text-xs font-medium text-ink-muted">{t("stationery.share.title")}</p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => void handleDownload("png")}
                 disabled={!shareable || busy !== null}
                 aria-describedby={shareable ? undefined : hintId}
-                aria-label="Descargar imagen PNG"
+                aria-label={t("stationery.share.pngAria")}
                 className={cn(CTA_SECONDARY, "h-11 w-full px-3 disabled:opacity-50")}
               >
                 {busy === "png" ? (
@@ -502,14 +514,14 @@ function Editor({
                 ) : (
                   <ImageIcon aria-hidden="true" className="size-4" />
                 )}
-                Imagen PNG
+                {t("stationery.share.png")}
               </button>
               <button
                 type="button"
                 onClick={() => void handleDownload("pdf")}
                 disabled={!shareable || busy !== null}
                 aria-describedby={shareable ? undefined : hintId}
-                aria-label="Descargar PDF"
+                aria-label={t("stationery.share.pdfAria")}
                 className={cn(CTA_SECONDARY, "h-11 w-full px-3 disabled:opacity-50")}
               >
                 {busy === "pdf" ? (
@@ -528,12 +540,12 @@ function Editor({
               className={cn(CTA_SECONDARY, "h-11 w-full disabled:opacity-50")}
             >
               <MessageCircleIcon aria-hidden="true" className="size-4" />
-              Compartir por WhatsApp
+              {t("stationery.share.whatsapp")}
             </button>
             <p id={hintId} className="text-center text-xs text-ink-muted">
               {shareable
-                ? "WhatsApp se abre con el texto listo; descarga la imagen y adjúntala en el chat."
-                : "Escribe al menos un nombre y elige la fecha para descargar o compartir."}
+                ? t("stationery.share.hintReady")
+                : t("stationery.share.hintNotReady")}
             </p>
           </div>
         </div>
@@ -555,27 +567,27 @@ function Editor({
           ) : (
             <SaveIcon aria-hidden="true" className="size-4" />
           )}
-          Guardar diseño
+          {t("stationery.save")}
         </button>
       </div>
 
       <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Guardar los cambios?</AlertDialogTitle>
+            <AlertDialogTitle>{t("stationery.confirm.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Has cambiado la tarjeta y todavía no la has guardado.
+              {t("stationery.confirm.text")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Seguir editando</AlertDialogCancel>
+            <AlertDialogCancel>{t("stationery.confirm.keepEditing")}</AlertDialogCancel>
             <AlertDialogCancel
               onClick={() => {
                 setConfirmClose(false);
                 onClose();
               }}
             >
-              Descartar
+              {t("stationery.confirm.discard")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
@@ -583,7 +595,7 @@ function Editor({
                 void handleSaveAndClose();
               }}
             >
-              Guardar y cerrar
+              {t("stationery.confirm.saveAndClose")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -596,14 +608,16 @@ function TemplateOption({
   id,
   checked,
   design,
+  lang,
   onSelect,
 }: {
   id: SaveTheDateTemplate;
   checked: boolean;
   design: SaveTheDateDesign;
+  lang: Lang;
   onSelect: () => void;
 }) {
-  const info = TEMPLATE_INFO[id];
+  const { t } = useTranslation("tools");
   const thumb = React.useMemo(() => ({ ...design, template: id }), [design, id]);
   return (
     <label className="group flex min-w-0 cursor-pointer flex-col items-center gap-1.5">
@@ -623,16 +637,16 @@ function TemplateOption({
           "group-hover:border-line-strong"
         )}
       >
-        <CardCanvas design={thumb} pixels={200} />
+        <CardCanvas design={thumb} pixels={200} lang={lang} />
       </span>
       <span
         className={cn(
           "text-center text-xs leading-tight",
           checked ? "font-semibold text-ink" : "text-ink-muted"
         )}
-        title={info.blurb}
+        title={t(`stationery.templates.${id}.blurb`)}
       >
-        {info.label}
+        {t(`stationery.templates.${id}.label`)}
       </span>
     </label>
   );

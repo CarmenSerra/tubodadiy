@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import type { TFunction } from "i18next";
 import { FieldValue, type DocumentReference, type Firestore } from "firebase-admin/firestore";
 
 import {
@@ -11,6 +12,8 @@ import {
   type RsvpAnswer,
 } from "@/components/invitation/invitation-model";
 import { getAdminDb, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { normalizeLang } from "@/lib/i18n/config";
+import { getServerT } from "@/lib/i18n/server";
 import {
   GUESTS_CATEGORY,
   guestsReached,
@@ -27,6 +30,8 @@ import type { Guest, StepStatus, StepTask } from "@/lib/types";
 
 export interface RsvpInput {
   slug: string;
+  /** Idioma de la invitación (el de los mensajes de error); si falta o no vale, español. */
+  lang?: string;
   /** Id de una respuesta anterior de este navegador: se edita en vez de crear otra. */
   rsvpId?: string | null;
   name: string;
@@ -95,25 +100,28 @@ function text(value: unknown, multiline = false): string {
   return v;
 }
 
-function validate(input: RsvpInput): { answer: RsvpAnswer } | { error: string; field?: "name" | "plusOneName" | "dietary" | "message" } {
+function validate(
+  input: RsvpInput,
+  t: TFunction
+): { answer: RsvpAnswer } | { error: string; field?: "name" | "plusOneName" | "dietary" | "message" } {
   const name = text(input.name);
-  if (name.length < 2) return { error: "Escribe tu nombre y apellidos.", field: "name" };
+  if (name.length < 2) return { error: t("rsvp.errors.name"), field: "name" };
   if (name.length > LIMITS.guestName) {
-    return { error: `El nombre es demasiado largo (máximo ${LIMITS.guestName} caracteres).`, field: "name" };
+    return { error: t("rsvp.errors.nameTooLong", { max: LIMITS.guestName }), field: "name" };
   }
-  if (!/\p{L}/u.test(name)) return { error: "Escribe tu nombre y apellidos.", field: "name" };
+  if (!/\p{L}/u.test(name)) return { error: t("rsvp.errors.name"), field: "name" };
 
   const plusOneName = text(input.plusOneName);
   if (plusOneName.length > LIMITS.plusOneName) {
-    return { error: "El nombre del acompañante es demasiado largo.", field: "plusOneName" };
+    return { error: t("rsvp.errors.plusOneTooLong"), field: "plusOneName" };
   }
   const dietary = text(input.dietary, true);
   if (dietary.length > LIMITS.dietary) {
-    return { error: `Alergias o dieta: máximo ${LIMITS.dietary} caracteres.`, field: "dietary" };
+    return { error: t("rsvp.errors.dietaryTooLong", { max: LIMITS.dietary }), field: "dietary" };
   }
   const message = text(input.message, true);
   if (message.length > LIMITS.rsvpMessage) {
-    return { error: `El mensaje es demasiado largo (máximo ${LIMITS.rsvpMessage} caracteres).`, field: "message" };
+    return { error: t("rsvp.errors.messageTooLong", { max: LIMITS.rsvpMessage }), field: "message" };
   }
 
   const attending = input.attending === true;
@@ -133,11 +141,13 @@ function validate(input: RsvpInput): { answer: RsvpAnswer } | { error: string; f
 // ---- Acciones ----
 
 export async function submitRsvp(input: RsvpInput): Promise<RsvpResult> {
+  // Los mensajes salen en el idioma de la invitación (los lee quien responde).
+  const t = getServerT(normalizeLang(input?.lang), "invitation");
   if (!isFirebaseAdminConfigured) {
-    return { ok: false, error: "Ahora mismo no podemos recibir respuestas. Inténtalo más tarde." };
+    return { ok: false, error: t("rsvp.errors.unavailable") };
   }
   const slug = typeof input?.slug === "string" ? input.slug : "";
-  if (!SLUG_RE.test(slug)) return { ok: false, error: "Esta invitación no existe." };
+  if (!SLUG_RE.test(slug)) return { ok: false, error: t("rsvp.errors.notFound") };
 
   // Señuelo: a un bot se le responde «bien» sin guardar nada.
   if (typeof input.website === "string" && input.website.trim() !== "") {
@@ -149,10 +159,10 @@ export async function submitRsvp(input: RsvpInput): Promise<RsvpResult> {
     rateLimited(`ip:${ip}|${slug}`, PER_IP_MAX, PER_IP_WINDOW_MS) ||
     rateLimited(`slug:${slug}`, PER_SLUG_MAX, PER_SLUG_WINDOW_MS)
   ) {
-    return { ok: false, error: "Demasiados envíos seguidos. Espera unos minutos e inténtalo de nuevo." };
+    return { ok: false, error: t("rsvp.errors.rateLimited") };
   }
 
-  const checked = validate(input);
+  const checked = validate(input, t);
   if ("error" in checked) return { ok: false, error: checked.error, field: checked.field };
   const { answer } = checked;
 
@@ -161,17 +171,17 @@ export async function submitRsvp(input: RsvpInput): Promise<RsvpResult> {
     const invitation = await db.collection("publicInvitations").doc(slug).get();
     const data = invitation.data();
     if (!invitation.exists || !data || data.published !== true || typeof data.planId !== "string") {
-      return { ok: false, error: "Esta invitación ya no está disponible." };
+      return { ok: false, error: t("rsvp.errors.gone") };
     }
     const deadline = typeof data.rsvpDeadline === "string" ? data.rsvpDeadline : "";
     if (isDeadlinePassed(deadline)) {
-      return { ok: false, error: "El plazo para confirmar ya ha terminado. Escribe directamente a los novios." };
+      return { ok: false, error: t("rsvp.errors.closed") };
     }
 
     const planId: string = data.planId;
     const planRef = db.collection("weddingPlans").doc(planId);
     if (!(await planRef.get()).exists) {
-      return { ok: false, error: "Esta invitación ya no está disponible." };
+      return { ok: false, error: t("rsvp.errors.gone") };
     }
 
     const requested = typeof input.rsvpId === "string" && /^[A-Za-z0-9]{10,40}$/.test(input.rsvpId) ? input.rsvpId : null;
@@ -180,7 +190,7 @@ export async function submitRsvp(input: RsvpInput): Promise<RsvpResult> {
     return { ok: true, rsvpId: result.rsvpId, updated: result.updated };
   } catch (error) {
     console.error("No se pudo guardar la respuesta de la invitación", error);
-    return { ok: false, error: "No hemos podido guardar tu respuesta. Inténtalo de nuevo en un momento." };
+    return { ok: false, error: t("rsvp.errors.saveFailed") };
   }
 }
 

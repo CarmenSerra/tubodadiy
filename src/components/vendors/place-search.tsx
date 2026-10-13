@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CheckCircle2Icon, Loader2, MapPinIcon, SearchIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { FIELD, FIELD_LABEL } from "@/components/vendors/vendor-brand";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ interface PlaceSearchProps {
  * estrena otro.
  */
 export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
+  const { t } = useTranslation("vendors");
   const [query, setQuery] = React.useState("");
   const [suggestions, setSuggestions] = React.useState<PlaceSuggestion[]>([]);
   const [open, setOpen] = React.useState(false);
@@ -83,7 +85,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
       } catch {
         if (!mountedRef.current || request !== requestRef.current) return;
         setSuggestions([]);
-        setError("No se ha podido buscar ahora. Puedes rellenar los datos a mano.");
+        setError(t("placeSearch.searchError"));
         setSearched(false);
         setOpen(false);
       } finally {
@@ -91,7 +93,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
       }
     }, DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [query]);
+  }, [query, t]);
 
   async function pick(suggestion: PlaceSuggestion) {
     requestRef.current++; // anula búsquedas pendientes
@@ -111,7 +113,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
       setFilled(place.name || suggestion.primary);
     } catch {
       if (!mountedRef.current) return;
-      setError("No se han podido cargar los datos de ese lugar. Prueba de nuevo o rellénalos a mano.");
+      setError(t("placeSearch.detailsError"));
     } finally {
       if (mountedRef.current) setPicking(false);
     }
@@ -167,7 +169,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
     if (!url) return;
     setLinkError("");
     if (!/^https?:\/\//i.test(url)) {
-      setLinkError("El enlace debe empezar por http:// o https://.");
+      setLinkError(t("placeSearch.linkProtocol"));
       return;
     }
     setLinkBusy(true);
@@ -176,7 +178,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
       const place = await resolveMapsLink(url);
       if (!mountedRef.current) return;
       if (!place) {
-        setLinkError("No hemos encontrado ese lugar. Revisa el enlace o busca por nombre.");
+        setLinkError(t("placeSearch.linkNotFound"));
         return;
       }
       onPlace(place);
@@ -184,7 +186,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
       setLink("");
       setLinkOpen(false);
     } catch {
-      if (mountedRef.current) setLinkError("No se ha podido leer el enlace ahora. Prueba de nuevo.");
+      if (mountedRef.current) setLinkError(t("placeSearch.linkError"));
     } finally {
       if (mountedRef.current) setLinkBusy(false);
     }
@@ -192,13 +194,13 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
 
   const expanded = open && suggestions.length > 0;
   const statusText = picking
-    ? "Cargando los datos del lugar…"
+    ? t("placeSearch.loadingPlace")
     : searching
-      ? "Buscando…"
+      ? t("placeSearch.searching")
       : expanded
-        ? `${suggestions.length} ${suggestions.length === 1 ? "resultado" : "resultados"}. Usa las flechas y Intro para elegir.`
+        ? t("placeSearch.results", { count: suggestions.length })
         : searched && !suggestions.length
-          ? "Sin resultados."
+          ? t("placeSearch.noResults")
           : "";
 
   return (
@@ -208,7 +210,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
     >
       <div className="flex flex-col gap-2">
         <Label htmlFor="place-search-input" id="place-search-label" className={FIELD_LABEL}>
-          Busca el lugar o la empresa
+          {t("placeSearch.label")}
         </Label>
         <div className="relative">
           <SearchIcon
@@ -227,7 +229,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
             // Escape solo cierra la lista, no el diálogo (ver onEscapeKeyDown en vendor-form-dialog).
             data-escape-guard={expanded ? "true" : undefined}
             className={cn(FIELD, "pl-10 pr-10")}
-            placeholder="Por ejemplo: Finca Los Lavaderos de Rojas"
+            placeholder={t("placeSearch.placeholder")}
             value={query}
             autoComplete="off"
             autoCapitalize="off"
@@ -269,7 +271,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
         <ul
           id={LISTBOX_ID}
           role="listbox"
-          aria-label="Lugares encontrados"
+          aria-label={t("placeSearch.listLabel")}
           hidden={!expanded}
           className="max-h-60 overflow-y-auto rounded-xl border border-line-strong bg-field"
         >
@@ -298,7 +300,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
         </ul>
 
         <p id="place-search-help" className="text-sm text-ink-muted">
-          Elige un resultado de Google Maps y rellenamos los datos por ti; todo se puede editar después.
+          {t("placeSearch.help")}
         </p>
         <p role="status" aria-live="polite" className="sr-only">
           {statusText}
@@ -306,7 +308,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
         {filled && !picking && (
           <p className="flex items-start gap-1.5 text-sm font-medium text-ink">
             <CheckCircle2Icon className="mt-0.5 size-4 shrink-0 text-ink-muted" aria-hidden="true" />
-            <span>Datos de «{filled}» añadidos. Revísalos abajo.</span>
+            <span>{t("placeSearch.filled", { name: filled })}</span>
           </p>
         )}
         {error && (
@@ -322,12 +324,12 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
               onClick={() => setLinkOpen(true)}
               className="text-sm text-ink-muted underline decoration-lilac decoration-2 underline-offset-4 outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-lilac"
             >
-              ¿Tienes un enlace de Google Maps?
+              {t("placeSearch.haveLink")}
             </button>
           ) : (
             <div className="flex flex-col gap-2">
               <Label htmlFor="place-link-input" className={FIELD_LABEL}>
-                Enlace de Google Maps
+                {t("placeSearch.linkLabel")}
               </Label>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Input
@@ -364,7 +366,7 @@ export function PlaceSearch({ onPlace, className }: PlaceSearchProps) {
                   className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-btn-soft px-5 text-sm font-medium text-ink-on-lilac outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-page disabled:opacity-60"
                 >
                   {linkBusy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-                  Rellenar
+                  {t("placeSearch.fill")}
                 </button>
               </div>
               {linkError && (

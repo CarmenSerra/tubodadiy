@@ -6,6 +6,7 @@ import {
   readCardFonts,
 } from "@/components/stationery/save-the-date-render";
 import type { SaveTheDateDesign } from "@/lib/firebase/designs";
+import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
 
 // Exportar la tarjeta: PNG (el canvas tal cual) y PDF (un PDF mínimo escrito a
 // mano con la imagen a página completa). Sin dependencias.
@@ -17,29 +18,29 @@ const EXPORT_HEIGHT = Math.round((EXPORT_WIDTH * CARD_H) / CARD_W);
 const PDF_W = 360;
 const PDF_H = 504;
 
-async function renderToCanvas(design: SaveTheDateDesign): Promise<HTMLCanvasElement> {
+async function renderToCanvas(design: SaveTheDateDesign, lang: Lang): Promise<HTMLCanvasElement> {
   const fonts = readCardFonts();
   await loadCardFonts(fonts, design);
   const canvas = document.createElement("canvas");
   canvas.width = EXPORT_WIDTH;
   canvas.height = EXPORT_HEIGHT;
-  drawSaveTheDate(canvas, design, fonts);
+  drawSaveTheDate(canvas, design, fonts, lang);
   return canvas;
 }
 
 function toBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("No se pudo crear la imagen"))), type, quality);
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not create the image"))), type, quality);
   });
 }
 
-export async function createPng(design: SaveTheDateDesign): Promise<Blob> {
-  return toBlob(await renderToCanvas(design), "image/png");
+export async function createPng(design: SaveTheDateDesign, lang: Lang = DEFAULT_LANG): Promise<Blob> {
+  return toBlob(await renderToCanvas(design, lang), "image/png");
 }
 
 /** PDF de una página de 5 × 7 in con la tarjeta como imagen JPEG de calidad alta. */
-export async function createPdf(design: SaveTheDateDesign, title: string): Promise<Blob> {
-  const canvas = await renderToCanvas(design);
+export async function createPdf(design: SaveTheDateDesign, title: string, lang: Lang = DEFAULT_LANG): Promise<Blob> {
+  const canvas = await renderToCanvas(design, lang);
   const jpeg = new Uint8Array(await (await toBlob(canvas, "image/jpeg", 0.95)).arrayBuffer());
   return buildPdf(jpeg, canvas.width, canvas.height, title);
 }

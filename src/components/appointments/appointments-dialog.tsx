@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CalendarPlusIcon, ClockIcon, MapPinIcon, PlusIcon, StoreIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -41,6 +42,7 @@ import {
 } from "@/lib/firebase/appointments";
 import { mapVendor, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +65,7 @@ export function AppointmentsDialog({
   onOpenChange: (open: boolean) => void;
   intent: AppointmentsIntent | null;
 }) {
+  const { t } = useTranslation("tools");
   const contentRef = React.useRef<HTMLDivElement>(null);
   const restoreFocus = useRestoreFocus();
 
@@ -82,11 +85,9 @@ export function AppointmentsDialog({
       >
         <DialogHeader className="shrink-0 gap-1 px-5 pb-4 pt-5 pr-14 text-left sm:px-8 sm:pt-7">
           <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            Citas
+            {t("appointments.title")}
           </DialogTitle>
-          <DialogDescription className="text-sm text-ink-muted">
-            Visitas, pruebas y reuniones de tu boda, en un solo sitio.
-          </DialogDescription>
+          <DialogDescription className="text-sm text-ink-muted">{t("appointments.description")}</DialogDescription>
         </DialogHeader>
         {open && <AppointmentsBody intent={intent} />}
       </DialogContent>
@@ -95,6 +96,7 @@ export function AppointmentsDialog({
 }
 
 function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
+  const { t } = useTranslation("tools");
   const { planId } = usePlanContext();
   const appts = useCollection(appointmentsCollection(planId), mapAppointment);
   const vendors = useCollection(vendorsQuery(planId), mapVendor);
@@ -114,17 +116,17 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
 
   function handleChange(change: AppointmentChange) {
     if (change.type === "created") {
-      toastWithUndo("Cita añadida", () => deleteAppointment(planId, change.id));
+      toastWithUndo(t("appointments.toasts.added"), () => deleteAppointment(planId, change.id));
     } else if (change.type === "updated") {
       const { before } = change;
-      toastWithUndo(`«${change.title}» actualizada`, () => {
+      toastWithUndo(t("appointments.toasts.updated", { title: change.title }), () => {
         const { id, createdAt, ...data } = before;
         void createdAt;
         return updateAppointment(planId, id, data);
       });
     } else {
       const { item } = change;
-      toastWithUndo(`«${item.title}» eliminada`, () => restoreAppointment(planId, item));
+      toastWithUndo(t("appointments.toasts.deleted", { title: item.title }), () => restoreAppointment(planId, item));
     }
   }
 
@@ -132,7 +134,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
     try {
       await updateAppointment(planId, item.id, { done });
     } catch {
-      toast.error("No se ha podido actualizar la cita.");
+      toast.error(t("appointments.errors.update"));
     }
   }
 
@@ -141,7 +143,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
       await deleteAppointment(planId, item.id);
       handleChange({ type: "deleted", item });
     } catch {
-      toast.error("No se ha podido eliminar la cita.");
+      toast.error(t("appointments.errors.delete"));
     }
   }
 
@@ -149,7 +151,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
     return (
       <div className="flex-1 px-5 py-6 sm:px-8">
         <p role="alert" className="text-sm text-ink">
-          No se han podido cargar las citas. Recarga la página e inténtalo de nuevo.
+          {t("appointments.errors.load")}
         </p>
       </div>
     );
@@ -163,14 +165,14 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
         <div className="shrink-0 border-y border-line px-5 py-3 sm:px-8">
           <button type="button" onClick={() => openNew()} className={cn(CTA_PRIMARY, "h-10 px-5")}>
             <PlusIcon aria-hidden="true" className="size-4" />
-            Nueva cita
+            {t("appointments.new")}
           </button>
         </div>
       )}
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-5 sm:px-8">
         {appts.loading ? (
-          <div role="status" aria-label="Cargando las citas" className="flex flex-col gap-3">
+          <div role="status" aria-label={t("appointments.loading")} className="flex flex-col gap-3">
             {[0, 1, 2].map((i) => (
               <Skeleton key={i} className="h-20 w-full rounded-2xl" />
             ))}
@@ -180,9 +182,9 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
         ) : (
           <div className="flex flex-col gap-7">
             <Group
-              title="Próximas"
+              title={t("appointments.groups.upcoming")}
               items={upcoming}
-              emptyText="No tienes citas próximas. Cuando apuntes una, saldrá aquí."
+              emptyText={t("appointments.groups.upcomingEmpty")}
               vendorNames={vendors.data}
               onEdit={(item) => setForm({ open: true, item })}
               onDelete={handleDelete}
@@ -190,7 +192,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
             />
             {past.length > 0 && (
               <Group
-                title="Pasadas"
+                title={t("appointments.groups.past")}
                 items={past}
                 muted
                 vendorNames={vendors.data}
@@ -217,6 +219,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
 }
 
 function EmptyAgenda({ onStart }: { onStart: (category?: AppointmentCategory) => void }) {
+  const { t } = useTranslation("tools");
   const starters: AppointmentCategory[] = ["lugar", "vestuario", "degustacion"];
   return (
     <div className="relative overflow-hidden rounded-2xl bg-lilac-soft px-5 py-8 ring-1 ring-lilac-edge sm:px-8 sm:py-10">
@@ -224,23 +227,20 @@ function EmptyAgenda({ onStart }: { onStart: (category?: AppointmentCategory) =>
       <Floret className="right-24 top-4 hidden size-8 sm:block" />
       <div className="relative flex max-w-md flex-col gap-4">
         <h3 className="font-display text-xl font-semibold text-ink sm:text-2xl">
-          Aún no hay citas apuntadas
+          {t("appointments.empty.title")}
         </h3>
-        <p className="text-sm text-ink-strong">
-          Apunta las visitas a lugares, las pruebas de vestuario, las degustaciones y las reuniones
-          con proveedores para no perderte ninguna.
-        </p>
+        <p className="text-sm text-ink-strong">{t("appointments.empty.text")}</p>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => onStart()} className={CTA_PRIMARY}>
             <CalendarPlusIcon aria-hidden="true" className="size-4" />
-            Apuntar una cita
+            {t("appointments.empty.action")}
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-ink-muted">O empieza por:</span>
+          <span className="text-sm text-ink-muted">{t("appointments.empty.startWith")}</span>
           {starters.map((c) => (
             <button key={c} type="button" onClick={() => onStart(c)} className={cn(CTA_SECONDARY, "h-9 px-4")}>
-              {CATEGORY_INFO[c].label}
+              {t(`appointments.categories.${c}.label`)}
             </button>
           ))}
         </div>
@@ -313,9 +313,11 @@ function AppointmentRow({
   onDelete: (item: Appointment) => void;
   onToggle: (item: Appointment, done: boolean) => void;
 }) {
+  const { t } = useTranslation("tools");
+  const { lang } = useLanguage();
   const info = CATEGORY_INFO[item.category];
   const Icon = info.icon;
-  const rel = muted ? null : relativeDay(item.date);
+  const rel = muted ? null : relativeDay(item.date, t);
 
   return (
     <li className="flex items-start gap-3 rounded-2xl border border-line bg-raised p-3 sm:gap-4 sm:p-4">
@@ -327,7 +329,7 @@ function AppointmentRow({
         aria-hidden="true"
       >
         <span className="font-display text-2xl font-semibold leading-none tabular-nums">{dayNumber(item.date)}</span>
-        <span className="mt-1 text-xs font-medium uppercase tracking-wide">{monthShort(item.date)}</span>
+        <span className="mt-1 text-xs font-medium uppercase tracking-wide">{monthShort(item.date, lang)}</span>
       </div>
 
       <div className="min-w-0 flex-1">
@@ -335,7 +337,7 @@ function AppointmentRow({
           <Checkbox
             checked={item.done}
             onCheckedChange={(v) => onToggle(item, Boolean(v))}
-            aria-label={`Marcar «${item.title}» como hecha`}
+            aria-label={t("appointments.markDoneAria", { title: item.title })}
             className={cn(CHECKBOX, "mt-0.5")}
           />
           <h4
@@ -349,15 +351,15 @@ function AppointmentRow({
         </div>
 
         <p className="mt-1 text-sm text-ink-muted">
-          <span className="sr-only">Día: </span>
-          {formatLongDate(item.date)}
+          <span className="sr-only">{t("appointments.dayLabel")} </span>
+          {formatLongDate(item.date, lang)}
           {rel && <span className="ml-2 font-medium text-green">{rel}</span>}
         </p>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-ink-strong">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-lilac-soft px-2.5 py-0.5 text-xs font-medium text-ink-on-lilac ring-1 ring-lilac-edge">
             <Icon aria-hidden="true" className="size-3.5" />
-            {info.label}
+            {t(`appointments.categories.${item.category}.label`)}
           </span>
           {item.time && (
             <span className="inline-flex items-center gap-1.5 tabular-nums">
@@ -384,8 +386,8 @@ function AppointmentRow({
       </div>
 
       <div className="-mr-1 flex shrink-0 flex-col sm:flex-row">
-        <EditIconButton label={`Editar «${item.title}»`} onClick={() => onEdit(item)} />
-        <DeleteIconButton ariaLabel={`Eliminar «${item.title}»`} onDelete={() => onDelete(item)} />
+        <EditIconButton label={t("appointments.editAria", { title: item.title })} onClick={() => onEdit(item)} />
+        <DeleteIconButton ariaLabel={t("appointments.deleteAria", { title: item.title })} onDelete={() => onDelete(item)} />
       </div>
     </li>
   );

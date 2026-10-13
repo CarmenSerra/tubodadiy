@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { LockIcon, WandSparklesIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { FOCUS } from "@/components/dashboard/ui";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ export function PhaseLock({
   phaseName: string;
   onUnlock: () => void;
 }) {
+  const { t } = useTranslation("plan");
   const tipId = React.useId();
   const [hovered, setHovered] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
@@ -45,7 +47,7 @@ export function PhaseLock({
       >
         <button
           type="button"
-          aria-label={`Desbloquear fase ${phaseName}`}
+          aria-label={t("lock.unlockAria", { name: phaseName })}
           aria-describedby={tipId}
           onClick={onUnlock}
           onFocus={() => {
@@ -78,10 +80,9 @@ export function PhaseLock({
           )}
         >
           <p>
-            Te recomendamos terminar antes la fase anterior, pero sabemos que te pica la
-            curiosidad. ¿Quieres verla ya?{" "}
+            {t("lock.tip")}{" "}
             <span className="inline-flex items-center gap-1 font-semibold text-ink-strong">
-              Pulsa aquí
+              {t("lock.tipAction")}
               <WandSparklesIcon className="size-4" aria-hidden="true" />
             </span>
           </p>

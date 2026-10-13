@@ -1,1 +1,104 @@
-{}
+{
+  "legal": {
+    "title": "Documentos legales",
+    "description": "Guía de papeles y trámites para casaros en España."
+  },
+  "type": {
+    "title": "Tipo de ceremonia",
+    "description": "Cómo os queréis casar. Puedes cambiarlo cuando quieras.",
+    "change": "Cambiar tipo",
+    "choose": "Elegir tipo de ceremonia",
+    "disclaimer": "Es orientativo y puede cambiar según el municipio o la comunidad. Confirma los detalles en tu Registro Civil, notaría o parroquia.",
+    "options": {
+      "civil": {
+        "label": "Civil",
+        "tagline": "La celebra una autoridad civil y tiene plena validez legal.",
+        "implies": [
+          "La oficia una autoridad: alcalde o concejal, juez de paz, notario o letrado de la Administración de Justicia.",
+          "Antes hay que tramitar el expediente matrimonial (en el Registro Civil o ante notario).",
+          "Suele ser corta y se puede hacer en el ayuntamiento, el juzgado, la notaría o, según el municipio, en otro lugar acordado."
+        ],
+        "legal": "El matrimonio queda inscrito en el Registro Civil y es legal desde ese momento.",
+        "legalBadge": "Validez legal plena"
+      },
+      "religiosa": {
+        "label": "Religiosa",
+        "tagline": "Se celebra según el rito de una confesión religiosa.",
+        "implies": [
+          "La oficia quien corresponda en vuestra confesión (sacerdote, pastor, rabino, imán…).",
+          "En la católica hay expediente en la parroquia, partida de bautismo y, normalmente, cursillo prematrimonial.",
+          "Los tiempos y el lugar dependen de la parroquia o la comunidad: conviene hablar con ellas pronto."
+        ],
+        "legal": "La católica tiene efectos civiles si se inscribe en el Registro Civil (normalmente lo tramita la parroquia). Otras confesiones con acuerdo con el Estado (evangélica, judía, islámica) también pueden tenerlos, con sus propios requisitos.",
+        "legalBadge": "Efectos civiles al inscribirla"
+      },
+      "simbolica": {
+        "label": "Simbólica",
+        "tagline": "Una ceremonia a vuestra medida, sin efectos legales por sí sola.",
+        "implies": [
+          "Elegís el lugar, los textos, los rituales y quién la oficia, sin un guion obligatorio.",
+          "No cambia vuestro estado civil ni se inscribe en ningún registro.",
+          "Se puede hacer el mismo día de la boda civil o en otra fecha."
+        ],
+        "legal": "No tiene validez legal por sí sola. Para que el matrimonio sea legal necesitáis, además, una boda civil (o religiosa con efectos civiles).",
+        "legalBadge": "Necesita también la civil"
+      }
+    }
+  },
+  "officiant": {
+    "title": "Oficiante",
+    "description": "Quién oficia la ceremonia: sus datos de contacto, si está confirmado y sus honorarios.",
+    "fields": {
+      "name": "Nombre",
+      "kind": "Tipo",
+      "phone": "Teléfono",
+      "email": "Correo electrónico",
+      "notes": "Notas"
+    },
+    "kinds": {
+      "none": "Sin indicar",
+      "juez": "Juez/a o concejal/a",
+      "sacerdote": "Sacerdote o párroco",
+      "celebrante": "Oficiante civil o celebrante",
+      "allegado": "Amigo/a o familiar",
+      "otro": "Otro"
+    },
+    "confirmed": {
+      "label": "Confirmado",
+      "yes": "Sí: ya tenéis su palabra. La tarea «Confirmar oficiante» se marca sola.",
+      "no": "No: todavía falta confirmarlo."
+    },
+    "fee": {
+      "label": "Honorarios (€, opcional)",
+      "addToBudget": "Añadir al presupuesto",
+      "needFee": "Escribe los honorarios para poder añadirlos.",
+      "linked": "Se guarda como gasto pendiente de {{amount}} en «{{category}}». Si cambias el importe o lo quitas, el gasto se actualiza.",
+      "willCreate": "Crea un gasto pendiente en la categoría «{{category}}».",
+      "category": "Ceremonia",
+      "inBudget": "Ya está en el presupuesto.",
+      "viewBudget": "Ver presupuesto"
+    },
+    "errors": {
+      "name": "Para marcarlo como confirmado, escribe su nombre.",
+      "email": "Revisa el correo electrónico: debería parecerse a nombre@dominio.com.",
+      "fee": "Escribe un importe válido, sin símbolos."
+    },
+    "toast": {
+      "saved": "Ficha del oficiante guardada",
+      "cleared": "Ficha del oficiante quitada",
+      "error": "No se ha podido guardar la ficha del oficiante."
+    },
+    "clear": "Quitar ficha",
+    "save": "Guardar"
+  },
+  "timeline": {
+    "title": "Cronograma del día",
+    "noDate": "Hora a hora, el gran día. Aún no tenéis fecha.",
+    "edit": "Editar cronograma",
+    "loading": "Cargando el cronograma",
+    "error": "No hemos podido cargar el cronograma. Comprueba tu conexión; tus datos siguen guardados.",
+    "empty": "Todavía no hay momentos. Podéis partir de una plantilla (preparativos, ceremonia, cóctel, banquete, baile…) y ajustar las horas con calma, o empezar desde cero.",
+    "create": "Crear el cronograma",
+    "until": "hasta las"
+  }
+}

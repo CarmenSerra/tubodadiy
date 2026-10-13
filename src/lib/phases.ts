@@ -1,3 +1,4 @@
+import type { StepTranslate } from "@/lib/steps";
 import type { PlanStep } from "@/lib/types";
 
 /**
@@ -53,6 +54,22 @@ export const PHASES: PhaseDefinition[] = [
     categories: ["timeline", "luna_de_miel"],
   },
 ];
+
+/*
+ * `name` y `blurb` son el texto base en español (y el de reserva). Para MOSTRARLOS
+ * usa displayPhaseName / displayPhaseBlurb, que los traducen con
+ * `plan:phases.<id>.name | blurb`.
+ */
+
+/** Nombre de una fase para mostrar, traducido (`t` de useTranslation() o getServerT()). */
+export function displayPhaseName(phase: Pick<PhaseDefinition, "id" | "name">, t: StepTranslate): string {
+  return t(`phases.${phase.id}.name`, { ns: "plan", defaultValue: phase.name });
+}
+
+/** Frase de una fase para mostrar, traducida. */
+export function displayPhaseBlurb(phase: Pick<PhaseDefinition, "id" | "blurb">, t: StepTranslate): string {
+  return t(`phases.${phase.id}.blurb`, { ns: "plan", defaultValue: phase.blurb });
+}
 
 /** Categoría sin fase: siempre disponible ("Siempre a mano"). */
 export const ALWAYS_AVAILABLE_CATEGORY = "tareas_generales";
