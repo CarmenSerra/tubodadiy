@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import { mix, type InvitationTheme } from "@/components/invitation/invitation-theme";
+import { STATIONERY, type StationeryName } from "@/components/stationery/stationery-assets";
+import { cn } from "@/lib/utils";
 
 /**
  * Fondos de la invitación. Todo es SVG/CSS generado con los colores de la
@@ -19,6 +21,15 @@ export const BACKGROUND_IDS = [
   "watercolor",
   "arches",
   "confetti",
+  // Motivos en acuarela (WebP en public/decor/stationery, colocados en bordes y esquinas)
+  "lemons",
+  "oranges",
+  "olives",
+  "eucalyptus",
+  "wildflowers",
+  "citrus",
+  "lavender",
+  "pomegranates",
 ] as const;
 export type InvitationBackground = (typeof BACKGROUND_IDS)[number];
 
@@ -26,6 +37,102 @@ export const DEFAULT_BACKGROUND: InvitationBackground = "plain";
 
 export function isBackground(value: unknown): value is InvitationBackground {
   return typeof value === "string" && (BACKGROUND_IDS as readonly string[]).includes(value);
+}
+
+/** Los fondos con motivos de acuarela (los demás son SVG/CSS generados con la paleta). */
+export const MOTIF_IDS = [
+  "lemons",
+  "oranges",
+  "olives",
+  "eucalyptus",
+  "wildflowers",
+  "citrus",
+  "lavender",
+  "pomegranates",
+] as const satisfies readonly InvitationBackground[];
+export type InvitationMotif = (typeof MOTIF_IDS)[number];
+
+export function isMotif(value: unknown): value is InvitationMotif {
+  return typeof value === "string" && (MOTIF_IDS as readonly string[]).includes(value);
+}
+
+// ---- Motivos de acuarela ----
+
+/** Las tres piezas de un motivo: rama grande (a), rama corta (b) y ramita pequeña (s). */
+export function motifPiece(motif: InvitationMotif, piece: "a" | "b" | "s") {
+  const name = `${motif}-${piece}` as StationeryName;
+  const { w, h } = STATIONERY[name];
+  return { src: `/decor/stationery/${name}.webp`, w, h };
+}
+
+/** URLs de las dos ramas de esquina (para pintarlas también en el lienzo de «Reserva la fecha»). */
+export function motifCornerUrls(kind: InvitationBackground | undefined): { a: string; b: string } | null {
+  return isMotif(kind) ? { a: motifPiece(kind, "a").src, b: motifPiece(kind, "b").src } : null;
+}
+
+/**
+ * Esquinas con ramas de acuarela. `page`: las cuatro esquinas de la página
+ * (arriba, abajo de la primera pantalla y al final); `card`: solo dos, en la
+ * diagonal de una tarjeta pequeña. Son imágenes decorativas, siempre detrás del texto.
+ */
+export function MotifCorners({ motif, variant = "page" }: { motif: InvitationMotif; variant?: "page" | "card" }) {
+  const a = motifPiece(motif, "a");
+  const b = motifPiece(motif, "b");
+  const img = (piece: typeof a, className: string) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={piece.src}
+      alt=""
+      aria-hidden="true"
+      width={piece.w}
+      height={piece.h}
+      loading="lazy"
+      decoding="async"
+      draggable={false}
+      className={cn("inv-motifPiece", className)}
+    />
+  );
+  if (variant === "card") {
+    return (
+      <div className="inv-motif inv-motifCard" aria-hidden="true">
+        {img(a, "inv-mTL")}
+        {img(b, "inv-mBR")}
+      </div>
+    );
+  }
+  return (
+    <div className="inv-motif inv-motifPage" data-motif={motif} aria-hidden="true">
+      <div className="inv-motifTop">
+        {img(a, "inv-mTL")}
+        {img(b, "inv-mTR")}
+        {img(b, "inv-mBL")}
+        {img(a, "inv-mBR")}
+      </div>
+      <div className="inv-motifEnd">
+        {img(b, "inv-mBL")}
+        {img(a, "inv-mBR")}
+      </div>
+    </div>
+  );
+}
+
+/** Ramita pequeña del motivo: el adorno central de la tarjeta de la invitación. */
+export function MotifSprig({ motif, className }: { motif: InvitationMotif; className?: string }) {
+  const s = motifPiece(motif, "s");
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={s.src}
+      alt=""
+      aria-hidden="true"
+      width={s.w}
+      height={s.h}
+      loading="lazy"
+      decoding="async"
+      draggable={false}
+      className={cn("inv-motifSprig", className)}
+    />
+  );
 }
 
 // ---- Utilidades ----
@@ -273,7 +380,7 @@ function confetti(t: InvitationTheme): Spec {
 
 // ---- Montaje ----
 
-const BUILDERS: Record<Exclude<InvitationBackground, "plain">, (t: InvitationTheme) => Spec> = {
+const BUILDERS: Record<Exclude<InvitationBackground, "plain" | InvitationMotif>, (t: InvitationTheme) => Spec> = {
   stripes,
   paper,
   dots,
@@ -291,7 +398,7 @@ const BUILDERS: Record<Exclude<InvitationBackground, "plain">, (t: InvitationThe
  * en su lienzo para verse igual que la invitación.
  */
 export function backdropImages(kind: InvitationBackground | undefined, theme: InvitationTheme): string[] {
-  if (!kind || kind === "plain") return [];
+  if (!kind || kind === "plain" || isMotif(kind)) return [];
   const image = BUILDERS[kind](theme).style.backgroundImage;
   return typeof image === "string" ? [...image.matchAll(/url\("(data:[^"]+)"\)/g)].map((m) => m[1]) : [];
 }
@@ -310,6 +417,13 @@ export function InvitationBackdrop({
   scale?: number;
 }) {
   if (!kind || kind === "plain") return null;
+  if (isMotif(kind)) {
+    return (
+      <div className="inv-bgLayer inv-bgMotif" data-bg={kind} aria-hidden="true" style={scale ? ({ "--bg-k": scale } as CSSProperties) : undefined}>
+        <MotifCorners motif={kind} />
+      </div>
+    );
+  }
   const spec = BUILDERS[kind](theme);
   const style = { ...spec.style, ...(scale ? { "--bg-k": scale } : {}) } as CSSProperties;
   return (

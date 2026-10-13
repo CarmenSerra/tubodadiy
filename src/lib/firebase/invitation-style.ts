@@ -7,7 +7,7 @@ import {
   type InvitationStyle,
   type InvitationTemplateId,
 } from "@/components/invitation/invitation-model";
-import { DEFAULT_PALETTE } from "@/components/invitation/invitation-theme";
+import { DEFAULT_ENVELOPE, DEFAULT_PALETTE } from "@/components/invitation/invitation-theme";
 import type { SaveTheDateTemplate } from "@/lib/firebase/designs";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { planInvitationQuery } from "@/lib/firebase/invitation";
@@ -45,6 +45,7 @@ export async function syncInvitationStyle(planId: string, style: InvitationStyle
     // Sin paleta/fondo (invitaciones antiguas con los colores de su plantilla) se dejan como estén.
     ...(clean.palette ? { palette: clean.palette } : {}),
     ...(clean.background ? { background: clean.background } : {}),
+    ...(clean.envelopeColor ? { envelopeColor: clean.envelopeColor } : {}),
     updatedAt: serverTimestamp(),
   });
 }
@@ -83,5 +84,6 @@ export function resolveStyle(sources: {
     template,
     palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
     background: "plain",
+    envelopeColor: DEFAULT_ENVELOPE,
   };
 }

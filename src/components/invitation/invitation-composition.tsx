@@ -1,0 +1,52 @@
+import type { CSSProperties } from "react";
+
+import { InvitationBackdrop } from "@/components/invitation/invitation-backgrounds";
+import { InvitationEnvelope } from "@/components/invitation/invitation-envelope";
+import type { InvitationPublicData } from "@/components/invitation/invitation-model";
+import { ThanksCard } from "@/components/invitation/invitation-thanks";
+import { InvitationCard, themeOfInvitation } from "@/components/invitation/invitation-view";
+import { cn } from "@/lib/utils";
+
+import "./invitation.css";
+
+/**
+ * La vista previa del editor: la invitación vertical (ligeramente girada y con
+ * sombra) sobre un sobre abierto en diagonal, con la tarjetita de agradecimiento
+ * superpuesta abajo a la derecha. Todo se mide en una unidad `--u` (1 % del ancho
+ * de la composición) que se calcula con el tamaño del contenedor, así que escala
+ * entera para caber en cualquier panel. Sin hooks: vale para servidor y cliente.
+ */
+export function InvitationComposition({
+  data,
+  envelopeColor,
+  className,
+}: {
+  data: InvitationPublicData;
+  envelopeColor?: string;
+  className?: string;
+}) {
+  const palette = data.palette;
+  const theme = themeOfInvitation(data);
+
+  return (
+    <div
+      className={cn("inv-root inv-preview inv-compose", `inv-${data.template}`, className)}
+      data-template={data.template}
+      data-themed={palette ? "" : undefined}
+      data-bg={data.background && data.background !== "plain" ? data.background : undefined}
+      style={palette ? (theme.vars as CSSProperties) : undefined}
+      lang={data.lang}
+    >
+      {(palette || data.background) && <InvitationBackdrop kind={data.background} theme={theme} />}
+      <div className="inv-composeStage">
+        <InvitationEnvelope color={envelopeColor} className="inv-composeEnv" />
+        <div className="inv-composeCard">
+          <InvitationCard data={data} preview />
+        </div>
+        <div className="inv-composeThanks">
+          <ThanksCard data={data} />
+        </div>
+      </div>
+    </div>
+  );
+}

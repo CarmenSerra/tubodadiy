@@ -78,8 +78,14 @@
       "madeWith": "Invitation made with tubodadiy"
     },
     "cardLabel": "Invitation card",
-    "photoAlt": "Photo of the wedding venue",
-    "later": "Afterwards, we'll celebrate at…"
+    "later": "Afterwards, we'll celebrate at…",
+    "thanks": {
+      "label": "Thank-you card",
+      "phrase": "Thank you for joining us and making this day unforgettable",
+      "thanks": "Thank you so much",
+      "giftList": "Our gift list"
+    },
+    "laterSame": "Afterwards, we'll celebrate at the same place"
   },
   "rsvp": {
     "legend": "Attendance reply",
@@ -196,7 +202,7 @@
       "whereNote": "If something doesn't apply, leave it blank and it won't appear.",
       "gift": "Gift",
       "publish": "Publish and share",
-      "image": "Venue image"
+      "envelope": "Envelope colour"
     },
     "language": {
       "label": "Invitation language",
@@ -251,7 +257,8 @@
       "newTab": "(opens in a new tab)"
     },
     "preview": {
-      "caption": "This is how your guests will see it"
+      "caption": "Stationery preview",
+      "aria": "Preview: the invitation on an envelope, with the thank-you card on top"
     },
     "status": {
       "new": "Not saved yet",
@@ -303,29 +310,13 @@
     },
     "background": {
       "note": "This is how each background looks with your palette.",
-      "label": "Background type"
+      "label": "Background type",
+      "motifsTitle": "With watercolour motifs",
+      "motifsNote": "Hand-painted branches in the corners. The ornament on the card changes with the motif.",
+      "motifsLabel": "Background with motifs"
     },
     "style": {
       "shared": "The style is the same on the invitation and on “Save the date”: change it here and it changes there too."
-    },
-    "image": {
-      "note": "It goes at the top of the card, with a watercolor effect. The effect is only applied when it is shown: your photo is not modified.",
-      "label": "Card image",
-      "modes": {
-        "photo": "Photo",
-        "illustration": "Illustration",
-        "none": "None"
-      },
-      "currentAlt": "Photo chosen for the card",
-      "watercolorNote": "It is shown with a watercolor effect and saved downsized (about 60 KB).",
-      "empty": "No photo yet: the illustration is shown meanwhile. Upload one from your device.",
-      "emptyWithVenue": "No photo yet: the illustration is shown meanwhile. Upload one or use your venue's.",
-      "upload": "Upload a photo",
-      "replace": "Change the photo",
-      "useVenue": "Use the venue photo",
-      "useVenueNamed": "Use the photo of {{name}}",
-      "remove": "Remove the photo",
-      "uploadError": "We couldn't use that image. Try another one (JPG, PNG or WebP)."
     },
     "slug": {
       "label": "Custom link",
@@ -343,6 +334,9 @@
         "two": "love",
         "three": "together"
       }
+    },
+    "envelope": {
+      "note": "The envelope in the preview and in “Save the date”. Your guests don't see it."
     }
   },
   "palettes": {
@@ -368,6 +362,31 @@
     "floral": "Floral frame",
     "watercolor": "Watercolour washes",
     "arches": "Arches",
-    "confetti": "Confetti"
+    "confetti": "Confetti",
+    "lemons": "Lemons",
+    "oranges": "Oranges",
+    "olives": "Olive",
+    "eucalyptus": "Eucalyptus",
+    "wildflowers": "Wildflowers",
+    "citrus": "Mixed citrus",
+    "lavender": "Lavender",
+    "pomegranates": "Pomegranates"
+  },
+  "envelope": {
+    "label": "Envelope colour",
+    "custom": "Custom",
+    "popoverLabel": "Choose the envelope colour",
+    "colors": {
+      "olive": "Olive",
+      "sage": "Sage",
+      "burgundy": "Burgundy",
+      "terracotta": "Terracotta",
+      "dusty-blue": "Dusty blue",
+      "cream": "Cream",
+      "kraft": "Kraft",
+      "dusty-pink": "Dusty pink",
+      "bottle-green": "Bottle green",
+      "slate": "Slate"
+    }
   }
 }

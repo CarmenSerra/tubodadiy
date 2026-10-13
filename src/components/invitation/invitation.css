@@ -149,6 +149,42 @@
 .inv-washBL { bottom: 0; left: 0; transform: scaleY(-1); }
 .inv-washBR { bottom: 0; right: 0; transform: scale(-1, -1); }
 
+/*
+ * Fondos con motivos de acuarela (limones, olivo…): WebP en las esquinas, siempre
+ * detrás del contenido. `--m-w` es el ancho de la rama grande y se mide con el
+ * ancho de la capa (cqw); en la página pública hay un par de esquinas arriba, otro
+ * al pie de la primera pantalla (`--m-first`) y otro al final.
+ */
+.inv-bgMotif {
+  --m-first: 100%;
+  --m-w: calc(clamp(6.5rem, 25cqw, 17rem) * var(--bg-k, 1));
+  container-type: inline-size;
+}
+.inv-root:not(.inv-preview) > .inv-bgMotif { --m-first: 100dvh; }
+.inv-preview > .inv-bgMotif { --m-w: clamp(5rem, 22cqw, 15rem); }
+.inv-motif,
+.inv-motifTop,
+.inv-motifEnd { position: absolute; inset: 0; pointer-events: none; }
+.inv-motifTop { bottom: auto; height: var(--m-first); }
+.inv-motifEnd { display: none; }
+.inv-root:not(.inv-preview) .inv-motifEnd { display: block; }
+.inv-motifPiece {
+  position: absolute;
+  display: block;
+  width: var(--m-w);
+  height: auto;
+  max-width: none;
+  user-select: none;
+}
+.inv-mTL { top: 0; left: 0; }
+.inv-mTR { top: 0; right: 0; width: calc(var(--m-w) * 0.92); transform: scaleX(-1); }
+.inv-mBL { bottom: 0; left: 0; width: calc(var(--m-w) * 0.92); transform: scaleY(-1); }
+.inv-mBR { right: 0; bottom: 0; transform: scale(-1, -1); }
+.inv-elegante .inv-motifPiece { filter: brightness(1.18) saturate(1.05); }
+
+/* Adorno central: ramita del motivo elegido */
+.inv-motifSprig { display: block; width: 36cqw; height: auto; flex: none; }
+
 /* ---------- Adornos SVG ---------- */
 
 .inv-fillLeaf { fill: var(--inv-leaf); }
@@ -290,7 +326,9 @@
   width: 100%;
   align-items: stretch;
   justify-content: center;
+  padding: 1.8cqw 0;
   color: var(--inv-ink);
+  border-block: 1px solid color-mix(in oklab, var(--inv-accent) 55%, transparent);
 }
 .inv-stripCell {
   display: flex;
@@ -313,7 +351,7 @@
   text-transform: uppercase;
   color: var(--inv-accent-ink);
 }
-.inv-stripTime { font-size: 3.1cqw; letter-spacing: 0.06em; }
+.inv-stripTime { font-size: 3.1cqw; letter-spacing: 0.06em; text-transform: none; }
 .inv-stripMonth {
   font-size: 2.9cqw;
   font-weight: 500;
@@ -840,6 +878,166 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 }
 .inv-unavailable .inv-thanksTitle { font-size: 2rem; }
 .inv-unavailable .inv-thanksText { max-width: 26rem; }
+
+/* ---------- Tarjetita de agradecimiento (vista previa del editor) ---------- */
+
+.inv-grat {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.5 / 1;
+  container-type: inline-size;
+  overflow: hidden;
+  text-align: center;
+  color: var(--inv-ink);
+  background: var(--inv-paper);
+  border: 1px solid var(--inv-line);
+  border-radius: 0.45rem;
+}
+.inv-minimal .inv-grat { border-radius: 0; }
+.inv-gratBody {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5cqw;
+  padding: 5cqw 19cqw;
+}
+.inv-gratBody > p { margin: 0; max-width: 100%; overflow-wrap: anywhere; }
+.inv-gratDate { font-size: 3.2cqw; letter-spacing: 0.22em; color: var(--inv-accent-ink); font-variant-numeric: tabular-nums; }
+.inv-gratPhrase {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 3.7cqw;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--inv-muted);
+}
+.inv-gratThanks {
+  margin-top: 0.8cqw !important;
+  font-size: 4.6cqw;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--inv-ink);
+}
+.inv-gratGift {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 2.9cqw;
+  line-height: 1.35;
+  color: var(--inv-muted);
+}
+.inv-gratGiftLabel { font-weight: 600; letter-spacing: 0.12em; color: var(--inv-ink); }
+.inv-gratGiftValue { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+.inv-gratMono {
+  display: inline-flex !important;
+  min-width: 11cqw;
+  height: 11cqw;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5cqw;
+  margin-top: 0.6cqw !important;
+  padding: 0 2.6cqw;
+  border: 1px solid color-mix(in oklab, var(--inv-accent) 70%, transparent);
+  border-radius: 999px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 4.4cqw;
+  line-height: 1;
+  color: var(--inv-ink);
+}
+.inv-gratAmp { margin: 0 0.5cqw; font-size: 0.8em; color: var(--inv-accent-ink); }
+
+/* Con motivos de acuarela, por los bordes de la tarjetita */
+.inv-motifCard { --m-w: 26cqw; overflow: hidden; }
+.inv-motifCard .inv-mTL { top: -4cqw; left: -4cqw; }
+.inv-motifCard .inv-mBR { right: -4cqw; bottom: -4cqw; width: calc(var(--m-w) * 0.9); }
+
+/* ---------- Vista previa del editor: invitación + sobre + tarjetita ---------- */
+
+.inv-compose {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  container-type: size;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.inv-composeStage {
+  --u: calc(min(100cqw, 100cqh / 1.04) / 100);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: calc(var(--u) * 100);
+  height: calc(var(--u) * 104);
+  transform: translate(-50%, -50%);
+}
+.inv-composeEnv {
+  position: absolute;
+  top: calc(var(--u) * 12);
+  left: calc(var(--u) * -2);
+  width: calc(var(--u) * 104);
+  height: auto;
+  transform: rotate(-31deg);
+  filter: drop-shadow(0 calc(var(--u) * 1.4) calc(var(--u) * 2.6) rgb(30 24 20 / 0.3));
+}
+.inv-composeCard {
+  position: absolute;
+  top: calc(var(--u) * 6);
+  left: calc(var(--u) * 11);
+  transform: rotate(-4deg);
+}
+.inv-composeCard .inv-card {
+  width: calc(var(--u) * 56);
+  box-shadow:
+    0 calc(var(--u) * 2.4) calc(var(--u) * 4.6) calc(var(--u) * -0.8) rgb(30 24 24 / 0.38),
+    0 calc(var(--u) * 0.4) calc(var(--u) * 1) rgb(30 24 24 / 0.16);
+}
+.inv-composeThanks {
+  position: absolute;
+  right: calc(var(--u) * 3);
+  bottom: calc(var(--u) * 4);
+  width: calc(var(--u) * 47);
+  transform: rotate(4deg);
+}
+.inv-composeThanks .inv-grat {
+  box-shadow:
+    0 calc(var(--u) * 1.8) calc(var(--u) * 3.6) calc(var(--u) * -0.6) rgb(30 24 24 / 0.4),
+    0 calc(var(--u) * 0.3) calc(var(--u) * 0.8) rgb(30 24 24 / 0.16);
+}
+
+/* Tarjeta sobre un sobre (vista previa de «Reserva la fecha») */
+.inv-envFrame {
+  position: relative;
+  container-type: inline-size;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 0.75rem;
+}
+.inv-envFrameSvg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 168%;
+  height: auto;
+  transform: translate(-50%, -48%) rotate(-31deg);
+  filter: drop-shadow(0 1.2cqw 2.4cqw rgb(30 24 20 / 0.3));
+}
+.inv-envFrameCard {
+  position: relative;
+  z-index: 1;
+  margin: 10cqw 9cqw;
+  transform: rotate(-3deg);
+  box-shadow: 0 2.6cqw 5cqw -1.4cqw rgb(30 24 24 / 0.4), 0 0.4cqw 1cqw rgb(30 24 24 / 0.16);
+}
+.inv-envFrameCard > * { display: block; }
 
 /* ---------- Editor: selector de color (react-colorful con los tokens de la app) ---------- */
 

@@ -1,9 +1,10 @@
 // Genera los motivos de acuarela de public/decor/*.webp y el manifiesto TS.
 //
-//   node scripts/watercolor/generate.mjs [--set main|travel] [--only nombre,nombre] [--sheet ruta.png] [--quality 55]
+//   node scripts/watercolor/generate.mjs [--set main|travel|stationery] [--only nombre,nombre] [--sheet ruta.png] [--quality 55]
 //
 //   --set main    (por defecto) motivos de la boda -> public/decor + watercolor-assets.ts
 //   --set travel  batería de viaje de la Luna de miel -> public/decor/travel + travel-assets.ts
+//   --set stationery  motivos de la papelería (limones, naranjas, olivo…) -> public/decor/stationery + stationery-assets.ts
 //
 // Pinta cada motivo como SVG con filtros (feTurbulence + feDisplacementMap para los
 // bordes, pigmento acumulado, moteado y grano), lo rasteriza con Chromium sobre fondo
@@ -16,6 +17,7 @@ import { chromium } from "playwright";
 import sharp from "sharp";
 import { MOTIFS } from "./motifs.mjs";
 import { TRAVEL_MOTIFS } from "./motifs-travel.mjs";
+import { STATIONERY_MOTIFS } from "./motifs-stationery.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -61,9 +63,22 @@ ${entries(results)}
 export type TravelName = keyof typeof TRAVEL;
 `,
   },
+  stationery: {
+    motifs: STATIONERY_MOTIFS,
+    out: path.join(ROOT, "public/decor/stationery"),
+    manifest: path.join(ROOT, "src/components/stationery/stationery-assets.ts"),
+    sheetBg: [["#f3efe6", "#2e3d34"], ["#3a3a4d", "#eeeae4"]],
+    render: (results) => `${header("public/decor/stationery", { type: "StationeryKind", union: '"corner" | "sprig"' })}
+export const STATIONERY = {
+${entries(results)}
+} as const satisfies Record<string, { w: number; h: number; kind: StationeryKind }>;
+
+export type StationeryName = keyof typeof STATIONERY;
+`,
+  },
 };
 const SET = SETS[setName];
-if (!SET) throw new Error(`--set desconocido: ${setName} (main | travel)`);
+if (!SET) throw new Error(`--set desconocido: ${setName} (main | travel | stationery)`);
 const OUT = SET.out;
 const MANIFEST = SET.manifest;
 

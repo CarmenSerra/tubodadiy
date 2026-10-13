@@ -14,7 +14,9 @@ import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
+import { EnvelopeFrame } from "@/components/invitation/invitation-envelope";
 import { sameStyle, styleOf, type InvitationStyle } from "@/components/invitation/invitation-model";
+import { themeFor } from "@/components/invitation/invitation-theme";
 import { StyleEditor } from "@/components/invitation/style-editor";
 import { loadBackdrop } from "@/components/stationery/save-the-date-backdrop";
 import {
@@ -517,9 +519,12 @@ function Editor({
                   .filter(Boolean)
                   .join(", "),
               })}
-              className="overflow-hidden rounded-xl border border-line bg-field shadow-pop"
+              className="overflow-hidden rounded-xl border border-line shadow-pop"
             >
-              <CardCanvas design={preview} style={style} pixels={720} lang={lang} />
+              {/* La tarjeta sobre un sobre del color elegido (el mismo de la invitación). */}
+              <EnvelopeFrame color={style.envelopeColor} background={themeFor(style.palette, style.template).bg}>
+                <CardCanvas design={preview} style={style} pixels={720} lang={lang} />
+              </EnvelopeFrame>
             </div>
             <figcaption className="sr-only">{t("stationery.preview.caption")}</figcaption>
           </figure>

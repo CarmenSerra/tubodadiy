@@ -1,4 +1,4 @@
-import { WASH_SHAPES, backdropImages, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
+import { WASH_SHAPES, backdropImages, motifCornerUrls, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
 import type { InvitationStyle } from "@/components/invitation/invitation-model";
 import { LEGACY_COLORS, buildTheme, type InvitationTheme } from "@/components/invitation/invitation-theme";
 
@@ -35,7 +35,8 @@ function themeOf(style: InvitationStyle): InvitationTheme {
 
 /** Descarga las imágenes del fondo elegido; hay que esperarla antes de `drawSaveTheDate`. */
 export async function loadBackdrop(style: InvitationStyle): Promise<void> {
-  const urls = backdropImages(style.background, themeOf(style));
+  const corners = motifCornerUrls(style.background);
+  const urls = corners ? [corners.a, corners.b] : backdropImages(style.background, themeOf(style));
   const loaded = await Promise.all(urls.map(loadImage));
   urls.forEach((url, i) => {
     const img = loaded[i];
@@ -55,6 +56,12 @@ export function paintBackdrop(
 
   if (kind === "watercolor") {
     paintWashes(ctx, theme, width, height);
+    return;
+  }
+
+  const corners = motifCornerUrls(kind);
+  if (corners) {
+    paintMotif(ctx, ready.get(corners.a), ready.get(corners.b), width, height);
     return;
   }
 
@@ -92,6 +99,34 @@ export function paintBackdrop(
     }
   }
   ctx.restore();
+}
+
+/**
+ * Ramas de acuarela en las cuatro esquinas: la grande arriba a la izquierda y
+ * abajo a la derecha, la corta (reflejada) en las otras dos, como en la invitación.
+ */
+function paintMotif(
+  ctx: CanvasRenderingContext2D,
+  a: HTMLImageElement | undefined,
+  b: HTMLImageElement | undefined,
+  width: number,
+  height: number
+) {
+  const big = width * 0.42;
+  const small = width * 0.36;
+  const draw = (img: HTMLImageElement | undefined, w: number, x: number, y: number, sx: number, sy: number) => {
+    if (!img) return;
+    const h = (w * img.naturalHeight) / img.naturalWidth;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(sx, sy);
+    ctx.drawImage(img, 0, 0, w, h);
+    ctx.restore();
+  };
+  draw(a, big, 0, 0, 1, 1);
+  draw(b, small, width, 0, -1, 1);
+  draw(b, small, 0, height, 1, -1);
+  draw(a, big, width, height, -1, -1);
 }
 
 /** Manchas de acuarela en las cuatro esquinas (las mismas formas que el CSS de la invitación). */

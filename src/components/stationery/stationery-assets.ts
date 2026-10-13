@@ -1,0 +1,32 @@
+// Generado por scripts/watercolor/generate.mjs: no editar a mano.
+// Dimensiones (px) de los WebP de public/decor/stationery y su familia.
+export type StationeryKind = "corner" | "sprig";
+
+export const STATIONERY = {
+  "lemons-a": { w: 360, h: 360, kind: "corner" },
+  "lemons-b": { w: 300, h: 300, kind: "corner" },
+  "lemons-s": { w: 320, h: 118, kind: "sprig" },
+  "oranges-a": { w: 360, h: 360, kind: "corner" },
+  "oranges-b": { w: 300, h: 300, kind: "corner" },
+  "oranges-s": { w: 320, h: 118, kind: "sprig" },
+  "olives-a": { w: 360, h: 360, kind: "corner" },
+  "olives-b": { w: 300, h: 300, kind: "corner" },
+  "olives-s": { w: 320, h: 118, kind: "sprig" },
+  "eucalyptus-a": { w: 360, h: 360, kind: "corner" },
+  "eucalyptus-b": { w: 300, h: 300, kind: "corner" },
+  "eucalyptus-s": { w: 320, h: 118, kind: "sprig" },
+  "wildflowers-a": { w: 360, h: 360, kind: "corner" },
+  "wildflowers-b": { w: 300, h: 300, kind: "corner" },
+  "wildflowers-s": { w: 320, h: 118, kind: "sprig" },
+  "citrus-a": { w: 360, h: 360, kind: "corner" },
+  "citrus-b": { w: 300, h: 300, kind: "corner" },
+  "citrus-s": { w: 320, h: 118, kind: "sprig" },
+  "lavender-a": { w: 360, h: 360, kind: "corner" },
+  "lavender-b": { w: 300, h: 300, kind: "corner" },
+  "lavender-s": { w: 320, h: 118, kind: "sprig" },
+  "pomegranates-a": { w: 360, h: 360, kind: "corner" },
+  "pomegranates-b": { w: 300, h: 300, kind: "corner" },
+  "pomegranates-s": { w: 320, h: 118, kind: "sprig" },
+} as const satisfies Record<string, { w: number; h: number; kind: StationeryKind }>;
+
+export type StationeryName = keyof typeof STATIONERY;

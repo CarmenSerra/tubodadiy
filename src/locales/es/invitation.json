@@ -78,8 +78,14 @@
       "madeWith": "Invitación creada con tubodadiy"
     },
     "cardLabel": "Tarjeta de invitación",
-    "photoAlt": "Foto del lugar de la boda",
-    "later": "Posteriormente, lo celebraremos en…"
+    "later": "Posteriormente, lo celebraremos en…",
+    "thanks": {
+      "label": "Tarjeta de agradecimiento",
+      "phrase": "Gracias por acompañarnos y hacer de este día algo inolvidable",
+      "thanks": "Muchas gracias",
+      "giftList": "Nuestra lista de regalos"
+    },
+    "laterSame": "Posteriormente, lo celebraremos en el mismo lugar"
   },
   "rsvp": {
     "legend": "Confirmación de asistencia",
@@ -196,7 +202,7 @@
       "whereNote": "Si algo no aplica, déjalo en blanco y no aparecerá.",
       "gift": "Regalo",
       "publish": "Publicar y compartir",
-      "image": "Imagen del lugar"
+      "envelope": "Color del sobre"
     },
     "language": {
       "label": "Idioma de la invitación",
@@ -251,7 +257,8 @@
       "newTab": "(se abre en una pestaña nueva)"
     },
     "preview": {
-      "caption": "Así la verán tus invitados"
+      "caption": "Vista previa de la papelería",
+      "aria": "Vista previa: la invitación sobre un sobre, con la tarjeta de agradecimiento encima"
     },
     "status": {
       "new": "Aún no guardada",
@@ -303,29 +310,13 @@
     },
     "background": {
       "note": "Así se ve cada fondo con tu paleta.",
-      "label": "Tipo de fondo"
+      "label": "Tipo de fondo",
+      "motifsTitle": "Con motivos de acuarela",
+      "motifsNote": "Ramas pintadas a mano en las esquinas. El adorno de la tarjeta cambia con el motivo.",
+      "motifsLabel": "Fondo con motivos"
     },
     "style": {
       "shared": "El estilo es el mismo en la invitación y en «Reserva la fecha»: si lo cambias aquí, se cambia allí también."
-    },
-    "image": {
-      "note": "Va arriba de la tarjeta, con un efecto de acuarela. Solo se aplica al mostrarla: tu foto no se modifica.",
-      "label": "Imagen de la tarjeta",
-      "modes": {
-        "photo": "Foto",
-        "illustration": "Ilustración",
-        "none": "Ninguna"
-      },
-      "currentAlt": "Foto elegida para la tarjeta",
-      "watercolorNote": "Se muestra con efecto acuarela y se guarda reducida (unos 60 KB).",
-      "empty": "Aún no hay foto: mientras tanto se muestra la ilustración. Sube una desde tu dispositivo.",
-      "emptyWithVenue": "Aún no hay foto: mientras tanto se muestra la ilustración. Sube una o usa la de tu finca.",
-      "upload": "Subir una foto",
-      "replace": "Cambiar la foto",
-      "useVenue": "Usar la foto de la finca",
-      "useVenueNamed": "Usar la foto de {{name}}",
-      "remove": "Quitar la foto",
-      "uploadError": "No se ha podido usar esa imagen. Prueba con otra (JPG, PNG o WebP)."
     },
     "slug": {
       "label": "Enlace personalizado",
@@ -343,6 +334,9 @@
         "two": "amor",
         "three": "juntos"
       }
+    },
+    "envelope": {
+      "note": "El sobre de la vista previa y de «Reserva la fecha». Tus invitados no lo ven."
     }
   },
   "palettes": {
@@ -368,6 +362,31 @@
     "floral": "Marco floral",
     "watercolor": "Manchas de acuarela",
     "arches": "Arcos",
-    "confetti": "Confeti"
+    "confetti": "Confeti",
+    "lemons": "Limones",
+    "oranges": "Naranjas",
+    "olives": "Olivo",
+    "eucalyptus": "Eucalipto",
+    "wildflowers": "Flores silvestres",
+    "citrus": "Cítricos mixtos",
+    "lavender": "Lavanda",
+    "pomegranates": "Granadas"
+  },
+  "envelope": {
+    "label": "Color del sobre",
+    "custom": "Otro",
+    "popoverLabel": "Elegir el color del sobre",
+    "colors": {
+      "olive": "Oliva",
+      "sage": "Salvia",
+      "burgundy": "Burdeos",
+      "terracotta": "Terracota",
+      "dusty-blue": "Azul empolvado",
+      "cream": "Crema",
+      "kraft": "Kraft",
+      "dusty-pink": "Rosa empolvado",
+      "bottle-green": "Verde botella",
+      "slate": "Pizarra"
+    }
   }
 }

@@ -26,7 +26,7 @@ export function paintLeaf(c, lf, { pal, op = 0.66, seed, kind = "leaf", vein = t
 }
 
 /** Rama: tallo que adelgaza + hojas conectadas por peciolo. */
-function branch(c, ctrl, leaves, { stem = [6, 2], stemPal = PAL.stem, stemOp = 0.72, seed = 1, nVeins = 4, vein = true } = {}) {
+export function branch(c, ctrl, leaves, { stem = [6, 2], stemPal = PAL.stem, stemOp = 0.72, seed = 1, nVeins = 4, vein = true } = {}) {
   c.shape(stemPath(ctrl, stem[0], stem[1]), { fill: stemPal, axis: [ctrl[0][0], ctrl[0][1], ctrl[3][0], ctrl[3][1]], op: stemOp, kind: "stem", seed });
   const placed = leaves.map((L, i) => {
     const p = bez(ctrl, L.t);
@@ -171,7 +171,7 @@ function leafSlender() {
 }
 
 /* ------------------------------ flores ------------------------------ */
-function flowerHead(c, cx, cy, R, rot, { petals = 5, pal = PAL.lilac, wid = 0.95, seed = 1, deepCenter = true } = {}) {
+export function flowerHead(c, cx, cy, R, rot, { petals = 5, pal = PAL.lilac, wid = 0.95, seed = 1, deepCenter = true } = {}) {
   const r = c.rand;
   for (let i = 0; i < petals; i++) {
     const ang = rot + (i * 360) / petals + r.range(-5, 5);
@@ -195,7 +195,7 @@ function flowerHead(c, cx, cy, R, rot, { petals = 5, pal = PAL.lilac, wid = 0.95
   }
 }
 
-function bud(c, x, y, ang, len, seed, pal = PAL.violet) {
+export function bud(c, x, y, ang, len, seed, pal = PAL.violet) {
   const lf = leaf({ x, y, ang, len, wid: len * 0.62, prof: "floret", n: 10 });
   c.shape(lf.d, { fill: [pal[0], pal[1]], axis: [lf.base[0], lf.base[1], lf.tip[0], lf.tip[1]], op: 0.7, kind: "tiny", seed });
   const a = ang * DEG;

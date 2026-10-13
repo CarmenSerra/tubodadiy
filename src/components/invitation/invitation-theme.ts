@@ -60,6 +60,25 @@ export const LEGACY_COLORS: Record<TemplateKind, PaletteColors> = {
   elegante: { primary: "#d4c0ea", dark: "#2b2a3b", accent: "#8faf8a", soft: "#f4f1eb" },
 };
 
+// ---- Color del sobre ----
+
+/** Muestras de color del sobre. El nombre sale de `invitation:envelope.colors.<id>`. */
+export const ENVELOPE_COLORS = [
+  { id: "olive", hex: "#767a4d" },
+  { id: "sage", hex: "#9aae92" },
+  { id: "burgundy", hex: "#6f2a3c" },
+  { id: "terracotta", hex: "#b5694a" },
+  { id: "dusty-blue", hex: "#8499b3" },
+  { id: "cream", hex: "#eadfc8" },
+  { id: "kraft", hex: "#b99a72" },
+  { id: "dusty-pink", hex: "#d9a9a8" },
+  { id: "bottle-green", hex: "#2f5442" },
+  { id: "slate", hex: "#5f6b78" },
+] as const;
+
+/** El sobre de la foto de referencia: verde oliva. */
+export const DEFAULT_ENVELOPE = ENVELOPE_COLORS[0].hex;
+
 // ---- Color ----
 
 const HEX6 = /^#[0-9a-f]{6}$/;

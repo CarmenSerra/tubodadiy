@@ -10,8 +10,7 @@ import {
 } from "lucide-react";
 
 import { CopyButton } from "@/components/invitation/copy-button";
-import { WatercolorArt, type ArtSource } from "@/components/invitation/invitation-art";
-import { InvitationBackdrop } from "@/components/invitation/invitation-backgrounds";
+import { InvitationBackdrop, MotifSprig, isMotif } from "@/components/invitation/invitation-backgrounds";
 import {
   DiamondDivider,
   DotRule,
@@ -30,7 +29,7 @@ import {
   type InvitationPlace,
   type InvitationPublicData,
 } from "@/components/invitation/invitation-model";
-import { buildTheme, LEGACY_COLORS } from "@/components/invitation/invitation-theme";
+import { buildTheme, LEGACY_COLORS, type InvitationTheme } from "@/components/invitation/invitation-theme";
 import type { Lang } from "@/lib/i18n/config";
 import { formatMoney } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
@@ -172,16 +171,9 @@ function nameSize(names: string): "l" | "m" | "s" {
   return length <= 12 ? "l" : length <= 20 ? "m" : "s";
 }
 
-export function InvitationView({ data, mode = "page", rsvp, closed = false }: InvitationViewProps) {
-  // El texto de la invitación sigue el idioma que eligió la pareja, no el de quien la abre.
-  const lang = data.lang;
-  const t = getServerT(lang, "invitation");
-  const longDate = formatLongDate(data.date, lang);
-  const parts = dateParts(data.date, lang);
-  const preview = mode === "preview";
-  const names = data.names || "Ana & Luis";
-
-  // ---- Lugares: un único bloque si es el mismo sitio (o falta uno); dos si son distintos ----
+/** Los lugares de la invitación y lo que lleva la tarjeta (hora, sitio y «después…»). */
+function resolvePlaces(data: InvitationPublicData, t: TFunction, lang: Lang) {
+  // Un único bloque si es el mismo sitio (o falta uno); dos si son distintos.
   const { ceremony, banquet } = data;
   const hasCeremony = !placeIsEmpty(ceremony);
   const hasBanquet = !placeIsEmpty(banquet);
@@ -216,38 +208,124 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
       placeBlocks.push({ kind: t(`view.places.${kind}`), place, times: time ? [{ label: "", value: time }] : [] });
     }
   }
-  const hasWhen = placeBlocks.length > 0;
+  return {
+    placeBlocks,
+    // «…en el mismo lugar»: hay datos de los dos y son el mismo sitio.
+    laterSame: hasCeremony && hasBanquet && same,
+    cardTime: timeOf(ceremony) || timeOf(banquet),
+    cardPlace: venue.name || venue.address,
+    later: !same ? banquet.name || banquet.address : "",
+  };
+}
 
-  // ---- Lo que lleva la tarjeta ----
-  const cardTime = timeOf(ceremony) || timeOf(banquet);
-  const cardPlace = venue.name || venue.address;
-  const later = !same ? banquet.name || banquet.address : "";
+/** Tema de color de una invitación: con su paleta o, si es antigua, con los colores de su plantilla. */
+export function themeOfInvitation(data: Pick<InvitationPublicData, "palette" | "template">): InvitationTheme {
+  return buildTheme(data.palette?.colors ?? LEGACY_COLORS[data.template], data.template);
+}
+
+/**
+ * La tarjeta de la invitación (proporción 5:7), sin la tarjeta de la página ni el
+ * resto de bloques: la usan la página pública y la composición de la vista previa.
+ * Ya no lleva imagen arriba; con un fondo de motivos, el adorno central es una
+ * ramita de ese motivo.
+ */
+export function InvitationCard({
+  data,
+  preview = false,
+  rise = false,
+}: {
+  data: InvitationPublicData;
+  preview?: boolean;
+  rise?: boolean;
+}) {
+  const lang = data.lang;
+  const t = getServerT(lang, "invitation");
+  const parts = dateParts(data.date, lang);
+  const names = data.names || "Ana & Luis";
+  const { cardTime, cardPlace, later, laterSame } = resolvePlaces(data, t, lang);
+
+  const orn = cn("inv-ornament");
+  const Ornament = isMotif(data.background) ? (
+    <MotifSprig motif={data.background} />
+  ) : data.template === "elegante" ? (
+    <DiamondDivider className={orn} />
+  ) : data.template === "minimal" ? (
+    <DotRule className={orn} />
+  ) : (
+    <Sprig className={orn} />
+  );
+
+  return (
+    <div className={cn("inv-card", "inv-noArt", rise && "inv-rise")}>
+      <div className="inv-cardBody">
+        <h1 className="inv-names" data-size={nameSize(names)}>
+          <Names names={names} />
+        </h1>
+
+        <div className="inv-cardIntro">
+          <p className="inv-eyebrow">{data.template === "minimal" ? t("view.eyebrowMinimal") : t("view.eyebrow")}</p>
+          {data.message && <p className="inv-cardMessage">{data.message}</p>}
+        </div>
+
+        {(parts || cardTime) && (
+          <div className="inv-strip">
+            {parts && <p className="inv-stripCell inv-stripWeekday">{parts.weekday}</p>}
+            {parts && (
+              <p className="inv-stripCell inv-stripDate">
+                <span className="inv-stripMonth">{parts.month}</span>
+                <span className="inv-stripDay">{parts.day}</span>
+                <span className="inv-stripYear">{parts.year}</span>
+              </p>
+            )}
+            {cardTime && <p className="inv-stripCell inv-stripTime">{cardTime}</p>}
+          </div>
+        )}
+
+        {(cardPlace || later || laterSame) && (
+          <div className="inv-cardPlace">
+            {cardPlace && <p className="inv-cardVenue">{cardPlace}</p>}
+            {later && (
+              <p className="inv-cardLater">
+                {t("view.later")} <strong>{later}</strong>
+              </p>
+            )}
+            {laterSame && <p className="inv-cardLater">{t("view.laterSame")}</p>}
+          </div>
+        )}
+
+        {Ornament}
+
+        {preview ? (
+          <p className="inv-cardJoin">{t("view.rsvpTitle")}</p>
+        ) : (
+          <a href="#confirmar" className="inv-cardJoin">
+            {t("view.rsvpTitle")}
+            <ChevronDownIcon aria-hidden="true" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function InvitationView({ data, mode = "page", rsvp, closed = false }: InvitationViewProps) {
+  // El texto de la invitación sigue el idioma que eligió la pareja, no el de quien la abre.
+  const lang = data.lang;
+  const t = getServerT(lang, "invitation");
+  const longDate = formatLongDate(data.date, lang);
+  const preview = mode === "preview";
+  const names = data.names || "Ana & Luis";
+
+  const { placeBlocks } = resolvePlaces(data, t, lang);
+  const hasWhen = placeBlocks.length > 0;
   const deadline = formatShortDate(data.rsvpDeadline, lang);
   const longMessage = data.message.length > 130;
   const Body = preview ? "div" : "main";
 
   // Con paleta, las variables de color salen de ella; sin paleta (invitaciones anteriores)
-  // mandan los colores de la plantilla. El fondo y la imagen se dibujan con los colores que toque.
+  // mandan los colores de la plantilla. El fondo se dibuja con los colores que toque.
   const palette = data.palette;
-  const theme = buildTheme(palette?.colors ?? LEGACY_COLORS[data.template], data.template);
-
-  const imageMode = data.imageMode ?? "illustration";
-  const art: ArtSource | null =
-    imageMode === "none"
-      ? null
-      : imageMode === "photo" && data.photo
-        ? { kind: "photo", src: data.photo }
-        : { kind: "illustration" };
-
-  const orn = cn("inv-ornament");
-  const Ornament =
-    data.template === "elegante" ? (
-      <DiamondDivider className={orn} />
-    ) : data.template === "minimal" ? (
-      <DotRule className={orn} />
-    ) : (
-      <Sprig className={orn} />
-    );
+  const theme = themeOfInvitation(data);
 
   return (
     <div
@@ -262,67 +340,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
 
       <Body className="inv-main">
         <section className="inv-stage" aria-label={t("view.cardLabel")}>
-          <div className={cn("inv-card", art ? "inv-hasArt" : "inv-noArt", !preview && "inv-rise")}>
-            {art && (
-              <div className="inv-art">
-                <WatercolorArt
-                  source={art}
-                  theme={theme}
-                  alt={art.kind === "photo" ? t("view.photoAlt") : undefined}
-                  className="inv-artSvg"
-                />
-              </div>
-            )}
-
-            <div className="inv-cardBody">
-              <h1 className="inv-names" data-size={nameSize(names)}>
-                <Names names={names} />
-              </h1>
-
-              <div className="inv-cardIntro">
-                <p className="inv-eyebrow">
-                  {data.template === "minimal" ? t("view.eyebrowMinimal") : t("view.eyebrow")}
-                </p>
-                {data.message && <p className="inv-cardMessage">{data.message}</p>}
-              </div>
-
-              {(parts || cardTime) && (
-                <div className="inv-strip">
-                  {parts && <p className="inv-stripCell inv-stripWeekday">{parts.weekday}</p>}
-                  {parts && (
-                    <p className="inv-stripCell inv-stripDate">
-                      <span className="inv-stripMonth">{parts.month}</span>
-                      <span className="inv-stripDay">{parts.day}</span>
-                      <span className="inv-stripYear">{parts.year}</span>
-                    </p>
-                  )}
-                  {cardTime && <p className="inv-stripCell inv-stripTime">{cardTime}</p>}
-                </div>
-              )}
-
-              {(cardPlace || later) && (
-                <div className="inv-cardPlace">
-                  {cardPlace && <p className="inv-cardVenue">{cardPlace}</p>}
-                  {later && (
-                    <p className="inv-cardLater">
-                      {t("view.later")} <strong>{later}</strong>
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {Ornament}
-
-              {preview ? (
-                <p className="inv-cardJoin">{t("view.rsvpTitle")}</p>
-              ) : (
-                <a href="#confirmar" className="inv-cardJoin">
-                  {t("view.rsvpTitle")}
-                  <ChevronDownIcon aria-hidden="true" />
-                </a>
-              )}
-            </div>
-          </div>
+          <InvitationCard data={data} preview={preview} rise={!preview} />
         </section>
 
         <div className="inv-body">

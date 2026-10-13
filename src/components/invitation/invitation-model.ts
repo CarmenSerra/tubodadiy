@@ -2,6 +2,7 @@ import { sortGiftItems, type GiftItem } from "@/components/plan-tools/gift-model
 import { DEFAULT_BACKGROUND, isBackground, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
 import {
   COLOR_ROLES,
+  DEFAULT_ENVELOPE,
   DEFAULT_PALETTE,
   normalizeHex,
   type InvitationPalette,
@@ -21,9 +22,9 @@ import type { GiftMode, PlanGift } from "@/lib/types";
 export type InvitationTemplateId = "botanico" | "minimal" | "elegante";
 
 /**
- * Imagen de la parte de arriba de la tarjeta: la foto del lugar (con filtro
- * acuarela), una ilustración acuarela con los colores de la paleta, o nada.
- * Sin valor equivale a la ilustración.
+ * OBSOLETO: la tarjeta ya no lleva imagen arriba (ni foto del lugar ni
+ * ilustración). Los campos `imageMode` y `photo` de las invitaciones antiguas se
+ * leen y se conservan tal cual, pero nadie los usa.
  */
 export type InvitationImageMode = "photo" | "illustration" | "none";
 export const IMAGE_MODES: readonly InvitationImageMode[] = ["photo", "illustration", "none"];
@@ -36,6 +37,8 @@ export interface InvitationStyle {
   template: InvitationTemplateId;
   palette?: InvitationPalette;
   background?: InvitationBackground;
+  /** Color del sobre (`#rrggbb`) de la vista previa y de «Reserva la fecha». Sin valor, verde oliva. */
+  envelopeColor?: string;
 }
 
 export interface InvitationPlace {
@@ -96,12 +99,11 @@ export interface InvitationContent {
   palette?: InvitationPalette;
   /** Tipo de fondo. Sin valor equivale a «liso». */
   background?: InvitationBackground;
-  /** Qué imagen lleva la tarjeta arriba. Sin valor equivale a la ilustración. */
+  /** Color del sobre de la vista previa (compartido con «Reserva la fecha»). */
+  envelopeColor?: string;
+  /** Obsoleto e ignorado (ver `InvitationImageMode`). */
   imageMode?: InvitationImageMode;
-  /**
-   * Foto del lugar: data URI WebP/JPEG de ≤ ~60 KB (subida o copiada de la
-   * finca elegida) o, si la finca solo tenía un enlace, esa URL http(s).
-   */
+  /** Obsoleto e ignorado: foto del lugar de invitaciones antiguas. */
   photo?: string;
 }
 
@@ -179,7 +181,7 @@ export function defaultContent(weddingDate: string | null, lang: Lang = DEFAULT_
     showGift: true,
     palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
     background: DEFAULT_BACKGROUND,
-    imageMode: "illustration",
+    envelopeColor: DEFAULT_ENVELOPE,
   };
 }
 
@@ -255,18 +257,27 @@ export function cleanTemplate(value: unknown): InvitationTemplateId {
   return TEMPLATE_IDS.includes(value as InvitationTemplateId) ? (value as InvitationTemplateId) : "botanico";
 }
 
+/** Color del sobre saneado: `#rrggbb` o `undefined`. */
+export function cleanEnvelopeColor(value: unknown): string | undefined {
+  return normalizeHex(value) ?? undefined;
+}
+
 /** Estilo compartido, saneado (lo que se guarda en `designs/style`). */
 export function cleanStyle(value: Partial<InvitationStyle> | null | undefined): InvitationStyle {
   const palette = cleanPalette(value?.palette);
   const background = isBackground(value?.background) ? value.background : undefined;
+  const envelopeColor = cleanEnvelopeColor(value?.envelopeColor);
   return {
     template: cleanTemplate(value?.template),
     ...(palette ? { palette } : {}),
     ...(background ? { background } : {}),
+    ...(envelopeColor ? { envelopeColor } : {}),
   };
 }
 
-export function styleOf(content: Pick<InvitationContent, "template" | "palette" | "background">): InvitationStyle {
+export function styleOf(
+  content: Pick<InvitationContent, "template" | "palette" | "background" | "envelopeColor">
+): InvitationStyle {
   return cleanStyle(content);
 }
 
@@ -281,6 +292,7 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     ? (value.imageMode as InvitationImageMode)
     : undefined;
   const photo = cleanPhoto(value.photo);
+  const envelopeColor = cleanEnvelopeColor(value.envelopeColor);
   return {
     template: TEMPLATE_IDS.includes(value.template as InvitationTemplateId)
       ? (value.template as InvitationTemplateId)
@@ -296,6 +308,7 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     // Solo si existen: Firestore no admite `undefined` y las invitaciones antiguas no los tienen.
     ...(palette ? { palette } : {}),
     ...(background ? { background } : {}),
+    ...(envelopeColor ? { envelopeColor } : {}),
     ...(imageMode ? { imageMode } : {}),
     ...(photo ? { photo } : {}),
   };

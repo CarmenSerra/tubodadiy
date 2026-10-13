@@ -5,12 +5,10 @@ import {
   CheckIcon,
   CopyIcon,
   ExternalLinkIcon,
-  ImagePlusIcon,
   Loader2Icon,
   MessageCircleIcon,
   RefreshCwIcon,
   SparklesIcon,
-  Trash2Icon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -18,7 +16,6 @@ import { toast } from "sonner";
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
 import {
-  IMAGE_MODES,
   LIMITS,
   SLUG_MAX,
   SLUG_MIN,
@@ -39,7 +36,6 @@ import {
   whatsappLink,
   type InvitationContent,
   type InvitationDoc,
-  type InvitationImageMode,
   type InvitationPlace,
   type InvitationPublicData,
   type InvitationStyle,
@@ -49,15 +45,12 @@ import {
   applyPlanFill,
   derivePlanFill,
   getField,
-  venuePhoto,
   type FillKey,
   type PlanFill,
-  type VenuePhoto,
 } from "@/components/invitation/plan-autofill";
-import { InvitationView } from "@/components/invitation/invitation-view";
+import { InvitationComposition } from "@/components/invitation/invitation-composition";
 import { StyleEditor } from "@/components/invitation/style-editor";
 import type { GiftItem } from "@/components/plan-tools/gift-model";
-import { RsvpForm } from "@/components/invitation/rsvp-form";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { ignoreToastInteraction } from "@/components/timeline/use-timeline-undo";
 import {
@@ -85,22 +78,22 @@ import {
   syncInvitationGift,
 } from "@/lib/firebase/invitation";
 import { mapStyle, resolveStyle, saveSharedStyle, styleRef } from "@/lib/firebase/invitation-style";
-import { compressImageToDataUri } from "@/lib/image-compress";
 import { mapSaveTheDate, saveTheDateRef } from "@/lib/firebase/designs";
 import { giftItemsQuery, mapGiftItem } from "@/lib/firebase/gift-list";
 import { mapTimelineItem, mapVendor, timelineItemsQuery, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useDoc } from "@/lib/hooks/use-doc";
-import type { PlanGift, Vendor } from "@/lib/types";
+import type { PlanGift } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /**
- * Pantalla completa en móvil; en escritorio, un diálogo grande con el
- * formulario a la izquierda y la vista previa a la derecha.
+ * Pantalla completa en móvil; en escritorio, un diálogo casi a pantalla completa
+ * (hasta 75rem de ancho y el 92 % del alto) con el formulario a la izquierda y la
+ * vista previa grande a la derecha.
  */
 const MODAL =
   "top-0 left-0 flex h-dvh max-h-dvh w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-surface p-0 outline-none " +
-  "sm:top-1/2 sm:left-1/2 sm:h-[min(52rem,92vh)] sm:max-h-[92vh] sm:w-[calc(100%-2rem)] sm:max-w-6xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:border-line";
+  "sm:top-1/2 sm:left-1/2 sm:h-[92vh] sm:max-h-[92vh] sm:w-[calc(100%-2rem)] sm:max-w-[75rem] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:border-line";
 
 const SWITCH =
   "h-6 w-11 shrink-0 data-[state=checked]:bg-cta data-[state=unchecked]:bg-line-strong focus-visible:ring-lilac [&>span]:size-5 [&>span]:data-[state=checked]:translate-x-[1.375rem] [&>span]:data-[state=unchecked]:translate-x-0.5";
@@ -220,7 +213,6 @@ function InvitationBody({
       planFill={planFill}
       planTitle={plan.title}
       fallbackSlug={freshSlug}
-      vendors={vendors}
       // Migración suave: estilo compartido → el de la invitación → el de «Reserva la fecha».
       style={resolveStyle({
         shared: sharedStyle,
@@ -241,7 +233,6 @@ function Editor({
   planFill,
   planTitle,
   fallbackSlug,
-  vendors,
   style,
   dirtyRef,
   onClose,
@@ -253,7 +244,6 @@ function Editor({
   planFill: PlanFill;
   planTitle: string;
   fallbackSlug: string;
-  vendors: Vendor[];
   style: InvitationStyle;
   dirtyRef: React.RefObject<boolean>;
   onClose: () => void;
@@ -263,15 +253,10 @@ function Editor({
   // Una invitación nueva arranca con lo que el plan ya sabe. En una guardada no se rellena
   // sola (un campo en blanco puede ser a propósito: «si algo no aplica, déjalo vacío»):
   // se ofrece «Actualizar desde el plan». Lo escrito a mano nunca se pisa.
-  const chosenPhoto = React.useMemo(() => venuePhoto(vendors), [vendors]);
   const [initial] = React.useState(() => {
     // El estilo es el compartido con «Reserva la fecha»; lo demás, lo guardado o lo que sabe el plan.
     if (saved) return applyPlanFill({ ...contentOf(saved), ...style }, {});
-    const base = applyPlanFill({ ...defaultContent(null, appLang), ...style }, planFill);
-    // Una invitación nueva usa la foto de la finca elegida, si tiene.
-    return chosenPhoto
-      ? { ...base, content: { ...base.content, imageMode: "photo" as const, photo: chosenPhoto.src } }
-      : base;
+    return applyPlanFill({ ...defaultContent(null, appLang), ...style }, planFill);
   });
   const [form, setForm] = React.useState<InvitationContent>(initial.content);
   // Qué valores puso el plan: mientras un campo siga valiendo eso, se puede refrescar.
@@ -302,7 +287,13 @@ function Editor({
     year: clean.date.slice(0, 4),
   });
 
-  const dirty = !saved || slugChanged || JSON.stringify(clean) !== JSON.stringify(contentOf(saved));
+  // El color del sobre vive en el estilo compartido (no en la invitación guardada): si la
+  // invitación no lo tiene, no cuenta como cambio hasta que se toque.
+  const baseline = React.useMemo(
+    () => (saved ? cleanContent({ ...contentOf(saved), envelopeColor: initial.content.envelopeColor }) : null),
+    [saved, initial.content.envelopeColor]
+  );
+  const dirty = !baseline || slugChanged || JSON.stringify(clean) !== JSON.stringify(baseline);
   React.useEffect(() => {
     dirtyRef.current = Boolean(saved) && dirty;
     return () => {
@@ -485,11 +476,11 @@ function Editor({
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] border-t border-line lg:grid-cols-[minmax(0,1fr)_25rem]">
+      <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] border-t border-line lg:grid-cols-[minmax(0,29rem)_minmax(0,1fr)]">
         {/* ---- Formulario ---- */}
         <div
           className={cn(
-            "min-h-0 overflow-y-auto overscroll-contain px-5 pb-8 pt-5 sm:px-8",
+            "min-h-0 overflow-y-auto overscroll-contain px-5 pb-8 pt-5 sm:px-8 lg:pr-6",
             tab === "preview" && "hidden lg:block"
           )}
           role="tabpanel"
@@ -552,16 +543,6 @@ function Editor({
               onChange={(next) => setForm((f) => ({ ...f, ...next }))}
               idPrefix="inv-style"
             />
-
-            <Section title={t("editor.sections.image")} note={t("editor.image.note")}>
-              <ImageEditor
-                mode={form.imageMode ?? "illustration"}
-                photo={form.photo ?? ""}
-                venue={venuePhoto(vendors, true)}
-                chosenVenue={chosenPhoto}
-                onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
-              />
-            </Section>
 
             <Section title={t("editor.sections.couple")}>
               <Field label={t("editor.fields.names")} htmlFor="ed-names">
@@ -793,21 +774,25 @@ function Editor({
           </div>
         </div>
 
-        {/* ---- Vista previa ---- */}
+        {/* ---- Vista previa: invitación + sobre + tarjetita de agradecimiento ---- */}
         <div
           className={cn(
-            "min-h-0 bg-page p-4 lg:border-l lg:border-line",
+            "min-h-0 bg-page p-3 sm:p-4 lg:border-l lg:border-line",
             tab === "edit" && "hidden lg:block"
           )}
           role="tabpanel"
           aria-labelledby="ed-tab-preview"
         >
-          <div className="mx-auto flex h-full max-w-[26rem] flex-col gap-2">
+          <div className="flex h-full min-h-0 flex-col gap-2">
             <p className="shrink-0 text-center text-xs font-medium uppercase tracking-wider text-ink-muted">
               {t("editor.preview.caption")}
             </p>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl border border-line-strong bg-white shadow-pop">
-              <InvitationView data={preview} mode="preview" rsvp={<RsvpForm slug={slug} lang={preview.lang} preview />} />
+            <div
+              role="img"
+              aria-label={t("editor.preview.aria")}
+              className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-line-strong shadow-pop"
+            >
+              <InvitationComposition data={preview} envelopeColor={form.envelopeColor} />
             </div>
           </div>
         </div>
@@ -1025,161 +1010,4 @@ function useSlugAvailability({
   if (valid && slug === savedSlug) return { status: "mine", suggestion: "" };
   if (!valid || result?.slug !== slug) return { status: "checking", suggestion: "" };
   return result;
-}
-
-// ---- Imagen de la tarjeta ----
-
-const MAX_PHOTO_BYTES = 60 * 1024;
-const PHOTO_SIDE = 900;
-
-function ImageEditor({
-  mode,
-  photo,
-  venue,
-  chosenVenue,
-  onChange,
-}: {
-  mode: InvitationImageMode;
-  photo: string;
-  /** Foto de la mejor opción de «Finca» (para ofrecerla aunque no esté elegida). */
-  venue: VenuePhoto | null;
-  /** Foto de la finca elegida, si la hay. */
-  chosenVenue: VenuePhoto | null;
-  onChange: (patch: Partial<Pick<InvitationContent, "imageMode" | "photo">>) => void;
-}) {
-  const { t } = useTranslation("invitation");
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const venueSrc = (chosenVenue ?? venue)?.src ?? "";
-  const canUseVenue = Boolean(venueSrc) && venueSrc !== photo;
-
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const dataUri = await compressImageToDataUri(file, { maxSide: PHOTO_SIDE, targetBytes: MAX_PHOTO_BYTES });
-      onChange({ photo: dataUri, imageMode: "photo" });
-    } catch {
-      setError(t("editor.image.uploadError"));
-    } finally {
-      setBusy(false);
-      if (inputRef.current) inputRef.current.value = "";
-    }
-  }
-
-  async function applyVenue() {
-    if (!venueSrc) return;
-    setError(null);
-    if (venueSrc.startsWith("data:")) {
-      onChange({ photo: venueSrc, imageMode: "photo" });
-      return;
-    }
-    // Una foto enlazada de la web: si el sitio deja descargarla se guarda comprimida; si no, el enlace.
-    setBusy(true);
-    try {
-      const response = await fetch(venueSrc, { referrerPolicy: "no-referrer" });
-      const blob = await response.blob();
-      onChange({ photo: await compressImageToDataUri(blob, { maxSide: PHOTO_SIDE, targetBytes: MAX_PHOTO_BYTES }), imageMode: "photo" });
-    } catch {
-      onChange({ photo: venueSrc, imageMode: "photo" });
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div role="radiogroup" aria-label={t("editor.image.label")} className="grid grid-cols-3 gap-2.5">
-        {IMAGE_MODES.map((id) => {
-          const active = mode === id;
-          return (
-            <button
-              key={id}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => onChange({ imageMode: id })}
-              className={cn(
-                "flex min-h-11 items-center justify-center gap-1.5 rounded-xl border bg-raised px-2 text-center text-sm font-medium leading-tight text-ink-strong outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                active ? "border-lilac ring-2 ring-lilac" : "border-line-strong hover:border-lilac"
-              )}
-            >
-              {active && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0 text-green" />}
-              {t(`editor.image.modes.${id}`)}
-            </button>
-          );
-        })}
-      </div>
-
-      {mode === "photo" && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-raised p-4">
-          {photo ? (
-            <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo}
-                alt={t("editor.image.currentAlt")}
-                referrerPolicy="no-referrer"
-                className="h-16 w-24 shrink-0 rounded-lg border border-line object-cover"
-              />
-              <p className="text-[13px] text-ink-muted">{t("editor.image.watercolorNote")}</p>
-            </div>
-          ) : (
-            <p className="text-sm text-ink-muted">
-              {venueSrc ? t("editor.image.emptyWithVenue") : t("editor.image.empty")}
-            </p>
-          )}
-          <div className="flex flex-wrap gap-2">
-            <input
-              ref={inputRef}
-              id="ed-photo-file"
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              tabIndex={-1}
-              onChange={(e) => void handleFile(e.target.files?.[0])}
-            />
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => inputRef.current?.click()}
-              className={cn(CTA_SECONDARY, "h-11 disabled:opacity-60")}
-            >
-              {busy ? (
-                <Loader2Icon aria-hidden="true" className="size-4 animate-spin" />
-              ) : (
-                <ImagePlusIcon aria-hidden="true" className="size-4" />
-              )}
-              {photo ? t("editor.image.replace") : t("editor.image.upload")}
-            </button>
-            {canUseVenue && (
-              <button type="button" disabled={busy} onClick={() => void applyVenue()} className={cn(CTA_SECONDARY, "h-11 disabled:opacity-60")}>
-                {chosenVenue?.name || venue?.name
-                  ? t("editor.image.useVenueNamed", { name: (chosenVenue ?? venue)?.name })
-                  : t("editor.image.useVenue")}
-              </button>
-            )}
-            {photo && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => onChange({ photo: "" })}
-                className={cn(CTA_SECONDARY, "h-11 disabled:opacity-60")}
-              >
-                <Trash2Icon aria-hidden="true" className="size-4" />
-                {t("editor.image.remove")}
-              </button>
-            )}
-          </div>
-          {error && (
-            <p role="alert" className="text-[13px] text-danger">
-              {error}
-            </p>
-          )}
-        </div>
-      )}
-    </div>
-  );
 }
