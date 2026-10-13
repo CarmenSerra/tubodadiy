@@ -3,6 +3,21 @@
     "title": "Documentos legales",
     "description": "Guía de papeles y trámites para casaros en España."
   },
+  "summary": {
+    "title": "Resumen de la ceremonia",
+    "type": "Tipo",
+    "typeNone": "Elegir tipo de ceremonia",
+    "officiant": "Oficiante",
+    "officiantNone": "Añadir oficiante",
+    "unnamed": "Sin nombre",
+    "status": "Estado del oficiante",
+    "states": {
+      "confirmed": "Confirmado",
+      "pending": "Por confirmar",
+      "unnamed": "Falta el nombre",
+      "none": "Sin definir"
+    }
+  },
   "type": {
     "title": "Tipo de ceremonia",
     "description": "Cómo os queréis casar. Puedes cambiarlo cuando quieras.",
@@ -79,7 +94,7 @@
       "viewBudget": "Ver presupuesto"
     },
     "errors": {
-      "name": "Para marcarlo como confirmado, escribe su nombre.",
+      "name": "Escribe el nombre del oficiante: es obligatorio para guardar la ficha.",
       "email": "Revisa el correo electrónico: debería parecerse a nombre@dominio.com.",
       "fee": "Escribe un importe válido, sin símbolos."
     },
@@ -89,7 +104,12 @@
       "error": "No se ha podido guardar la ficha del oficiante."
     },
     "clear": "Quitar ficha",
-    "save": "Guardar"
+    "save": "Guardar",
+    "required": {
+      "hint": "Los campos marcados con * son obligatorios.",
+      "sr": "obligatorio"
+    },
+    "saveHint": "Escribe el nombre del oficiante para poder guardar."
   },
   "timeline": {
     "title": "Cronograma del día",

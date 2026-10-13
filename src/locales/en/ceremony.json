@@ -3,6 +3,21 @@
     "title": "Legal documents",
     "description": "A guide to the paperwork and procedures for getting married in Spain."
   },
+  "summary": {
+    "title": "Ceremony summary",
+    "type": "Type",
+    "typeNone": "Choose ceremony type",
+    "officiant": "Officiant",
+    "officiantNone": "Add officiant",
+    "unnamed": "No name",
+    "status": "Officiant status",
+    "states": {
+      "confirmed": "Confirmed",
+      "pending": "To be confirmed",
+      "unnamed": "Name missing",
+      "none": "Not set"
+    }
+  },
   "type": {
     "title": "Type of ceremony",
     "description": "How you'd like to get married. You can change it whenever you like.",
@@ -79,7 +94,7 @@
       "viewBudget": "View budget"
     },
     "errors": {
-      "name": "To mark them as confirmed, enter their name.",
+      "name": "Enter the officiant's name: it's required to save the details.",
       "email": "Check the email address: it should look like name@domain.com.",
       "fee": "Enter a valid amount, without symbols."
     },
@@ -89,7 +104,12 @@
       "error": "Couldn't save the officiant details."
     },
     "clear": "Remove details",
-    "save": "Save"
+    "save": "Save",
+    "required": {
+      "hint": "Fields marked * are required.",
+      "sr": "required"
+    },
+    "saveHint": "Enter the officiant's name to be able to save."
   },
   "timeline": {
     "title": "Timeline of the day",

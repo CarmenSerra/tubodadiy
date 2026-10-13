@@ -1,10 +1,14 @@
 import { listCategories } from "@/components/budget/budget-math";
 import { canonicalCategory, categoryKey } from "@/components/vendors/vendor-model";
+import type { Appointment } from "@/lib/firebase/appointments";
+import type { SaveTheDateDesign } from "@/lib/firebase/designs";
+import type { Booking } from "@/lib/honeymoon-model";
 import { baseTaskAuto, currentAuto } from "@/lib/steps";
 import type {
   BudgetItem,
   CeremonyType,
   Guest,
+  PlanOfficiant,
   StepStatus,
   StepTask,
   StepTaskAuto,
@@ -17,6 +21,10 @@ export const VENDORS_CATEGORY = "proveedores";
 export const CEREMONY_CATEGORY = "ceremonia";
 export const LEGAL_DOCS_CATEGORY = "documentos_legales";
 export const GIFT_CATEGORY = "lista_regalos";
+export const VENUE_CATEGORY = "lugar";
+export const OUTFIT_CATEGORY = "vestuario";
+export const STATIONERY_CATEGORY = "papeleria";
+export const HONEYMOON_CATEGORY = "luna_de_miel";
 
 /** Qué tareas automáticas hay que (re)evaluar y con qué datos del plan. */
 export interface AutoTaskInput {
@@ -32,6 +40,13 @@ export interface AutoTaskInput {
   ceremonyType?: CeremonyType | null;
   /** Si viene definido, se sincroniza «Confirmar oficiante» (en los dos sentidos). */
   officiantConfirmed?: boolean;
+  /** Si viene definido, se sincroniza «Elegir destino» (en los dos sentidos). */
+  honeymoonDestination?: boolean;
+  /**
+   * Si viene definido, se sincroniza «Enviar invitaciones» (en los dos sentidos):
+   * `true` al publicar la invitación, `false` al despublicarla.
+   */
+  invitationPublished?: boolean;
   /** Si viene definido, se sincroniza «Reunir documentación» (en los dos sentidos). */
   legalDocsComplete?: boolean;
   /** Si viene definido, se sincroniza «Decidir cómo recibir el regalo» (en los dos sentidos). */
@@ -91,6 +106,12 @@ export function syncAutoTasks(
     if (auto === "officiant-confirmed" && input.officiantConfirmed !== undefined) {
       done = input.officiantConfirmed;
     }
+    if (auto === "honeymoon-destination" && input.honeymoonDestination !== undefined) {
+      done = input.honeymoonDestination;
+    }
+    if (auto === "invitations-send" && input.invitationPublished !== undefined) {
+      done = input.invitationPublished;
+    }
     if (auto === "legal-docs" && input.legalDocsComplete !== undefined) {
       done = input.legalDocsComplete;
     }
@@ -104,6 +125,17 @@ export function syncAutoTasks(
     return { ...task, auto, done };
   });
   return { tasks: next, changed };
+}
+
+/**
+ * «Confirmar oficiante» está hecha cuando la ficha está marcada como
+ * confirmada Y tiene nombre (el nombre es obligatorio para guardar la ficha;
+ * una confirmada sin nombre, venga de donde venga, no cuenta).
+ */
+export function isOfficiantConfirmed(
+  officiant: Pick<PlanOfficiant, "confirmed" | "name"> | null | undefined
+): boolean {
+  return Boolean(officiant?.confirmed && officiant.name.trim());
 }
 
 /** Hitos de «Lista de invitados» que cumple la lista actual. */
@@ -136,6 +168,40 @@ export function vendorsReached(vendors: Pick<Vendor, "category" | "status">[]): 
   return (Object.keys(VENDOR_AUTO_CATEGORY) as StepTaskAuto[]).filter((auto) =>
     chosen.has(categoryKey(VENDOR_AUTO_CATEGORY[auto]!))
   );
+}
+
+/**
+ * «Diseñar las tarjetas “reserva la fecha”»: el diseño guardado tiene algo
+ * escrito (nombres, fecha, lugar o mensaje; la frase superior viene de serie y
+ * no cuenta). Basta con que el documento exista con contenido.
+ */
+export function saveTheDateReached(
+  design: Pick<SaveTheDateDesign, "name1" | "name2" | "date" | "place" | "message"> | null | undefined
+): StepTaskAuto[] {
+  if (!design) return [];
+  const filled = [design.name1, design.name2, design.date, design.place, design.message].some((v) =>
+    v.trim()
+  );
+  return filled ? ["stationery-save-date"] : [];
+}
+
+/**
+ * Citas de la agenda que cumplen una tarea: «Reservar pruebas» con cualquier
+ * cita de vestuario; «Visitar posibles lugares» con una cita de lugar ya
+ * marcada como hecha (visitada).
+ */
+export function appointmentsReached(
+  appointments: Pick<Appointment, "category" | "done">[]
+): StepTaskAuto[] {
+  const reached: StepTaskAuto[] = [];
+  if (appointments.some((a) => a.category === "lugar" && a.done)) reached.push("venue-visit");
+  if (appointments.some((a) => a.category === "vestuario")) reached.push("outfit-fitting");
+  return reached;
+}
+
+/** «Reservar vuelos y alojamiento»: hay una reserva de vuelo o de hotel. */
+export function honeymoonBookReached(bookings: Pick<Booking, "type">[]): StepTaskAuto[] {
+  return bookings.some((b) => b.type === "vuelo" || b.type === "hotel") ? ["honeymoon-book"] : [];
 }
 
 /** El presupuesto está repartido cuando hay gastos en 2 o más categorías. */

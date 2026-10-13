@@ -124,6 +124,19 @@ export async function syncAutoTaskStep(planId: string, category: string, data: A
 }
 
 /**
+ * Igual que `syncAutoTaskStep`, pero nunca falla hacia fuera: para quien ya ha
+ * guardado su dato y solo quiere avanzar el progreso del paso (diseños,
+ * invitación, citas, luna de miel…). Usarlo con `void`.
+ */
+export async function syncStepQuietly(planId: string, category: string, input: AutoTaskInput) {
+  try {
+    await syncAutoTaskStep(planId, category, input);
+  } catch (error) {
+    console.warn("No se pudieron sincronizar las tareas del plan", error);
+  }
+}
+
+/**
  * Avanza el paso "Cronograma del día": "draft" al crear el primer momento,
  * "share" al copiar o imprimir. Nunca falla hacia fuera: el cronograma ya se
  * ha guardado y esto es solo el progreso del paso.

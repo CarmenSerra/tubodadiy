@@ -5,7 +5,7 @@
   "templates": {
     "botanico": {
       "label": "Botanical",
-      "hint": "Lilac and sage, with leaves"
+      "hint": "Calligraphy and sprigs"
     },
     "minimal": {
       "label": "Minimal",
@@ -13,7 +13,7 @@
     },
     "elegante": {
       "label": "Elegant",
-      "hint": "Deep plum"
+      "hint": "Italic with a double frame"
     }
   },
   "share": {
@@ -43,7 +43,8 @@
     "when": "When and where",
     "places": {
       "ceremony": "Ceremony",
-      "banquet": "Reception"
+      "banquet": "Reception",
+      "both": "Ceremony and banquet"
     },
     "directions": "Get directions",
     "directionsSr": "to {{place}} (opens in a new tab)",
@@ -75,7 +76,10 @@
     "footer": {
       "withLove": "With love, {{names}}",
       "madeWith": "Invitation made with tubodadiy"
-    }
+    },
+    "cardLabel": "Invitation card",
+    "photoAlt": "Photo of the wedding venue",
+    "later": "Afterwards, we'll celebrate at…"
   },
   "rsvp": {
     "legend": "Attendance reply",
@@ -191,7 +195,8 @@
       "where": "Where",
       "whereNote": "If something doesn't apply, leave it blank and it won't appear.",
       "gift": "Gift",
-      "publish": "Publish and share"
+      "publish": "Publish and share",
+      "image": "Venue image"
     },
     "language": {
       "label": "Invitation language",
@@ -266,7 +271,9 @@
       "unpublished": "Invitation unpublished. The link no longer works.",
       "unpublishFailed": "We couldn't unpublish it. Please try again.",
       "linkCopied": "Link copied",
-      "copyFailed": "We couldn't copy it. Select the link and copy it by hand."
+      "copyFailed": "We couldn't copy it. Select the link and copy it by hand.",
+      "slugInvalid": "Check the link: {{min}} to {{max}} characters, lowercase letters, numbers or _ only.",
+      "slugTaken": "That link is already in use. Choose another one."
     },
     "color": {
       "note": "Pick a palette for the whole invitation. You can still tweak every colour.",
@@ -297,6 +304,45 @@
     "background": {
       "note": "This is how each background looks with your palette.",
       "label": "Background type"
+    },
+    "style": {
+      "shared": "The style is the same on the invitation and on “Save the date”: change it here and it changes there too."
+    },
+    "image": {
+      "note": "It goes at the top of the card, with a watercolor effect. The effect is only applied when it is shown: your photo is not modified.",
+      "label": "Card image",
+      "modes": {
+        "photo": "Photo",
+        "illustration": "Illustration",
+        "none": "None"
+      },
+      "currentAlt": "Photo chosen for the card",
+      "watercolorNote": "It is shown with a watercolor effect and saved downsized (about 60 KB).",
+      "empty": "No photo yet: the illustration is shown meanwhile. Upload one from your device.",
+      "emptyWithVenue": "No photo yet: the illustration is shown meanwhile. Upload one or use your venue's.",
+      "upload": "Upload a photo",
+      "replace": "Change the photo",
+      "useVenue": "Use the venue photo",
+      "useVenueNamed": "Use the photo of {{name}}",
+      "remove": "Remove the photo",
+      "uploadError": "We couldn't use that image. Try another one (JPG, PNG or WebP)."
+    },
+    "slug": {
+      "label": "Custom link",
+      "help": "Lowercase letters, numbers and underscores (_) only, {{min}} to {{max}} characters.",
+      "invalid": "The link must be {{min}} to {{max}} characters long, with lowercase letters, numbers or _ only.",
+      "taken": "This link is already in use. Try another one.",
+      "suggestion": "We suggest:",
+      "checking": "Checking whether it is free…",
+      "error": "We couldn't check it right now; we'll check it when you save.",
+      "free": "It is free",
+      "mine": "This is your invitation's current link",
+      "moves": "When you save, the previous link will stop working: share the new one. The replies you have already received are kept.",
+      "words": {
+        "one": "wedding",
+        "two": "love",
+        "three": "together"
+      }
     }
   },
   "palettes": {

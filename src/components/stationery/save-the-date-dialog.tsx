@@ -14,6 +14,9 @@ import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
+import { sameStyle, styleOf, type InvitationStyle } from "@/components/invitation/invitation-model";
+import { StyleEditor } from "@/components/invitation/style-editor";
+import { loadBackdrop } from "@/components/stationery/save-the-date-backdrop";
 import {
   createPdf,
   createPng,
@@ -67,13 +70,21 @@ import {
   MAX_MESSAGE,
   MAX_NAME,
   MAX_PLACE,
-  SAVE_THE_DATE_TEMPLATES,
   mapSaveTheDate,
   saveSaveTheDate,
   saveTheDateRef,
   type SaveTheDateDesign,
-  type SaveTheDateTemplate,
 } from "@/lib/firebase/designs";
+import { mapInvitation, planInvitationQuery } from "@/lib/firebase/invitation";
+import {
+  mapStyle,
+  resolveStyle,
+  saveSharedStyle,
+  styleRef,
+  syncInvitationStyle,
+  templateToStationery,
+} from "@/lib/firebase/invitation-style";
+import { useCollection } from "@/lib/hooks/use-collection";
 import { useDoc } from "@/lib/hooks/use-doc";
 import { type Lang } from "@/lib/i18n/config";
 import { useLanguage } from "@/lib/i18n/provider";
@@ -150,6 +161,9 @@ function SaveTheDateBody({
   const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
   const { data: saved, loading, error } = useDoc(saveTheDateRef(planId), mapSaveTheDate);
+  // El estilo (plantilla, paleta y fondo) es el mismo que el de la invitación.
+  const { data: sharedStyle, loading: styleLoading } = useDoc(styleRef(planId), mapStyle);
+  const { data: invitations, loading: invitationLoading } = useCollection(planInvitationQuery(planId), mapInvitation);
 
   if (error) {
     return (
@@ -160,7 +174,7 @@ function SaveTheDateBody({
       </div>
     );
   }
-  if (loading || !plan) {
+  if (loading || styleLoading || invitationLoading || !plan) {
     return (
       <div role="status" aria-label={t("stationery.loading")} className="flex flex-1 gap-6 px-5 pb-6 sm:px-8">
         <div className="flex flex-1 flex-col gap-3">
@@ -177,6 +191,12 @@ function SaveTheDateBody({
       // Una instancia por apertura: los datos guardados se leen una sola vez.
       initial={localizeDefaults(saved ?? defaultDesign(plan, lang), lang)}
       hasSaved={saved !== null}
+      initialStyle={resolveStyle({
+        shared: sharedStyle,
+        invitation: invitations[0] ? styleOf(invitations[0]) : null,
+        stationeryTemplate: saved?.template ?? null,
+      })}
+      hasSharedStyle={sharedStyle !== null}
       onClose={onClose}
       registerGuard={registerGuard}
     />
@@ -186,11 +206,13 @@ function SaveTheDateBody({
 /** Dibuja la tarjeta en un canvas (vista previa y miniaturas). */
 function CardCanvas({
   design,
+  style,
   pixels,
   lang,
   className,
 }: {
   design: SaveTheDateDesign;
+  style: InvitationStyle;
   pixels: number;
   lang: Lang;
   className?: string;
@@ -200,13 +222,13 @@ function CardCanvas({
   React.useEffect(() => {
     let cancelled = false;
     const fonts = readCardFonts();
-    void loadCardFonts(fonts, design).then(() => {
-      if (!cancelled && ref.current) drawSaveTheDate(ref.current, design, fonts, lang);
+    void Promise.all([loadCardFonts(fonts, design), loadBackdrop(style)]).then(() => {
+      if (!cancelled && ref.current) drawSaveTheDate(ref.current, design, style, fonts, lang);
     });
     return () => {
       cancelled = true;
     };
-  }, [design, lang]);
+  }, [design, style, lang]);
 
   return (
     <canvas
@@ -222,11 +244,16 @@ function CardCanvas({
 function Editor({
   initial,
   hasSaved: initiallySaved,
+  initialStyle,
+  hasSharedStyle,
   onClose,
   registerGuard,
 }: {
   initial: SaveTheDateDesign;
   hasSaved: boolean;
+  initialStyle: InvitationStyle;
+  /** ¿Existe ya el estilo compartido? Si no, el primer guardado lo crea. */
+  hasSharedStyle: boolean;
   onClose: () => void;
   registerGuard: (guard: CloseGuard | null) => void;
 }) {
@@ -235,13 +262,16 @@ function Editor({
   const { planId, plan } = usePlanContext();
   const [design, setDesign] = React.useState(initial);
   const [baseline, setBaseline] = React.useState(initial);
+  const [style, setStyle] = React.useState(initialStyle);
+  const [baselineStyle, setBaselineStyle] = React.useState(initialStyle);
+  const [sharedExists, setSharedExists] = React.useState(hasSharedStyle);
   const [hasSaved, setHasSaved] = React.useState(initiallySaved);
   const [saving, setSaving] = React.useState(false);
   const [busy, setBusy] = React.useState<null | "png" | "pdf">(null);
   const [confirmClose, setConfirmClose] = React.useState(false);
   const [mobileTab, setMobileTab] = React.useState<"edit" | "preview">("edit");
 
-  const dirty = !sameDesign(design, baseline);
+  const dirty = !sameDesign(design, baseline) || !sameStyle(style, baselineStyle);
   const shareable = isShareable(design);
   const preview = React.useMemo(() => withSamples(design, lang), [design, lang]);
 
@@ -270,8 +300,17 @@ function Editor({
   async function save(): Promise<boolean> {
     setSaving(true);
     try {
-      await saveSaveTheDate(planId, design);
+      // La plantilla del documento sigue al estilo compartido (así lo leen los datos antiguos).
+      const toSave = { ...design, template: templateToStationery(style.template) };
+      await saveSaveTheDate(planId, toSave);
+      // El estilo es del plan: lo ve igual la invitación (también la ya publicada).
+      if (!sharedExists || !sameStyle(style, baselineStyle)) {
+        await saveSharedStyle(planId, style);
+        setSharedExists(true);
+        await syncInvitationStyle(planId, style).catch(() => {});
+      }
       setBaseline(design);
+      setBaselineStyle(style);
       setHasSaved(true);
       return true;
     } catch {
@@ -302,9 +341,9 @@ function Editor({
     try {
       const base = fileBaseName(design, lang);
       if (kind === "png") {
-        downloadBlob(await createPng(design, lang), `${base}.png`);
+        downloadBlob(await createPng(design, style, lang), `${base}.png`);
       } else {
-        downloadBlob(await createPdf(design, defaultHeading(lang), lang), `${base}.pdf`);
+        downloadBlob(await createPdf(design, style, defaultHeading(lang), lang), `${base}.pdf`);
       }
     } catch {
       toast.error(kind === "png" ? t("stationery.toasts.pngError") : t("stationery.toasts.pdfError"));
@@ -358,22 +397,6 @@ function Editor({
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-line px-5 py-5 sm:px-8 md:grid md:grid-cols-[minmax(0,1fr)_19rem] md:items-start md:gap-8">
         {/* Formulario */}
         <div className={cn("flex min-w-0 flex-col gap-5", mobileTab !== "edit" && "hidden md:flex")}>
-          <fieldset className="flex flex-col gap-2">
-            <legend className={cn(FIELD_LABEL, "mb-2")}>{t("stationery.style")}</legend>
-            <div className="grid grid-cols-4 gap-2 sm:gap-3">
-              {SAVE_THE_DATE_TEMPLATES.map((id) => (
-                <TemplateOption
-                  key={id}
-                  id={id}
-                  checked={design.template === id}
-                  design={preview}
-                  lang={lang}
-                  onSelect={() => patch({ template: id })}
-                />
-              ))}
-            </div>
-          </fieldset>
-
           <div className="flex flex-col gap-2">
             <Label htmlFor={headingId} className={FIELD_LABEL}>
               {t("stationery.fields.heading")}
@@ -473,6 +496,9 @@ function Editor({
               {design.message.length}/{MAX_MESSAGE}
             </p>
           </div>
+
+          {/* El mismo selector que la invitación: plantilla, paleta y fondo compartidos. */}
+          <StyleEditor style={style} onChange={setStyle} idPrefix="std-style" />
         </div>
 
         {/* Vista previa y exportación */}
@@ -493,7 +519,7 @@ function Editor({
               })}
               className="overflow-hidden rounded-xl border border-line bg-field shadow-pop"
             >
-              <CardCanvas design={preview} pixels={720} lang={lang} />
+              <CardCanvas design={preview} style={style} pixels={720} lang={lang} />
             </div>
             <figcaption className="sr-only">{t("stationery.preview.caption")}</figcaption>
           </figure>
@@ -559,7 +585,7 @@ function Editor({
         <button
           type="button"
           onClick={() => void handleSave()}
-          disabled={saving || !dirty}
+          disabled={saving || (!dirty && hasSaved)}
           className={cn(CTA_PRIMARY, "disabled:opacity-60")}
         >
           {saving ? (
@@ -601,53 +627,5 @@ function Editor({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
-}
-
-function TemplateOption({
-  id,
-  checked,
-  design,
-  lang,
-  onSelect,
-}: {
-  id: SaveTheDateTemplate;
-  checked: boolean;
-  design: SaveTheDateDesign;
-  lang: Lang;
-  onSelect: () => void;
-}) {
-  const { t } = useTranslation("tools");
-  const thumb = React.useMemo(() => ({ ...design, template: id }), [design, id]);
-  return (
-    <label className="group flex min-w-0 cursor-pointer flex-col items-center gap-1.5">
-      <input
-        type="radio"
-        name="save-the-date-template"
-        value={id}
-        checked={checked}
-        onChange={onSelect}
-        className="peer sr-only"
-      />
-      <span
-        className={cn(
-          "block w-full overflow-hidden rounded-lg border border-line transition-shadow",
-          "peer-checked:ring-2 peer-checked:ring-lilac peer-checked:ring-offset-2 peer-checked:ring-offset-surface",
-          "peer-focus-visible:ring-2 peer-focus-visible:ring-lilac peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface",
-          "group-hover:border-line-strong"
-        )}
-      >
-        <CardCanvas design={thumb} pixels={200} lang={lang} />
-      </span>
-      <span
-        className={cn(
-          "text-center text-xs leading-tight",
-          checked ? "font-semibold text-ink" : "text-ink-muted"
-        )}
-        title={t(`stationery.templates.${id}.blurb`)}
-      >
-        {t(`stationery.templates.${id}.label`)}
-      </span>
-    </label>
   );
 }

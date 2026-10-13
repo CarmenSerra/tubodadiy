@@ -4,6 +4,7 @@ import * as React from "react";
 import { FileCheck2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { CeremonySummary } from "@/components/ceremony/ceremony-summary";
 import { CeremonyTypeSection } from "@/components/ceremony/ceremony-type-section";
 import { OfficiantSection } from "@/components/ceremony/officiant-section";
 import { CeremonySection } from "@/components/ceremony/section";
@@ -29,6 +30,7 @@ export function CeremonyPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <CeremonySummary />
       <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
         <CeremonyTypeSection onPick={openPicker} />
         <OfficiantSection />

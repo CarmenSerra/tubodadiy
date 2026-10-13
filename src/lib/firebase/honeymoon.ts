@@ -7,6 +7,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   runTransaction,
   serverTimestamp,
   setDoc,
@@ -16,7 +17,9 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 
+import { HONEYMOON_CATEGORY, honeymoonBookReached } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
+import { syncStepQuietly } from "@/lib/firebase/mutations";
 import {
   DEFAULT_SETTINGS,
   SUGGESTED_PACKING,
@@ -138,6 +141,36 @@ export function mapPackingItem(id: string, data: DocumentData): PackingItem {
   };
 }
 
+// ---------- Tareas del plan ----------
+
+/**
+ * «Elegir destino» sigue a que haya un destino marcado como elegido, en los dos
+ * sentidos. Lee la colección (no se fía de quien llama). Con `markOnly` (al
+ * abrir el plan) solo marca, para no quitar un tick puesto a mano. Nunca lanza.
+ */
+export async function syncHoneymoonDestinationTask(planId: string, markOnly = false): Promise<void> {
+  try {
+    const snap = await getDocs(destinationsQuery(planId));
+    const chosen = snap.docs.some((d) => mapDestination(d.id, d.data()).chosen);
+    if (markOnly && !chosen) return;
+    await syncStepQuietly(planId, HONEYMOON_CATEGORY, { honeymoonDestination: chosen });
+  } catch (error) {
+    console.warn("No se pudo sincronizar la tarea del destino", error);
+  }
+}
+
+/** «Reservar vuelos y alojamiento»: se marca con una reserva de vuelo u hotel (no se desmarca sola). Nunca lanza. */
+export async function syncHoneymoonBookTask(planId: string): Promise<void> {
+  try {
+    const snap = await getDocs(bookingsQuery(planId));
+    const reached = honeymoonBookReached(snap.docs.map((d) => mapBooking(d.id, d.data())));
+    if (reached.length === 0) return;
+    await syncStepQuietly(planId, HONEYMOON_CATEGORY, { reached });
+  } catch (error) {
+    console.warn("No se pudo sincronizar la tarea de las reservas", error);
+  }
+}
+
 // ---------- Ajustes y presupuesto ----------
 
 export async function setHoneymoonBudget(planId: string, budgetTotal: number) {
@@ -162,6 +195,7 @@ export async function updateDestination(planId: string, id: string, data: Partia
 
 export async function deleteDestination(planId: string, id: string) {
   await deleteDoc(honeymoonDoc(planId, "destinations", id));
+  void syncHoneymoonDestinationTask(planId);
 }
 
 /** Vuelve a crear un destino borrado, con su mismo id y sus votos. */
@@ -171,6 +205,7 @@ export async function restoreDestination(planId: string, dest: Destination) {
     ...rest,
     createdAt: createdAt ? Timestamp.fromMillis(createdAt) : serverTimestamp(),
   });
+  void syncHoneymoonDestinationTask(planId);
 }
 
 /** Añade o quita el voto de un miembro (atómico: varios miembros pueden votar a la vez). */
@@ -191,6 +226,7 @@ export async function setChosenDestination(planId: string, id: string | null, ch
   }
   if (id) batch.update(honeymoonDoc(planId, "destinations", id), { chosen: true });
   await batch.commit();
+  void syncHoneymoonDestinationTask(planId);
 }
 
 // ---------- Itinerario ----------
@@ -228,11 +264,13 @@ export async function swapDays(planId: string, a: TripDay, b: TripDay) {
 
 export async function createBooking(planId: string, data: BookingInput): Promise<string> {
   const ref = await addDoc(bookingsQuery(planId), { ...data, createdAt: serverTimestamp() });
+  void syncHoneymoonBookTask(planId);
   return ref.id;
 }
 
 export async function updateBooking(planId: string, id: string, data: Partial<BookingInput>) {
   await updateDoc(honeymoonDoc(planId, "bookings", id), data);
+  void syncHoneymoonBookTask(planId);
 }
 
 export async function deleteBooking(planId: string, id: string) {
@@ -245,6 +283,7 @@ export async function restoreBooking(planId: string, booking: Booking) {
     ...rest,
     createdAt: createdAt ? Timestamp.fromMillis(createdAt) : serverTimestamp(),
   });
+  void syncHoneymoonBookTask(planId);
 }
 
 // ---------- Maleta y papeles ----------

@@ -1,0 +1,135 @@
+import { WASH_SHAPES, backdropImages, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
+import type { InvitationStyle } from "@/components/invitation/invitation-model";
+import { LEGACY_COLORS, buildTheme, type InvitationTheme } from "@/components/invitation/invitation-theme";
+
+// Fondos de la invitación (rayas, lunares, flores…) pintados en el lienzo de
+// «Reserva la fecha». Las imágenes salen de los mismos generadores SVG que usa
+// la invitación, con los colores de la paleta, así que se ven igual en las dos.
+
+/** Escala de los motivos respecto a la página de la invitación (la tarjeta es más pequeña que una pantalla). */
+const TILE_SCALE = 1.5;
+
+const images = new Map<string, Promise<HTMLImageElement | null>>();
+
+function loadImage(src: string): Promise<HTMLImageElement | null> {
+  let cached = images.get(src);
+  if (!cached) {
+    cached = new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+    // La caché no crece sin límite: los colores cambian mucho al elegir paleta.
+    if (images.size > 40) images.delete(images.keys().next().value as string);
+    images.set(src, cached);
+  }
+  return cached;
+}
+
+const ready = new Map<string, HTMLImageElement>();
+
+function themeOf(style: InvitationStyle): InvitationTheme {
+  return buildTheme(style.palette?.colors ?? LEGACY_COLORS[style.template], style.template);
+}
+
+/** Descarga las imágenes del fondo elegido; hay que esperarla antes de `drawSaveTheDate`. */
+export async function loadBackdrop(style: InvitationStyle): Promise<void> {
+  const urls = backdropImages(style.background, themeOf(style));
+  const loaded = await Promise.all(urls.map(loadImage));
+  urls.forEach((url, i) => {
+    const img = loaded[i];
+    if (img) ready.set(url, img);
+  });
+}
+
+/** Pinta el fondo sobre el color base. Sin imágenes cargadas (o con fondo liso) no hace nada. */
+export function paintBackdrop(
+  ctx: CanvasRenderingContext2D,
+  kind: InvitationBackground | undefined,
+  theme: InvitationTheme,
+  width: number,
+  height: number
+) {
+  if (!kind || kind === "plain") return;
+
+  if (kind === "watercolor") {
+    paintWashes(ctx, theme, width, height);
+    return;
+  }
+
+  const urls = backdropImages(kind, theme);
+  const imgs = urls.map((u) => ready.get(u));
+  ctx.save();
+
+  if (kind === "floral") {
+    // Una ramita a cada lado (la segunda está ya reflejada) y un marco fino.
+    const [left, right] = imgs;
+    const w = (left?.naturalWidth ?? 64) * TILE_SCALE;
+    const h = (left?.naturalHeight ?? 360) * TILE_SCALE;
+    for (let y = 0; y < height; y += h) {
+      if (left) ctx.drawImage(left, -20 * TILE_SCALE, y, w, h);
+      if (right) ctx.drawImage(right, width - w + 20 * TILE_SCALE, y, w, h);
+    }
+    ctx.globalAlpha = 0.8;
+    ctx.strokeStyle = theme.line;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(22, 22, width - 44, height - 44, 36);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  // Azulejos que se repiten (el de «papel» lleva además un degradado de CSS que aquí no hace falta).
+  const tile = imgs[imgs.length - 1];
+  if (tile) {
+    const pattern = ctx.createPattern(tile, "repeat");
+    if (pattern) {
+      pattern.setTransform(new DOMMatrix().scale(kind === "paper" ? 1 : TILE_SCALE));
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, 0, width, height);
+    }
+  }
+  ctx.restore();
+}
+
+/** Manchas de acuarela en las cuatro esquinas (las mismas formas que el CSS de la invitación). */
+function paintWashes(ctx: CanvasRenderingContext2D, theme: InvitationTheme, width: number, height: number) {
+  const size = Math.min(width * 0.46, 300 * TILE_SCALE);
+  const k = size / 200;
+  const corners = [
+    { x: 0, y: 0, sx: 1, sy: 1, a: theme.primary, b: theme.leaf },
+    { x: width, y: 0, sx: -1, sy: 1, a: theme.leaf, b: theme.primary },
+    { x: 0, y: height, sx: 1, sy: -1, a: theme.leaf, b: theme.primary },
+    { x: width, y: height, sx: -1, sy: -1, a: theme.primary, b: theme.leaf },
+  ];
+  const pathA = new Path2D(WASH_SHAPES.a);
+  const pathB = new Path2D(WASH_SHAPES.b);
+  for (const c of corners) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.scale(c.sx * k, c.sy * k);
+    if ("filter" in ctx) ctx.filter = "blur(3px)";
+    for (const [path, color, w] of [
+      [pathA, c.a, 1.6],
+      [pathB, c.b, 1.4],
+    ] as const) {
+      ctx.globalAlpha = 0.34;
+      ctx.fillStyle = color;
+      ctx.fill(path);
+      ctx.globalAlpha = 0.4;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = w;
+      ctx.stroke(path);
+    }
+    for (const d of WASH_SHAPES.dots) {
+      ctx.globalAlpha = d.o;
+      ctx.fillStyle = d.tone === "a" ? c.a : c.b;
+      ctx.beginPath();
+      ctx.arc(d.cx, d.cy, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}

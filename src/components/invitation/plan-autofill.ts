@@ -84,6 +84,26 @@ export function venueVendors(vendors: Vendor[]): Vendor[] {
     .map(({ v }) => v);
 }
 
+export interface VenuePhoto {
+  /** Data URI (foto subida) o URL http(s) (foto enlazada). */
+  src: string;
+  /** Nombre de la finca, para decir de dónde sale. */
+  name: string;
+}
+
+/**
+ * Foto de la finca: la de la elegida (`chosen`) si tiene (subida antes que
+ * enlazada); con `anyStatus`, la de la opción más avanzada que tenga una.
+ */
+export function venuePhoto(vendors: Vendor[], anyStatus = false): VenuePhoto | null {
+  for (const v of venueVendors(vendors)) {
+    if (!anyStatus && v.status !== "chosen") continue;
+    const src = v.photoData?.startsWith("data:image/") ? v.photoData : cleanUrl(v.photoUrl ?? "");
+    if (src) return { src, name: v.name.trim() };
+  }
+  return null;
+}
+
 const mentions = (v: Vendor, re: RegExp) => re.test(normalize(`${v.name} ${v.notes}`));
 const CEREMONY_WORDS = /ceremoni|ceremony|iglesia|church|parroquia|ermita|chapel|ayuntamiento|town hall|juzgado/;
 const BANQUET_WORDS = /banquete|banquet|celebracion|celebration|reception|comida|lunch|dinner|convite/;

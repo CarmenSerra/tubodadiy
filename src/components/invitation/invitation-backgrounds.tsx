@@ -191,28 +191,26 @@ function floral(t: InvitationTheme): Spec {
 
 // ---- Manchas de acuarela en las esquinas ----
 
+/** Formas de las manchas de las esquinas (viewBox 200 × 200); también las pinta «Reserva la fecha» en su lienzo. */
+export const WASH_SHAPES = {
+  a: "M-20 -20 H172 C184 30 152 60 120 80 C86 100 70 130 46 152 C30 166 8 172 -20 170 Z",
+  b: "M-20 -20 H112 C116 28 92 52 68 66 C46 80 34 104 10 116 C-4 122 -12 122 -20 120 Z",
+  dots: [
+    { cx: 152, cy: 22, r: 15, tone: "b", o: 0.26 },
+    { cx: 26, cy: 146, r: 11, tone: "a", o: 0.3 },
+    { cx: 104, cy: 104, r: 6, tone: "b", o: 0.22 },
+  ],
+} as const;
+
 function Wash({ className, a, b }: { className: string; a: string; b: string }) {
+  const tone = { a, b };
   return (
     <svg viewBox="0 0 200 200" className={className} focusable="false" aria-hidden="true">
-      <path
-        d="M-20 -20 H172 C184 30 152 60 120 80 C86 100 70 130 46 152 C30 166 8 172 -20 170 Z"
-        fill={a}
-        fillOpacity=".34"
-        stroke={a}
-        strokeOpacity=".4"
-        strokeWidth="1.6"
-      />
-      <path
-        d="M-20 -20 H112 C116 28 92 52 68 66 C46 80 34 104 10 116 C-4 122 -12 122 -20 120 Z"
-        fill={b}
-        fillOpacity=".34"
-        stroke={b}
-        strokeOpacity=".4"
-        strokeWidth="1.4"
-      />
-      <circle cx="152" cy="22" r="15" fill={b} fillOpacity=".26" />
-      <circle cx="26" cy="146" r="11" fill={a} fillOpacity=".3" />
-      <circle cx="104" cy="104" r="6" fill={b} fillOpacity=".22" />
+      <path d={WASH_SHAPES.a} fill={a} fillOpacity=".34" stroke={a} strokeOpacity=".4" strokeWidth="1.6" />
+      <path d={WASH_SHAPES.b} fill={b} fillOpacity=".34" stroke={b} strokeOpacity=".4" strokeWidth="1.4" />
+      {WASH_SHAPES.dots.map((d) => (
+        <circle key={`${d.cx}-${d.cy}`} cx={d.cx} cy={d.cy} r={d.r} fill={tone[d.tone]} fillOpacity={d.o} />
+      ))}
     </svg>
   );
 }
@@ -285,6 +283,18 @@ const BUILDERS: Record<Exclude<InvitationBackground, "plain">, (t: InvitationThe
   arches,
   confetti,
 };
+
+/**
+ * Las imágenes de un fondo de azulejo o de ramitas (SVG en data URI, en el orden
+ * de CSS: la primera va encima). Los fondos que son capas de elementos (manchas
+ * de acuarela) o liso devuelven una lista vacía. «Reserva la fecha» las dibuja
+ * en su lienzo para verse igual que la invitación.
+ */
+export function backdropImages(kind: InvitationBackground | undefined, theme: InvitationTheme): string[] {
+  if (!kind || kind === "plain") return [];
+  const image = BUILDERS[kind](theme).style.backgroundImage;
+  return typeof image === "string" ? [...image.matchAll(/url\("(data:[^"]+)"\)/g)].map((m) => m[1]) : [];
+}
 
 /**
  * Capa de fondo (detrás del contenido). `scale` encoge los motivos para las

@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
-  AppointmentFormDialog,
+  AppointmentForm,
   type AppointmentChange,
 } from "@/components/appointments/appointment-form-dialog";
 import {
@@ -19,7 +19,7 @@ import {
 } from "@/components/appointments/appointment-model";
 import { Eucalyptus, Floret } from "@/components/brand/welcome-decorations";
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
-import { CHECKBOX, DeleteIconButton, EditIconButton } from "@/components/guests/brand-dialog";
+import { CHECKBOX, DIALOG_CONTENT, DeleteIconButton, EditIconButton } from "@/components/guests/brand-dialog";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { ignoreToastInteraction } from "@/components/timeline/use-timeline-undo";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,6 +56,17 @@ export interface AppointmentsIntent {
   category?: AppointmentCategory;
 }
 
+/**
+ * Un solo diálogo con dos vistas: la lista de citas y el formulario de una cita
+ * (nueva o editada). Pasar de una a otra cambia el contenido, nunca apila un
+ * segundo diálogo encima.
+ */
+type AgendaView = { kind: "list" } | { kind: "form"; item?: Appointment; category?: AppointmentCategory };
+
+function initialView(intent: AppointmentsIntent | null): AgendaView {
+  return intent?.category ? { kind: "form", category: intent.category } : { kind: "list" };
+}
+
 export function AppointmentsDialog({
   open,
   onOpenChange,
@@ -65,53 +76,64 @@ export function AppointmentsDialog({
   onOpenChange: (open: boolean) => void;
   intent: AppointmentsIntent | null;
 }) {
-  const { t } = useTranslation("tools");
   const contentRef = React.useRef<HTMLDivElement>(null);
   const restoreFocus = useRestoreFocus();
+  const [view, setView] = React.useState<AgendaView>(() => initialView(intent));
+  const [wasOpen, setWasOpen] = React.useState(open);
+
+  // Cada vez que se abre, arranca en la vista que pide quien la abre (lista o formulario).
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setView(initialView(intent));
+  }
+
+  const showList = view.kind === "list";
+  // Volver a la lista desde el formulario: el foco pasa al diálogo (el botón que lo tenía ya no existe).
+  const backToList = React.useCallback(() => {
+    setView({ kind: "list" });
+    contentRef.current?.focus();
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         ref={contentRef}
-        className={MODAL}
-        // El foco empieza en el propio diálogo (se anuncia su título).
+        aria-describedby={undefined}
+        className={showList ? MODAL : cn(DIALOG_CONTENT, "max-h-[calc(100dvh-1rem)] outline-none")}
+        // El foco empieza en el propio diálogo (se anuncia su título); en el formulario, en el primer campo.
         onOpenAutoFocus={(event) => {
           restoreFocus.onOpenAutoFocus();
-          event.preventDefault();
-          contentRef.current?.focus();
+          if (showList) {
+            event.preventDefault();
+            contentRef.current?.focus();
+          }
         }}
         onCloseAutoFocus={restoreFocus.onCloseAutoFocus}
         onInteractOutside={ignoreToastInteraction}
       >
-        <DialogHeader className="shrink-0 gap-1 px-5 pb-4 pt-5 pr-14 text-left sm:px-8 sm:pt-7">
-          <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            {t("appointments.title")}
-          </DialogTitle>
-          <DialogDescription className="text-sm text-ink-muted">{t("appointments.description")}</DialogDescription>
-        </DialogHeader>
-        {open && <AppointmentsBody intent={intent} />}
+        {open && <AppointmentsBody view={view} onView={setView} onBack={backToList} />}
       </DialogContent>
     </Dialog>
   );
 }
 
-function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
+function AppointmentsBody({
+  view,
+  onView,
+  onBack,
+}: {
+  view: AgendaView;
+  onView: (view: AgendaView) => void;
+  onBack: () => void;
+}) {
   const { t } = useTranslation("tools");
   const { planId } = usePlanContext();
   const appts = useCollection(appointmentsCollection(planId), mapAppointment);
   const vendors = useCollection(vendorsQuery(planId), mapVendor);
   const { upcoming, past } = React.useMemo(() => groupAppointments(appts.data), [appts.data]);
 
-  // Si te llevan aquí para apuntar un tipo de cita (p. ej. «Visitar posibles lugares»),
-  // el formulario se abre ya con ese tipo.
-  const [form, setForm] = React.useState<{
-    open: boolean;
-    item?: Appointment;
-    category?: AppointmentCategory;
-  }>(() => (intent?.category ? { open: true, category: intent.category } : { open: false }));
-
   function openNew(category?: AppointmentCategory) {
-    setForm({ open: true, item: undefined, category });
+    onView({ kind: "form", category });
   }
 
   function handleChange(change: AppointmentChange) {
@@ -147,12 +169,39 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
     }
   }
 
+  if (view.kind === "form") {
+    return (
+      <AppointmentForm
+        // Una instancia nueva por cita: el formulario siempre arranca con sus datos.
+        key={view.item?.id ?? `new-${view.category ?? ""}`}
+        planId={planId}
+        item={view.item}
+        defaultCategory={view.category}
+        vendors={vendors.data}
+        onDone={onBack}
+        onChange={handleChange}
+      />
+    );
+  }
+
+  const header = (
+    <DialogHeader className="shrink-0 gap-1 px-5 pb-4 pt-5 pr-14 text-left sm:px-8 sm:pt-7">
+      <DialogTitle className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+        {t("appointments.title")}
+      </DialogTitle>
+      <DialogDescription className="text-sm text-ink-muted">{t("appointments.description")}</DialogDescription>
+    </DialogHeader>
+  );
+
   if (appts.error) {
     return (
-      <div className="flex-1 px-5 py-6 sm:px-8">
-        <p role="alert" className="text-sm text-ink">
-          {t("appointments.errors.load")}
-        </p>
+      <div className="flex min-h-0 flex-1 flex-col">
+        {header}
+        <div className="flex-1 px-5 py-6 sm:px-8">
+          <p role="alert" className="text-sm text-ink">
+            {t("appointments.errors.load")}
+          </p>
+        </div>
       </div>
     );
   }
@@ -161,6 +210,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      {header}
       {hasItems && (
         <div className="shrink-0 border-y border-line px-5 py-3 sm:px-8">
           <button type="button" onClick={() => openNew()} className={cn(CTA_PRIMARY, "h-10 px-5")}>
@@ -186,7 +236,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
               items={upcoming}
               emptyText={t("appointments.groups.upcomingEmpty")}
               vendorNames={vendors.data}
-              onEdit={(item) => setForm({ open: true, item })}
+              onEdit={(item) => onView({ kind: "form", item })}
               onDelete={handleDelete}
               onToggle={handleToggle}
             />
@@ -196,7 +246,7 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
                 items={past}
                 muted
                 vendorNames={vendors.data}
-                onEdit={(item) => setForm({ open: true, item })}
+                onEdit={(item) => onView({ kind: "form", item })}
                 onDelete={handleDelete}
                 onToggle={handleToggle}
               />
@@ -205,15 +255,6 @@ function AppointmentsBody({ intent }: { intent: AppointmentsIntent | null }) {
         )}
       </div>
 
-      <AppointmentFormDialog
-        planId={planId}
-        open={form.open}
-        onOpenChange={(open) => setForm((f) => ({ ...f, open }))}
-        item={form.item}
-        defaultCategory={form.category}
-        vendors={vendors.data}
-        onChange={handleChange}
-      />
     </div>
   );
 }

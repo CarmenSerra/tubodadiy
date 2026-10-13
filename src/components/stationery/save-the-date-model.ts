@@ -8,8 +8,6 @@ import type { WeddingPlan } from "@/lib/types";
 /** Parámetro de la URL que abre el diseñador: /plan/{id}?reserva=1 */
 export const STATIONERY_PARAM = "reserva";
 
-// Nombre y descripción de cada plantilla: `tools:stationery.templates.<id>.label|blurb`.
-
 /** Encabezado de serie de la tarjeta, en el idioma pedido. */
 export function defaultHeading(lang: Lang = DEFAULT_LANG): string {
   return getServerT(lang, "tools")("stationery.defaults.heading");
@@ -74,8 +72,8 @@ export function isShareable(design: SaveTheDateDesign): boolean {
 }
 
 export function sameDesign(a: SaveTheDateDesign, b: SaveTheDateDesign): boolean {
+  // La plantilla ya no se elige aquí: sale del estilo compartido del plan.
   return (
-    a.template === b.template &&
     a.heading === b.heading &&
     a.name1 === b.name1 &&
     a.name2 === b.name2 &&

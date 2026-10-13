@@ -9,7 +9,9 @@ import { toast } from "sonner";
 import {
   EMPTY_OFFICIANT,
   OFFICIANT_KIND_OPTIONS,
+  hasOfficiantName,
   isOfficiantEmpty,
+  isOfficiantMissingName,
   type OfficiantDraft,
 } from "@/components/ceremony/officiant-model";
 import { CeremonySection } from "@/components/ceremony/section";
@@ -51,18 +53,30 @@ function Field({
   label,
   error,
   hint,
+  required,
   children,
 }: {
   id: string;
   label: string;
   error?: string;
   hint?: string;
+  /** Campo obligatorio: asterisco visible y «obligatorio» para lectores de pantalla. */
+  required?: boolean;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation("ceremony");
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id} className={FIELD_LABEL}>
         {label}
+        {required && (
+          <>
+            <span aria-hidden="true" className="-ml-1 text-danger">
+              *
+            </span>
+            <span className="sr-only">({t("officiant.required.sr")})</span>
+          </>
+        )}
       </Label>
       {children}
       {error ? (
@@ -103,6 +117,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
   const [feeText, setFeeText] = React.useState(initial.fee !== null ? String(initial.fee) : "");
   const [errors, setErrors] = React.useState<{ name?: string; email?: string; fee?: string }>({});
   const [saving, setSaving] = React.useState<"save" | "clear" | null>(null);
+  const [tried, setTried] = React.useState(false);
   const uid = React.useId();
   const id = (name: string) => `${uid}-${name}`;
 
@@ -111,6 +126,11 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
   const fee = feeNumber !== null && feeValid && feeNumber > 0 ? feeNumber : null;
   const next: OfficiantDraft = { ...draft, fee, feeInBudget: fee !== null && draft.feeInBudget };
   const dirty = JSON.stringify(next) !== JSON.stringify(initial) || !feeValid;
+  // El nombre es obligatorio: sin él no se guarda. El error sale en cuanto hay algo más
+  // escrito (o tras intentarlo); el botón explica por qué está desactivado.
+  const nameOk = hasOfficiantName(draft);
+  const nameError = !nameOk && (isOfficiantMissingName(next) || tried);
+  const saveHintId = `${uid}-save-hint`;
 
   function patch(values: Partial<OfficiantDraft>) {
     setDraft((d) => ({ ...d, ...values }));
@@ -136,15 +156,17 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const found: typeof errors = {};
-    if (draft.confirmed && !draft.name.trim()) {
-      found.name = t("officiant.errors.name");
-    }
+    setTried(true);
+    if (!nameOk) found.name = t("officiant.errors.name");
     if (draft.email.trim() && !isLooseEmail(draft.email)) {
       found.email = t("officiant.errors.email");
     }
     if (!feeValid) found.fee = t("officiant.errors.fee");
     setErrors(found);
-    if (Object.keys(found).length > 0) return;
+    if (Object.keys(found).length > 0) {
+      document.getElementById(id(found.name ? "name" : found.email ? "email" : "fee"))?.focus();
+      return;
+    }
     void commit(
       {
         ...next,
@@ -156,20 +178,24 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
     );
   }
 
-  const invalid = (key: keyof typeof errors) => (errors[key] ? true : undefined);
+  const shownErrors = { ...errors, name: nameError ? t("officiant.errors.name") : undefined };
+  const invalid = (key: keyof typeof errors) => (shownErrors[key] ? true : undefined);
   const described = (key: keyof typeof errors, name: string) =>
-    errors[key] ? `${id(name)}-error` : undefined;
+    shownErrors[key] ? `${id(name)}-error` : undefined;
   const linked = Boolean(saved?.budgetItemId) && saved?.feeInBudget;
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+      <p className="text-sm text-ink-muted">{t("officiant.required.hint")}</p>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field id={id("name")} label={t("officiant.fields.name")} error={errors.name}>
+        <Field id={id("name")} label={t("officiant.fields.name")} error={shownErrors.name} required>
           <Input
             id={id("name")}
             className={FIELD}
             value={draft.name}
             onChange={(e) => patch({ name: e.target.value })}
+            required
+            aria-required="true"
             aria-invalid={invalid("name")}
             aria-describedby={described("name", "name")}
             autoComplete="off"
@@ -205,7 +231,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
             autoComplete="off"
           />
         </Field>
-        <Field id={id("email")} label={t("officiant.fields.email")} error={errors.email}>
+        <Field id={id("email")} label={t("officiant.fields.email")} error={shownErrors.email}>
           <Input
             id={id("email")}
             type="email"
@@ -240,7 +266,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
         <Field
           id={id("fee")}
           label={t("officiant.fee.label")}
-          error={errors.fee}
+          error={shownErrors.fee}
         >
           <Input
             id={id("fee")}
@@ -303,26 +329,34 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
         />
       </Field>
 
-      <div className="flex flex-col-reverse gap-2 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-        {saved && (
-          <button
-            type="button"
-            disabled={saving !== null}
-            onClick={() => void commit(null, "clear")}
-            className={cn(CTA_SECONDARY, "sm:mr-auto")}
-          >
-            {saving === "clear" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-            {t("officiant.clear")}
-          </button>
+      <div className="flex flex-col gap-3 border-t border-line pt-4">
+        {!nameOk && (
+          <p id={saveHintId} className="text-sm text-ink-muted sm:text-right">
+            {t("officiant.saveHint")}
+          </p>
         )}
-        <button
-          type="submit"
-          disabled={!dirty || saving !== null}
-          className={cn(CTA_PRIMARY, "disabled:opacity-50")}
-        >
-          {saving === "save" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          {t("officiant.save")}
-        </button>
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
+          {saved && (
+            <button
+              type="button"
+              disabled={saving !== null}
+              onClick={() => void commit(null, "clear")}
+              className={cn(CTA_SECONDARY, "sm:mr-auto")}
+            >
+              {saving === "clear" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+              {t("officiant.clear")}
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={!dirty || !nameOk || saving !== null}
+            aria-describedby={!nameOk ? saveHintId : undefined}
+            className={cn(CTA_PRIMARY, "disabled:opacity-50")}
+          >
+            {saving === "save" && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+            {t("officiant.save")}
+          </button>
+        </div>
       </div>
     </form>
   );

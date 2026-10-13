@@ -20,6 +20,24 @@ import type { GiftMode, PlanGift } from "@/lib/types";
 
 export type InvitationTemplateId = "botanico" | "minimal" | "elegante";
 
+/**
+ * Imagen de la parte de arriba de la tarjeta: la foto del lugar (con filtro
+ * acuarela), una ilustración acuarela con los colores de la paleta, o nada.
+ * Sin valor equivale a la ilustración.
+ */
+export type InvitationImageMode = "photo" | "illustration" | "none";
+export const IMAGE_MODES: readonly InvitationImageMode[] = ["photo", "illustration", "none"];
+
+/**
+ * Estilo compartido de todo el plan: la invitación y «Reserva la fecha» se ven
+ * con la misma plantilla, paleta y fondo. Vive en `weddingPlans/{id}/designs/style`.
+ */
+export interface InvitationStyle {
+  template: InvitationTemplateId;
+  palette?: InvitationPalette;
+  background?: InvitationBackground;
+}
+
 export interface InvitationPlace {
   name: string;
   address: string;
@@ -78,6 +96,13 @@ export interface InvitationContent {
   palette?: InvitationPalette;
   /** Tipo de fondo. Sin valor equivale a «liso». */
   background?: InvitationBackground;
+  /** Qué imagen lleva la tarjeta arriba. Sin valor equivale a la ilustración. */
+  imageMode?: InvitationImageMode;
+  /**
+   * Foto del lugar: data URI WebP/JPEG de ≤ ~60 KB (subida o copiada de la
+   * finca elegida) o, si la finca solo tenía un enlace, esa URL http(s).
+   */
+  photo?: string;
 }
 
 /** Lo que se ve en la página pública. */
@@ -101,6 +126,8 @@ export const LIMITS = {
   placeName: 100,
   address: 200,
   url: 400,
+  /** Foto como data URI (~60 KB de imagen en base64 + cabecera). */
+  photo: 90_000,
   iban: 42,
   bizum: 32,
   giftMessage: 300,
@@ -152,6 +179,7 @@ export function defaultContent(weddingDate: string | null, lang: Lang = DEFAULT_
     showGift: true,
     palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
     background: DEFAULT_BACKGROUND,
+    imageMode: "illustration",
   };
 }
 
@@ -213,9 +241,46 @@ export function cleanPalette(value: unknown): InvitationPalette | undefined {
   return { id, colors };
 }
 
+/** Foto guardada, saneada: data URI de imagen web o URL http(s); si no, vacío. */
+export function cleanPhoto(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const v = value.trim();
+  if (/^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(v)) {
+    return v.length <= LIMITS.photo ? v : "";
+  }
+  return cleanUrl(v);
+}
+
+export function cleanTemplate(value: unknown): InvitationTemplateId {
+  return TEMPLATE_IDS.includes(value as InvitationTemplateId) ? (value as InvitationTemplateId) : "botanico";
+}
+
+/** Estilo compartido, saneado (lo que se guarda en `designs/style`). */
+export function cleanStyle(value: Partial<InvitationStyle> | null | undefined): InvitationStyle {
+  const palette = cleanPalette(value?.palette);
+  const background = isBackground(value?.background) ? value.background : undefined;
+  return {
+    template: cleanTemplate(value?.template),
+    ...(palette ? { palette } : {}),
+    ...(background ? { background } : {}),
+  };
+}
+
+export function styleOf(content: Pick<InvitationContent, "template" | "palette" | "background">): InvitationStyle {
+  return cleanStyle(content);
+}
+
+export function sameStyle(a: InvitationStyle, b: InvitationStyle): boolean {
+  return JSON.stringify(cleanStyle(a)) === JSON.stringify(cleanStyle(b));
+}
+
 export function cleanContent(value: Partial<InvitationContent>): InvitationContent {
   const palette = cleanPalette(value.palette);
   const background = isBackground(value.background) ? value.background : undefined;
+  const imageMode = IMAGE_MODES.includes(value.imageMode as InvitationImageMode)
+    ? (value.imageMode as InvitationImageMode)
+    : undefined;
+  const photo = cleanPhoto(value.photo);
   return {
     template: TEMPLATE_IDS.includes(value.template as InvitationTemplateId)
       ? (value.template as InvitationTemplateId)
@@ -231,11 +296,32 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     // Solo si existen: Firestore no admite `undefined` y las invitaciones antiguas no los tienen.
     ...(palette ? { palette } : {}),
     ...(background ? { background } : {}),
+    ...(imageMode ? { imageMode } : {}),
+    ...(photo ? { photo } : {}),
   };
 }
 
 export function placeIsEmpty(place: InvitationPlace): boolean {
   return !place.name && !place.address;
+}
+
+const placeKey = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+
+/**
+ * ¿Ceremonia y banquete son el mismo sitio? Sí si el banquete está vacío o si
+ * coinciden el nombre o la dirección (sin tildes ni mayúsculas).
+ */
+export function samePlace(a: InvitationPlace, b: InvitationPlace): boolean {
+  if (placeIsEmpty(b) || placeIsEmpty(a)) return true;
+  const [na, nb] = [placeKey(a.name), placeKey(b.name)];
+  const [aa, ab] = [placeKey(a.address), placeKey(b.address)];
+  return Boolean((na && na === nb) || (aa && aa === ab));
 }
 
 // ---- Regalo ----
@@ -436,7 +522,60 @@ export function generateSlug(): string {
   return out;
 }
 
-export const SLUG_RE = /^[a-z0-9]{10,40}$/;
+export const SLUG_MIN = 3;
+export const SLUG_MAX = 60;
+/** Enlaces válidos: minúsculas, números y guiones bajos. Los aleatorios antiguos (12 letras/números) también valen. */
+export const SLUG_RE = /^[a-z0-9_]{3,60}$/;
+
+/** Texto → trozo de enlace: sin tildes, en minúsculas, con guiones bajos («Ana María» → «ana_maria»). */
+export function slugify(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+/** Recorta a la longitud máxima sin dejar un «_» colgando. */
+export function clampSlug(slug: string): string {
+  return slug.slice(0, SLUG_MAX).replace(/_+$/g, "");
+}
+
+/** «Ana & Luis» → «ana_y_luis» («ana_and_luis» en inglés); un solo nombre → «ana». */
+export function slugFromNames(names: string, lang: Lang = DEFAULT_LANG): string {
+  const parts = names
+    .split(/\s*&\s*|\s+\+\s+|\s+(?:y|e|and)\s+/i)
+    .map(slugify)
+    .filter(Boolean);
+  const joiner = lang === "en" ? "and" : "y";
+  return clampSlug(parts.join(`_${joiner}_`));
+}
+
+/** Propuesta de enlace a partir de los nombres de la pareja o, si no hay, del nombre del plan. */
+export function proposeSlug(names: string, planTitle: string, lang: Lang = DEFAULT_LANG): string {
+  const title = planTitle.trim().replace(/^(?:boda\s+(?:de|del)|wedding\s+of)\s+/i, "");
+  for (const source of [names, title]) {
+    const slug = slugFromNames(source, lang);
+    if (slug.length >= SLUG_MIN) return slug;
+  }
+  return "";
+}
+
+/** Texto de la caja del enlace → enlace: solo [a-z0-9_] (convierte espacios y guiones medios en «_»). */
+export function typedSlug(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_")
+    .replace(/[^a-z0-9_]/g, "")
+    .slice(0, SLUG_MAX);
+}
+
+export function isValidSlug(slug: string): boolean {
+  return SLUG_RE.test(slug);
+}
 
 // ---- Respuestas (RSVP) ----
 

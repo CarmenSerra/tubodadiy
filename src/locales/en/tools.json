@@ -350,25 +350,6 @@
     "and": "and",
     "fileName": "save-the-date",
     "optional": "(optional)",
-    "style": "Style",
-    "templates": {
-      "jardin": {
-        "label": "Garden",
-        "blurb": "Lilac and sage with eucalyptus sprigs"
-      },
-      "arco": {
-        "label": "Arch",
-        "blurb": "A soft arch on a lilac background"
-      },
-      "minimal": {
-        "label": "Minimal",
-        "blurb": "Clean, with plenty of space"
-      },
-      "noche": {
-        "label": "Night",
-        "blurb": "Elegant, in deep plum"
-      }
-    },
     "tabs": {
       "edit": "Edit",
       "preview": "Preview"

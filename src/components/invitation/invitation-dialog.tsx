@@ -5,10 +5,12 @@ import {
   CheckIcon,
   CopyIcon,
   ExternalLinkIcon,
+  ImagePlusIcon,
   Loader2Icon,
   MessageCircleIcon,
   RefreshCwIcon,
   SparklesIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -16,8 +18,10 @@ import { toast } from "sonner";
 import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui";
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
 import {
+  IMAGE_MODES,
   LIMITS,
-  TEMPLATES,
+  SLUG_MAX,
+  SLUG_MIN,
   cleanContent,
   cleanUrl,
   defaultContent,
@@ -25,24 +29,33 @@ import {
   generateSlug,
   invitationPath,
   isDefaultMessage,
+  isValidSlug,
+  proposeSlug,
   publicGift,
   sameGift,
+  slugify,
+  styleOf,
+  typedSlug,
   whatsappLink,
   type InvitationContent,
   type InvitationDoc,
+  type InvitationImageMode,
   type InvitationPlace,
   type InvitationPublicData,
+  type InvitationStyle,
 } from "@/components/invitation/invitation-model";
 import {
   FILL_GROUP,
   applyPlanFill,
   derivePlanFill,
   getField,
+  venuePhoto,
   type FillKey,
   type PlanFill,
+  type VenuePhoto,
 } from "@/components/invitation/plan-autofill";
 import { InvitationView } from "@/components/invitation/invitation-view";
-import { BackgroundEditor, ColorEditor } from "@/components/invitation/palette-picker";
+import { StyleEditor } from "@/components/invitation/style-editor";
 import type { GiftItem } from "@/components/plan-tools/gift-model";
 import { RsvpForm } from "@/components/invitation/rsvp-form";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
@@ -63,18 +76,22 @@ import { usePlanContext } from "@/lib/context/plan-context";
 import { LANGUAGES, type Lang } from "@/lib/i18n/config";
 import { useLanguage } from "@/lib/i18n/provider";
 import {
+  SlugTakenError,
+  checkSlugAvailability,
   mapInvitation,
   planInvitationQuery,
   saveInvitation,
   setInvitationPublished,
   syncInvitationGift,
 } from "@/lib/firebase/invitation";
+import { mapStyle, resolveStyle, saveSharedStyle, styleRef } from "@/lib/firebase/invitation-style";
+import { compressImageToDataUri } from "@/lib/image-compress";
 import { mapSaveTheDate, saveTheDateRef } from "@/lib/firebase/designs";
 import { giftItemsQuery, mapGiftItem } from "@/lib/firebase/gift-list";
 import { mapTimelineItem, mapVendor, timelineItemsQuery, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useDoc } from "@/lib/hooks/use-doc";
-import type { PlanGift } from "@/lib/types";
+import type { PlanGift, Vendor } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -156,18 +173,20 @@ function InvitationBody({
   const { data: vendors, loading: vendorsLoading } = useCollection(vendorsQuery(planId), mapVendor);
   const { data: timeline, loading: timelineLoading } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
   const { data: saveTheDate, loading: designLoading } = useDoc(saveTheDateRef(planId), mapSaveTheDate);
+  // Estilo compartido con «Reserva la fecha» (plantilla, paleta y fondo).
+  const { data: sharedStyle, loading: styleLoading } = useDoc(styleRef(planId), mapStyle);
   // La lista de regalos se copia a la invitación: hay que tenerla cargada antes de comparar.
   const { data: giftItems, loading: giftItemsLoading, error: giftItemsError } = useCollection(
     giftItemsQuery(planId),
     mapGiftItem
   );
-  const sourcesLoading = vendorsLoading || timelineLoading || designLoading || giftItemsLoading;
+  const sourcesLoading = vendorsLoading || timelineLoading || designLoading || giftItemsLoading || styleLoading;
   const planFill = React.useMemo(
     () => derivePlanFill({ plan, saveTheDate, vendors, timeline }),
     [plan, saveTheDate, vendors, timeline]
   );
 
-  // El slug se decide una vez: el de la invitación guardada o uno nuevo.
+  // Enlace de reserva por si no hay nombres de los que sacarlo: se decide una vez.
   const [freshSlug] = React.useState(generateSlug);
 
   if (error) {
@@ -199,7 +218,15 @@ function InvitationBody({
       giftItems={giftItemsError ? null : giftItems}
       saved={saved}
       planFill={planFill}
-      slug={saved?.slug ?? freshSlug}
+      planTitle={plan.title}
+      fallbackSlug={freshSlug}
+      vendors={vendors}
+      // Migración suave: estilo compartido → el de la invitación → el de «Reserva la fecha».
+      style={resolveStyle({
+        shared: sharedStyle,
+        invitation: saved ? styleOf(saved) : null,
+        stationeryTemplate: saveTheDate?.template ?? null,
+      })}
       dirtyRef={dirtyRef}
       onClose={onClose}
     />
@@ -212,7 +239,10 @@ function Editor({
   giftItems,
   saved,
   planFill,
-  slug,
+  planTitle,
+  fallbackSlug,
+  vendors,
+  style,
   dirtyRef,
   onClose,
 }: {
@@ -221,7 +251,10 @@ function Editor({
   giftItems: GiftItem[] | null;
   saved: InvitationDoc | null;
   planFill: PlanFill;
-  slug: string;
+  planTitle: string;
+  fallbackSlug: string;
+  vendors: Vendor[];
+  style: InvitationStyle;
   dirtyRef: React.RefObject<boolean>;
   onClose: () => void;
 }) {
@@ -230,9 +263,16 @@ function Editor({
   // Una invitación nueva arranca con lo que el plan ya sabe. En una guardada no se rellena
   // sola (un campo en blanco puede ser a propósito: «si algo no aplica, déjalo vacío»):
   // se ofrece «Actualizar desde el plan». Lo escrito a mano nunca se pisa.
-  const [initial] = React.useState(() =>
-    saved ? applyPlanFill(contentOf(saved), {}) : applyPlanFill(defaultContent(null, appLang), planFill)
-  );
+  const chosenPhoto = React.useMemo(() => venuePhoto(vendors), [vendors]);
+  const [initial] = React.useState(() => {
+    // El estilo es el compartido con «Reserva la fecha»; lo demás, lo guardado o lo que sabe el plan.
+    if (saved) return applyPlanFill({ ...contentOf(saved), ...style }, {});
+    const base = applyPlanFill({ ...defaultContent(null, appLang), ...style }, planFill);
+    // Una invitación nueva usa la foto de la finca elegida, si tiene.
+    return chosenPhoto
+      ? { ...base, content: { ...base.content, imageMode: "photo" as const, photo: chosenPhoto.src } }
+      : base;
+  });
   const [form, setForm] = React.useState<InvitationContent>(initial.content);
   // Qué valores puso el plan: mientras un campo siga valiendo eso, se puede refrescar.
   const [filled, setFilled] = React.useState<PlanFill>(initial.filled);
@@ -242,7 +282,27 @@ function Editor({
 
   const published = Boolean(saved?.published);
   const clean = React.useMemo(() => cleanContent(form), [form]);
-  const dirty = !saved || JSON.stringify(clean) !== JSON.stringify(contentOf(saved));
+
+  // ---- Enlace: lo propone el nombre de la pareja (o del plan) y se puede editar ----
+  const [slugEdit, setSlugEdit] = React.useState<string | null>(null);
+  const proposal = React.useMemo(
+    () => proposeSlug(clean.names, planTitle, clean.lang) || fallbackSlug,
+    [clean.names, clean.lang, planTitle, fallbackSlug]
+  );
+  const slug = slugEdit ?? saved?.slug ?? proposal;
+  const slugChanged = Boolean(saved) && slug !== saved?.slug;
+  const slugValid = isValidSlug(slug);
+  const slugCheck = useSlugAvailability({
+    slug,
+    valid: slugValid,
+    planId,
+    savedSlug: saved?.slug ?? null,
+    base: proposal,
+    palette: clean.palette,
+    year: clean.date.slice(0, 4),
+  });
+
+  const dirty = !saved || slugChanged || JSON.stringify(clean) !== JSON.stringify(contentOf(saved));
   React.useEffect(() => {
     dirtyRef.current = Boolean(saved) && dirty;
     return () => {
@@ -264,7 +324,10 @@ function Editor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [giftOutOfSync, saved?.slug]);
 
-  const url = typeof window === "undefined" ? "" : `${window.location.origin}${invitationPath(slug)}`;
+  // El enlace que funciona es el guardado; el nuevo vale cuando se guarde.
+  const liveSlug = saved?.slug ?? slug;
+  const url = typeof window === "undefined" ? "" : `${window.location.origin}${invitationPath(liveSlug)}`;
+  const slugPrefix = typeof window === "undefined" ? "/i/" : `${window.location.host}${invitationPath("")}`;
 
   const preview: InvitationPublicData = React.useMemo(() => {
     const { showGift, ...rest } = clean;
@@ -312,6 +375,14 @@ function Editor({
       toast.error(t("editor.toasts.namesRequired"));
       return false;
     }
+    if (!slugValid) {
+      toast.error(t("editor.toasts.slugInvalid", { min: SLUG_MIN, max: SLUG_MAX }));
+      return false;
+    }
+    if (slugCheck.status === "taken") {
+      toast.error(t("editor.toasts.slugTaken"));
+      return false;
+    }
     setBusy(kind);
     try {
       await saveInvitation({
@@ -322,10 +393,13 @@ function Editor({
         planGift,
         giftItems,
         isNew: !saved,
+        previous: saved ? { slug: saved.slug, gift: saved.gift } : null,
       });
+      // El estilo es del plan: «Reserva la fecha» se ve igual que la invitación.
+      void saveSharedStyle(planId, styleOf(clean)).catch(() => {});
       return true;
-    } catch {
-      toast.error(t("editor.toasts.saveFailed"));
+    } catch (error) {
+      toast.error(error instanceof SlugTakenError ? t("editor.toasts.slugTaken") : t("editor.toasts.saveFailed"));
       return false;
     } finally {
       setBusy(null);
@@ -422,23 +496,6 @@ function Editor({
           aria-labelledby="ed-tab-edit"
         >
           <div className="mx-auto flex max-w-2xl flex-col gap-8">
-            <Section title={t("editor.sections.color")} note={t("editor.color.note")}>
-              <ColorEditor
-                template={form.template}
-                palette={form.palette}
-                onChange={(palette) => set("palette", palette)}
-              />
-            </Section>
-
-            <Section title={t("editor.sections.background")} note={t("editor.background.note")}>
-              <BackgroundEditor
-                template={form.template}
-                palette={form.palette}
-                background={form.background}
-                onChange={(background) => set("background", background)}
-              />
-            </Section>
-
             {(fromPlan.length > 0 || canRefresh) && (
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-line bg-raised px-4 py-3">
                 <p className="flex min-w-0 items-start gap-2 text-sm text-ink-muted">
@@ -490,41 +547,20 @@ function Editor({
               </div>
             </Section>
 
-            <Section title={t("editor.sections.style")}>
-              <div role="radiogroup" aria-label={t("editor.template.label")} className="grid grid-cols-3 gap-2.5">
-                {TEMPLATES.map((tpl) => {
-                  const active = form.template === tpl.id;
-                  return (
-                    <button
-                      key={tpl.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={active}
-                      onClick={() => set("template", tpl.id)}
-                      className={cn(
-                        "flex flex-col gap-2 rounded-xl border bg-raised p-2 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                        active ? "border-lilac ring-2 ring-lilac" : "border-line-strong hover:border-lilac"
-                      )}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="flex h-14 flex-col items-center justify-center gap-1 rounded-lg border border-black/5"
-                        style={{ background: tpl.swatch.bg }}
-                      >
-                        <span className="h-1.5 w-10 rounded-full" style={{ background: tpl.swatch.ink }} />
-                        <span className="h-1 w-6 rounded-full" style={{ background: tpl.swatch.accent }} />
-                      </span>
-                      <span className="flex items-center gap-1 px-0.5 text-sm font-medium leading-tight text-ink-strong">
-                        {active && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0 text-green" />}
-                        {t(`templates.${tpl.id}.label`)}
-                      </span>
-                      <span className="hidden px-0.5 text-xs leading-snug text-ink-muted sm:block">
-                        {t(`templates.${tpl.id}.hint`)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+            <StyleEditor
+              style={styleOf(form)}
+              onChange={(next) => setForm((f) => ({ ...f, ...next }))}
+              idPrefix="inv-style"
+            />
+
+            <Section title={t("editor.sections.image")} note={t("editor.image.note")}>
+              <ImageEditor
+                mode={form.imageMode ?? "illustration"}
+                photo={form.photo ?? ""}
+                venue={venuePhoto(vendors, true)}
+                chosenVenue={chosenPhoto}
+                onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
+              />
             </Section>
 
             <Section title={t("editor.sections.couple")}>
@@ -634,6 +670,65 @@ function Editor({
                   aria-describedby="ed-published-help"
                   className={SWITCH}
                 />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="ed-slug" className={FIELD_LABEL}>
+                  {t("editor.slug.label")}
+                </label>
+                <div className="flex min-w-0 items-stretch overflow-hidden rounded-xl border border-line-strong bg-field focus-within:ring-2 focus-within:ring-lilac">
+                  <span aria-hidden="true" className="flex max-w-[45%] shrink-0 items-center truncate border-r border-line bg-raised px-3 text-sm text-ink-muted">
+                    {slugPrefix}
+                  </span>
+                  <Input
+                    id="ed-slug"
+                    value={slug}
+                    onChange={(e) => setSlugEdit(typedSlug(e.target.value))}
+                    maxLength={SLUG_MAX}
+                    spellCheck={false}
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    aria-invalid={!slugValid || slugCheck.status === "taken"}
+                    aria-describedby="ed-slug-help"
+                    className="h-11 min-w-0 flex-1 rounded-none border-0 bg-transparent font-mono text-base shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm"
+                  />
+                </div>
+                <div id="ed-slug-help" aria-live="polite" className="flex flex-col gap-1.5 text-[13px]">
+                  {!slugValid ? (
+                    <p className="text-danger">{t("editor.slug.invalid", { min: SLUG_MIN, max: SLUG_MAX })}</p>
+                  ) : slugCheck.status === "taken" ? (
+                    <>
+                      <p className="text-danger">{t("editor.slug.taken")}</p>
+                      {slugCheck.suggestion && (
+                        <p className="text-ink-muted">
+                          {t("editor.slug.suggestion")}{" "}
+                          <button
+                            type="button"
+                            onClick={() => setSlugEdit(slugCheck.suggestion)}
+                            className="rounded-md font-mono font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-lilac"
+                          >
+                            {slugCheck.suggestion}
+                          </button>
+                        </p>
+                      )}
+                    </>
+                  ) : slugCheck.status === "checking" ? (
+                    <p className="text-ink-muted">{t("editor.slug.checking")}</p>
+                  ) : slugCheck.status === "error" ? (
+                    <p className="text-ink-muted">{t("editor.slug.error")}</p>
+                  ) : (
+                    <p className="flex items-center gap-1 text-ink-muted">
+                      <CheckIcon aria-hidden="true" className="size-3.5 text-green" />
+                      {slugCheck.status === "mine" ? t("editor.slug.mine") : t("editor.slug.free")}
+                    </p>
+                  )}
+                  <p className="text-ink-muted">{t("editor.slug.help", { min: SLUG_MIN, max: SLUG_MAX })}</p>
+                  {slugChanged && published && (
+                    <p role="status" className="rounded-lg bg-lilac-soft px-3 py-2 text-ink">
+                      {t("editor.slug.moves")}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -848,5 +943,243 @@ function PlaceFields({
         )}
       </Field>
     </fieldset>
+  );
+}
+
+// ---- Disponibilidad del enlace ----
+
+type SlugStatus = "checking" | "free" | "mine" | "taken" | "error";
+
+interface SlugCheck {
+  status: SlugStatus;
+  /** Alternativa libre (el enlace + una palabra) cuando el escrito está ocupado. */
+  suggestion: string;
+}
+
+/**
+ * Comprueba en vivo (con una pausa al teclear) si el enlace está libre y, si
+ * está ocupado, busca una alternativa añadiéndole una palabra: «ana_y_luis_lavanda».
+ */
+function useSlugAvailability({
+  slug,
+  valid,
+  planId,
+  savedSlug,
+  base,
+  palette,
+  year,
+}: {
+  slug: string;
+  valid: boolean;
+  planId: string;
+  savedSlug: string | null;
+  base: string;
+  palette: InvitationContent["palette"];
+  year: string;
+}): SlugCheck {
+  const { t } = useTranslation("invitation");
+  const [result, setResult] = React.useState<{ slug: string; status: SlugStatus; suggestion: string } | null>(null);
+  const paletteId = palette?.id ?? "";
+
+  React.useEffect(() => {
+    if (!valid || slug === savedSlug) return;
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const status = await checkSlugAvailability(slug, planId);
+        if (cancelled) return;
+        if (status !== "taken") {
+          setResult({ slug, status, suggestion: "" });
+          return;
+        }
+        // Palabras para distinguirlo: el nombre de la paleta primero, luego algunas de serie.
+        const stem = slug.length >= SLUG_MIN ? slug : base;
+        const words = [
+          paletteId && paletteId !== "custom" ? slugify(t(`palettes.${paletteId}`)).split("_")[0] : "",
+          slugify(t("editor.slug.words.one")),
+          slugify(t("editor.slug.words.two")),
+          slugify(t("editor.slug.words.three")),
+          year,
+        ].filter(Boolean);
+        let suggestion = "";
+        for (const word of words) {
+          const candidate = `${stem}_${word}`.slice(0, SLUG_MAX);
+          if (!isValidSlug(candidate) || candidate === slug) continue;
+          if ((await checkSlugAvailability(candidate, planId)) === "free") {
+            suggestion = candidate;
+            break;
+          }
+          if (cancelled) return;
+        }
+        if (!cancelled) setResult({ slug, status: "taken", suggestion });
+      } catch {
+        if (!cancelled) setResult({ slug, status: "error", suggestion: "" });
+      }
+    }, 400);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [slug, valid, planId, savedSlug, base, paletteId, year, t]);
+
+  if (valid && slug === savedSlug) return { status: "mine", suggestion: "" };
+  if (!valid || result?.slug !== slug) return { status: "checking", suggestion: "" };
+  return result;
+}
+
+// ---- Imagen de la tarjeta ----
+
+const MAX_PHOTO_BYTES = 60 * 1024;
+const PHOTO_SIDE = 900;
+
+function ImageEditor({
+  mode,
+  photo,
+  venue,
+  chosenVenue,
+  onChange,
+}: {
+  mode: InvitationImageMode;
+  photo: string;
+  /** Foto de la mejor opción de «Finca» (para ofrecerla aunque no esté elegida). */
+  venue: VenuePhoto | null;
+  /** Foto de la finca elegida, si la hay. */
+  chosenVenue: VenuePhoto | null;
+  onChange: (patch: Partial<Pick<InvitationContent, "imageMode" | "photo">>) => void;
+}) {
+  const { t } = useTranslation("invitation");
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const venueSrc = (chosenVenue ?? venue)?.src ?? "";
+  const canUseVenue = Boolean(venueSrc) && venueSrc !== photo;
+
+  async function handleFile(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const dataUri = await compressImageToDataUri(file, { maxSide: PHOTO_SIDE, targetBytes: MAX_PHOTO_BYTES });
+      onChange({ photo: dataUri, imageMode: "photo" });
+    } catch {
+      setError(t("editor.image.uploadError"));
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  async function applyVenue() {
+    if (!venueSrc) return;
+    setError(null);
+    if (venueSrc.startsWith("data:")) {
+      onChange({ photo: venueSrc, imageMode: "photo" });
+      return;
+    }
+    // Una foto enlazada de la web: si el sitio deja descargarla se guarda comprimida; si no, el enlace.
+    setBusy(true);
+    try {
+      const response = await fetch(venueSrc, { referrerPolicy: "no-referrer" });
+      const blob = await response.blob();
+      onChange({ photo: await compressImageToDataUri(blob, { maxSide: PHOTO_SIDE, targetBytes: MAX_PHOTO_BYTES }), imageMode: "photo" });
+    } catch {
+      onChange({ photo: venueSrc, imageMode: "photo" });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div role="radiogroup" aria-label={t("editor.image.label")} className="grid grid-cols-3 gap-2.5">
+        {IMAGE_MODES.map((id) => {
+          const active = mode === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => onChange({ imageMode: id })}
+              className={cn(
+                "flex min-h-11 items-center justify-center gap-1.5 rounded-xl border bg-raised px-2 text-center text-sm font-medium leading-tight text-ink-strong outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+                active ? "border-lilac ring-2 ring-lilac" : "border-line-strong hover:border-lilac"
+              )}
+            >
+              {active && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0 text-green" />}
+              {t(`editor.image.modes.${id}`)}
+            </button>
+          );
+        })}
+      </div>
+
+      {mode === "photo" && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-raised p-4">
+          {photo ? (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo}
+                alt={t("editor.image.currentAlt")}
+                referrerPolicy="no-referrer"
+                className="h-16 w-24 shrink-0 rounded-lg border border-line object-cover"
+              />
+              <p className="text-[13px] text-ink-muted">{t("editor.image.watercolorNote")}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-ink-muted">
+              {venueSrc ? t("editor.image.emptyWithVenue") : t("editor.image.empty")}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={inputRef}
+              id="ed-photo-file"
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              tabIndex={-1}
+              onChange={(e) => void handleFile(e.target.files?.[0])}
+            />
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => inputRef.current?.click()}
+              className={cn(CTA_SECONDARY, "h-11 disabled:opacity-60")}
+            >
+              {busy ? (
+                <Loader2Icon aria-hidden="true" className="size-4 animate-spin" />
+              ) : (
+                <ImagePlusIcon aria-hidden="true" className="size-4" />
+              )}
+              {photo ? t("editor.image.replace") : t("editor.image.upload")}
+            </button>
+            {canUseVenue && (
+              <button type="button" disabled={busy} onClick={() => void applyVenue()} className={cn(CTA_SECONDARY, "h-11 disabled:opacity-60")}>
+                {chosenVenue?.name || venue?.name
+                  ? t("editor.image.useVenueNamed", { name: (chosenVenue ?? venue)?.name })
+                  : t("editor.image.useVenue")}
+              </button>
+            )}
+            {photo && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => onChange({ photo: "" })}
+                className={cn(CTA_SECONDARY, "h-11 disabled:opacity-60")}
+              >
+                <Trash2Icon aria-hidden="true" className="size-4" />
+                {t("editor.image.remove")}
+              </button>
+            )}
+          </div>
+          {error && (
+            <p role="alert" className="text-[13px] text-danger">
+              {error}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

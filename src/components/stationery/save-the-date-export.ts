@@ -1,3 +1,5 @@
+import type { InvitationStyle } from "@/components/invitation/invitation-model";
+import { loadBackdrop } from "@/components/stationery/save-the-date-backdrop";
 import {
   CARD_H,
   CARD_W,
@@ -18,13 +20,17 @@ const EXPORT_HEIGHT = Math.round((EXPORT_WIDTH * CARD_H) / CARD_W);
 const PDF_W = 360;
 const PDF_H = 504;
 
-async function renderToCanvas(design: SaveTheDateDesign, lang: Lang): Promise<HTMLCanvasElement> {
+async function renderToCanvas(
+  design: SaveTheDateDesign,
+  style: InvitationStyle,
+  lang: Lang
+): Promise<HTMLCanvasElement> {
   const fonts = readCardFonts();
-  await loadCardFonts(fonts, design);
+  await Promise.all([loadCardFonts(fonts, design), loadBackdrop(style)]);
   const canvas = document.createElement("canvas");
   canvas.width = EXPORT_WIDTH;
   canvas.height = EXPORT_HEIGHT;
-  drawSaveTheDate(canvas, design, fonts, lang);
+  drawSaveTheDate(canvas, design, style, fonts, lang);
   return canvas;
 }
 
@@ -34,13 +40,22 @@ function toBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Prom
   });
 }
 
-export async function createPng(design: SaveTheDateDesign, lang: Lang = DEFAULT_LANG): Promise<Blob> {
-  return toBlob(await renderToCanvas(design, lang), "image/png");
+export async function createPng(
+  design: SaveTheDateDesign,
+  style: InvitationStyle,
+  lang: Lang = DEFAULT_LANG
+): Promise<Blob> {
+  return toBlob(await renderToCanvas(design, style, lang), "image/png");
 }
 
 /** PDF de una página de 5 × 7 in con la tarjeta como imagen JPEG de calidad alta. */
-export async function createPdf(design: SaveTheDateDesign, title: string, lang: Lang = DEFAULT_LANG): Promise<Blob> {
-  const canvas = await renderToCanvas(design, lang);
+export async function createPdf(
+  design: SaveTheDateDesign,
+  style: InvitationStyle,
+  title: string,
+  lang: Lang = DEFAULT_LANG
+): Promise<Blob> {
+  const canvas = await renderToCanvas(design, style, lang);
   const jpeg = new Uint8Array(await (await toBlob(canvas, "image/jpeg", 0.95)).arrayBuffer());
   return buildPdf(jpeg, canvas.width, canvas.height, title);
 }

@@ -23,6 +23,7 @@ import {
   CEREMONY_CATEGORY,
   GIFT_CATEGORY,
   LEGAL_DOCS_CATEGORY,
+  isOfficiantConfirmed,
   statusAfterTasksChange,
   syncAutoTasks,
   type AutoTaskInput,
@@ -94,7 +95,7 @@ const syncCeremony = (planId: string) =>
 
 const syncOfficiant = (planId: string) =>
   syncFromPlan(planId, CEREMONY_CATEGORY, (plan) => ({
-    officiantConfirmed: Boolean(plan.officiant?.confirmed),
+    officiantConfirmed: isOfficiantConfirmed(plan.officiant),
   }));
 
 const syncLegalDocs = (planId: string) =>
@@ -175,12 +176,14 @@ export const OFFICIANT_BUDGET_CONCEPT = "Honorarios de oficiante";
  *    «Ceremonia» o, si ya hay uno enlazado (`budgetItemId`), solo le cambia el
  *    importe (conserva su estado y fecha);
  *  - sin honorarios, sin el interruptor o sin ficha: borra el gasto enlazado.
- * Después reevalúa «Confirmar oficiante» según `confirmed` (en los dos sentidos).
+ * El nombre es obligatorio: sin él no se guarda (lanza). Después reevalúa
+ * «Confirmar oficiante» según `confirmed` (en los dos sentidos).
  */
 export async function saveOfficiant(
   planId: string,
   officiant: Omit<PlanOfficiant, "budgetItemId"> | null
 ) {
+  if (officiant && !officiant.name.trim()) throw new Error("officiant-name-required");
   const db = getFirebaseDb();
   const planSnap = await getDoc(planDocRef(planId));
   const linkedId = planSnap.exists() ? mapPlan(planSnap.id, planSnap.data()).officiant?.budgetItemId ?? null : null;

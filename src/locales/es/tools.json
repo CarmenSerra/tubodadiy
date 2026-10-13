@@ -350,25 +350,6 @@
     "and": "y",
     "fileName": "reserva-la-fecha",
     "optional": "(opcional)",
-    "style": "Estilo",
-    "templates": {
-      "jardin": {
-        "label": "Jardín",
-        "blurb": "Lila y salvia con ramitas de eucalipto"
-      },
-      "arco": {
-        "label": "Arco",
-        "blurb": "Un arco suave sobre fondo lila"
-      },
-      "minimal": {
-        "label": "Minimal",
-        "blurb": "Limpio, con mucho aire"
-      },
-      "noche": {
-        "label": "Noche",
-        "blurb": "Elegante, en ciruela oscuro"
-      }
-    },
     "tabs": {
       "edit": "Editar",
       "preview": "Vista previa"

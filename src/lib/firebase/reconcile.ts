@@ -1,6 +1,6 @@
 "use client";
 
-import { doc, runTransaction } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, query, runTransaction } from "firebase/firestore";
 import * as React from "react";
 
 import { giftDecided, giftHasPaymentData } from "@/components/plan-tools/gift-model";
@@ -12,14 +12,25 @@ import {
   GUESTS_CATEGORY,
   LEGAL_DOCS_CATEGORY,
   VENDORS_CATEGORY,
+  HONEYMOON_CATEGORY,
+  OUTFIT_CATEGORY,
+  STATIONERY_CATEGORY,
+  VENUE_CATEGORY,
   isBudgetSet,
   isDateSet,
+  isOfficiantConfirmed,
+  saveTheDateReached,
   statusForTasks,
   type AutoTaskInput,
 } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
-import { syncAutoTaskStep, syncToolTasks } from "@/lib/firebase/mutations";
+import { syncAppointmentTasks } from "@/lib/firebase/appointments";
+import { mapSaveTheDate, saveTheDateRef } from "@/lib/firebase/designs";
+import { syncHoneymoonBookTask, syncHoneymoonDestinationTask } from "@/lib/firebase/honeymoon";
+import { mapInvitation, planInvitationQuery } from "@/lib/firebase/invitation";
+import { syncAutoTaskStep, syncStepQuietly, syncToolTasks } from "@/lib/firebase/mutations";
 import { syncGift } from "@/lib/firebase/plan-tools";
+import { TIMELINE_CATEGORY } from "@/lib/steps";
 import type { PlanStep, StepStatus, StepTask, StepTaskAuto, WeddingPlan } from "@/lib/types";
 
 /**
@@ -52,7 +63,7 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
       {
         reached: [
           ...(plan.ceremonyType ? (["ceremony-type"] as const) : []),
-          ...(plan.officiant?.confirmed ? (["officiant-confirmed"] as const) : []),
+          ...(isOfficiantConfirmed(plan.officiant) ? (["officiant-confirmed"] as const) : []),
         ],
       },
     ],
@@ -96,6 +107,60 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
 
   if (plan.gift?.mode === "list" && pendingAutos(GIFT_CATEGORY, ["gift-data"])) {
     work.push(syncGift(planId));
+  }
+
+  // Papelería: «reserva la fecha» (hay diseño guardado con contenido) y «enviar
+  // invitaciones» (la invitación está publicada).
+  if (pendingAutos(STATIONERY_CATEGORY, ["stationery-save-date"])) {
+    work.push(
+      getDoc(saveTheDateRef(planId))
+        .then((snap) => {
+          const reached = snap.exists() ? saveTheDateReached(mapSaveTheDate(snap.id, snap.data())) : [];
+          return reached.length > 0 ? syncStepQuietly(planId, STATIONERY_CATEGORY, { reached }) : undefined;
+        })
+        .catch(() => {})
+    );
+  }
+  if (pendingAutos(STATIONERY_CATEGORY, ["invitations-send"])) {
+    work.push(
+      getDocs(planInvitationQuery(planId))
+        .then((snap) => {
+          const published = snap.docs.some((d) => mapInvitation(d.id, d.data()).published);
+          return published
+            ? syncStepQuietly(planId, STATIONERY_CATEGORY, { reached: ["invitations-send"] })
+            : undefined;
+        })
+        .catch(() => {})
+    );
+  }
+
+  // Agenda de citas: «Visitar posibles lugares» y «Reservar pruebas».
+  if (
+    pendingAutos(VENUE_CATEGORY, ["venue-visit"]) ||
+    pendingAutos(OUTFIT_CATEGORY, ["outfit-fitting"])
+  ) {
+    work.push(syncAppointmentTasks(planId));
+  }
+
+  // Luna de miel: destino elegido y reservas de vuelo/hotel.
+  if (pendingAutos(HONEYMOON_CATEGORY, ["honeymoon-destination"])) {
+    work.push(syncHoneymoonDestinationTask(planId, true));
+  }
+  if (pendingAutos(HONEYMOON_CATEGORY, ["honeymoon-book"])) {
+    work.push(syncHoneymoonBookTask(planId));
+  }
+
+  // Cronograma: ya hay algún momento (compartirlo no deja rastro en los datos).
+  if (pendingAutos(TIMELINE_CATEGORY, ["timeline-draft"])) {
+    work.push(
+      getDocs(query(collection(getFirebaseDb(), "weddingPlans", planId, "timelineItems"), limit(1)))
+        .then((snap) =>
+          snap.empty
+            ? undefined
+            : syncStepQuietly(planId, TIMELINE_CATEGORY, { reached: ["timeline-draft"] })
+        )
+        .catch(() => {})
+    );
   }
 
   // Pasos con todas las tareas hechas y el estado atrasado.

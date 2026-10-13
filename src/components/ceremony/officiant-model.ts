@@ -38,3 +38,17 @@ export function isOfficiantEmpty(o: OfficiantDraft): boolean {
     !o.notes.trim()
   );
 }
+
+/**
+ * Lo único obligatorio de la ficha es el nombre: sin él no hay a quién llamar
+ * ni a quién confirmar. El resto (tipo, contacto, honorarios, notas) es
+ * opcional. Es lo que decide si se puede guardar.
+ */
+export function hasOfficiantName(o: Pick<OfficiantDraft, "name">): boolean {
+  return o.name.trim().length > 0;
+}
+
+/** Ficha con algo escrito o marcado pero sin nombre: no se puede guardar. */
+export function isOfficiantMissingName(o: OfficiantDraft): boolean {
+  return !hasOfficiantName(o) && !isOfficiantEmpty(o);
+}

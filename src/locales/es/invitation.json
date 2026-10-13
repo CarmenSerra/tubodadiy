@@ -5,7 +5,7 @@
   "templates": {
     "botanico": {
       "label": "Botánico",
-      "hint": "Lila y salvia, con hojas"
+      "hint": "Caligrafía y ramitas"
     },
     "minimal": {
       "label": "Minimal",
@@ -13,7 +13,7 @@
     },
     "elegante": {
       "label": "Elegante",
-      "hint": "Ciruela oscuro"
+      "hint": "Cursiva con doble marco"
     }
   },
   "share": {
@@ -43,7 +43,8 @@
     "when": "Cuándo y dónde",
     "places": {
       "ceremony": "Ceremonia",
-      "banquet": "Banquete"
+      "banquet": "Banquete",
+      "both": "Ceremonia y banquete"
     },
     "directions": "Cómo llegar",
     "directionsSr": "a {{place}} (se abre en una pestaña nueva)",
@@ -75,7 +76,10 @@
     "footer": {
       "withLove": "Con cariño, {{names}}",
       "madeWith": "Invitación creada con tubodadiy"
-    }
+    },
+    "cardLabel": "Tarjeta de invitación",
+    "photoAlt": "Foto del lugar de la boda",
+    "later": "Posteriormente, lo celebraremos en…"
   },
   "rsvp": {
     "legend": "Confirmación de asistencia",
@@ -191,7 +195,8 @@
       "where": "Dónde",
       "whereNote": "Si algo no aplica, déjalo en blanco y no aparecerá.",
       "gift": "Regalo",
-      "publish": "Publicar y compartir"
+      "publish": "Publicar y compartir",
+      "image": "Imagen del lugar"
     },
     "language": {
       "label": "Idioma de la invitación",
@@ -266,7 +271,9 @@
       "unpublished": "Invitación despublicada. El enlace ya no funciona.",
       "unpublishFailed": "No se ha podido despublicar. Inténtalo de nuevo.",
       "linkCopied": "Enlace copiado",
-      "copyFailed": "No se ha podido copiar. Selecciona el enlace y cópialo a mano."
+      "copyFailed": "No se ha podido copiar. Selecciona el enlace y cópialo a mano.",
+      "slugInvalid": "Revisa el enlace: entre {{min}} y {{max}} caracteres, solo minúsculas, números o _.",
+      "slugTaken": "Ese enlace ya está en uso. Elige otro."
     },
     "color": {
       "note": "Elige una paleta para toda la invitación. Siempre puedes ajustar cada color.",
@@ -297,6 +304,45 @@
     "background": {
       "note": "Así se ve cada fondo con tu paleta.",
       "label": "Tipo de fondo"
+    },
+    "style": {
+      "shared": "El estilo es el mismo en la invitación y en «Reserva la fecha»: si lo cambias aquí, se cambia allí también."
+    },
+    "image": {
+      "note": "Va arriba de la tarjeta, con un efecto de acuarela. Solo se aplica al mostrarla: tu foto no se modifica.",
+      "label": "Imagen de la tarjeta",
+      "modes": {
+        "photo": "Foto",
+        "illustration": "Ilustración",
+        "none": "Ninguna"
+      },
+      "currentAlt": "Foto elegida para la tarjeta",
+      "watercolorNote": "Se muestra con efecto acuarela y se guarda reducida (unos 60 KB).",
+      "empty": "Aún no hay foto: mientras tanto se muestra la ilustración. Sube una desde tu dispositivo.",
+      "emptyWithVenue": "Aún no hay foto: mientras tanto se muestra la ilustración. Sube una o usa la de tu finca.",
+      "upload": "Subir una foto",
+      "replace": "Cambiar la foto",
+      "useVenue": "Usar la foto de la finca",
+      "useVenueNamed": "Usar la foto de {{name}}",
+      "remove": "Quitar la foto",
+      "uploadError": "No se ha podido usar esa imagen. Prueba con otra (JPG, PNG o WebP)."
+    },
+    "slug": {
+      "label": "Enlace personalizado",
+      "help": "Solo minúsculas, números y guion bajo (_), entre {{min}} y {{max}} caracteres.",
+      "invalid": "El enlace debe tener entre {{min}} y {{max}} caracteres y solo minúsculas, números o _.",
+      "taken": "Este enlace ya está en uso. Prueba con otro.",
+      "suggestion": "Te sugerimos:",
+      "checking": "Comprobando si está libre…",
+      "error": "No se ha podido comprobar ahora; lo comprobaremos al guardar.",
+      "free": "Está libre",
+      "mine": "Es el enlace actual de tu invitación",
+      "moves": "Al guardar, el enlace anterior dejará de funcionar: comparte el nuevo. Las respuestas que ya has recibido se conservan.",
+      "words": {
+        "one": "boda",
+        "two": "amor",
+        "three": "juntos"
+      }
     }
   },
   "palettes": {

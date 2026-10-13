@@ -1,6 +1,14 @@
+import type { InvitationStyle } from "@/components/invitation/invitation-model";
+import {
+  LEGACY_COLORS,
+  buildTheme,
+  mix,
+  type InvitationTheme,
+} from "@/components/invitation/invitation-theme";
+import { paintBackdrop } from "@/components/stationery/save-the-date-backdrop";
 import { dateParts } from "@/components/stationery/save-the-date-model";
 import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
-import type { SaveTheDateDesign, SaveTheDateTemplate } from "@/lib/firebase/designs";
+import type { SaveTheDateDesign } from "@/lib/firebase/designs";
 
 // Dibujo de la tarjeta «Reserva la fecha» sobre un <canvas>: la misma función
 // pinta la vista previa, las miniaturas y los archivos que se exportan (PNG/PDF),
@@ -46,30 +54,6 @@ export async function loadCardFonts(fonts: CardFonts, design: SaveTheDateDesign)
     /* se dibuja con la tipografía de respaldo */
   }
 }
-
-/* ------------------------------------------------------------------ */
-/* Paleta (la de la marca, fija: la tarjeta no cambia con el tema)     */
-/* ------------------------------------------------------------------ */
-
-const C = {
-  cream: "#F8F5F1",
-  paper: "#FCFAF7",
-  lilacSoft: "#ECE6F4",
-  lilacMid: "#DECDF1",
-  lilac: "#D4C0EA",
-  lilacDeep: "#927AAC",
-  plum: "#38384D",
-  plumDeep: "#2D2D3F",
-  plumSoft: "#474755",
-  deep: "#3F5C4A",
-  green: "#4E6A5A",
-  sage: "#8FAF8A",
-  sagePale: "#D2D7CB",
-  sageLight: "#BCC7B5",
-  ink: "#26413C",
-  inkMuted: "#586C64",
-  night: "#F4F1EB",
-};
 
 /* ------------------------------------------------------------------ */
 /* Motivos                                                              */
@@ -207,16 +191,6 @@ const PEBBLE = new Path2D(
   "M20 76 C 8 28, 60 2, 108 12 C 156 24, 184 72, 156 114 C 128 156, 62 166, 32 128 C 22 116, 22 96, 20 76Z"
 );
 
-function archPath(ctx: CanvasRenderingContext2D, left: number, right: number, top: number, bottom: number) {
-  const r = (right - left) / 2;
-  ctx.beginPath();
-  ctx.moveTo(left, bottom);
-  ctx.lineTo(left, top + r);
-  ctx.arc((left + right) / 2, top + r, r, Math.PI, 0);
-  ctx.lineTo(right, bottom);
-  ctx.closePath();
-}
-
 /** Aleatorio determinista (las estrellas de «Noche» no cambian entre dibujos). */
 function seeded(seed: number) {
   let s = seed;
@@ -253,240 +227,207 @@ interface Theme {
   upperNames?: boolean;
 }
 
-const jardin: Theme = {
-  paintBackground(ctx) {
-    ctx.fillStyle = C.cream;
-    ctx.fillRect(0, 0, CARD_W, CARD_H);
-    // Manchas de color
-    ctx.save();
-    ctx.translate(-120, -90);
-    ctx.scale(3.6, 3.6);
-    ctx.fillStyle = C.lilacMid;
-    ctx.fill(PEBBLE);
-    ctx.restore();
-    ctx.beginPath();
-    ctx.arc(1040, 1450, 330, 0, Math.PI * 2);
-    ctx.fillStyle = C.sagePale;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(-40, 1330, 150, 0, Math.PI * 2);
-    ctx.fillStyle = C.lilacSoft;
-    ctx.fill();
-    // Marco fino
-    ctx.strokeStyle = C.lilacDeep;
-    ctx.globalAlpha = 0.45;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(36, 36, CARD_W - 72, CARD_H - 72, 14);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-  },
-  paintForeground(ctx) {
-    sprig(ctx, {
-      p: [[1010, 30], [950, 60], [880, 130], [790, 250]],
-      leaves: 8,
-      radius: 36,
-      stroke: C.green,
-      fill: C.sageLight,
-      lineWidth: 3.4,
-    });
-    sprig(ctx, {
-      p: [[-10, 1420], [50, 1370], [120, 1290], [240, 1170]],
-      leaves: 8,
-      radius: 36,
-      stroke: C.green,
-      fill: C.sageLight,
-      lineWidth: 3.4,
-      firstSide: -1,
-    });
-    floret(ctx, 150, 170, 38, C.lilacDeep, C.lilacSoft, C.sage, 0.3);
-    floret(ctx, 215, 118, 22, C.lilacDeep, C.lilacSoft, C.sage, 1);
-    floret(ctx, 860, 1245, 34, C.lilacDeep, C.cream, C.sage, 0.6);
-    floret(ctx, 800, 1300, 20, C.lilacDeep, C.cream, C.sage, 1.4);
-  },
-  top: 250,
-  bottom: 1150,
-  maxWidth: 760,
-  heading: C.green,
-  names: C.deep,
-  amp: C.lilacDeep,
-  accent: C.green,
-  date: C.ink,
-  muted: C.inkMuted,
-  rule: C.lilacDeep,
-  nameFont: "script",
-  nameSize: 190,
-  inlineMin: 100,
-  dateStyle: "sentence",
-};
+/**
+ * Tema de la tarjeta a partir del estilo compartido del plan: la plantilla
+ * (botánico, minimal, elegante) elige la composición y la paleta, los colores.
+ * El fondo elegido (rayas, lunares…) se pinta entre el color base y los adornos.
+ */
+function makeTheme(style: InvitationStyle): Theme {
+  const tk: InvitationTheme = buildTheme(style.palette?.colors ?? LEGACY_COLORS[style.template], style.template);
+  const accentInk = tk.vars["--inv-accent-ink"];
+  const muted = tk.vars["--inv-muted"];
+  const leafDark = tk.vars["--inv-leaf-dark"];
+  const base: Pick<Theme, "top" | "bottom"> = { top: 250, bottom: 1150 };
 
-const arco: Theme = {
-  paintBackground(ctx) {
-    ctx.fillStyle = C.lilacMid;
-    ctx.fillRect(0, 0, CARD_W, CARD_H);
-    // Arco crema con filete lila oscuro desplazado
-    ctx.strokeStyle = C.lilacDeep;
-    ctx.lineWidth = 2.5;
-    archPath(ctx, 112, 888, 110, 1290);
-    ctx.stroke();
-    archPath(ctx, 132, 868, 130, 1290);
-    ctx.fillStyle = C.paper;
-    ctx.fill();
-    // Suelo salvia
-    ctx.fillStyle = C.sagePale;
-    ctx.beginPath();
-    ctx.roundRect(112, 1290, 776, 26, 13);
-    ctx.fill();
-  },
-  paintForeground(ctx) {
-    sprig(ctx, {
-      p: [[150, 1290], [90, 1180], [100, 1020], [190, 880]],
-      leaves: 8,
-      radius: 32,
-      stroke: C.green,
-      fill: C.sageLight,
-      lineWidth: 3.2,
-    });
-    sprig(ctx, {
-      p: [[850, 1290], [910, 1180], [900, 1020], [810, 880]],
-      leaves: 8,
-      radius: 32,
-      stroke: C.green,
-      fill: C.sageLight,
-      lineWidth: 3.2,
-      firstSide: -1,
-    });
-    floret(ctx, 130, 1250, 28, C.lilacDeep, C.paper, C.sage, 0.4);
-    floret(ctx, 880, 1240, 28, C.lilacDeep, C.paper, C.sage, 1.2);
-    floret(ctx, 500, 168, 22, C.lilacDeep, C.lilacSoft, C.sage, 0);
-  },
-  top: 300,
-  bottom: 1190,
-  maxWidth: 560,
-  heading: C.green,
-  names: C.deep,
-  amp: C.lilacDeep,
-  accent: C.green,
-  date: C.ink,
-  muted: C.inkMuted,
-  rule: C.lilacDeep,
-  nameFont: "script",
-  nameSize: 150,
-  inlineMin: 100,
-  stackedOnly: true,
-  dateStyle: "sentence",
-};
+  if (style.template === "minimal") {
+    return {
+      ...base,
+      top: 190,
+      bottom: 1210,
+      paintBackground(ctx) {
+        ctx.fillStyle = tk.bg;
+        ctx.fillRect(0, 0, CARD_W, CARD_H);
+        paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+        ctx.strokeStyle = tk.ink;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(64, 64, CARD_W - 128, CARD_H - 128);
+        // Hueco en el marco para la florecilla
+        ctx.fillStyle = tk.bg;
+        ctx.fillRect(440, 54, 120, 20);
+        ctx.fillRect(440, CARD_H - 74, 120, 20);
+      },
+      paintForeground(ctx) {
+        floret(ctx, 500, 64, 24, accentInk, tk.bg, tk.leaf, 0);
+        floret(ctx, 500, CARD_H - 64, 24, accentInk, tk.bg, tk.leaf, 0.6);
+      },
+      maxWidth: 740,
+      heading: muted,
+      names: tk.ink,
+      amp: accentInk,
+      accent: muted,
+      date: tk.ink,
+      muted,
+      rule: accentInk,
+      nameFont: "display",
+      nameSize: 92,
+      inlineMin: 52,
+      upperNames: true,
+      dateStyle: "big",
+    };
+  }
 
-const minimal: Theme = {
-  paintBackground(ctx) {
-    ctx.fillStyle = "#FBFAF7";
-    ctx.fillRect(0, 0, CARD_W, CARD_H);
-    ctx.strokeStyle = C.ink;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(64, 64, CARD_W - 128, CARD_H - 128);
-    // Hueco en el marco para la florecilla
-    ctx.fillStyle = "#FBFAF7";
-    ctx.fillRect(440, 54, 120, 20);
-    ctx.fillRect(440, CARD_H - 74, 120, 20);
-  },
-  paintForeground(ctx) {
-    floret(ctx, 500, 64, 24, C.lilacDeep, "#FBFAF7", C.sage, 0);
-    floret(ctx, 500, CARD_H - 64, 24, C.lilacDeep, "#FBFAF7", C.sage, 0.6);
-  },
-  top: 190,
-  bottom: 1210,
-  maxWidth: 740,
-  heading: C.inkMuted,
-  names: C.ink,
-  amp: C.lilacDeep,
-  accent: C.inkMuted,
-  date: C.ink,
-  muted: C.inkMuted,
-  rule: C.lilacDeep,
-  nameFont: "display",
-  nameSize: 92,
-  inlineMin: 52,
-  upperNames: true,
-  dateStyle: "big",
-};
+  if (style.template === "elegante") {
+    return {
+      ...base,
+      top: 200,
+      bottom: 1200,
+      paintBackground(ctx) {
+        const g = ctx.createLinearGradient(0, 0, 0, CARD_H);
+        g.addColorStop(0, mix(tk.bg, tk.primary, 0.1));
+        g.addColorStop(1, mix(tk.bg, "#000000", 0.2));
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, CARD_W, CARD_H);
+        paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+        // Estrellitas
+        const rand = seeded(7);
+        ctx.fillStyle = tk.primary;
+        for (let i = 0; i < 46; i++) {
+          const x = 90 + rand() * (CARD_W - 180);
+          const y = 90 + rand() * (CARD_H - 180);
+          ctx.globalAlpha = 0.18 + rand() * 0.4;
+          ctx.beginPath();
+          ctx.arc(x, y, 1.2 + rand() * 2.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        // Doble marco
+        ctx.strokeStyle = accentInk;
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(44, 44, CARD_W - 88, CARD_H - 88);
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = tk.primary;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(62, 62, CARD_W - 124, CARD_H - 124);
+        ctx.globalAlpha = 1;
+      },
+      paintForeground(ctx) {
+        for (const [x, y, r] of [
+          [62, 62, 0],
+          [CARD_W - 62, 62, 1],
+          [62, CARD_H - 62, 2],
+          [CARD_W - 62, CARD_H - 62, 3],
+        ] as const) {
+          ctx.fillStyle = tk.bg;
+          ctx.beginPath();
+          ctx.arc(x, y, 22, 0, Math.PI * 2);
+          ctx.fill();
+          floret(ctx, x, y, 20, tk.primary, tk.paper, tk.leaf, r * 0.5);
+        }
+        sprig(ctx, {
+          p: [[480, 1318], [420, 1336], [340, 1316], [270, 1262]],
+          leaves: 6,
+          radius: 17,
+          stroke: tk.leaf,
+          fill: tk.paper,
+          lineWidth: 2.6,
+        });
+        sprig(ctx, {
+          p: [[520, 1318], [580, 1336], [660, 1316], [730, 1262]],
+          leaves: 6,
+          radius: 17,
+          stroke: tk.leaf,
+          fill: tk.paper,
+          lineWidth: 2.6,
+          firstSide: -1,
+        });
+      },
+      maxWidth: 740,
+      heading: accentInk,
+      names: tk.ink,
+      amp: tk.primary,
+      accent: tk.leaf,
+      date: tk.ink,
+      muted,
+      rule: tk.primary,
+      nameFont: "script",
+      nameSize: 180,
+      inlineMin: 100,
+      dateStyle: "numeric",
+    };
+  }
 
-const noche: Theme = {
-  paintBackground(ctx) {
-    const g = ctx.createLinearGradient(0, 0, 0, CARD_H);
-    g.addColorStop(0, C.plum);
-    g.addColorStop(1, C.plumDeep);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, CARD_W, CARD_H);
-    // Estrellitas
-    const rand = seeded(7);
-    ctx.fillStyle = C.lilac;
-    for (let i = 0; i < 46; i++) {
-      const x = 90 + rand() * (CARD_W - 180);
-      const y = 90 + rand() * (CARD_H - 180);
-      ctx.globalAlpha = 0.18 + rand() * 0.4;
+  // botanico (el «Jardín» de siempre): manchas de color, ramitas de eucalipto y marco fino.
+  return {
+    ...base,
+    paintBackground(ctx) {
+      ctx.fillStyle = tk.bg;
+      ctx.fillRect(0, 0, CARD_W, CARD_H);
+      paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+      // Manchas de color
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      ctx.translate(-120, -90);
+      ctx.scale(3.6, 3.6);
+      ctx.fillStyle = mix(tk.primary, tk.bg, 0.62);
+      ctx.fill(PEBBLE);
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = 0.85;
       ctx.beginPath();
-      ctx.arc(x, y, 1.2 + rand() * 2.2, 0, Math.PI * 2);
+      ctx.arc(1040, 1450, 330, 0, Math.PI * 2);
+      ctx.fillStyle = mix(tk.leaf, tk.bg, 0.6);
       ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-    // Doble marco
-    ctx.strokeStyle = C.lilacDeep;
-    ctx.lineWidth = 2.5;
-    ctx.strokeRect(44, 44, CARD_W - 88, CARD_H - 88);
-    ctx.globalAlpha = 0.5;
-    ctx.strokeStyle = C.lilac;
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(62, 62, CARD_W - 124, CARD_H - 124);
-    ctx.globalAlpha = 1;
-  },
-  paintForeground(ctx) {
-    for (const [x, y, r] of [
-      [62, 62, 0],
-      [CARD_W - 62, 62, 1],
-      [62, CARD_H - 62, 2],
-      [CARD_W - 62, CARD_H - 62, 3],
-    ] as const) {
-      ctx.fillStyle = C.plum;
       ctx.beginPath();
-      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.arc(-40, 1330, 150, 0, Math.PI * 2);
+      ctx.fillStyle = mix(tk.primary, tk.bg, 0.8);
       ctx.fill();
-      floret(ctx, x, y, 20, C.lilac, C.plumSoft, C.sage, r * 0.5);
-    }
-    sprig(ctx, {
-      p: [[480, 1318], [420, 1336], [340, 1316], [270, 1262]],
-      leaves: 6,
-      radius: 17,
-      stroke: C.sage,
-      fill: C.plumSoft,
-      lineWidth: 2.6,
-    });
-    sprig(ctx, {
-      p: [[520, 1318], [580, 1336], [660, 1316], [730, 1262]],
-      leaves: 6,
-      radius: 17,
-      stroke: C.sage,
-      fill: C.plumSoft,
-      lineWidth: 2.6,
-      firstSide: -1,
-    });
-  },
-  top: 200,
-  bottom: 1200,
-  maxWidth: 740,
-  heading: C.lilac,
-  names: C.night,
-  amp: C.lilac,
-  accent: C.sageLight,
-  date: C.night,
-  muted: "#D2D7CB",
-  rule: C.lilac,
-  nameFont: "script",
-  nameSize: 180,
-  inlineMin: 100,
-  dateStyle: "numeric",
-};
-
-const THEMES: Record<SaveTheDateTemplate, Theme> = { jardin, arco, minimal, noche };
+      ctx.restore();
+      // Marco fino
+      ctx.strokeStyle = accentInk;
+      ctx.globalAlpha = 0.45;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(36, 36, CARD_W - 72, CARD_H - 72, 14);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    },
+    paintForeground(ctx) {
+      sprig(ctx, {
+        p: [[1010, 30], [950, 60], [880, 130], [790, 250]],
+        leaves: 8,
+        radius: 36,
+        stroke: leafDark,
+        fill: tk.leaf,
+        lineWidth: 3.4,
+      });
+      sprig(ctx, {
+        p: [[-10, 1420], [50, 1370], [120, 1290], [240, 1170]],
+        leaves: 8,
+        radius: 36,
+        stroke: leafDark,
+        fill: tk.leaf,
+        lineWidth: 3.4,
+        firstSide: -1,
+      });
+      floret(ctx, 150, 170, 38, accentInk, tk.paper, tk.leaf, 0.3);
+      floret(ctx, 215, 118, 22, accentInk, tk.paper, tk.leaf, 1);
+      floret(ctx, 860, 1245, 34, accentInk, tk.paper, tk.leaf, 0.6);
+      floret(ctx, 800, 1300, 20, accentInk, tk.paper, tk.leaf, 1.4);
+    },
+    maxWidth: 760,
+    heading: accentInk,
+    names: tk.ink,
+    amp: accentInk,
+    accent: accentInk,
+    date: tk.ink,
+    muted,
+    rule: tk.primary,
+    nameFont: "script",
+    nameSize: 190,
+    inlineMin: 100,
+    dateStyle: "sentence",
+  };
+}
 
 /* ------------------------------------------------------------------ */
 /* Texto                                                                */
@@ -741,18 +682,20 @@ function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: C
 }
 
 /**
- * Pinta la tarjeta en `canvas` (cuyo alto debe ser 1,4 × su ancho). Las
- * tipografías ya deben estar cargadas (ver `loadCardFonts`).
+ * Pinta la tarjeta en `canvas` (cuyo alto debe ser 1,4 × su ancho) con el
+ * estilo compartido del plan. Las tipografías y las imágenes del fondo ya deben
+ * estar cargadas (ver `loadCardFonts` y `loadBackdrop`).
  */
 export function drawSaveTheDate(
   canvas: HTMLCanvasElement,
   design: SaveTheDateDesign,
+  style: InvitationStyle,
   fonts: CardFonts,
   lang: Lang = DEFAULT_LANG
 ) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  const theme = THEMES[design.template] ?? THEMES.jardin;
+  const theme = makeTheme(style);
   const k = canvas.width / CARD_W;
   ctx.setTransform(k, 0, 0, k, 0, 0);
   ctx.clearRect(0, 0, CARD_W, CARD_H);

@@ -9,7 +9,6 @@ import { isCategory } from "@/components/appointments/appointment-model";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import {
   CHECKBOX,
-  DIALOG_CONTENT,
   DIALOG_TITLE,
   FIELD,
   FIELD_LABEL,
@@ -19,13 +18,9 @@ import {
   SELECT_TRIGGER,
 } from "@/components/guests/brand-dialog";
 import { categoryLabel } from "@/components/vendors/vendor-model";
-import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
-import { ignoreToastInteraction } from "@/components/timeline/use-timeline-undo";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
-  Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -63,61 +58,16 @@ export type AppointmentChange =
 const NO_VENDOR = "none";
 const ERROR_TEXT = "text-sm font-medium text-ink";
 
-interface AppointmentFormDialogProps {
-  planId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** Cita a editar; sin ella, se crea una nueva. */
-  item?: Appointment;
-  /** Tipo con el que arranca una cita nueva. */
-  defaultCategory?: AppointmentCategory;
-  vendors: Vendor[];
-  onChange?: (change: AppointmentChange) => void;
-}
-
-export function AppointmentFormDialog({
-  planId,
-  open,
-  onOpenChange,
-  item,
-  defaultCategory,
-  vendors,
-  onChange,
-}: AppointmentFormDialogProps) {
-  const restoreFocus = useRestoreFocus();
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        aria-describedby={undefined}
-        className={cn(DIALOG_CONTENT, "max-h-[calc(100dvh-1rem)]")}
-        onOpenAutoFocus={restoreFocus.onOpenAutoFocus}
-        onInteractOutside={ignoreToastInteraction}
-        onCloseAutoFocus={restoreFocus.onCloseAutoFocus}
-      >
-        {open && (
-          <AppointmentForm
-            // Una instancia nueva por cita: el formulario siempre arranca con sus datos.
-            key={item?.id ?? `new-${defaultCategory ?? ""}`}
-            planId={planId}
-            item={item}
-            defaultCategory={defaultCategory}
-            vendors={vendors}
-            onDone={() => onOpenChange(false)}
-            onChange={onChange}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 interface FormError {
   field: "title" | "date" | "time";
   text: string;
 }
 
-function AppointmentForm({
+/**
+ * Formulario de una cita (nueva o editada). Vive dentro del diálogo de la agenda
+ * (`AppointmentsDialog`), que pone el contenedor, el foco y el cierre.
+ */
+export function AppointmentForm({
   planId,
   item,
   defaultCategory,
