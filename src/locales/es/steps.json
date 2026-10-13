@@ -1,0 +1,108 @@
+{
+  "sections": {
+    "fecha_presupuesto": {
+      "title": "Fecha y presupuesto",
+      "description": "Fecha objetivo, presupuesto total y desglose por categoría.",
+      "tasks": {
+        "date": "Elegir una fecha objetivo",
+        "budget": "Definir el presupuesto total",
+        "budget-split": "Repartir el presupuesto por categorías"
+      }
+    },
+    "lugar": {
+      "title": "Lugar",
+      "description": "Ceremonia y banquete (pueden ser el mismo sitio o distintos).",
+      "tasks": {
+        "venue-visit": "Visitar posibles lugares",
+        "venue-ceremony": "Reservar lugar de ceremonia",
+        "venue-banquet": "Reservar lugar de banquete"
+      }
+    },
+    "invitados": {
+      "title": "Lista de invitados",
+      "description": "Nombre, grupo/familia, confirmación, acompañante y notas dietéticas.",
+      "tasks": {
+        "guests-draft": "Hacer el borrador de la lista",
+        "guests-final": "Confirmar número final de invitados"
+      }
+    },
+    "proveedores": {
+      "title": "Proveedores",
+      "description": "Catering, fotografía, música/DJ, flores, pastel, transporte, etc.",
+      "tasks": {
+        "vendor-catering": "Contratar catering",
+        "vendor-photo": "Contratar fotógrafo/a",
+        "vendor-music": "Contratar música/DJ"
+      }
+    },
+    "vestuario": {
+      "title": "Vestuario",
+      "description": "Traje/vestido de los novios, complementos y pruebas.",
+      "tasks": {
+        "outfit-choose": "Elegir vestido/traje",
+        "outfit-fitting": "Reservar pruebas"
+      }
+    },
+    "papeleria": {
+      "title": "Papelería",
+      "description": "Reserva la fecha, invitaciones y tarjetas de mesa.",
+      "tasks": {
+        "stationery-save-date": "Diseñar las tarjetas «reserva la fecha»",
+        "invitations-send": "Enviar invitaciones"
+      }
+    },
+    "ceremonia": {
+      "title": "Ceremonia",
+      "description": "Tipo (civil, religiosa, simbólica), oficiante y estructura.",
+      "tasks": {
+        "ceremony-type": "Elegir tipo de ceremonia",
+        "officiant-confirmed": "Confirmar oficiante"
+      }
+    },
+    "timeline": {
+      "title": "Cronograma del día",
+      "description": "Cronograma hora a hora del gran día.",
+      "tasks": {
+        "timeline-draft": "Borrador del cronograma",
+        "timeline-share": "Compartir cronograma con proveedores"
+      }
+    },
+    "alojamiento_transporte": {
+      "title": "Alojamiento y transporte de invitados",
+      "description": "Opciones de alojamiento y transporte para los invitados.",
+      "tasks": {
+        "lodging-search": "Buscar alojamientos cercanos",
+        "transport-organize": "Organizar transporte"
+      }
+    },
+    "luna_de_miel": {
+      "title": "Luna de miel",
+      "description": "Destino, fechas y reservas del viaje de novios.",
+      "tasks": {
+        "honeymoon-destination": "Elegir destino",
+        "honeymoon-book": "Reservar vuelos y alojamiento"
+      }
+    },
+    "documentos_legales": {
+      "title": "Documentos legales",
+      "description": "Expediente matrimonial y otros trámites legales.",
+      "tasks": {
+        "legal-start": "Iniciar expediente matrimonial",
+        "legal-docs": "Reunir documentación"
+      }
+    },
+    "lista_regalos": {
+      "title": "Regalo",
+      "description": "Elegir cómo recibir el regalo (dinero o lista de cosas) y el mensaje para invitados.",
+      "tasks": {
+        "gift-decide": "Decidir cómo recibir el regalo",
+        "gift-data": "Añadir los datos para el regalo"
+      }
+    },
+    "tareas_generales": {
+      "title": "Tareas generales",
+      "description": "Lista libre para todo lo que no encaje en otra sección.",
+      "tasks": {}
+    }
+  }
+}

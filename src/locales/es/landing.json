@@ -1,0 +1,34 @@
+{
+  "hero": {
+    "title": "Organiza tu boda paso a paso, todo en un mismo lugar",
+    "subtitle": "A diferencia de los directorios de proveedores, tubodadiy centraliza presupuesto, invitados, proveedores, cronograma y tareas — con seguimiento real de tu progreso.",
+    "cta": "Empieza gratis",
+    "ctaLoggedIn": "Ir a mi panel"
+  },
+  "features": {
+    "sections": {
+      "title": "13 secciones, un solo lugar",
+      "description": "Fecha, lugar, invitados, proveedores, vestuario, papelería, ceremonia, cronograma y mucho más, todo centralizado."
+    },
+    "guests": {
+      "title": "Invitados sin complicaciones",
+      "description": "Gestiona la lista de invitados, las confirmaciones y las notas dietéticas tú misma/o, sin depender de que ellos usen la web."
+    },
+    "vendors": {
+      "title": "Proveedores organizados",
+      "description": "Controla el estado de contratación de cada proveedor: catering, foto, música, flores..."
+    },
+    "budget": {
+      "title": "Presupuesto bajo control",
+      "description": "Compara lo estimado con lo gastado en tiempo real, por categoría y en conjunto."
+    },
+    "pace": {
+      "title": "Avanza a tu ritmo",
+      "description": "Salta entre secciones, marca algunas como completadas y omite otras. Así de caótico es organizar una boda."
+    },
+    "share": {
+      "title": "Comparte el plan",
+      "description": "Invita a tu pareja o a tu wedding planner con acceso total para organizarlo juntos."
+    }
+  }
+}

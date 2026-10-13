@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "title": "tubodadiy — Plan your wedding step by step",
+    "description": "Keep your whole wedding organised in one place: budget, guests, vendors and timeline."
+  },
+  "header": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "goToDashboard": "Go to my dashboard",
+    "account": "My account",
+    "userMenu": "{{name}}'s menu",
+    "signOut": "Log out"
+  },
+  "theme": {
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "footer": {
+    "tagline": "tubodadiy — plan your wedding without losing sight of the big picture.",
+    "madeBy": "Made with love by"
+  },
+  "date": {
+    "none": "No date"
+  }
+}

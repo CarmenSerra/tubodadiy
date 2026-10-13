@@ -183,3 +183,141 @@ export function baseTaskAuto(category: string, title: string): StepTaskAuto | un
 export function legacyTaskTitle(category: string, title: string): string | undefined {
   return LEGACY_TASKS.get(`${category}|${title}`)?.title;
 }
+
+// ---------------------------------------------------------------------------
+// Textos mostrados (i18n)
+//
+// Las secciones y tareas base se GUARDAN en español dentro de cada plan
+// (title, description, tasks[].title). Eso no cambia. Para mostrarlas en el
+// idioma activo se usan las funciones de abajo: devuelven la traducción de
+// src/locales/<lang>/steps.json si el texto guardado es el base (o uno
+// legacy) y, si la persona lo editó o lo creó ella, el texto tal cual.
+// Detalles y ejemplos en docs/i18n.md.
+// ---------------------------------------------------------------------------
+
+/**
+ * `t` de i18next/react-i18next (`useTranslation().t` o `getServerT(...)`). Las
+ * funciones indican el namespace "steps" en cada llamada, así que vale la `t`
+ * de cualquier namespace.
+ */
+export type StepTranslate = (
+  key: string,
+  options: { ns: string; defaultValue: string }
+) => string;
+
+/** Claves de las tareas base que se guardan solo como texto (sin `auto`). */
+const MANUAL_TASK_KEYS: Record<string, string> = {
+  "vestuario|Elegir vestido/traje": "outfit-choose",
+  "alojamiento_transporte|Buscar alojamientos cercanos": "lodging-search",
+  "alojamiento_transporte|Organizar transporte": "transport-organize",
+};
+
+/** Títulos de tarea antiguos que SOLO se usan para mostrar (no para `auto`). */
+const LEGACY_DISPLAY_TASK_KEYS: Record<string, string> = {
+  "papeleria|Diseñar save the date": "stationery-save-date",
+};
+
+/** Títulos y descripciones antiguos de las secciones base (planes viejos). */
+const LEGACY_STEP_TITLES: Record<string, string[]> = {
+  [TIMELINE_CATEGORY]: ["Timeline del día"],
+  lista_regalos: ["Lista de regalos"],
+};
+const LEGACY_STEP_DESCRIPTIONS: Record<string, string[]> = {
+  papeleria: ["Save the date, invitaciones, seating cards."],
+  invitados: ["Nombre, grupo/familia, estado RSVP, acompañante y notas dietéticas."],
+  tareas_generales: ["Checklist libre para todo lo que no encaje en otra sección."],
+  lista_regalos: [
+    "Recibir el regalo en dinero: cuenta bancaria o Bizum, y el mensaje para invitados.",
+    "Lista de regalos o alternativas (luna de miel, donativo, etc.).",
+  ],
+};
+
+const DEFINITION_BY_CATEGORY = new Map(STEP_DEFINITIONS.map((def) => [def.category, def]));
+
+interface BaseTask {
+  key: string;
+  title: string;
+  auto?: StepTaskAuto;
+}
+
+function baseTasksOf(def: StepDefinition): BaseTask[] {
+  return def.suggestedTasks.map((task) =>
+    typeof task === "string"
+      ? { key: MANUAL_TASK_KEYS[`${def.category}|${task}`] ?? task, title: task }
+      : { key: task.auto, title: task.title, auto: task.auto }
+  );
+}
+
+/** Clave de traducción (dentro de `sections.<category>.tasks`) de una tarea base, o `undefined` si no lo es. */
+function baseTaskKey(category: string, task: { title: string; auto?: string }): string | undefined {
+  const def = DEFINITION_BY_CATEGORY.get(category);
+  if (!def) return undefined;
+  const tasks = baseTasksOf(def);
+  const auto = currentAuto(task.auto);
+  const legacyTitle = legacyTaskTitle(category, task.title);
+
+  if (auto) {
+    const entry = tasks.find((candidate) => candidate.auto === auto);
+    if (entry) {
+      // Con clave `auto` conocida, solo cuenta si el título sigue siendo el base o uno antiguo.
+      const matches =
+        task.title === entry.title ||
+        legacyTitle === entry.title ||
+        LEGACY_DISPLAY_TASK_KEYS[`${category}|${task.title}`] === entry.key;
+      return matches ? entry.key : undefined;
+    }
+  }
+  const byTitle = tasks.find((candidate) => candidate.title === (legacyTitle ?? task.title));
+  return byTitle?.key ?? LEGACY_DISPLAY_TASK_KEYS[`${category}|${task.title}`];
+}
+
+/**
+ * Título de una sección para mostrar. Si `storedTitle` (el `title` guardado en
+ * el paso) es el base o uno antiguo —o no se pasa—, devuelve la traducción de
+ * `steps:sections.<category>.title`; si la persona lo cambió, lo devuelve tal
+ * cual. Una categoría desconocida (sección propia) devuelve `storedTitle`.
+ */
+export function displayStepTitle(category: string, t: StepTranslate, storedTitle?: string): string {
+  const def = DEFINITION_BY_CATEGORY.get(category);
+  if (!def) return storedTitle ?? category;
+  const isBase =
+    storedTitle === undefined ||
+    storedTitle === def.title ||
+    (LEGACY_STEP_TITLES[category] ?? []).includes(storedTitle);
+  return isBase ? t(`sections.${category}.title`, { ns: "steps", defaultValue: def.title }) : storedTitle;
+}
+
+/** Igual que displayStepTitle, para la descripción guardada de la sección. */
+export function displayStepDescription(
+  category: string,
+  t: StepTranslate,
+  storedDescription?: string
+): string {
+  const def = DEFINITION_BY_CATEGORY.get(category);
+  if (!def) return storedDescription ?? "";
+  const isBase =
+    storedDescription === undefined ||
+    storedDescription === def.description ||
+    (LEGACY_STEP_DESCRIPTIONS[category] ?? []).includes(storedDescription);
+  return isBase
+    ? t(`sections.${category}.description`, { ns: "steps", defaultValue: def.description })
+    : storedDescription;
+}
+
+/**
+ * Título de una tarea para mostrar. `task` es la tarea guardada
+ * (`{ title, auto? }`). Si es una tarea base sin editar (título base o
+ * antiguo, con o sin `auto`), devuelve `steps:sections.<category>.tasks.<key>`
+ * traducido (la clave es el `auto` de la tarea o, si no tiene, un slug fijo);
+ * si la persona la escribió o la renombró, devuelve `task.title` tal cual.
+ */
+export function displayTaskTitle(
+  category: string,
+  task: { title: string; auto?: string },
+  t: StepTranslate
+): string {
+  const key = baseTaskKey(category, task);
+  if (!key) return task.title;
+  const base = baseTasksOf(DEFINITION_BY_CATEGORY.get(category)!).find((entry) => entry.key === key);
+  return t(`sections.${category}.tasks.${key}`, { ns: "steps", defaultValue: base?.title ?? task.title });
+}

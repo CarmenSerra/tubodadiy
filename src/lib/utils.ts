@@ -1,6 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
+import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { formatDateValue, formatMoney, noDateLabel } from "@/lib/i18n/format";
+
 // Las sombras de marca (shadow-pop/lift/float, definidas en globals.css) deben
 // competir con shadow-none/shadow-sm como cualquier otra sombra; sin esto
 // tailwind-merge las toma por un color de sombra y no resuelve el conflicto.
@@ -12,18 +15,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) {
-    return "—";
-  }
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-    // es-ES no agrupa por defecto los números de 4 cifras (3450 € frente a
-    // 20.000 €); se fuerza para que todas las cifras de la app casen.
-    useGrouping: "always",
-  }).format(value);
+/** Importe en euros según el idioma (por defecto español). Ver "@/lib/i18n/format". */
+export function formatCurrency(value: number | null | undefined, lang: Lang = DEFAULT_LANG): string {
+  return formatMoney(value, lang);
 }
 
 /**
@@ -44,15 +38,9 @@ export function parseAmount(raw: string): number {
   return Number(text);
 }
 
-export function formatDate(value: string | null | undefined): string {
-  if (!value) return "Sin fecha";
-  const date = new Date(value + "T00:00:00");
-  if (Number.isNaN(date.getTime())) return "Sin fecha";
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+/** Fecha larga según el idioma (por defecto español); «Sin fecha» / «No date» si falta o no es válida. */
+export function formatDate(value: string | null | undefined, lang: Lang = DEFAULT_LANG): string {
+  return formatDateValue(value, lang) ?? noDateLabel(lang);
 }
 
 export function daysUntil(value: string | null | undefined): number | null {

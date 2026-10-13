@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { MoonIcon, SunIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { applyTheme, readStoredTheme, setTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ const getServerSnapshot = (): Theme => "light";
  * el estado de React solo gobierna aria-label y aria-pressed.
  */
 export function ThemeToggle({ className }: { className?: string }) {
+  const { t } = useTranslation("common");
   const theme = React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const dark = theme === "dark";
 
@@ -34,7 +36,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button
       type="button"
-      aria-label={dark ? "Activar modo claro" : "Activar modo noche"}
+      aria-label={dark ? t("theme.toLight") : t("theme.toDark")}
       aria-pressed={dark}
       onClick={() => setTheme(dark ? "light" : "dark")}
       className={cn(

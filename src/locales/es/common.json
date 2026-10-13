@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "title": "tubodadiy — Organiza tu boda paso a paso",
+    "description": "Centraliza toda la organización de tu boda: presupuesto, invitados, proveedores y cronograma en un mismo lugar."
+  },
+  "header": {
+    "login": "Iniciar sesión",
+    "signup": "Regístrate",
+    "goToDashboard": "Ir a mi panel",
+    "account": "Mi cuenta",
+    "userMenu": "Menú de {{name}}",
+    "signOut": "Cerrar sesión"
+  },
+  "theme": {
+    "toLight": "Activar modo claro",
+    "toDark": "Activar modo noche"
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "footer": {
+    "tagline": "tubodadiy — organiza tu boda sin perder de vista el conjunto.",
+    "madeBy": "Hecho con cariño por"
+  },
+  "date": {
+    "none": "Sin fecha"
+  }
+}

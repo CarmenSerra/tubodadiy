@@ -10,7 +10,9 @@ import {
   StoreIcon,
   CalendarClockIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,45 +32,19 @@ const BRAND_CTA =
   "rounded-full bg-cta px-8 text-on-cta shadow-none hover:bg-cta hover:opacity-90";
 // Botón de cabecera: píldora lila clara con texto oscuro.
 const HEADER_PILL =
-  "rounded-full bg-btn-soft px-4 text-ink-on-lilac shadow-none hover:bg-btn-soft hover:opacity-90";
+  "rounded-full bg-btn-soft px-3 text-ink-on-lilac sm:px-4 shadow-none hover:bg-btn-soft hover:opacity-90";
 
 const FEATURES = [
-  {
-    icon: ListChecksIcon,
-    title: "13 secciones, un solo lugar",
-    description:
-      "Fecha, lugar, invitados, proveedores, vestuario, papelería, ceremonia, cronograma y mucho más, todo centralizado.",
-  },
-  {
-    icon: UsersIcon,
-    title: "Invitados sin complicaciones",
-    description:
-      "Gestiona la lista de invitados, las confirmaciones y las notas dietéticas tú misma/o, sin depender de que ellos usen la web.",
-  },
-  {
-    icon: StoreIcon,
-    title: "Proveedores organizados",
-    description: "Controla el estado de contratación de cada proveedor: catering, foto, música, flores...",
-  },
-  {
-    icon: WalletIcon,
-    title: "Presupuesto bajo control",
-    description: "Compara lo estimado con lo gastado en tiempo real, por categoría y en conjunto.",
-  },
-  {
-    icon: CalendarClockIcon,
-    title: "Avanza a tu ritmo",
-    description:
-      "Salta entre secciones, marca algunas como completadas y omite otras. Así de caótico es organizar una boda.",
-  },
-  {
-    icon: HeartIcon,
-    title: "Comparte el plan",
-    description: "Invita a tu pareja o a tu wedding planner con acceso total para organizarlo juntos.",
-  },
-];
+  { key: "sections", icon: ListChecksIcon },
+  { key: "guests", icon: UsersIcon },
+  { key: "vendors", icon: StoreIcon },
+  { key: "budget", icon: WalletIcon },
+  { key: "pace", icon: CalendarClockIcon },
+  { key: "share", icon: HeartIcon },
+] as const;
 
 export default function LandingPage() {
+  const { t } = useTranslation(["landing", "common"]);
   const { user, loading } = useAuth();
 
   return (
@@ -77,21 +53,23 @@ export default function LandingPage() {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <HomeLink className="flex items-center gap-2 rounded-md text-brand outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface-alt">
             <HeartIcon className="size-5 fill-current" aria-hidden="true" />
-            <span className="font-display text-lg font-semibold">tubodadiy</span>
+            {/* En móvil estrecho solo el corazón (el nombre ya sale en el hero), para que quepan idioma + tema + enlaces. */}
+            <span className="font-display text-lg font-semibold max-[30rem]:sr-only">tubodadiy</span>
           </HomeLink>
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-1 sm:gap-2">
+            <LanguageSwitch />
             <ThemeToggle />
             {!loading && user ? (
               <Button asChild size="sm" className={HEADER_PILL}>
-                <Link href="/dashboard">Ir a mi panel</Link>
+                <Link href="/dashboard">{t("common:header.goToDashboard")}</Link>
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" size="sm" className="text-ink-ghost hover:bg-transparent hover:text-ink-ghost hover:opacity-80">
-                  <Link href="/login">Iniciar sesión</Link>
+                <Button asChild variant="ghost" size="sm" className="px-2 text-ink-ghost sm:px-3 hover:bg-transparent hover:text-ink-ghost hover:opacity-80">
+                  <Link href="/login">{t("common:header.login")}</Link>
                 </Button>
                 <Button asChild size="sm" className={HEADER_PILL}>
-                  <Link href="/signup">Regístrate</Link>
+                  <Link href="/signup">{t("common:header.signup")}</Link>
                 </Button>
               </>
             )}
@@ -134,15 +112,14 @@ export default function LandingPage() {
               tubodadiy
             </span>
           </div>
-          <h1 className="mt-2 text-ink">Organiza tu boda paso a paso, todo en un mismo lugar</h1>
+          <h1 className="mt-2 text-ink">{t("hero.title")}</h1>
           <p className="max-w-xl text-balance font-sans text-base not-italic text-ink-muted sm:text-lg">
-            A diferencia de los directorios de proveedores, tubodadiy centraliza presupuesto,
-            invitados, proveedores, cronograma y tareas — con seguimiento real de tu progreso.
+            {t("hero.subtitle")}
           </p>
           <div className="mt-4 flex gap-3">
             <Button asChild size="lg" className={BRAND_CTA}>
               <Link href={user ? "/dashboard" : "/signup"}>
-                {user ? "Ir a mi panel" : "Empieza gratis"}
+                {user ? t("hero.ctaLoggedIn") : t("hero.cta")}
                 <ArrowRightIcon />
               </Link>
             </Button>
@@ -154,7 +131,7 @@ export default function LandingPage() {
         <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature, i) => (
             <Card
-              key={feature.title}
+              key={feature.key}
               className="relative rounded-2xl border-surface bg-surface text-ink-strong shadow-none ring-1 ring-lilac-edge transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:scale-[1.05] hover:shadow-float motion-reduce:transition-none motion-reduce:hover:scale-100"
             >
               <CardHeader>
@@ -167,11 +144,11 @@ export default function LandingPage() {
                   <feature.icon className="size-5 text-ink-on-tint" />
                 </div>
                 <CardTitle className="mt-2 font-display text-base font-semibold text-ink-strong">
-                  {feature.title}
+                  {t(`features.${feature.key}.title`)}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-ink-placeholder">
-                {feature.description}
+                {t(`features.${feature.key}.description`)}
               </CardContent>
             </Card>
           ))}

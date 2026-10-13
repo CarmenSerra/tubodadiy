@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HeartIcon, LogOutIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -13,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { initials } from "@/lib/utils";
@@ -26,10 +28,11 @@ export function UserMenu({
   label: string;
   onSignOut: () => void;
 }) {
+  const { t } = useTranslation("common");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={`Menú de ${label}`}
+        aria-label={t("header.userMenu", { name: label })}
         className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface-alt"
       >
         <span className="hidden max-w-[12rem] truncate text-sm text-ink sm:block">{label}</span>
@@ -48,7 +51,7 @@ export function UserMenu({
           className="rounded-lg focus:bg-lilac-soft focus:text-ink"
         >
           <LogOutIcon className="size-4" />
-          Cerrar sesión
+          {t("header.signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -68,6 +71,7 @@ export function AppHeaderView({ children }: { children?: React.ReactNode }) {
           <span className="font-display text-lg font-semibold">tubodadiy</span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
+          <LanguageSwitch />
           <ThemeToggle />
           {children}
         </div>
@@ -77,6 +81,7 @@ export function AppHeaderView({ children }: { children?: React.ReactNode }) {
 }
 
 export function AppHeader() {
+  const { t } = useTranslation("common");
   const { user, signOut } = useAuth();
   const router = useRouter();
 
@@ -87,7 +92,7 @@ export function AppHeader() {
 
   return (
     <AppHeaderView>
-      {user && <UserMenu label={user.displayName || user.email || "Mi cuenta"} onSignOut={handleSignOut} />}
+      {user && <UserMenu label={user.displayName || user.email || t("header.account")} onSignOut={handleSignOut} />}
     </AppHeaderView>
   );
 }

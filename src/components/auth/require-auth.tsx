@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { Trans } from "react-i18next";
 
 import { useAuth } from "@/lib/hooks/use-auth";
 
@@ -28,8 +29,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   if (!firebaseReady) {
     return (
       <div className="mx-auto max-w-md p-8 text-center text-sm text-muted-foreground">
-        Firebase no está configurado. Añade las variables de entorno en <code>.env.local</code>{" "}
-        (ver <code>.env.example</code>) para poder usar la aplicación.
+        <Trans i18nKey="firebaseNotConfigured.guard" ns="auth" components={{ code: <code /> }} />
       </div>
     );
   }

@@ -1,0 +1,108 @@
+{
+  "sections": {
+    "fecha_presupuesto": {
+      "title": "Date and budget",
+      "description": "Target date, total budget and a breakdown by category.",
+      "tasks": {
+        "date": "Pick a target date",
+        "budget": "Set the total budget",
+        "budget-split": "Split the budget by category"
+      }
+    },
+    "lugar": {
+      "title": "Venue",
+      "description": "Ceremony and reception (they can be the same place or different ones).",
+      "tasks": {
+        "venue-visit": "Visit potential venues",
+        "venue-ceremony": "Book the ceremony venue",
+        "venue-banquet": "Book the reception venue"
+      }
+    },
+    "invitados": {
+      "title": "Guest list",
+      "description": "Name, group/family, RSVP, plus-one and dietary notes.",
+      "tasks": {
+        "guests-draft": "Draft the guest list",
+        "guests-final": "Confirm the final guest count"
+      }
+    },
+    "proveedores": {
+      "title": "Vendors",
+      "description": "Catering, photography, music/DJ, flowers, cake, transport, etc.",
+      "tasks": {
+        "vendor-catering": "Book the caterer",
+        "vendor-photo": "Book the photographer",
+        "vendor-music": "Book the music/DJ"
+      }
+    },
+    "vestuario": {
+      "title": "Attire",
+      "description": "The couple's outfits, accessories and fittings.",
+      "tasks": {
+        "outfit-choose": "Choose the dress/suit",
+        "outfit-fitting": "Book fittings"
+      }
+    },
+    "papeleria": {
+      "title": "Stationery",
+      "description": "Save the dates, invitations and table cards.",
+      "tasks": {
+        "stationery-save-date": "Design the save-the-date cards",
+        "invitations-send": "Send the invitations"
+      }
+    },
+    "ceremonia": {
+      "title": "Ceremony",
+      "description": "Type (civil, religious, symbolic), officiant and structure.",
+      "tasks": {
+        "ceremony-type": "Choose the type of ceremony",
+        "officiant-confirmed": "Confirm the officiant"
+      }
+    },
+    "timeline": {
+      "title": "Day-of timeline",
+      "description": "Hour-by-hour timeline of the big day.",
+      "tasks": {
+        "timeline-draft": "Draft the timeline",
+        "timeline-share": "Share the timeline with vendors"
+      }
+    },
+    "alojamiento_transporte": {
+      "title": "Guest accommodation and transport",
+      "description": "Accommodation and transport options for your guests.",
+      "tasks": {
+        "lodging-search": "Look for nearby accommodation",
+        "transport-organize": "Arrange transport"
+      }
+    },
+    "luna_de_miel": {
+      "title": "Honeymoon",
+      "description": "Destination, dates and bookings for the honeymoon.",
+      "tasks": {
+        "honeymoon-destination": "Choose a destination",
+        "honeymoon-book": "Book flights and accommodation"
+      }
+    },
+    "documentos_legales": {
+      "title": "Legal paperwork",
+      "description": "Marriage licence file and other legal formalities.",
+      "tasks": {
+        "legal-start": "Start the marriage licence file",
+        "legal-docs": "Gather the documents"
+      }
+    },
+    "lista_regalos": {
+      "title": "Gift",
+      "description": "Choose how to receive gifts (money or a list of items) and the message for guests.",
+      "tasks": {
+        "gift-decide": "Decide how to receive gifts",
+        "gift-data": "Add the details for the gift"
+      }
+    },
+    "tareas_generales": {
+      "title": "General tasks",
+      "description": "A free-form list for everything that does not fit in another section.",
+      "tasks": {}
+    }
+  }
+}

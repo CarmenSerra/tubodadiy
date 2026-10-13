@@ -3,6 +3,10 @@ import { Birthstone, DM_Sans, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/lib/hooks/use-auth";
 import { ThemeFavicon } from "@/components/theme-favicon";
 import { Toaster } from "@/components/ui/sonner";
+import { LANG_INIT_SCRIPT } from "@/lib/i18n/config";
+import { I18nProvider } from "@/lib/i18n/provider";
+import { getRequestLang } from "@/lib/i18n/request";
+import { getServerT } from "@/lib/i18n/server";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
@@ -44,29 +48,35 @@ const birthstone = Birthstone({
   fallback: ["cursive"],
 });
 
-export const metadata: Metadata = {
-  title: "tubodadiy — Organiza tu boda paso a paso",
-  description:
-    "Centraliza toda la organización de tu boda: presupuesto, invitados, proveedores y cronograma en un mismo lugar.",
-};
+// Título y descripción en el idioma de la cookie `tubodadiy-lang` (ver docs/i18n.md).
+export async function generateMetadata(): Promise<Metadata> {
+  const t = getServerT(await getRequestLang(), "common");
+  return { title: t("meta.title"), description: t("meta.description") };
+}
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const lang = await getRequestLang();
   return (
     // data-theme lo fija THEME_INIT_SCRIPT antes del primer pintado
-    // (según la elección guardada), por eso suppressHydrationWarning.
+    // (según la elección guardada), por eso suppressHydrationWarning. El idioma
+    // sale de la cookie en el servidor (no hay parpadeo); LANG_INIT_SCRIPT solo
+    // cubre el caso de cookie borrada con localStorage intacto.
     <html
-      lang="es"
+      lang={lang}
       data-theme="light"
       suppressHydrationWarning
       className={`${dmSans.variable} ${newsreader.variable} ${birthstone.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: LANG_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
-        <Toaster position="top-center" />
-        <ThemeFavicon />
+        <I18nProvider initialLang={lang}>
+          <AuthProvider>{children}</AuthProvider>
+          <Toaster position="top-center" />
+          <ThemeFavicon />
+        </I18nProvider>
       </body>
     </html>
   );

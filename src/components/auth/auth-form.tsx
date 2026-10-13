@@ -4,7 +4,9 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, HeartIcon } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
 
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +16,7 @@ import { Branch, Sparkles } from "@/components/brand/hero-decorations";
 import { HomeLink } from "@/components/brand/home-link";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { getFirebaseErrorMessage } from "@/lib/firebase/errors";
+import { useLanguage } from "@/lib/i18n/provider";
 
 // Colores de marca fijos (misma línea visual que la landing).
 const AUTH_INPUT =
@@ -55,7 +58,10 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
       {/* Ramas solo en pantallas anchas, para no rozar la tarjeta */}
       <Branch className="bottom-0 left-[2%] hidden h-[44%] max-h-[26rem] w-auto lg:block" />
       <Branch className="bottom-0 right-[1%] hidden h-[40%] max-h-[24rem] w-auto -scale-x-100 lg:block" />
-      <ThemeToggle className="absolute right-3 top-3 z-20 sm:right-6 sm:top-4" />
+      <div className="absolute right-3 top-3 z-20 flex items-center gap-1 sm:right-6 sm:top-4 sm:gap-2">
+        <LanguageSwitch />
+        <ThemeToggle />
+      </div>
       <div className="relative z-10 flex w-full justify-center">{children}</div>
     </main>
   );
@@ -66,6 +72,8 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ mode }: AuthFormProps) {
+  const { t } = useTranslation("auth");
+  const { lang } = useLanguage();
   const { signIn, signUp, firebaseReady } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -89,7 +97,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       }
       router.push(redirectTo);
     } catch (err) {
-      setError(getFirebaseErrorMessage(err));
+      setError(getFirebaseErrorMessage(err, lang));
     } finally {
       setSubmitting(false);
     }
@@ -108,49 +116,46 @@ export function AuthForm({ mode }: AuthFormProps) {
             <span className="font-display text-xl font-semibold">tubodadiy</span>
           </HomeLink>
         </div>
-        <CardTitle className="text-2xl font-semibold text-ink">{mode === "login" ? "Inicia sesión" : "Crea tu cuenta"}</CardTitle>
+        <CardTitle className="text-2xl font-semibold text-ink">{t(`${mode}.title`)}</CardTitle>
         <CardDescription className="text-ink-muted">
-          {mode === "login"
-            ? "Accede para seguir organizando tu boda."
-            : "Empieza a organizar tu boda paso a paso."}
+          {t(`${mode}.subtitle`)}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!firebaseReady && (
           <p className="mb-4 rounded-xl bg-lilac-soft ring-1 ring-lilac-edge p-3 text-sm text-ink">
-            Firebase no está configurado todavía. Añade las variables de entorno descritas en
-            <code className="mx-1">.env.example</code> para poder iniciar sesión.
+            <Trans i18nKey="firebaseNotConfigured.form" ns="auth" components={{ code: <code className="mx-1" /> }} />
           </p>
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {mode === "signup" && (
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="name" className={AUTH_LABEL}>Nombre</Label>
+              <Label htmlFor="name" className={AUTH_LABEL}>{t("form.name")}</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre"
+                placeholder={t("form.namePlaceholder")}
                 className={AUTH_INPUT}
                 autoComplete="name"
               />
             </div>
           )}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email" className={AUTH_LABEL}>Correo electrónico</Label>
+            <Label htmlFor="email" className={AUTH_LABEL}>{t("form.email")}</Label>
             <Input
               id="email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@ejemplo.com"
+              placeholder={t("form.emailPlaceholder")}
               className={AUTH_INPUT}
               autoComplete="email"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password" className={AUTH_LABEL}>Contraseña</Label>
+            <Label htmlFor="password" className={AUTH_LABEL}>{t("form.password")}</Label>
             <Input
               id="password"
               type="password"
@@ -170,22 +175,22 @@ export function AuthForm({ mode }: AuthFormProps) {
           )}
           <Button type="submit" disabled={submitting || !firebaseReady} className={AUTH_CTA}>
             {submitting && <Loader2 className="animate-spin" />}
-            {mode === "login" ? "Entrar" : "Crear cuenta"}
+            {t(`${mode}.submit`)}
           </Button>
         </form>
         <p className="mt-5 text-center text-sm text-ink-muted">
           {mode === "login" ? (
             <>
-              ¿No tienes cuenta?{" "}
+              {t("login.noAccount")}{" "}
               <Link href="/signup" className={AUTH_LINK}>
-                Regístrate
+                {t("login.signupLink")}
               </Link>
             </>
           ) : (
             <>
-              ¿Ya tienes cuenta?{" "}
+              {t("signup.haveAccount")}{" "}
               <Link href="/login" className={AUTH_LINK}>
-                Inicia sesión
+                {t("signup.loginLink")}
               </Link>
             </>
           )}

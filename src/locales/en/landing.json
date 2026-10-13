@@ -1,0 +1,34 @@
+{
+  "hero": {
+    "title": "Plan your wedding step by step, all in one place",
+    "subtitle": "Unlike vendor directories, tubodadiy brings your budget, guests, vendors, timeline and tasks together — with real tracking of your progress.",
+    "cta": "Start for free",
+    "ctaLoggedIn": "Go to my dashboard"
+  },
+  "features": {
+    "sections": {
+      "title": "13 sections, one place",
+      "description": "Date, venue, guests, vendors, outfits, stationery, ceremony, timeline and much more, all in one place."
+    },
+    "guests": {
+      "title": "Hassle-free guests",
+      "description": "Manage your guest list, RSVPs and dietary notes yourself, without relying on guests to use the website."
+    },
+    "vendors": {
+      "title": "Organised vendors",
+      "description": "Keep track of the booking status of every vendor: catering, photography, music, flowers..."
+    },
+    "budget": {
+      "title": "Budget under control",
+      "description": "Compare what you estimated with what you have spent in real time, by category and overall."
+    },
+    "pace": {
+      "title": "Go at your own pace",
+      "description": "Jump between sections, mark some as done and skip others. That is how chaotic planning a wedding really is."
+    },
+    "share": {
+      "title": "Share the plan",
+      "description": "Invite your partner or your wedding planner with full access so you can plan it together."
+    }
+  }
+}
