@@ -176,6 +176,11 @@ export interface InvitationTheme {
   /** Oscuro (plantilla elegante): el fondo es el color oscuro. */
   isDark: boolean;
   bg: string;
+  /**
+   * La «mesa»: el color liso de detrás de las tarjetas (fondo de la página pública,
+   * de la vista previa del editor y de «Reserva la fecha»). Sin motivos ni texturas.
+   */
+  table: string;
   paper: string;
   ink: string;
   /** Flores, rayas, lunares… */
@@ -195,12 +200,16 @@ export function buildTheme(colors: PaletteColors, template: TemplateKind = "bota
   return template === "elegante" ? darkTheme(colors) : lightTheme(colors, template);
 }
 
+/** Gris-crema con el que se apaga el color suave de la paleta para hacer la mesa. */
+const TABLE_GRAY = "#d9d5cc";
+
 function lightTheme(c: PaletteColors, template: TemplateKind): InvitationTheme {
   const bg = template === "minimal" ? mix(c.soft, "#ffffff", 0.5) : c.soft;
   const paper = mix(bg, "#ffffff", 0.55);
-  // Peor fondo posible: la página con una raya o mancha del color principal encima.
+  const table = mix(bg, TABLE_GRAY, 0.62);
+  // Peor fondo posible: la tarjeta con una raya del color principal encima.
   const worstBg = mix(bg, c.primary, 0.4);
-  const bgs = [bg, paper, worstBg];
+  const bgs = [bg, paper, worstBg, table];
   const ink = ensureContrast(c.dark, bgs, 7);
   const muted = ensureContrast(mix(ink, bg, 0.25), bgs, MIN_TEXT_CONTRAST + 0.3);
   const accent = ensureContrast(c.primary, paper, 1.8);
@@ -214,6 +223,7 @@ function lightTheme(c: PaletteColors, template: TemplateKind): InvitationTheme {
   const fieldLine = ensureContrast(mix(ink, field, 0.5), field, 3);
   const vars = {
     "--inv-bg": bg,
+    "--inv-table": table,
     "--inv-paper": paper,
     "--inv-ink": ink,
     "--inv-muted": muted,
@@ -229,7 +239,7 @@ function lightTheme(c: PaletteColors, template: TemplateKind): InvitationTheme {
     "--inv-focus": accentInk,
     "--inv-danger": ensureContrast("#9f3a38", [bg, paper], MIN_TEXT_CONTRAST),
   };
-  return { vars, isDark: false, bg, paper, ink, primary: accent, leaf, line };
+  return { vars, isDark: false, bg, table, paper, ink, primary: accent, leaf, line };
 }
 
 function darkTheme(c: PaletteColors): InvitationTheme {
@@ -237,7 +247,8 @@ function darkTheme(c: PaletteColors): InvitationTheme {
   let bg = c.dark;
   for (let i = 1; i <= 30 && luminance(bg) > 0.05; i++) bg = mix(c.dark, "#000000", i / 30);
   const paper = mix(bg, c.primary, 0.14);
-  const bgs = [bg, paper];
+  const table = mix(bg, "#14131a", 0.5);
+  const bgs = [bg, paper, table];
   const ink = ensureContrast(c.soft, bgs, 9);
   const muted = ensureContrast(mix(ink, bg, 0.2), bgs, MIN_TEXT_CONTRAST + 0.3);
   const accent = ensureContrast(c.primary, bgs, 3);
@@ -249,6 +260,7 @@ function darkTheme(c: PaletteColors): InvitationTheme {
   const onBtn = pickOn(accentInk, [bg, "#000000", "#ffffff"]);
   const vars = {
     "--inv-bg": bg,
+    "--inv-table": table,
     "--inv-paper": paper,
     "--inv-ink": ink,
     "--inv-muted": muted,
@@ -264,7 +276,7 @@ function darkTheme(c: PaletteColors): InvitationTheme {
     "--inv-focus": accentInk,
     "--inv-danger": "#f2adaa",
   };
-  return { vars, isDark: true, bg, paper, ink, primary: accent, leaf, line };
+  return { vars, isDark: true, bg, table, paper, ink, primary: accent, leaf, line };
 }
 
 /** El primero de `options` que da contraste de texto sobre `bg`; si ninguno, el mejor. */

@@ -9,6 +9,7 @@ import {
   type InvitationStyle,
   type InvitationTemplateId,
 } from "@/components/invitation/invitation-model";
+import { LayoutEditor } from "@/components/invitation/layout-picker";
 import { BackgroundEditor, ColorEditor, EnvelopeEditor } from "@/components/invitation/palette-picker";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ function StyleSection({ title, note, children }: { title: string; note?: string;
 }
 
 /**
- * Estilo compartido del plan: plantilla (tipografía y composición), paleta, fondo y color del sobre.
+ * Estilo compartido del plan: plantilla (tipografía), composición, paleta, fondo de la tarjeta y color del sobre.
  * Es el mismo selector en el editor de la invitación y en «Reserva la fecha»,
  * porque los dos se ven siempre con el mismo estilo.
  */
@@ -80,6 +81,16 @@ export function StyleEditor({
             );
           })}
         </div>
+      </StyleSection>
+
+      <StyleSection title={t("editor.sections.layout")} note={t("editor.layout.note")}>
+        <LayoutEditor
+          template={style.template}
+          palette={style.palette}
+          layout={style.layout}
+          onChange={(layout) => set({ layout })}
+          idPrefix={idPrefix}
+        />
       </StyleSection>
 
       <StyleSection title={t("editor.sections.color")} note={t("editor.color.note")}>

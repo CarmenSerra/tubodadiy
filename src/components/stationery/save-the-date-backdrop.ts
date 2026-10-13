@@ -1,8 +1,8 @@
-import { WASH_SHAPES, backdropImages, motifCornerUrls, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
+import { backdropImages, motifCornerUrls, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
 import type { InvitationStyle } from "@/components/invitation/invitation-model";
 import { LEGACY_COLORS, buildTheme, type InvitationTheme } from "@/components/invitation/invitation-theme";
 
-// Fondos de la invitación (rayas, lunares, flores…) pintados en el lienzo de
+// Fondos de la tarjeta (rayas, lunares, flores, motivos…) pintados en el lienzo de
 // «Reserva la fecha». Las imágenes salen de los mismos generadores SVG que usa
 // la invitación, con los colores de la paleta, así que se ven igual en las dos.
 
@@ -53,11 +53,6 @@ export function paintBackdrop(
   height: number
 ) {
   if (!kind || kind === "plain") return;
-
-  if (kind === "watercolor") {
-    paintWashes(ctx, theme, width, height);
-    return;
-  }
 
   const corners = motifCornerUrls(kind);
   if (corners) {
@@ -127,44 +122,4 @@ function paintMotif(
   draw(b, small, width, 0, -1, 1);
   draw(b, small, 0, height, 1, -1);
   draw(a, big, width, height, -1, -1);
-}
-
-/** Manchas de acuarela en las cuatro esquinas (las mismas formas que el CSS de la invitación). */
-function paintWashes(ctx: CanvasRenderingContext2D, theme: InvitationTheme, width: number, height: number) {
-  const size = Math.min(width * 0.46, 300 * TILE_SCALE);
-  const k = size / 200;
-  const corners = [
-    { x: 0, y: 0, sx: 1, sy: 1, a: theme.primary, b: theme.leaf },
-    { x: width, y: 0, sx: -1, sy: 1, a: theme.leaf, b: theme.primary },
-    { x: 0, y: height, sx: 1, sy: -1, a: theme.leaf, b: theme.primary },
-    { x: width, y: height, sx: -1, sy: -1, a: theme.primary, b: theme.leaf },
-  ];
-  const pathA = new Path2D(WASH_SHAPES.a);
-  const pathB = new Path2D(WASH_SHAPES.b);
-  for (const c of corners) {
-    ctx.save();
-    ctx.translate(c.x, c.y);
-    ctx.scale(c.sx * k, c.sy * k);
-    if ("filter" in ctx) ctx.filter = "blur(3px)";
-    for (const [path, color, w] of [
-      [pathA, c.a, 1.6],
-      [pathB, c.b, 1.4],
-    ] as const) {
-      ctx.globalAlpha = 0.34;
-      ctx.fillStyle = color;
-      ctx.fill(path);
-      ctx.globalAlpha = 0.4;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = w;
-      ctx.stroke(path);
-    }
-    for (const d of WASH_SHAPES.dots) {
-      ctx.globalAlpha = d.o;
-      ctx.fillStyle = d.tone === "a" ? c.a : c.b;
-      ctx.beginPath();
-      ctx.arc(d.cx, d.cy, d.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
 }

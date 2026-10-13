@@ -11,6 +11,8 @@ import {
 
 import { CopyButton } from "@/components/invitation/copy-button";
 import { InvitationBackdrop, MotifSprig, isMotif } from "@/components/invitation/invitation-backgrounds";
+import { CardLayoutBody, type NameSize } from "@/components/invitation/invitation-card-layouts";
+import { DEFAULT_LAYOUT } from "@/components/invitation/invitation-layouts";
 import {
   DiamondDivider,
   DotRule,
@@ -36,27 +38,6 @@ import { getServerT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 import "./invitation.css";
-
-/** «Ana & Luis» → ["Ana", "Luis"]; si no son dos nombres claros, `null`. */
-function splitNames(names: string): [string, string] | null {
-  const parts = names.split(/\s*&\s*|\s+\+\s+|\s+(?:y|e|and)\s+/i).filter(Boolean);
-  return parts.length === 2 ? [parts[0], parts[1]] : null;
-}
-
-function Names({ names }: { names: string }) {
-  const pair = splitNames(names);
-  if (!pair) return <>{names}</>;
-  return (
-    <>
-      <span className="inv-nameA">{pair[0]}</span>
-      <span className="inv-amp" aria-hidden="true">
-        &amp;
-      </span>
-      <span className="inv-nameB">{pair[1]}</span>
-      <span className="sr-only">{names}</span>
-    </>
-  );
-}
 
 interface PlaceTime {
   /** Etiqueta («Ceremonia») cuando hay dos horas distintas en el mismo sitio; vacía si no hace falta. */
@@ -166,9 +147,9 @@ interface InvitationViewProps {
 }
 
 /** Tamaño de los nombres según su longitud, para que quepan en la tarjeta. */
-function nameSize(names: string): "l" | "m" | "s" {
+function nameSize(names: string): NameSize {
   const length = names.length;
-  return length <= 12 ? "l" : length <= 20 ? "m" : "s";
+  return length <= 12 ? "l" : length <= 20 ? "m" : length <= 36 ? "s" : "xs";
 }
 
 /** Los lugares de la invitación y lo que lleva la tarjeta (hora, sitio y «después…»). */
@@ -213,6 +194,7 @@ function resolvePlaces(data: InvitationPublicData, t: TFunction, lang: Lang) {
     // «…en el mismo lugar»: hay datos de los dos y son el mismo sitio.
     laterSame: hasCeremony && hasBanquet && same,
     cardTime: timeOf(ceremony) || timeOf(banquet),
+    rawTime: ceremony.time || banquet.time,
     cardPlace: venue.name || venue.address,
     later: !same ? banquet.name || banquet.address : "",
   };
@@ -242,67 +224,56 @@ export function InvitationCard({
   const t = getServerT(lang, "invitation");
   const parts = dateParts(data.date, lang);
   const names = data.names || "Ana & Luis";
-  const { cardTime, cardPlace, later, laterSame } = resolvePlaces(data, t, lang);
+  const { cardTime, rawTime, cardPlace, later, laterSame } = resolvePlaces(data, t, lang);
+  const layout = data.layout ?? DEFAULT_LAYOUT;
+  const theme = themeOfInvitation(data);
 
-  const orn = cn("inv-ornament");
-  const Ornament = isMotif(data.background) ? (
+  const ornament = isMotif(data.background) ? (
     <MotifSprig motif={data.background} />
   ) : data.template === "elegante" ? (
-    <DiamondDivider className={orn} />
+    <DiamondDivider className="inv-ornament" />
   ) : data.template === "minimal" ? (
-    <DotRule className={orn} />
+    <DotRule className="inv-ornament" />
   ) : (
-    <Sprig className={orn} />
+    <Sprig className="inv-ornament" />
+  );
+
+  const join = preview ? (
+    <p className="inv-cardJoin">{t("view.rsvpTitle")}</p>
+  ) : (
+    <a href="#confirmar" className="inv-cardJoin">
+      {t("view.rsvpTitle")}
+      <ChevronDownIcon aria-hidden="true" />
+    </a>
   );
 
   return (
-    <div className={cn("inv-card", "inv-noArt", rise && "inv-rise")}>
+    <div
+      className={cn("inv-card", "inv-noArt", rise && "inv-rise")}
+      data-layout={layout}
+      data-motif={isMotif(data.background) ? data.background : undefined}
+    >
+      {(data.palette || data.background) && <InvitationBackdrop kind={data.background} theme={theme} />}
       <div className="inv-cardBody">
-        <h1 className="inv-names" data-size={nameSize(names)}>
-          <Names names={names} />
-        </h1>
-
-        <div className="inv-cardIntro">
-          <p className="inv-eyebrow">{data.template === "minimal" ? t("view.eyebrowMinimal") : t("view.eyebrow")}</p>
-          {data.message && <p className="inv-cardMessage">{data.message}</p>}
-        </div>
-
-        {(parts || cardTime) && (
-          <div className="inv-strip">
-            {parts && <p className="inv-stripCell inv-stripWeekday">{parts.weekday}</p>}
-            {parts && (
-              <p className="inv-stripCell inv-stripDate">
-                <span className="inv-stripMonth">{parts.month}</span>
-                <span className="inv-stripDay">{parts.day}</span>
-                <span className="inv-stripYear">{parts.year}</span>
-              </p>
-            )}
-            {cardTime && <p className="inv-stripCell inv-stripTime">{cardTime}</p>}
-          </div>
-        )}
-
-        {(cardPlace || later || laterSame) && (
-          <div className="inv-cardPlace">
-            {cardPlace && <p className="inv-cardVenue">{cardPlace}</p>}
-            {later && (
-              <p className="inv-cardLater">
-                {t("view.later")} <strong>{later}</strong>
-              </p>
-            )}
-            {laterSame && <p className="inv-cardLater">{t("view.laterSame")}</p>}
-          </div>
-        )}
-
-        {Ornament}
-
-        {preview ? (
-          <p className="inv-cardJoin">{t("view.rsvpTitle")}</p>
-        ) : (
-          <a href="#confirmar" className="inv-cardJoin">
-            {t("view.rsvpTitle")}
-            <ChevronDownIcon aria-hidden="true" />
-          </a>
-        )}
+        <CardLayoutBody
+          layout={layout}
+          t={t}
+          lang={lang}
+          names={names}
+          nameSize={nameSize(names)}
+          date={data.date}
+          parts={parts}
+          longDate={formatLongDate(data.date, lang)}
+          time={cardTime}
+          rawTime={rawTime}
+          venue={cardPlace}
+          later={later}
+          laterSame={laterSame}
+          eyebrow={data.template === "minimal" ? t("view.eyebrowMinimal") : t("view.eyebrow")}
+          message={data.message}
+          ornament={ornament}
+          join={join}
+        />
       </div>
     </div>
   );
@@ -323,7 +294,8 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
   const Body = preview ? "div" : "main";
 
   // Con paleta, las variables de color salen de ella; sin paleta (invitaciones anteriores)
-  // mandan los colores de la plantilla. El fondo se dibuja con los colores que toque.
+  // mandan los colores de la plantilla. La mesa de detrás de la tarjeta es siempre lisa:
+  // el fondo elegido (rayas, motivos…) va dentro de la tarjeta.
   const palette = data.palette;
   const theme = themeOfInvitation(data);
 
@@ -332,12 +304,9 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
       className={cn("inv-root", `inv-${data.template}`, preview && "inv-preview")}
       data-template={data.template}
       data-themed={palette ? "" : undefined}
-      data-bg={data.background && data.background !== "plain" ? data.background : undefined}
       style={palette ? (theme.vars as CSSProperties) : undefined}
       lang={lang}
     >
-      {(palette || data.background) && <InvitationBackdrop kind={data.background} theme={theme} />}
-
       <Body className="inv-main">
         <section className="inv-stage" aria-label={t("view.cardLabel")}>
           <InvitationCard data={data} preview={preview} rise={!preview} />

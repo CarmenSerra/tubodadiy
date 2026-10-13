@@ -5,6 +5,8 @@
 
 .inv-root {
   --inv-bg: #f6f2ec;
+  /* La «mesa» de detrás de las tarjetas: un color liso, sin motivos ni texturas. */
+  --inv-table: #e6e2d9;
   --inv-paper: #fdfbf8;
   --inv-ink: #26413c;
   --inv-muted: #51655d;
@@ -23,7 +25,7 @@
   position: relative;
   flex: 1 1 auto;
   min-height: 100dvh;
-  background: var(--inv-bg);
+  background: var(--inv-table);
   color: var(--inv-ink);
   font-family: var(--font-body), system-ui, sans-serif;
   line-height: 1.6;
@@ -39,14 +41,9 @@
 
 /* ---------- Plantillas ---------- */
 
-.inv-botanico {
-  background:
-    radial-gradient(60rem 28rem at 50% -8rem, #efe7f6 0%, transparent 70%),
-    var(--inv-bg);
-}
-
 .inv-minimal {
   --inv-bg: #ffffff;
+  --inv-table: #ebebed;
   --inv-paper: #f8f7fa;
   --inv-ink: #1f1f26;
   --inv-muted: #565663;
@@ -61,6 +58,7 @@
 
 .inv-elegante {
   --inv-bg: #2b2a3b;
+  --inv-table: #1d1c28;
   --inv-paper: #353449;
   --inv-ink: #f4f1eb;
   --inv-muted: #d3cde0;
@@ -76,27 +74,16 @@
   --inv-focus: #d4c0ea;
   --inv-danger: #f2adaa;
   color-scheme: dark;
-  background:
-    radial-gradient(48rem 24rem at 50% -6rem, #3b3a52 0%, transparent 70%),
-    var(--inv-bg);
 }
 
-/* Con paleta propia (las variables --inv-* llegan en línea desde la vista). */
-.inv-root[data-themed] {
-  background:
-    radial-gradient(60rem 28rem at 50% -8rem, color-mix(in oklab, var(--inv-paper) 75%, transparent) 0%, transparent 70%),
-    var(--inv-bg);
-}
-.inv-root[data-themed].inv-elegante {
-  background:
-    radial-gradient(48rem 24rem at 50% -6rem, color-mix(in oklab, var(--inv-accent) 16%, transparent) 0%, transparent 70%),
-    var(--inv-bg);
-}
-
-/* ---------- Fondos (capa detrás del contenido) ---------- */
+/*
+ * Fondos de la TARJETA (capa detrás de su contenido, recortada por ella). La mesa
+ * de detrás es siempre lisa. Los tamaños se miden en cqw (ancho de la tarjeta),
+ * así que el fondo escala igual en la página, en la vista previa y en miniatura.
+ */
 
 .inv-bgLayer {
-  --bg-u: calc(var(--bg-k, 1) * var(--bg-m, 0.8));
+  --bg-u: calc(var(--bg-k, 1) * 0.15cqw);
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -104,70 +91,35 @@
   pointer-events: none;
   background-repeat: repeat;
 }
-@media (min-width: 640px) {
-  .inv-bgLayer { --bg-m: 1; }
-}
-.inv-main, .inv-footer { position: relative; z-index: 1; }
 
-.inv-bgLayer[data-bg="stripes"] { background-size: calc(264px * var(--bg-u)) calc(600px * var(--bg-u)); }
-.inv-bgLayer[data-bg="paper"] { background-size: auto, calc(220px * var(--bg-k, 1)) calc(220px * var(--bg-k, 1)); background-repeat: no-repeat, repeat; }
-.inv-bgLayer[data-bg="dots"] { background-size: calc(36px * var(--bg-u)); }
-.inv-bgLayer[data-bg="gingham"] { background-size: calc(32px * var(--bg-u)); }
-.inv-bgLayer[data-bg="arches"] { background-size: calc(60px * var(--bg-u)) calc(144px * var(--bg-u)); }
-.inv-bgLayer[data-bg="confetti"] { background-size: calc(220px * var(--bg-u)); }
+.inv-bgLayer[data-bg="stripes"] { background-size: calc(264 * var(--bg-u)) calc(600 * var(--bg-u)); }
+.inv-bgLayer[data-bg="paper"] { background-size: auto, calc(220 * var(--bg-u)) calc(220 * var(--bg-u)); background-repeat: no-repeat, repeat; }
+.inv-bgLayer[data-bg="dots"] { background-size: calc(36 * var(--bg-u)); }
+.inv-bgLayer[data-bg="gingham"] { background-size: calc(32 * var(--bg-u)); }
+.inv-bgLayer[data-bg="arches"] { background-size: calc(60 * var(--bg-u)) calc(144 * var(--bg-u)); }
+.inv-bgLayer[data-bg="confetti"] { background-size: calc(220 * var(--bg-u)); }
 
-/* Marco floral: una ramita por cada lado, medio fuera de pantalla para no robar ancho. */
+/* Marco floral: una ramita por cada lado, medio fuera de la tarjeta para no robar ancho. */
 .inv-bgLayer[data-bg="floral"] {
   background-repeat: repeat-y, repeat-y;
-  background-size: calc(64px * var(--bg-u)) calc(360px * var(--bg-u));
+  background-size: calc(64 * var(--bg-u)) calc(360 * var(--bg-u));
   background-position:
-    calc(-20px * var(--bg-u)) 0,
-    calc(100% + 20px * var(--bg-u)) 0;
+    calc(-20 * var(--bg-u)) 0,
+    calc(100% + 20 * var(--bg-u)) 0;
 }
 .inv-bgFrame {
   position: absolute;
-  inset: 0.6rem;
+  inset: 2.6cqw;
   border: 1px solid var(--bg-frame);
-  border-radius: 1.5rem;
+  border-radius: 4cqw;
   opacity: 0.8;
 }
-.inv-root[data-bg="floral"] .inv-body { padding-inline: 2.25rem; }
-@media (min-width: 640px) {
-  .inv-root[data-bg="floral"]:not(.inv-preview) .inv-body { padding-inline: 3rem; }
-}
-
-/* Manchas de acuarela en las cuatro esquinas */
-.inv-wash {
-  position: absolute;
-  width: 46%;
-  max-width: 300px;
-  height: auto;
-  filter: blur(2.5px);
-}
-.inv-washTL { top: 0; left: 0; }
-.inv-washTR { top: 0; right: 0; transform: scaleX(-1); }
-.inv-washBL { bottom: 0; left: 0; transform: scaleY(-1); }
-.inv-washBR { bottom: 0; right: 0; transform: scale(-1, -1); }
 
 /*
- * Fondos con motivos de acuarela (limones, olivo…): WebP en las esquinas, siempre
- * detrás del contenido. `--m-w` es el ancho de la rama grande y se mide con el
- * ancho de la capa (cqw); en la página pública hay un par de esquinas arriba, otro
- * al pie de la primera pantalla (`--m-first`) y otro al final.
+ * Motivos de acuarela (limones, olivo…): WebP en la diagonal de la tarjeta, siempre
+ * detrás del texto. `--m-w` es el ancho de la rama grande, medido con el de la tarjeta.
  */
-.inv-bgMotif {
-  --m-first: 100%;
-  --m-w: calc(clamp(6.5rem, 25cqw, 17rem) * var(--bg-k, 1));
-  container-type: inline-size;
-}
-.inv-root:not(.inv-preview) > .inv-bgMotif { --m-first: 100dvh; }
-.inv-preview > .inv-bgMotif { --m-w: clamp(5rem, 22cqw, 15rem); }
-.inv-motif,
-.inv-motifTop,
-.inv-motifEnd { position: absolute; inset: 0; pointer-events: none; }
-.inv-motifTop { bottom: auto; height: var(--m-first); }
-.inv-motifEnd { display: none; }
-.inv-root:not(.inv-preview) .inv-motifEnd { display: block; }
+.inv-motif { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .inv-motifPiece {
   position: absolute;
   display: block;
@@ -177,8 +129,6 @@
   user-select: none;
 }
 .inv-mTL { top: 0; left: 0; }
-.inv-mTR { top: 0; right: 0; width: calc(var(--m-w) * 0.92); transform: scaleX(-1); }
-.inv-mBL { bottom: 0; left: 0; width: calc(var(--m-w) * 0.92); transform: scaleY(-1); }
 .inv-mBR { right: 0; bottom: 0; transform: scale(-1, -1); }
 .inv-elegante .inv-motifPiece { filter: brightness(1.18) saturate(1.05); }
 
@@ -236,12 +186,15 @@
   border: 1px solid var(--inv-line);
   border-radius: 0.2rem;
   pointer-events: none;
+  z-index: 1;
 }
 
 .inv-art { flex: none; padding: 5cqw 4cqw 0; }
 .inv-artSvg { display: block; width: 100%; height: auto; }
 
 .inv-cardBody {
+  position: relative;
+  z-index: 1;
   display: flex;
   min-height: 0;
   flex: 1 1 0;
@@ -252,6 +205,8 @@
   gap: 1.5cqw;
 }
 .inv-noArt .inv-cardBody { padding-top: 9cqw; padding-bottom: 8cqw; justify-content: space-evenly; }
+/* Con motivos de acuarela, las ramas de la diagonal no pisan el texto */
+.inv-card[data-motif] .inv-cardBody { padding-top: 15cqw; }
 
 .inv-names {
   display: flex;
@@ -268,31 +223,33 @@
 }
 .inv-names .inv-amp { color: var(--inv-accent); }
 
-.inv-botanico .inv-names { font-family: var(--font-script), cursive; font-size: 16cqw; line-height: 0.95; }
-.inv-botanico .inv-names[data-size="m"] { font-size: 12.5cqw; }
-.inv-botanico .inv-names[data-size="s"] { font-size: 9.5cqw; }
+.inv-botanico .inv-names { font-family: var(--font-script), cursive; font-size: calc(16cqw * var(--nk, 1)); line-height: 0.95; }
+.inv-botanico .inv-names[data-size="m"] { font-size: calc(12.5cqw * var(--nk, 1)); }
+.inv-botanico .inv-names[data-size="s"] { font-size: calc(9.5cqw * var(--nk, 1)); }
+.inv-botanico .inv-names[data-size="xs"] { font-size: calc(7.6cqw * var(--nk, 1)); }
 .inv-botanico .inv-amp { font-size: 0.6em; }
 
 .inv-minimal .inv-names {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 8.2cqw;
+  font-size: calc(8.2cqw * var(--nk, 1));
   letter-spacing: 0.14em;
   line-height: 1.2;
   text-transform: uppercase;
 }
-.inv-minimal .inv-names[data-size="m"] { font-size: 6.6cqw; }
-.inv-minimal .inv-names[data-size="s"] { font-size: 5.2cqw; }
+.inv-minimal .inv-names[data-size="m"] { font-size: calc(6.6cqw * var(--nk, 1)); }
+.inv-minimal .inv-names[data-size="s"] { font-size: calc(5.2cqw * var(--nk, 1)); }
+.inv-minimal .inv-names[data-size="xs"] { font-size: calc(4.3cqw * var(--nk, 1)); }
 .inv-minimal .inv-amp { font-size: 0.75em; }
 
 .inv-elegante .inv-names {
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
-  font-size: 12cqw;
+  font-size: calc(12cqw * var(--nk, 1));
 }
-.inv-elegante .inv-names[data-size="m"] { font-size: 9.5cqw; }
-.inv-elegante .inv-names[data-size="s"] { font-size: 7.4cqw; }
+.inv-elegante .inv-names[data-size="m"] { font-size: calc(9.5cqw * var(--nk, 1)); }
+.inv-elegante .inv-names[data-size="s"] { font-size: calc(7.4cqw * var(--nk, 1)); }
+.inv-elegante .inv-names[data-size="xs"] { font-size: calc(6cqw * var(--nk, 1)); }
 .inv-elegante .inv-amp { font-size: 0.6em; }
-.inv-noArt .inv-names { font-size: 1.25em; }
 
 .inv-cardIntro { display: flex; max-width: 100%; flex-direction: column; align-items: center; gap: 1.2cqw; }
 .inv-eyebrow {
@@ -392,6 +349,326 @@
   color: var(--inv-muted);
 }
 .inv-cardLater strong { font-weight: 600; color: var(--inv-ink); }
+
+/* ---------- Composiciones de la tarjeta (`data-layout` en .inv-card) ---------- */
+
+/* Hora y lugar en una línea («13:00 h · El Parque de la Marquesa») */
+.inv-whereLine {
+  display: flex;
+  max-width: 100%;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0 1.6cqw;
+  margin: 0;
+  line-height: 1.3;
+  color: var(--inv-ink);
+}
+.inv-whereTime {
+  font-size: 3.4cqw;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--inv-accent-ink);
+}
+.inv-whereDot { color: var(--inv-accent); }
+.inv-whereVenue {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 4.2cqw;
+  font-style: italic;
+  font-weight: 700;
+}
+
+/* Fecha grande: «24 · 10 · 2026» */
+.inv-bd {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6cqw;
+  padding: 2.4cqw 0;
+  border-block: 1px solid color-mix(in oklab, var(--inv-accent) 55%, transparent);
+}
+.inv-bdWeekday {
+  margin: 0;
+  font-size: 2.9cqw;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--inv-accent-ink);
+}
+.inv-bdNumbers {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.8cqw;
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 13.4cqw;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--inv-ink);
+}
+.inv-bdNumbers i { font-size: 0.5em; font-style: normal; color: var(--inv-accent); }
+
+/* Calendario del mes con el día en un corazón */
+.inv-cal { display: flex; width: 78%; flex-direction: column; gap: 1.4cqw; }
+.inv-calTitle {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 4.8cqw;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--inv-ink);
+}
+.inv-calGrid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 0.3cqw; }
+.inv-calHead {
+  padding-bottom: 0.8cqw;
+  font-size: 2.5cqw;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--inv-accent-ink);
+}
+.inv-calCell {
+  position: relative;
+  display: flex;
+  height: 5.9cqw;
+  align-items: center;
+  justify-content: center;
+  font-size: 3cqw;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--inv-muted);
+}
+.inv-calOn svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11cqw;
+  height: 11cqw;
+  transform: translate(-50%, -52%);
+  fill: color-mix(in oklab, var(--inv-accent) 26%, transparent);
+  stroke: var(--inv-accent);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.inv-calOn b { position: relative; font-size: 3.4cqw; font-weight: 700; color: var(--inv-ink); }
+
+/* Composiciones con el texto alineado a la izquierda */
+.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-cardBody {
+  align-items: stretch;
+  text-align: left;
+}
+.inv-card[data-motif]:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-cardBody {
+  padding-top: 20cqw;
+}
+.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) :is(.inv-ornament, .inv-motifSprig) {
+  align-self: flex-start;
+}
+.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-cardJoin {
+  align-self: flex-start;
+  padding-left: 0;
+}
+.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-names {
+  justify-content: flex-start;
+}
+
+/* Columna lateral: nombres a la izquierda y fecha, hora y lugar a la derecha */
+.inv-sb { display: flex; width: 100%; align-items: stretch; gap: 5cqw; }
+.inv-sb .inv-names {
+  min-width: 0;
+  flex: 1 1 0;
+  align-content: center;
+  --nk: 0.72;
+}
+.inv-sbInfo {
+  display: flex;
+  min-width: 0;
+  flex: 1.05 1 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.1cqw;
+  padding-left: 5cqw;
+  border-left: 1px solid color-mix(in oklab, var(--inv-accent) 60%, transparent);
+}
+.inv-sbInfo > p { margin: 0; overflow-wrap: anywhere; }
+.inv-sbWeekday,
+.inv-sbMonth {
+  font-size: 2.8cqw;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--inv-accent-ink);
+}
+.inv-sbDay {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 17cqw;
+  line-height: 0.95;
+  color: var(--inv-ink);
+}
+.inv-sbTime {
+  margin-top: 1.4cqw !important;
+  font-size: 3.6cqw;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--inv-accent-ink);
+}
+.inv-sbVenue {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 4cqw;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.22;
+  color: var(--inv-ink);
+}
+.inv-sbInfo .inv-cardLater { font-size: 2.6cqw; }
+
+/* Nombres en dos líneas («María José» / «& Juan») en las composiciones alineadas a la izquierda */
+.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-names {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  justify-content: start;
+  column-gap: 2.2cqw;
+  line-height: 0.98;
+}
+.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-nameA { grid-column: 1 / -1; }
+
+/* Editorial: nombres enormes y la fecha escrita como una frase */
+.inv-card[data-layout="editorial"] .inv-names { --nk: 1.18; }
+.inv-edText {
+  margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 5cqw;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--inv-ink);
+}
+.inv-card[data-layout="editorial"] .inv-cardLater { text-align: left; }
+
+/* Arco / medallón: la fecha en un arco entre los nombres */
+.inv-md { display: flex; width: 100%; flex-direction: column; align-items: center; gap: 1.2cqw; }
+.inv-mdName { --nk: 0.9; }
+.inv-mdAmp {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 5.4cqw;
+  font-style: italic;
+  line-height: 1;
+  color: var(--inv-accent);
+}
+.inv-mdArch {
+  display: flex;
+  width: 41cqw;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5cqw;
+  padding: 6cqw 2cqw 3.2cqw;
+  border: 1px solid var(--inv-accent);
+  border-radius: 999px 999px 0 0;
+  box-shadow: inset 0 0 0 1.2cqw var(--inv-paper), inset 0 0 0 calc(1.2cqw + 1px) color-mix(in oklab, var(--inv-accent) 50%, transparent);
+}
+.inv-mdArch > p { margin: 0; }
+.inv-mdWeekday,
+.inv-mdMonth {
+  font-size: 2.7cqw;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--inv-accent-ink);
+}
+.inv-mdDay {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 15cqw;
+  line-height: 1;
+  color: var(--inv-ink);
+}
+.inv-mdYear { font-size: 3cqw; letter-spacing: 0.2em; color: var(--inv-muted); }
+
+/* Minimal en bloque: etiquetas pequeñas y valores a la izquierda */
+.inv-card[data-layout="block"] .inv-names { --nk: 0.9; }
+.inv-blk {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 2.6cqw;
+  margin: 0;
+  padding-top: 3.4cqw;
+  border-top: 1px solid color-mix(in oklab, var(--inv-accent) 60%, transparent);
+}
+.inv-blkRow { display: grid; grid-template-columns: 17cqw minmax(0, 1fr); align-items: baseline; gap: 2.4cqw; }
+.inv-blk dt {
+  font-size: 2.5cqw;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--inv-accent-ink);
+}
+.inv-blk dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 4.2cqw;
+  line-height: 1.3;
+  color: var(--inv-ink);
+}
+.inv-blk .inv-cardLater { margin-top: 0.6cqw; text-align: left; }
+
+/* Vertical: día de la semana, número, mes y año apilados */
+.inv-vt { display: flex; flex-direction: column; align-items: center; gap: 2cqw; }
+.inv-vtStack {
+  display: flex;
+  min-width: 34cqw;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4cqw;
+  padding: 2cqw 6cqw;
+  border-block: 1px solid color-mix(in oklab, var(--inv-accent) 60%, transparent);
+}
+.inv-vtStack > p { margin: 0; }
+.inv-vtWeekday {
+  font-size: 2.9cqw;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--inv-accent-ink);
+}
+.inv-card[data-layout="vertical"] .inv-cardMessage { -webkit-line-clamp: 2; line-clamp: 2; }
+.inv-vtDay {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 18.5cqw;
+  line-height: 0.95;
+  color: var(--inv-ink);
+}
+.inv-vtMonth {
+  font-size: 3.6cqw;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--inv-ink);
+}
+.inv-vtYear { font-size: 3cqw; letter-spacing: 0.24em; color: var(--inv-muted); }
+.inv-vtTime {
+  margin: 0;
+  font-size: 4cqw;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--inv-accent-ink);
+}
 
 .inv-ornament { width: 30cqw; height: auto; flex: none; }
 
@@ -953,10 +1230,11 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 }
 .inv-gratAmp { margin: 0 0.5cqw; font-size: 0.8em; color: var(--inv-accent-ink); }
 
-/* Con motivos de acuarela, por los bordes de la tarjetita */
-.inv-motifCard { --m-w: 26cqw; overflow: hidden; }
+/* Con motivos de acuarela, por la diagonal de la tarjeta */
+.inv-motifCard { --m-w: 21cqw; }
 .inv-motifCard .inv-mTL { top: -4cqw; left: -4cqw; }
 .inv-motifCard .inv-mBR { right: -4cqw; bottom: -4cqw; width: calc(var(--m-w) * 0.9); }
+.inv-card .inv-motifCard { --m-w: 22cqw; }
 
 /* ---------- Vista previa del editor: invitación + sobre + tarjetita ---------- */
 
@@ -1038,6 +1316,9 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
   box-shadow: 0 2.6cqw 5cqw -1.4cqw rgb(30 24 24 / 0.4), 0 0.4cqw 1cqw rgb(30 24 24 / 0.16);
 }
 .inv-envFrameCard > * { display: block; }
+
+/* Tarjeta en miniatura de los selectores del editor (mide el fondo en cqw, como la grande) */
+.inv-miniCard { container-type: inline-size; aspect-ratio: 5 / 7; }
 
 /* ---------- Editor: selector de color (react-colorful con los tokens de la app) ---------- */
 

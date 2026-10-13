@@ -308,16 +308,17 @@ export function BackgroundEditor({
           >
             <span
               aria-hidden="true"
-              className="relative flex h-24 items-center justify-center overflow-hidden rounded-lg border border-black/10 isolate"
-              style={{ background: theme.bg }}
+              className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg border border-black/10 isolate"
+              style={{ background: theme.table }}
             >
-              <InvitationBackdrop kind={id} theme={theme} scale={0.42} />
+              {/* La mesa es lisa; el fondo elegido va dentro de la tarjeta. */}
               <span
-                className="relative z-[1] flex w-[58%] flex-col items-center gap-1 rounded-md border px-2 py-2.5"
+                className="inv-miniCard relative flex h-[84%] flex-col items-center justify-center gap-1 overflow-hidden rounded-[3px] border px-2"
                 style={{ background: theme.paper, borderColor: theme.line }}
               >
-                <span className="h-1.5 w-4/5 rounded-full" style={{ background: theme.ink }} />
-                <span className="h-1 w-1/2 rounded-full" style={{ background: theme.primary }} />
+                <InvitationBackdrop kind={id} theme={theme} scale={2.2} />
+                <span className="relative z-[1] h-1.5 w-4/5 rounded-full" style={{ background: theme.ink }} />
+                <span className="relative z-[1] h-1 w-1/2 rounded-full" style={{ background: theme.primary }} />
               </span>
             </span>
             <span className="flex min-h-8 items-start gap-1 px-0.5 text-[13px] font-medium leading-tight text-ink-strong">

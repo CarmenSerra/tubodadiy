@@ -1,5 +1,6 @@
 import { sortGiftItems, type GiftItem } from "@/components/plan-tools/gift-model";
-import { DEFAULT_BACKGROUND, isBackground, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
+import { DEFAULT_BACKGROUND, cleanBackground, type InvitationBackground } from "@/components/invitation/invitation-backgrounds";
+import { DEFAULT_LAYOUT, cleanLayout, type InvitationLayout } from "@/components/invitation/invitation-layouts";
 import {
   COLOR_ROLES,
   DEFAULT_ENVELOPE,
@@ -31,12 +32,16 @@ export const IMAGE_MODES: readonly InvitationImageMode[] = ["photo", "illustrati
 
 /**
  * Estilo compartido de todo el plan: la invitación y «Reserva la fecha» se ven
- * con la misma plantilla, paleta y fondo. Vive en `weddingPlans/{id}/designs/style`.
+ * con la misma plantilla, paleta, fondo de la tarjeta y composición. Vive en
+ * `weddingPlans/{id}/designs/style`.
  */
 export interface InvitationStyle {
   template: InvitationTemplateId;
   palette?: InvitationPalette;
+  /** Fondo de la tarjeta (liso, rayas, motivos…); la mesa de detrás siempre es lisa. */
   background?: InvitationBackground;
+  /** Cómo se coloca la fecha, la hora, el lugar y los nombres. Sin valor, la clásica. */
+  layout?: InvitationLayout;
   /** Color del sobre (`#rrggbb`) de la vista previa y de «Reserva la fecha». Sin valor, verde oliva. */
   envelopeColor?: string;
 }
@@ -97,8 +102,10 @@ export interface InvitationContent {
    * tienen: entonces se ven con los colores de su plantilla, como siempre.
    */
   palette?: InvitationPalette;
-  /** Tipo de fondo. Sin valor equivale a «liso». */
+  /** Fondo de la tarjeta. Sin valor equivale a «liso». */
   background?: InvitationBackground;
+  /** Composición de la tarjeta (compartida con «Reserva la fecha» cuando esta la sabe dibujar). */
+  layout?: InvitationLayout;
   /** Color del sobre de la vista previa (compartido con «Reserva la fecha»). */
   envelopeColor?: string;
   /** Obsoleto e ignorado (ver `InvitationImageMode`). */
@@ -181,6 +188,7 @@ export function defaultContent(weddingDate: string | null, lang: Lang = DEFAULT_
     showGift: true,
     palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
     background: DEFAULT_BACKGROUND,
+    layout: DEFAULT_LAYOUT,
     envelopeColor: DEFAULT_ENVELOPE,
   };
 }
@@ -265,18 +273,19 @@ export function cleanEnvelopeColor(value: unknown): string | undefined {
 /** Estilo compartido, saneado (lo que se guarda en `designs/style`). */
 export function cleanStyle(value: Partial<InvitationStyle> | null | undefined): InvitationStyle {
   const palette = cleanPalette(value?.palette);
-  const background = isBackground(value?.background) ? value.background : undefined;
+  const background = cleanBackground(value?.background);
   const envelopeColor = cleanEnvelopeColor(value?.envelopeColor);
   return {
     template: cleanTemplate(value?.template),
     ...(palette ? { palette } : {}),
     ...(background ? { background } : {}),
+    layout: cleanLayout(value?.layout),
     ...(envelopeColor ? { envelopeColor } : {}),
   };
 }
 
 export function styleOf(
-  content: Pick<InvitationContent, "template" | "palette" | "background" | "envelopeColor">
+  content: Pick<InvitationContent, "template" | "palette" | "background" | "layout" | "envelopeColor">
 ): InvitationStyle {
   return cleanStyle(content);
 }
@@ -287,7 +296,7 @@ export function sameStyle(a: InvitationStyle, b: InvitationStyle): boolean {
 
 export function cleanContent(value: Partial<InvitationContent>): InvitationContent {
   const palette = cleanPalette(value.palette);
-  const background = isBackground(value.background) ? value.background : undefined;
+  const background = cleanBackground(value.background);
   const imageMode = IMAGE_MODES.includes(value.imageMode as InvitationImageMode)
     ? (value.imageMode as InvitationImageMode)
     : undefined;
@@ -305,6 +314,7 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     message: clip(value.message, LIMITS.message),
     rsvpDeadline: cleanDate(value.rsvpDeadline),
     showGift: Boolean(value.showGift),
+    layout: cleanLayout(value.layout),
     // Solo si existen: Firestore no admite `undefined` y las invitaciones antiguas no los tienen.
     ...(palette ? { palette } : {}),
     ...(background ? { background } : {}),
@@ -453,20 +463,59 @@ export function formatShortDate(value: string, lang: Lang = DEFAULT_LANG): strin
   return dateFormatter(lang, { day: "numeric", month: "long" }).format(date);
 }
 
+export interface DateParts {
+  /** «24» */
+  day: string;
+  /** «octubre» */
+  month: string;
+  /** «10» */
+  monthNumber: string;
+  /** «2026» */
+  year: string;
+  /** «Sábado» */
+  weekday: string;
+}
+
 /** Partes para el sello de fecha: día, mes, año. */
-export function dateParts(
-  value: string,
-  lang: Lang = DEFAULT_LANG
-): { day: string; month: string; year: string; weekday: string } | null {
+export function dateParts(value: string, lang: Lang = DEFAULT_LANG): DateParts | null {
   const date = parseDay(value);
   if (!date) return null;
   const f = (opts: Intl.DateTimeFormatOptions) => dateFormatter(lang, opts).format(date);
   return {
     day: f({ day: "numeric" }),
     month: f({ month: "long" }),
+    monthNumber: String(date.getMonth() + 1).padStart(2, "0"),
     year: f({ year: "numeric" }),
     weekday: capitalize(f({ weekday: "long" })),
   };
+}
+
+export interface CalendarMonth {
+  /** «Octubre 2026» */
+  title: string;
+  /** Iniciales de los días de la semana, de lunes a domingo. */
+  weekdays: string[];
+  /** Los días del mes en filas de 7 (de lunes a domingo); `null` = hueco. */
+  cells: (number | null)[];
+  /** El día de la boda. */
+  day: number;
+}
+
+/** Calendario del mes de la fecha (semanas de lunes a domingo) para la composición «Calendario». */
+export function calendarOf(value: string, lang: Lang = DEFAULT_LANG): CalendarMonth | null {
+  const date = parseDay(value);
+  if (!date) return null;
+  const [year, month] = [date.getFullYear(), date.getMonth()];
+  const lead = (new Date(year, month, 1, 12).getDay() + 6) % 7;
+  const total = new Date(year, month + 1, 0, 12).getDate();
+  const cells: (number | null)[] = [...Array<null>(lead).fill(null), ...Array.from({ length: total }, (_, i) => i + 1)];
+  while (cells.length % 7 !== 0) cells.push(null);
+  // 5 de enero de 2026 fue lunes: de ahí salen las iniciales en el orden de la semana.
+  const weekdays = Array.from({ length: 7 }, (_, i) =>
+    dateFormatter(lang, { weekday: "narrow" }).format(new Date(2026, 0, 5 + i, 12))
+  );
+  const monthName = dateFormatter(lang, { month: "long" }).format(date);
+  return { title: `${capitalize(monthName)} ${year}`, weekdays, cells, day: date.getDate() };
 }
 
 /** `HH:mm` → «17:30 h» (es) / «17:30» (en). */

@@ -7,13 +7,14 @@ import {
   type InvitationStyle,
   type InvitationTemplateId,
 } from "@/components/invitation/invitation-model";
+import { DEFAULT_LAYOUT } from "@/components/invitation/invitation-layouts";
 import { DEFAULT_ENVELOPE, DEFAULT_PALETTE } from "@/components/invitation/invitation-theme";
 import type { SaveTheDateTemplate } from "@/lib/firebase/designs";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { planInvitationQuery } from "@/lib/firebase/invitation";
 
 /**
- * Estilo compartido del plan (plantilla, paleta y fondo): lo usan la invitación
+ * Estilo compartido del plan (plantilla, paleta, fondo de la tarjeta y composición): lo usan la invitación
  * y «Reserva la fecha», así que cambiarlo en una cambia la otra. Documento
  * único `weddingPlans/{planId}/designs/style`; las reglas de `designs` ya dejan
  * leer y escribir a los miembros del plan.
@@ -45,6 +46,7 @@ export async function syncInvitationStyle(planId: string, style: InvitationStyle
     // Sin paleta/fondo (invitaciones antiguas con los colores de su plantilla) se dejan como estén.
     ...(clean.palette ? { palette: clean.palette } : {}),
     ...(clean.background ? { background: clean.background } : {}),
+    ...(clean.layout ? { layout: clean.layout } : {}),
     ...(clean.envelopeColor ? { envelopeColor: clean.envelopeColor } : {}),
     updatedAt: serverTimestamp(),
   });
@@ -84,6 +86,7 @@ export function resolveStyle(sources: {
     template,
     palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
     background: "plain",
+    layout: DEFAULT_LAYOUT,
     envelopeColor: DEFAULT_ENVELOPE,
   };
 }

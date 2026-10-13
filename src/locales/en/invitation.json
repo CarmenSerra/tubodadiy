@@ -85,7 +85,20 @@
       "thanks": "Thank you so much",
       "giftList": "Our gift list"
     },
-    "laterSame": "Afterwards, we'll celebrate at the same place"
+    "laterSame": "Afterwards, we'll celebrate at the same place",
+    "layout": {
+      "labels": {
+        "date": "Date",
+        "time": "Time",
+        "place": "Place"
+      },
+      "sentence": {
+        "date": "on {{weekday}} {{day}} {{month}} {{year}}",
+        "time": "at {{time}}",
+        "place": "at {{place}}",
+        "joiner": ", "
+      }
+    }
   },
   "rsvp": {
     "legend": "Attendance reply",
@@ -193,7 +206,7 @@
     },
     "sections": {
       "color": "Colour",
-      "background": "Background",
+      "background": "Card background",
       "language": "Invitation language",
       "style": "Style",
       "couple": "The couple",
@@ -202,7 +215,8 @@
       "whereNote": "If something doesn't apply, leave it blank and it won't appear.",
       "gift": "Gift",
       "publish": "Publish and share",
-      "envelope": "Envelope colour"
+      "envelope": "Envelope colour",
+      "layout": "Layout"
     },
     "language": {
       "label": "Invitation language",
@@ -309,10 +323,10 @@
       "legacy": "This invitation uses the colours of its template. Pick a palette to change them."
     },
     "background": {
-      "note": "This is how each background looks with your palette.",
+      "note": "This is how each background looks inside your card, with your palette. The table behind is always plain.",
       "label": "Background type",
       "motifsTitle": "With watercolour motifs",
-      "motifsNote": "Hand-painted branches in the corners. The ornament on the card changes with the motif.",
+      "motifsNote": "Hand-painted branches in the corners of the card. The central ornament changes with the motif.",
       "motifsLabel": "Background with motifs"
     },
     "style": {
@@ -337,6 +351,11 @@
     },
     "envelope": {
       "note": "The envelope in the preview and in “Save the date”. Your guests don't see it."
+    },
+    "layout": {
+      "label": "Card layout",
+      "note": "How the date, time, venue and names are arranged on the card. “Save the date” uses the same one, except Side column and Block, which only change the invitation.",
+      "invitationOnly": "This layout only changes the invitation: “Save the date” keeps the classic one."
     }
   },
   "palettes": {
@@ -354,13 +373,12 @@
     "rosa-te-cacao": "Tea rose & cocoa"
   },
   "backgrounds": {
-    "plain": "Plain pastel",
+    "plain": "Plain",
     "stripes": "Watercolour stripes",
     "paper": "Paper",
     "dots": "Polka dots",
     "gingham": "Gingham",
     "floral": "Floral frame",
-    "watercolor": "Watercolour washes",
     "arches": "Arches",
     "confetti": "Confetti",
     "lemons": "Lemons",
@@ -388,5 +406,15 @@
       "bottle-green": "Bottle green",
       "slate": "Slate"
     }
+  },
+  "layouts": {
+    "classic": "Classic",
+    "bigDate": "Big date",
+    "calendar": "Calendar",
+    "sidebar": "Side column",
+    "editorial": "Editorial",
+    "medallion": "Medallion",
+    "block": "Block",
+    "vertical": "Vertical"
   }
 }

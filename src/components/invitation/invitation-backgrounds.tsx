@@ -18,7 +18,6 @@ export const BACKGROUND_IDS = [
   "dots",
   "gingham",
   "floral",
-  "watercolor",
   "arches",
   "confetti",
   // Motivos en acuarela (WebP en public/decor/stationery, colocados en bordes y esquinas)
@@ -37,6 +36,15 @@ export const DEFAULT_BACKGROUND: InvitationBackground = "plain";
 
 export function isBackground(value: unknown): value is InvitationBackground {
   return typeof value === "string" && (BACKGROUND_IDS as readonly string[]).includes(value);
+}
+
+/**
+ * Fondo guardado, saneado. «Manchas de acuarela» ya no existe: las invitaciones
+ * que lo tenían guardado pasan a «liso». Un valor desconocido no se guarda.
+ */
+export function cleanBackground(value: unknown): InvitationBackground | undefined {
+  if (value === "watercolor") return "plain";
+  return isBackground(value) ? value : undefined;
 }
 
 /** Los fondos con motivos de acuarela (los demás son SVG/CSS generados con la paleta). */
@@ -71,11 +79,11 @@ export function motifCornerUrls(kind: InvitationBackground | undefined): { a: st
 }
 
 /**
- * Esquinas con ramas de acuarela. `page`: las cuatro esquinas de la página
- * (arriba, abajo de la primera pantalla y al final); `card`: solo dos, en la
- * diagonal de una tarjeta pequeña. Son imágenes decorativas, siempre detrás del texto.
+ * Dos ramas de acuarela en la diagonal de una tarjeta (arriba a la izquierda y
+ * abajo a la derecha). Son imágenes decorativas, siempre detrás del texto, y
+ * van DENTRO de la tarjeta: la mesa de detrás de las tarjetas es siempre lisa.
  */
-export function MotifCorners({ motif, variant = "page" }: { motif: InvitationMotif; variant?: "page" | "card" }) {
+export function MotifCorners({ motif }: { motif: InvitationMotif }) {
   const a = motifPiece(motif, "a");
   const b = motifPiece(motif, "b");
   const img = (piece: typeof a, className: string) => (
@@ -92,26 +100,10 @@ export function MotifCorners({ motif, variant = "page" }: { motif: InvitationMot
       className={cn("inv-motifPiece", className)}
     />
   );
-  if (variant === "card") {
-    return (
-      <div className="inv-motif inv-motifCard" aria-hidden="true">
-        {img(a, "inv-mTL")}
-        {img(b, "inv-mBR")}
-      </div>
-    );
-  }
   return (
-    <div className="inv-motif inv-motifPage" data-motif={motif} aria-hidden="true">
-      <div className="inv-motifTop">
-        {img(a, "inv-mTL")}
-        {img(b, "inv-mTR")}
-        {img(b, "inv-mBL")}
-        {img(a, "inv-mBR")}
-      </div>
-      <div className="inv-motifEnd">
-        {img(b, "inv-mBL")}
-        {img(a, "inv-mBR")}
-      </div>
+    <div className="inv-motif inv-motifCard" aria-hidden="true">
+      {img(a, "inv-mTL")}
+      {img(b, "inv-mBR")}
     </div>
   );
 }
@@ -296,46 +288,6 @@ function floral(t: InvitationTheme): Spec {
   };
 }
 
-// ---- Manchas de acuarela en las esquinas ----
-
-/** Formas de las manchas de las esquinas (viewBox 200 × 200); también las pinta «Reserva la fecha» en su lienzo. */
-export const WASH_SHAPES = {
-  a: "M-20 -20 H172 C184 30 152 60 120 80 C86 100 70 130 46 152 C30 166 8 172 -20 170 Z",
-  b: "M-20 -20 H112 C116 28 92 52 68 66 C46 80 34 104 10 116 C-4 122 -12 122 -20 120 Z",
-  dots: [
-    { cx: 152, cy: 22, r: 15, tone: "b", o: 0.26 },
-    { cx: 26, cy: 146, r: 11, tone: "a", o: 0.3 },
-    { cx: 104, cy: 104, r: 6, tone: "b", o: 0.22 },
-  ],
-} as const;
-
-function Wash({ className, a, b }: { className: string; a: string; b: string }) {
-  const tone = { a, b };
-  return (
-    <svg viewBox="0 0 200 200" className={className} focusable="false" aria-hidden="true">
-      <path d={WASH_SHAPES.a} fill={a} fillOpacity=".34" stroke={a} strokeOpacity=".4" strokeWidth="1.6" />
-      <path d={WASH_SHAPES.b} fill={b} fillOpacity=".34" stroke={b} strokeOpacity=".4" strokeWidth="1.4" />
-      {WASH_SHAPES.dots.map((d) => (
-        <circle key={`${d.cx}-${d.cy}`} cx={d.cx} cy={d.cy} r={d.r} fill={tone[d.tone]} fillOpacity={d.o} />
-      ))}
-    </svg>
-  );
-}
-
-function watercolor(t: InvitationTheme): Spec {
-  return {
-    style: {},
-    children: (
-      <>
-        <Wash className="inv-wash inv-washTL" a={t.primary} b={t.leaf} />
-        <Wash className="inv-wash inv-washTR" a={t.leaf} b={t.primary} />
-        <Wash className="inv-wash inv-washBL" a={t.leaf} b={t.primary} />
-        <Wash className="inv-wash inv-washBR" a={t.primary} b={t.leaf} />
-      </>
-    ),
-  };
-}
-
 // ---- Arcos minimalistas ----
 
 function arches(t: InvitationTheme): Spec {
@@ -386,15 +338,14 @@ const BUILDERS: Record<Exclude<InvitationBackground, "plain" | InvitationMotif>,
   dots,
   gingham,
   floral,
-  watercolor,
   arches,
   confetti,
 };
 
 /**
  * Las imágenes de un fondo de azulejo o de ramitas (SVG en data URI, en el orden
- * de CSS: la primera va encima). Los fondos que son capas de elementos (manchas
- * de acuarela) o liso devuelven una lista vacía. «Reserva la fecha» las dibuja
+ * de CSS: la primera va encima). Los motivos de acuarela y el liso devuelven
+ * una lista vacía. «Reserva la fecha» las dibuja
  * en su lienzo para verse igual que la invitación.
  */
 export function backdropImages(kind: InvitationBackground | undefined, theme: InvitationTheme): string[] {
@@ -404,8 +355,8 @@ export function backdropImages(kind: InvitationBackground | undefined, theme: In
 }
 
 /**
- * Capa de fondo (detrás del contenido). `scale` encoge los motivos para las
- * miniaturas del editor. El liso no lleva capa.
+ * Capa de fondo de la TARJETA (detrás de su contenido; la tarjeta recorta lo que
+ * se sale). `scale` ajusta el tamaño de los azulejos. El liso no lleva capa.
  */
 export function InvitationBackdrop({
   kind,
@@ -417,13 +368,7 @@ export function InvitationBackdrop({
   scale?: number;
 }) {
   if (!kind || kind === "plain") return null;
-  if (isMotif(kind)) {
-    return (
-      <div className="inv-bgLayer inv-bgMotif" data-bg={kind} aria-hidden="true" style={scale ? ({ "--bg-k": scale } as CSSProperties) : undefined}>
-        <MotifCorners motif={kind} />
-      </div>
-    );
-  }
+  if (isMotif(kind)) return <MotifCorners motif={kind} />;
   const spec = BUILDERS[kind](theme);
   const style = { ...spec.style, ...(scale ? { "--bg-k": scale } : {}) } as CSSProperties;
   return (

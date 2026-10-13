@@ -85,7 +85,20 @@
       "thanks": "Muchas gracias",
       "giftList": "Nuestra lista de regalos"
     },
-    "laterSame": "Posteriormente, lo celebraremos en el mismo lugar"
+    "laterSame": "Posteriormente, lo celebraremos en el mismo lugar",
+    "layout": {
+      "labels": {
+        "date": "Fecha",
+        "time": "Hora",
+        "place": "Lugar"
+      },
+      "sentence": {
+        "date": "el {{weekday}} {{day}} de {{month}} de {{year}}",
+        "time": "a las {{time}}",
+        "place": "en {{place}}",
+        "joiner": " "
+      }
+    }
   },
   "rsvp": {
     "legend": "Confirmación de asistencia",
@@ -193,7 +206,7 @@
     },
     "sections": {
       "color": "Color",
-      "background": "Fondo",
+      "background": "Fondo de la tarjeta",
       "language": "Idioma de la invitación",
       "style": "Estilo",
       "couple": "La pareja",
@@ -202,7 +215,8 @@
       "whereNote": "Si algo no aplica, déjalo en blanco y no aparecerá.",
       "gift": "Regalo",
       "publish": "Publicar y compartir",
-      "envelope": "Color del sobre"
+      "envelope": "Color del sobre",
+      "layout": "Composición"
     },
     "language": {
       "label": "Idioma de la invitación",
@@ -309,10 +323,10 @@
       "legacy": "Esta invitación usa los colores de su plantilla. Elige una paleta para cambiarlos."
     },
     "background": {
-      "note": "Así se ve cada fondo con tu paleta.",
+      "note": "Así se ve cada fondo dentro de tu tarjeta, con tu paleta. La mesa de detrás es siempre lisa.",
       "label": "Tipo de fondo",
       "motifsTitle": "Con motivos de acuarela",
-      "motifsNote": "Ramas pintadas a mano en las esquinas. El adorno de la tarjeta cambia con el motivo.",
+      "motifsNote": "Ramas pintadas a mano en las esquinas de la tarjeta. El adorno central cambia con el motivo.",
       "motifsLabel": "Fondo con motivos"
     },
     "style": {
@@ -337,6 +351,11 @@
     },
     "envelope": {
       "note": "El sobre de la vista previa y de «Reserva la fecha». Tus invitados no lo ven."
+    },
+    "layout": {
+      "label": "Composición de la tarjeta",
+      "note": "Cómo se colocan la fecha, la hora, el lugar y los nombres en la tarjeta. «Reserva la fecha» usa la misma, salvo Lateral y Bloque, que solo cambian la invitación.",
+      "invitationOnly": "Esta composición solo cambia la invitación: «Reserva la fecha» mantiene la clásica."
     }
   },
   "palettes": {
@@ -354,13 +373,12 @@
     "rosa-te-cacao": "Rosa té y cacao"
   },
   "backgrounds": {
-    "plain": "Liso pastel",
+    "plain": "Liso",
     "stripes": "Rayas acuarela",
     "paper": "Papel",
     "dots": "Lunares",
     "gingham": "Vichy",
     "floral": "Marco floral",
-    "watercolor": "Manchas de acuarela",
     "arches": "Arcos",
     "confetti": "Confeti",
     "lemons": "Limones",
@@ -388,5 +406,15 @@
       "bottle-green": "Verde botella",
       "slate": "Pizarra"
     }
+  },
+  "layouts": {
+    "classic": "Clásico",
+    "bigDate": "Fecha grande",
+    "calendar": "Calendario",
+    "sidebar": "Lateral",
+    "editorial": "Editorial",
+    "medallion": "Medallón",
+    "block": "Bloque",
+    "vertical": "Vertical"
   }
 }

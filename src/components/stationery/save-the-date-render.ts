@@ -1,4 +1,5 @@
-import type { InvitationStyle } from "@/components/invitation/invitation-model";
+import { layoutInStationery, type InvitationLayout } from "@/components/invitation/invitation-layouts";
+import { calendarOf, type CalendarMonth, type InvitationStyle } from "@/components/invitation/invitation-model";
 import {
   LEGACY_COLORS,
   buildTheme,
@@ -8,6 +9,7 @@ import {
 import { paintBackdrop } from "@/components/stationery/save-the-date-backdrop";
 import { dateParts } from "@/components/stationery/save-the-date-model";
 import { DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { getServerT } from "@/lib/i18n/server";
 import type { SaveTheDateDesign } from "@/lib/firebase/designs";
 
 // Dibujo de la tarjeta «Reserva la fecha» sobre un <canvas>: la misma función
@@ -549,11 +551,135 @@ function ruleBlock(color: string, withHeart: boolean): Block {
   };
 }
 
+/** Filete fino a todo lo ancho de `width`. */
+function lineBlock2(color: string, width: number): Block {
+  return {
+    height: 30,
+    draw(c, cx, top) {
+      c.save();
+      c.strokeStyle = color;
+      c.globalAlpha = 0.7;
+      c.lineWidth = 2;
+      c.beginPath();
+      c.moveTo(cx - width / 2, top + 15);
+      c.lineTo(cx + width / 2, top + 15);
+      c.stroke();
+      c.restore();
+    },
+  };
+}
+
+/** Mini calendario del mes con el día de la boda dentro de un corazón. */
+function calendarBlock(cal: CalendarMonth, theme: Theme, fonts: CardFonts): Block {
+  const colW = 92;
+  const rowH = 56;
+  const rows = cal.cells.length / 7;
+  const head = 112;
+  return {
+    height: head + rows * rowH + 8,
+    draw(c, cx, top) {
+      const left = cx - colW * 3.5;
+      c.save();
+      c.textAlign = "center";
+      c.textBaseline = "alphabetic";
+      if ("letterSpacing" in c) c.letterSpacing = "0px";
+      c.fillStyle = theme.date;
+      c.font = `italic 400 48px ${fonts.display}`;
+      c.fillText(cal.title, cx, top + 46);
+      c.fillStyle = theme.accent;
+      c.font = `600 24px ${fonts.body}`;
+      cal.weekdays.forEach((w, i) => c.fillText(w.toUpperCase(), left + colW * (i + 0.5), top + 98));
+      cal.cells.forEach((day, i) => {
+        if (day === null) return;
+        const x = left + colW * ((i % 7) + 0.5);
+        const rowTop = top + head + Math.floor(i / 7) * rowH;
+        const y = rowTop + rowH / 2 + 11;
+        if (day === cal.day) {
+          c.save();
+          c.translate(x, rowTop + rowH / 2 - 1);
+          c.scale(6.4, 6.4);
+          c.globalAlpha = 0.32;
+          c.fillStyle = theme.rule;
+          c.fill(HEART);
+          c.globalAlpha = 1;
+          c.strokeStyle = theme.rule;
+          c.lineWidth = 0.5;
+          c.lineJoin = "round";
+          c.stroke(HEART);
+          c.restore();
+          c.fillStyle = theme.date;
+          c.font = `700 32px ${fonts.body}`;
+        } else {
+          c.fillStyle = theme.muted;
+          c.font = `400 30px ${fonts.body}`;
+        }
+        c.fillText(String(day), x, y);
+      });
+      c.restore();
+    },
+  };
+}
+
+/** Arco con la fecha dentro (el «medallón» de la invitación). */
+function archBlock(
+  parts: NonNullable<ReturnType<typeof dateParts>>,
+  theme: Theme,
+  fonts: CardFonts
+): Block {
+  const w = 300;
+  const h = 370;
+  return {
+    height: h,
+    draw(c, cx, top) {
+      const r = w / 2;
+      const outline = (inset: number, alpha: number, lw: number) => {
+        c.save();
+        c.globalAlpha = alpha;
+        c.strokeStyle = theme.rule;
+        c.lineWidth = lw;
+        c.beginPath();
+        c.moveTo(cx - r + inset, top + h);
+        c.lineTo(cx - r + inset, top + r);
+        c.arc(cx, top + r, r - inset, Math.PI, 0);
+        c.lineTo(cx + r - inset, top + h);
+        c.stroke();
+        c.restore();
+      };
+      outline(0, 1, 3);
+      outline(16, 0.5, 2);
+      c.save();
+      c.textAlign = "center";
+      c.textBaseline = "alphabetic";
+      c.fillStyle = theme.accent;
+      c.font = `500 26px ${fonts.body}`;
+      if ("letterSpacing" in c) c.letterSpacing = "7px";
+      c.fillText(parts.weekday.toUpperCase(), cx + 3, top + 168);
+      c.fillText(parts.month.toUpperCase(), cx + 3, top + 312);
+      c.fillStyle = theme.date;
+      if ("letterSpacing" in c) c.letterSpacing = "0px";
+      c.font = `400 124px ${fonts.display}`;
+      c.fillText(parts.day, cx, top + 274);
+      c.fillStyle = theme.muted;
+      c.font = `500 28px ${fonts.body}`;
+      if ("letterSpacing" in c) c.letterSpacing = "6px";
+      c.fillText(parts.year, cx + 3, top + 350);
+      c.restore();
+    },
+  };
+}
+
 /* ------------------------------------------------------------------ */
 /* Composición                                                          */
 /* ------------------------------------------------------------------ */
 
-function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: CardFonts, lang: Lang): Block[] {
+function buildBlocks(
+  ctx: Ctx,
+  design: SaveTheDateDesign,
+  theme: Theme,
+  fonts: CardFonts,
+  lang: Lang,
+  layout: InvitationLayout
+): Block[] {
   const W = theme.maxWidth;
   const blocks: Block[] = [];
   const gap = (h: number) => blocks.push(spacer(h));
@@ -593,12 +719,25 @@ function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: C
     color: theme.amp,
   };
 
-  if (n1 || n2) {
+  const parts = dateParts(design.date, lang);
+  const medallion = layout === "medallion" && Boolean(parts) && Boolean(n1) && Boolean(n2);
+
+  if (medallion && parts) {
+    // Nombre – & – arco con la fecha – nombre
+    blocks.push(lineBlock(ctx, n1, nameStyle, W, 40));
+    gap(4);
+    blocks.push(lineBlock(ctx, "&", ampStyle, W, 30));
+    gap(18);
+    blocks.push(archBlock(parts, theme, fonts));
+    gap(18);
+    blocks.push(lineBlock(ctx, n2, nameStyle, W, 40));
+  } else if (n1 || n2) {
     const both = n1 && n2;
     const joined = both ? `${n1} & ${n2}` : n1 || n2;
     const shown = nameStyle.upper ? joined.toUpperCase() : joined;
     const inlineSize = fitSize(ctx, shown, nameStyle, W, 10);
-    if (!both || (!theme.stackedOnly && inlineSize >= theme.inlineMin)) {
+    // En «Editorial» los nombres van siempre en dos líneas, grandes.
+    if (!both || (!theme.stackedOnly && layout !== "editorial" && inlineSize >= theme.inlineMin)) {
       blocks.push(lineBlock(ctx, joined, nameStyle, W, 30));
     } else {
       blocks.push(lineBlock(ctx, n1, nameStyle, W, 40));
@@ -610,19 +749,64 @@ function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: C
     gap(34);
   }
 
-  blocks.push(ruleBlock(theme.rule, true));
-  gap(38);
+  if (!medallion && layout !== "editorial") {
+    blocks.push(ruleBlock(theme.rule, true));
+    gap(38);
+  } else if (medallion) {
+    gap(24);
+  }
 
   // Fecha
-  const parts = dateParts(design.date, lang);
   const display = (size: number, color: string, extra: Partial<TextStyle> = {}): TextStyle => ({
     font: (s) => `400 ${s}px ${fonts.display}`,
     size,
     color,
     ...extra,
   });
-  if (parts) {
-    if (theme.dateStyle === "sentence") {
+  let placeShown = false;
+  if (parts && !medallion) {
+    if (layout === "bigDate") {
+      blocks.push(lineBlock2(theme.rule, 520));
+      gap(8);
+      blocks.push(lineBlock(ctx, parts.weekday, caps(28, theme.accent, 12), W, 18));
+      gap(14);
+      blocks.push(
+        lineBlock(ctx, `${parts.day} · ${parts.monthNumber} · ${parts.year}`, display(150, theme.date, { spacing: 2 }), W, 40)
+      );
+      gap(8);
+      blocks.push(lineBlock2(theme.rule, 520));
+    } else if (layout === "vertical") {
+      blocks.push(lineBlock2(theme.rule, 360));
+      gap(10);
+      blocks.push(lineBlock(ctx, parts.weekday, caps(28, theme.accent, 12), W, 18));
+      gap(12);
+      blocks.push(lineBlock(ctx, parts.day, display(280, theme.date, { lineHeight: 0.9 }), W, 80));
+      gap(10);
+      blocks.push(lineBlock(ctx, parts.month, caps(36, theme.date, 14), W, 18));
+      gap(10);
+      blocks.push(lineBlock(ctx, parts.year, caps(30, theme.muted, 16), W, 18));
+      gap(10);
+      blocks.push(lineBlock2(theme.rule, 360));
+    } else if (layout === "medallion") {
+      blocks.push(archBlock(parts, theme, fonts));
+    } else if (layout === "calendar") {
+      const cal = calendarOf(design.date, lang);
+      if (cal) blocks.push(calendarBlock(cal, theme, fonts));
+    } else if (layout === "editorial") {
+      const t = getServerT(lang, "invitation");
+      const weekday = lang === "en" ? parts.weekday : parts.weekday.toLocaleLowerCase(lang);
+      const date = t("view.layout.sentence.date", { weekday, day: parts.day, month: parts.month, year: parts.year });
+      const where = design.place.trim() ? t("view.layout.sentence.place", { place: design.place.trim() }) : "";
+      blocks.push(
+        paragraphBlock(
+          ctx,
+          [date, where].filter(Boolean).join(t("view.layout.sentence.joiner")) + ".",
+          { font: (s) => `italic 400 ${s}px ${fonts.display}`, size: 56, color: theme.date, lineHeight: 1.4 },
+          W
+        )
+      );
+      placeShown = true;
+    } else if (theme.dateStyle === "sentence") {
       blocks.push(lineBlock(ctx, parts.weekday, caps(28, theme.accent, 10), W, 18));
       gap(18);
       blocks.push(lineBlock(ctx, parts.dayMonth, display(92, theme.date), W, 36));
@@ -654,7 +838,7 @@ function buildBlocks(ctx: Ctx, design: SaveTheDateDesign, theme: Theme, fonts: C
   }
 
   // Lugar
-  const place = design.place.trim();
+  const place = placeShown ? "" : design.place.trim();
   if (place) {
     gap(parts ? 44 : 0);
     blocks.push(paragraphBlock(ctx, place, { ...caps(26, theme.date, 6), lineHeight: 1.45 }, W));
@@ -696,13 +880,14 @@ export function drawSaveTheDate(
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const theme = makeTheme(style);
+  const layout = layoutInStationery(style.layout ?? "classic");
   const k = canvas.width / CARD_W;
   ctx.setTransform(k, 0, 0, k, 0, 0);
   ctx.clearRect(0, 0, CARD_W, CARD_H);
 
   theme.paintBackground(ctx);
 
-  const blocks = buildBlocks(ctx, design, theme, fonts, lang);
+  const blocks = buildBlocks(ctx, design, theme, fonts, lang, layout);
   const total = blocks.reduce((sum, b) => sum + b.height, 0);
   const available = theme.bottom - theme.top;
   const scale = total > available ? available / total : 1;

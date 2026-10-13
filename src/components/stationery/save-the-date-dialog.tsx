@@ -522,7 +522,7 @@ function Editor({
               className="overflow-hidden rounded-xl border border-line shadow-pop"
             >
               {/* La tarjeta sobre un sobre del color elegido (el mismo de la invitación). */}
-              <EnvelopeFrame color={style.envelopeColor} background={themeFor(style.palette, style.template).bg}>
+              <EnvelopeFrame color={style.envelopeColor} background={themeFor(style.palette, style.template).table}>
                 <CardCanvas design={preview} style={style} pixels={720} lang={lang} />
               </EnvelopeFrame>
             </div>
