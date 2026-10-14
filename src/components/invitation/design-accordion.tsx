@@ -22,12 +22,12 @@ import {
   type InvitationStyle,
   type InvitationTemplateId,
 } from "@/components/invitation/invitation-model";
-import { manualEnvelope, presetFor } from "@/components/invitation/invitation-theme";
+import { presetFor } from "@/components/invitation/invitation-theme";
 import { ColorTuner, PaletteGrid } from "@/components/invitation/palette-picker";
 import { TemplateGrid } from "@/components/invitation/style-editor";
 import { cn } from "@/lib/utils";
 
-type SectionId = "style" | "palette" | "layout" | "background" | "motifs" | "colors";
+type SectionId = "style" | "palette" | "layout" | "background" | "motifs";
 
 /** Una sección del acordeón: botón con título, resumen de lo elegido y chevron. */
 function Section({
@@ -120,7 +120,6 @@ export function DesignAccordion({
 
   const preset = presetFor(palette?.colors);
   const paletteSummary = preset ? t(`palettes.${preset.id}`) : palette ? t("design.summary.customPalette") : t("design.summary.legacyPalette");
-  const colorsCustom = Boolean(palette) && (!preset || Boolean(manualEnvelope(style.envelopeColor)));
   const styleSummary = tpl ? `${t(`templates.${tpl.id}.label`)} · ${t(`templates.${tpl.id}.hint`)}` : "";
   const backgroundSummary = isMotif(background) ? t("design.summary.motifBackground") : t(`backgrounds.${background}`);
   const motifsSummary = !motifsAllowed
@@ -157,6 +156,15 @@ export function DesignAccordion({
         note={t("design.notes.palette")}
       >
         <PaletteGrid variant="dots" palette={palette} onChange={(next) => set({ palette: next })} />
+        <hr className="m-0 h-0 border-0 border-t border-line" />
+        <ColorTuner
+          bare
+          template={template}
+          palette={palette}
+          envelopeColor={style.envelopeColor}
+          onChange={(next) => set({ palette: next })}
+          onEnvelopeChange={(envelopeColor) => set({ envelopeColor })}
+        />
       </Section>
 
       <p className="mt-2 px-1 text-xs font-semibold uppercase tracking-wider text-ink-muted">{t("design.more")}</p>
@@ -205,22 +213,6 @@ export function DesignAccordion({
             ...motifs.map((id) => ({ id, label: t(`backgrounds.${id}`), active: background === id })),
           ]}
           onSelect={pickBackground}
-        />
-      </Section>
-
-      <Section
-        {...section("colors")}
-        title={t("design.sections.colors")}
-        summary={colorsCustom ? t("design.summary.colorsCustom") : t("design.summary.colorsAuto")}
-        note={t("design.notes.colors")}
-      >
-        <ColorTuner
-          bare
-          template={template}
-          palette={palette}
-          envelopeColor={style.envelopeColor}
-          onChange={(next) => set({ palette: next })}
-          onEnvelopeChange={(envelopeColor) => set({ envelopeColor })}
         />
       </Section>
     </div>

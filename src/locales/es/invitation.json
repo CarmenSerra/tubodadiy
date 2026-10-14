@@ -430,24 +430,20 @@
       "palette": "Paleta de color",
       "layout": "Composición",
       "background": "Fondo de la tarjeta",
-      "motifs": "Motivos de acuarela",
-      "colors": "Ajustar colores uno a uno"
+      "motifs": "Motivos de acuarela"
     },
     "more": "Más opciones",
     "notes": {
       "style": "La letra y los adornos de tu invitación.",
-      "palette": "Un juego de colores para toda la invitación.",
+      "palette": "Elige un juego de colores y, si quieres, pulsa un círculo para cambiar uno.",
       "layout": "Dónde van la fecha, la hora, el lugar y los nombres.",
       "layoutShared": "«Reserva la fecha» usa la misma, salvo Lateral y Bloque.",
       "background": "Cómo es el papel de la tarjeta, con tu paleta.",
-      "motifs": "Dibujos en acuarela en las esquinas.",
-      "colors": "Pulsa un círculo para cambiar ese color."
+      "motifs": "Dibujos en acuarela en las esquinas."
     },
     "summary": {
       "customPalette": "Personalizada",
       "legacyPalette": "Colores de la plantilla",
-      "colorsAuto": "Según la paleta elegida",
-      "colorsCustom": "Personalizados",
       "motifBackground": "Con motivos",
       "motifsUnavailable": "No disponible en este estilo"
     },

@@ -430,24 +430,20 @@
       "palette": "Color palette",
       "layout": "Layout",
       "background": "Card background",
-      "motifs": "Watercolor motifs",
-      "colors": "Fine-tune colors"
+      "motifs": "Watercolor motifs"
     },
     "more": "More options",
     "notes": {
       "style": "The lettering and decorations of your invitation.",
-      "palette": "One set of colors for the whole invitation.",
+      "palette": "Pick a set of colors and, if you like, tap a circle to change one.",
       "layout": "Where the date, time, place and names go.",
       "layoutShared": "\"Save the date\" uses the same one, except Side column and Block.",
       "background": "What the card paper looks like, in your palette.",
-      "motifs": "Watercolor drawings in the corners.",
-      "colors": "Tap a circle to change that color."
+      "motifs": "Watercolor drawings in the corners."
     },
     "summary": {
       "customPalette": "Custom",
       "legacyPalette": "Template colors",
-      "colorsAuto": "From the chosen palette",
-      "colorsCustom": "Custom",
       "motifBackground": "With motifs",
       "motifsUnavailable": "Not available in this style"
     },
