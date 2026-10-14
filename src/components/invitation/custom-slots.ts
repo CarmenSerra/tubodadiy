@@ -9,7 +9,7 @@ import {
   type CustomSlotItem,
   type CustomTextBlock,
 } from "@/components/invitation/invitation-model";
-import { DOODLE_NAMES, type DoodleName } from "@/components/invitation/doodles";
+import { isBlankDoodleName } from "@/components/invitation/blank-doodles/art";
 
 /** Tipos de `dataTransfer` del arrastre: el elemento (JSON de `CustomSlotItem`) y el hueco de origen. */
 export const DND_ITEM = "application/x-tubo-item";
@@ -151,8 +151,8 @@ export function parseDraggedItem(raw: string): CustomSlotItem | null {
     if (value.kind === "text" && CUSTOM_TEXT_BLOCKS.includes(value.block as CustomTextBlock)) {
       return { kind: "text", block: value.block as CustomTextBlock };
     }
-    if (value.kind === "doodle" && DOODLE_NAMES.includes(value.name as DoodleName)) {
-      return { kind: "doodle", name: value.name as DoodleName };
+    if (value.kind === "doodle" && isBlankDoodleName(value.name)) {
+      return { kind: "doodle", name: value.name };
     }
   } catch {
     // no es JSON: se ignora

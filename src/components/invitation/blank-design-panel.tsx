@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { Section } from "@/components/invitation/design-accordion";
 import { CUSTOM_FONTS, FONT_GROUPS, fontFamilyOf } from "@/components/invitation/custom-fonts";
-import { Doodle, DOODLE_NAMES } from "@/components/invitation/doodles";
+import { BlankDoodle, BLANK_DOODLE_NAMES } from "@/components/invitation/blank-doodles";
 import {
   CUSTOM_SLOTS,
   CUSTOM_TEXT_BLOCKS,
@@ -305,7 +305,7 @@ function ElementsPicker({
       <div className="flex flex-col gap-2">
         <h4 className="text-sm font-semibold text-ink">{t("blank.elements.doodles")}</h4>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(3.5rem,1fr))] gap-2">
-          {DOODLE_NAMES.map((name) => {
+          {BLANK_DOODLE_NAMES.map((name) => {
             const item: CustomSlotItem = { kind: "doodle", name };
             return (
               <PaletteItem
@@ -316,7 +316,7 @@ function ElementsPicker({
                 onSelect={() => toggle(item)}
                 className="aspect-square min-h-14 p-1.5"
               >
-                <Doodle name={name} className="size-full text-ink" />
+                <BlankDoodle name={name} className="size-full text-ink" />
               </PaletteItem>
             );
           })}

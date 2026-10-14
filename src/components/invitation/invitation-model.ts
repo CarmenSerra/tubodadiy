@@ -9,7 +9,7 @@ import {
   type InvitationPalette,
   type PaletteColors,
 } from "@/components/invitation/invitation-theme";
-import { DOODLE_NAMES, type DoodleName } from "@/components/invitation/doodles/art";
+import { isBlankDoodleName, type BlankDoodleName } from "@/components/invitation/blank-doodles/art";
 import { DEFAULT_LANG, normalizeLang, type Lang } from "@/lib/i18n/config";
 import { dateFormatter } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
@@ -95,7 +95,7 @@ export type CustomSlotId = (typeof CUSTOM_SLOTS)[number];
 export const CUSTOM_TEXT_BLOCKS = ["names", "date", "ceremony", "banquet", "message", "rsvp"] as const;
 export type CustomTextBlock = (typeof CUSTOM_TEXT_BLOCKS)[number];
 
-export type CustomSlotItem = { kind: "text"; block: CustomTextBlock } | { kind: "doodle"; name: DoodleName };
+export type CustomSlotItem = { kind: "text"; block: CustomTextBlock } | { kind: "doodle"; name: BlankDoodleName };
 
 /** Las seis filas (no las esquinas), de arriba abajo: solo ellas se pueden ampliar. */
 export const CUSTOM_ROWS = ["row1", "row2", "row3", "row4", "row5", "row6"] as const satisfies readonly CustomSlotId[];
@@ -171,8 +171,8 @@ export function cleanCustomDesign(value: unknown): CustomDesign {
     const item = source[slot];
     if (!item || typeof item !== "object") continue;
     const { kind, block, name } = item as { kind?: unknown; block?: unknown; name?: unknown };
-    if (kind === "doodle" && DOODLE_NAMES.includes(name as DoodleName)) {
-      slots[slot] = { kind: "doodle", name: name as DoodleName };
+    if (kind === "doodle" && isBlankDoodleName(name)) {
+      slots[slot] = { kind: "doodle", name };
     } else if (
       kind === "text" &&
       !isCornerSlot(slot) &&

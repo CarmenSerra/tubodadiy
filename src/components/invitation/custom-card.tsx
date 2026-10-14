@@ -29,7 +29,7 @@ import {
   setActiveDrag,
   spanOf,
 } from "@/components/invitation/custom-slots";
-import { Doodle } from "@/components/invitation/doodles";
+import { BlankDoodle } from "@/components/invitation/blank-doodles";
 import { InvitationEnvelope } from "@/components/invitation/invitation-envelope";
 import {
   CUSTOM_ROWS,
@@ -228,7 +228,7 @@ function TextBlock({ block, content, edit }: { block: CustomTextBlock; content: 
 }
 
 function ItemView({ item, content, edit }: { item: CustomSlotItem; content: CustomContent; edit: boolean }) {
-  if (item.kind === "doodle") return <Doodle name={item.name} className="cc-doodle" />;
+  if (item.kind === "doodle") return <BlankDoodle name={item.name} className="cc-doodle" />;
   return (
     <div className="cc-fit">
       <TextBlock block={item.block} content={content} edit={edit} />
@@ -727,7 +727,7 @@ export function CustomDragItem({
       )}
     >
       {item.kind === "doodle" ? (
-        <Doodle name={item.name} className="size-full text-ink" />
+        <BlankDoodle name={item.name} className="size-full text-ink" />
       ) : (
         <>
           {Icon && <Icon aria-hidden="true" className="size-4 shrink-0 text-green" />}
