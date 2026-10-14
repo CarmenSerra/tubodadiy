@@ -234,6 +234,8 @@ export function InvitationCard({
   const theme = themeOfInvitation(data);
 
   const doodleStyle = isDoodleTemplate(data.template);
+  // «Botánico» lleva una guirnalda floral en las esquinas, salvo con un motivo de acuarela (que ya trae las suyas).
+  const garland = data.template === "botanico" && !isMotif(data.background);
   // Las plantillas de dibujitos llevan su propio adorno central (corazones con iniciales, hilo, pareja…).
   const ornament = doodleStyle ? (
     <TemplateOrnament template={data.template} names={names} />
@@ -261,9 +263,10 @@ export function InvitationCard({
       className={cn("inv-card", "inv-noArt", rise && "inv-rise")}
       data-layout={layout}
       data-motif={isMotif(data.background) ? data.background : undefined}
+      data-garland={garland ? "" : undefined}
     >
       {(data.palette || data.background) && <InvitationBackdrop kind={data.background} theme={theme} />}
-      {doodleStyle && <TemplateDecor template={data.template} palette={data.palette} names={names} />}
+      {(doodleStyle || garland) && <TemplateDecor template={data.template} palette={data.palette} names={names} />}
       <div className="inv-cardBody">
         <CardLayoutBody
           layout={layout}

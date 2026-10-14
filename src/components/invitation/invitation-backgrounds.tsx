@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { mix, type InvitationTheme } from "@/components/invitation/invitation-theme";
+import { mix, type InvitationTheme, type TemplateKind } from "@/components/invitation/invitation-theme";
 import { STATIONERY, type StationeryName } from "@/components/stationery/stationery-assets";
 import { cn } from "@/lib/utils";
 
@@ -17,9 +17,9 @@ export const BACKGROUND_IDS = [
   "paper",
   "dots",
   "gingham",
-  "floral",
+  // "floral", // desactivado a petición, de momento (marco floral)
   "arches",
-  "confetti",
+  // "confetti", // desactivado a petición, de momento
   // Motivos en acuarela (WebP en public/decor/stationery, colocados en bordes y esquinas)
   "lemons",
   "oranges",
@@ -32,9 +32,9 @@ export const BACKGROUND_IDS = [
   // Motivos de fiesta en acuarela
   "rings",
   "toast",
-  "cake",
+  // "cake", // desactivado a petición, de momento (tarta)
   "bouquet",
-  "polaroid",
+  // "polaroid", // desactivado a petición, de momento
   "loveletters",
 ] as const;
 export type InvitationBackground = (typeof BACKGROUND_IDS)[number];
@@ -45,13 +45,30 @@ export function isBackground(value: unknown): value is InvitationBackground {
   return typeof value === "string" && (BACKGROUND_IDS as readonly string[]).includes(value);
 }
 
+/** Fondos que ya no se ofrecen (desactivados a petición, de momento): si están guardados, se ven como «liso». */
+const DISABLED_BACKGROUNDS: readonly string[] = ["watercolor", "confetti", "floral", "cake", "polaroid"];
+
 /**
- * Fondo guardado, saneado. «Manchas de acuarela» ya no existe: las invitaciones
- * que lo tenían guardado pasan a «liso». Un valor desconocido no se guarda.
+ * Plantillas que ya llevan sus propios dibujos (esquinas, marco…): no admiten los motivos de
+ * acuarela de fondo. Botánico, minimal, elegante e hilo sí.
  */
-export function cleanBackground(value: unknown): InvitationBackground | undefined {
-  if (value === "watercolor") return "plain";
-  return isBackground(value) ? value : undefined;
+export const OWN_ART_TEMPLATES: readonly TemplateKind[] = ["retro", "doodle", "azulejo"];
+
+/** ¿Esta plantilla admite motivos de acuarela de fondo? */
+export function templateAllowsMotifs(template: TemplateKind | undefined): boolean {
+  return !template || !OWN_ART_TEMPLATES.includes(template);
+}
+
+/**
+ * Fondo guardado, saneado. «Manchas de acuarela» ya no existe, ni los fondos desactivados
+ * a petición (confeti, marco floral, tarta, polaroid): lo que los tuviera guardado pasa a
+ * «liso». Con `template`, un motivo de acuarela en una plantilla que ya lleva sus propios
+ * dibujos también pasa a «liso». Un valor desconocido no se guarda.
+ */
+export function cleanBackground(value: unknown, template?: TemplateKind): InvitationBackground | undefined {
+  if (typeof value === "string" && DISABLED_BACKGROUNDS.includes(value)) return "plain";
+  if (!isBackground(value)) return undefined;
+  return isMotif(value) && !templateAllowsMotifs(template) ? "plain" : value;
 }
 
 /** Los fondos con motivos de acuarela (los demás son SVG/CSS generados con la paleta). */
@@ -66,9 +83,9 @@ export const MOTIF_IDS = [
   "pomegranates",
   "rings",
   "toast",
-  "cake",
+  // "cake", // desactivado a petición, de momento (tarta)
   "bouquet",
-  "polaroid",
+  // "polaroid", // desactivado a petición, de momento
   "loveletters",
 ] as const satisfies readonly InvitationBackground[];
 export type InvitationMotif = (typeof MOTIF_IDS)[number];
@@ -254,6 +271,7 @@ function gingham(t: InvitationTheme): Spec {
   return { style: { backgroundImage: svgUrl(32, 32, body) } };
 }
 
+/* desactivado a petición, de momento: marco floral
 // ---- Marco floral de ramitas finas ----
 
 const VINE_W = 64;
@@ -300,6 +318,7 @@ function floral(t: InvitationTheme): Spec {
     children: <span className="inv-bgFrame" />,
   };
 }
+*/
 
 // ---- Arcos minimalistas ----
 
@@ -320,6 +339,7 @@ function arches(t: InvitationTheme): Spec {
   return { style: { backgroundImage: svgUrl(60, 144, body) } };
 }
 
+/* desactivado a petición, de momento: confeti
 // ---- Confeti delicado ----
 
 function confetti(t: InvitationTheme): Spec {
@@ -342,6 +362,7 @@ function confetti(t: InvitationTheme): Spec {
   }
   return { style: { backgroundImage: svgUrl(220, 220, pieces.join("")) } };
 }
+*/
 
 // ---- Montaje ----
 
@@ -350,9 +371,9 @@ const BUILDERS: Record<Exclude<InvitationBackground, "plain" | InvitationMotif>,
   paper,
   dots,
   gingham,
-  floral,
+  // floral, // desactivado a petición, de momento
   arches,
-  confetti,
+  // confetti, // desactivado a petición, de momento
 };
 
 /**

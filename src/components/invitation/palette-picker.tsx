@@ -9,6 +9,7 @@ import {
   BACKGROUND_IDS,
   InvitationBackdrop,
   isMotif,
+  templateAllowsMotifs,
   type InvitationBackground,
 } from "@/components/invitation/invitation-backgrounds";
 import {
@@ -127,6 +128,7 @@ export function ColorEditor({
             role="envelope"
             colors={colors}
             hex={envelopeHex}
+            paletteRow={paletteRow(colors)}
             suggestions={ENVELOPE_SWATCHES}
             onPick={onEnvelopeChange}
             extra={
@@ -166,10 +168,24 @@ function EnvelopeAuto({ manual, onReset }: { manual: boolean; onReset: () => voi
   );
 }
 
+/** Los colores de la paleta de los novios (principal, texto, acento, fondo), sin repetir ninguno. */
+function paletteRow(colors: PaletteColors): { role: ColorRole; hex: string }[] {
+  const seen = new Set<string>();
+  const row: { role: ColorRole; hex: string }[] = [];
+  for (const role of ["primary", "dark", "accent", "soft"] as const) {
+    const hex = colors[role].toLowerCase();
+    if (seen.has(hex)) continue;
+    seen.add(hex);
+    row.push({ role, hex });
+  }
+  return row;
+}
+
 function ColorDot({
   role,
   colors,
   hex: shownHex,
+  paletteRow: fromPalette,
   suggestions,
   extra,
   onPick,
@@ -178,6 +194,8 @@ function ColorDot({
   colors: PaletteColors;
   /** Color que enseña el círculo si no es el del rol (el sobre, que puede ser automático). */
   hex?: string;
+  /** Colores de la paleta que se ofrecen delante de las sugerencias (el sobre). */
+  paletteRow?: { role: ColorRole; hex: string }[];
   suggestions?: readonly string[];
   /** Contenido extra del selector, sobre el botón «Listo». */
   extra?: React.ReactNode;
@@ -209,6 +227,7 @@ function ColorDot({
           <ColorPanel
             id={role}
             hex={hex}
+            paletteRow={fromPalette}
             suggestions={suggestions ?? SUGGESTIONS[role as ColorRole]}
             adjust={(role === "dark" || role === "soft") && needsTextAdjustment(colors)}
             extra={extra}
@@ -225,6 +244,7 @@ function ColorDot({
 function ColorPanel({
   id,
   hex,
+  paletteRow: fromPalette,
   suggestions,
   adjust = false,
   extra,
@@ -234,6 +254,8 @@ function ColorPanel({
   /** Para que los campos de varios selectores no compartan identificador. */
   id: string;
   hex: string;
+  /** Colores de la paleta elegida, en una fila delante de las sugerencias. */
+  paletteRow?: { role: ColorRole; hex: string }[];
   suggestions: readonly string[];
   /** Aviso de que el texto se ajustará solo para leerse. */
   adjust?: boolean;
@@ -288,6 +310,35 @@ function ColorPanel({
           </p>
         )}
       </div>
+      {fromPalette && fromPalette.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <p className={FIELD_LABEL}>{t("editor.color.fromPalette")}</p>
+          <div className="flex flex-wrap gap-x-3 gap-y-2">
+            {fromPalette.map(({ role, hex: swatch }) => {
+              const label = t(`editor.color.roles.${role}`);
+              return (
+                <div key={role} className="flex min-w-0 flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    aria-label={t("editor.color.fromPaletteColor", { role: label, hex: swatch.toUpperCase() })}
+                    aria-pressed={swatch === hex.toLowerCase()}
+                    onClick={() => {
+                      setDraft(null);
+                      onPick(swatch);
+                    }}
+                    className={cn(
+                      "relative size-8 rounded-full border border-black/10 outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none motion-reduce:hover:scale-100",
+                      swatch === hex.toLowerCase() && "ring-2 ring-lilac ring-offset-2 ring-offset-surface"
+                    )}
+                    style={{ background: swatch }}
+                  />
+                  <span className="max-w-full truncate text-[11px] font-medium text-ink-muted">{label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-1.5">
         <p className={FIELD_LABEL}>{t("editor.color.suggestions")}</p>
         <div className="flex flex-wrap gap-2">
@@ -342,7 +393,9 @@ export function BackgroundEditor({
 }) {
   const { t } = useTranslation("invitation");
   const theme = React.useMemo(() => themeFor(palette, template), [palette, template]);
-  const selected = background ?? "plain";
+  // Plantillas con dibujos propios (retro, doodle, azulejo): los motivos de acuarela no se ofrecen ni se ven.
+  const motifsAllowed = templateAllowsMotifs(template);
+  const selected = !motifsAllowed && isMotif(background) ? "plain" : (background ?? "plain");
   const plain = BACKGROUND_IDS.filter((id) => !isMotif(id));
   const motifs = BACKGROUND_IDS.filter((id) => isMotif(id));
 
@@ -355,14 +408,20 @@ export function BackgroundEditor({
     ...options(motifs),
   ];
 
-  const grid = (items: Option[], label: string) => (
-    <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-2.5">
+  const grid = (items: Option[], label: string, disabled = false) => (
+    <div
+      role="radiogroup"
+      aria-label={label}
+      aria-disabled={disabled || undefined}
+      className={cn("grid grid-cols-3 gap-2.5", disabled && "pointer-events-none opacity-50")}
+    >
       {items.map(({ id, label: name, active, none }) => (
         <button
           key={none ? "none" : id}
           type="button"
           role="radio"
           aria-checked={active}
+          disabled={disabled}
           onClick={() => onChange(id)}
           className={cn(CARD, "p-2", CARD_STATE(active))}
         >
@@ -402,9 +461,11 @@ export function BackgroundEditor({
       <div className="flex flex-col gap-3">
         <div>
           <h4 className="text-sm font-semibold text-ink">{t("editor.background.motifsTitle")}</h4>
-          <p className="mt-0.5 text-[13px] text-ink-muted">{t("editor.background.motifsNote")}</p>
+          <p className="mt-0.5 text-[13px] text-ink-muted">
+            {motifsAllowed ? t("editor.background.motifsNote") : t("editor.background.ownArt")}
+          </p>
         </div>
-        {grid(motifOptions, t("editor.background.motifsLabel"))}
+        {grid(motifOptions, t("editor.background.motifsLabel"), !motifsAllowed)}
       </div>
     </div>
   );

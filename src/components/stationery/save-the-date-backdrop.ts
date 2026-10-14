@@ -64,6 +64,7 @@ export function paintBackdrop(
   const imgs = urls.map((u) => ready.get(u));
   ctx.save();
 
+  /* desactivado a petición, de momento: marco floral
   if (kind === "floral") {
     // Una ramita a cada lado (la segunda está ya reflejada) y un marco fino.
     const [left, right] = imgs;
@@ -82,6 +83,7 @@ export function paintBackdrop(
     ctx.restore();
     return;
   }
+  */
 
   // Azulejos que se repiten (el de «papel» lleva además un degradado de CSS que aquí no hace falta).
   const tile = imgs[imgs.length - 1];

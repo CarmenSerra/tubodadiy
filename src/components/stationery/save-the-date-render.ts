@@ -1,4 +1,6 @@
 import { doodlePatternSvg, doodleSvg, initialsHeartsSvg, type DoodleName } from "@/components/invitation/doodles";
+import { isMotif } from "@/components/invitation/invitation-backgrounds";
+import { botanicalCornerSvg } from "@/components/invitation/invitation-botanical";
 import { layoutInStationery, type InvitationLayout } from "@/components/invitation/invitation-layouts";
 import { calendarOf, type CalendarMonth, type InvitationStyle } from "@/components/invitation/invitation-model";
 import { coupleInitials } from "@/components/invitation/invitation-template-decor";
@@ -196,11 +198,6 @@ function heart(ctx: CanvasRenderingContext2D, x: number, y: number, size: number
   ctx.restore();
 }
 
-/** Guijarro lila (el de la bienvenida), 200 × 170. */
-const PEBBLE = new Path2D(
-  "M20 76 C 8 28, 60 2, 108 12 C 156 24, 184 72, 156 114 C 128 156, 62 166, 32 128 C 22 116, 22 96, 20 76Z"
-);
-
 /** Aleatorio determinista (las estrellas de «Noche» no cambian entre dibujos). */
 function seeded(seed: number) {
   let s = seed;
@@ -390,35 +387,18 @@ function makeTheme(style: InvitationStyle, design: SaveTheDateDesign): Theme {
 
   if (isDoodleStyle(style.template)) return doodleTheme(style, design, tk, base);
 
-  // botanico (el «Jardín» de siempre): manchas de color, ramitas de eucalipto y marco fino.
+  // botanico (el «Jardín» de siempre): marco fino y guirnalda floral en las esquinas.
+  // Con un motivo de acuarela no lleva guirnalda (el motivo trae las suyas), igual que la invitación.
+  const garland = isMotif(style.background)
+    ? undefined
+    : botanicalCornerSvg({ leaf: tk.leaf, leafDark, petal: tk.primary, petalLine: accentInk, center: tk.paper });
   return {
     ...base,
-    art: none,
+    art: garland ? { garland } : none,
     paintBackground(ctx) {
       ctx.fillStyle = tk.bg;
       ctx.fillRect(0, 0, CARD_W, CARD_H);
       paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
-      // Manchas de color: solo con la tarjeta lisa; con un fondo elegido (rayas, motivos…) se ven sucias.
-      if (!style.background || style.background === "plain") {
-        ctx.save();
-        ctx.globalAlpha = 0.85;
-        ctx.translate(-120, -90);
-        ctx.scale(3.6, 3.6);
-        ctx.fillStyle = mix(tk.primary, tk.bg, 0.62);
-        ctx.fill(PEBBLE);
-        ctx.restore();
-        ctx.save();
-        ctx.globalAlpha = 0.85;
-        ctx.beginPath();
-        ctx.arc(1040, 1450, 330, 0, Math.PI * 2);
-        ctx.fillStyle = mix(tk.leaf, tk.bg, 0.6);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(-40, 1330, 150, 0, Math.PI * 2);
-        ctx.fillStyle = mix(tk.primary, tk.bg, 0.8);
-        ctx.fill();
-        ctx.restore();
-      }
       // Marco fino
       ctx.strokeStyle = accentInk;
       ctx.globalAlpha = 0.45;
@@ -429,27 +409,9 @@ function makeTheme(style: InvitationStyle, design: SaveTheDateDesign): Theme {
       ctx.globalAlpha = 1;
     },
     paintForeground(ctx) {
-      sprig(ctx, {
-        p: [[1010, 30], [950, 60], [880, 130], [790, 250]],
-        leaves: 8,
-        radius: 36,
-        stroke: leafDark,
-        fill: tk.leaf,
-        lineWidth: 3.4,
-      });
-      sprig(ctx, {
-        p: [[-10, 1420], [50, 1370], [120, 1290], [240, 1170]],
-        leaves: 8,
-        radius: 36,
-        stroke: leafDark,
-        fill: tk.leaf,
-        lineWidth: 3.4,
-        firstSide: -1,
-      });
-      floret(ctx, 150, 170, 38, accentInk, tk.paper, tk.leaf, 0.3);
-      floret(ctx, 215, 118, 22, accentInk, tk.paper, tk.leaf, 1);
-      floret(ctx, 860, 1245, 34, accentInk, tk.paper, tk.leaf, 0.6);
-      floret(ctx, 800, 1300, 20, accentInk, tk.paper, tk.leaf, 1.4);
+      // La misma guirnalda que la invitación (esquina arriba a la izquierda y abajo a la derecha, girada).
+      drawArt(ctx, garland, 320, 210, 640);
+      drawArt(ctx, garland, CARD_W - 320, CARD_H - 210, 640, Math.PI);
     },
     maxWidth: 760,
     heading: accentInk,
@@ -801,7 +763,7 @@ function svgSize(svg: string): { w: number; h: number } {
  * que esperarla antes de `drawSaveTheDate`. Con las demás plantillas no hace nada.
  */
 export async function loadTemplateArt(style: InvitationStyle, design: SaveTheDateDesign, fonts: CardFonts): Promise<void> {
-  if (!isDoodleStyle(style.template)) return;
+  if (!isDoodleStyle(style.template) && style.template !== "botanico") return;
   const sample = `${design.heading}${design.name1}${design.name2}${design.place}${design.message}ÁÉÍÓÚÑáéíóúñ&0123456789`;
   const art = Object.values(makeTheme(style, design).art);
   const family = style.template === "hilo" ? fonts.hand : style.template === "retro" ? fonts.chunky : null;
@@ -850,6 +812,9 @@ function roundedBox(ctx: Ctx, x: number, y: number, w: number, h: number, r: num
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, r);
 }
+
+/** Franjas del marco de «Azulejo» (siempre impar: simétrico, igual que el CSS de la invitación). */
+const AZULEJO_BANDS = 79;
 
 function doodleTheme(
   style: InvitationStyle,
@@ -1012,19 +977,22 @@ function doodleTheme(
     paintBackground(ctx) {
       ctx.fillStyle = paper;
       ctx.fillRect(0, 0, CARD_W, CARD_H);
+      // 79 franjas iguales (impar): la primera y la última son del mismo color, así el marco es simétrico (como en la invitación).
       ctx.fillStyle = stripe;
-      for (let x = 0; x < CARD_W; x += 46) ctx.fillRect(x, 0, 23, CARD_H);
+      const band = CARD_W / AZULEJO_BANDS;
+      for (let i = 0; i < AZULEJO_BANDS; i += 2) ctx.fillRect(i * band, 0, band, CARD_H);
       paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
-      // Panel con doble línea.
+      // Panel con doble línea: deja ver 5 franjas por cada lado.
+      const inset = band * 5;
       ctx.fillStyle = paper;
       ctx.strokeStyle = ink;
       ctx.lineWidth = 3.5;
-      roundedBox(ctx, 60, 60, CARD_W - 120, CARD_H - 120, 22);
+      roundedBox(ctx, inset, inset, CARD_W - 2 * inset, CARD_H - 2 * inset, 22);
       ctx.fill();
       ctx.stroke();
       ctx.globalAlpha = 0.55;
       ctx.lineWidth = 2.5;
-      roundedBox(ctx, 60 + 15.5, 60 + 15.5, CARD_W - 151, CARD_H - 151, 14);
+      roundedBox(ctx, inset + 15.5, inset + 15.5, CARD_W - 2 * inset - 31, CARD_H - 2 * inset - 31, 14);
       ctx.stroke();
       ctx.globalAlpha = 1;
     },
@@ -1034,7 +1002,7 @@ function doodleTheme(
     nameSize: 150,
     inlineMin: 84,
     dateStyle: "sentence",
-    divider: { art: "couple", width: 290 },
+    divider: { art: "couple", width: 340 },
   };
 }
 

@@ -306,21 +306,17 @@ function Editor({
     year: clean.date.slice(0, 4),
   });
 
-  // El color del sobre (solo si es manual) vive en el estilo compartido, no en la invitación
-  // guardada: la referencia es lo que dice ese estilo, aunque la invitación no lo tenga.
+  // La referencia es lo guardado en la invitación (lo que ven los invitados), color del sobre incluido:
+  // si el estilo compartido tiene un color a mano que la invitación publicada aún no tiene (o al revés),
+  // se marca como cambio pendiente para poder guardarlo, en vez de dar por bueno lo que solo se ve aquí.
   const baseline = React.useMemo(
     () => {
       if (!saved) return null;
       // El idioma guardado no cuenta como cambio: solo se actualiza al guardar por otro motivo.
       const content = contentOf(saved);
-      return cleanContent({
-        ...content,
-        lang: appLang,
-        message: localizeMessage(content.message, appLang),
-        envelopeColor: style.envelopeColor,
-      });
+      return cleanContent({ ...content, lang: appLang, message: localizeMessage(content.message, appLang) });
     },
-    [saved, style.envelopeColor, appLang]
+    [saved, appLang]
   );
   const dirty = !baseline || slugChanged || JSON.stringify(clean) !== JSON.stringify(baseline);
   React.useEffect(() => {
@@ -398,6 +394,11 @@ function Editor({
     }
     setBusy(kind);
     try {
+      // El estilo es del plan: «Reserva la fecha» se ve igual que la invitación. Se escribe ANTES que la
+      // invitación: al guardarla por primera vez el editor se vuelve a montar con lo que lea del estilo
+      // compartido, y si este aún fuera el antiguo (sin el color del sobre, la paleta nueva…) el formulario
+      // volvería atrás y un guardado posterior pisaría la invitación con el estilo viejo.
+      void saveSharedStyle(planId, styleOf(clean)).catch(() => {});
       await saveInvitation({
         slug,
         planId,
@@ -408,8 +409,6 @@ function Editor({
         isNew: !saved,
         previous: saved ? { slug: saved.slug, gift: saved.gift } : null,
       });
-      // El estilo es del plan: «Reserva la fecha» se ve igual que la invitación.
-      void saveSharedStyle(planId, styleOf(clean)).catch(() => {});
       return true;
     } catch (error) {
       toast.error(error instanceof SlugTakenError ? t("editor.toasts.slugTaken") : t("editor.toasts.saveFailed"));

@@ -5,6 +5,7 @@ import { CheckIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Doodle } from "@/components/invitation/doodles";
+import { cleanBackground } from "@/components/invitation/invitation-backgrounds";
 import {
   TEMPLATES,
   type InvitationStyle,
@@ -69,11 +70,12 @@ function TemplateThumb({ id, theme }: { id: InvitationTemplateId; theme: Invitat
       <span
         className="absolute inset-0 flex items-center justify-center"
         style={{
-          background: `repeating-linear-gradient(90deg, ${accent} 0 4px, ${theme.paper} 4px 8px)`,
+          // 15 franjas iguales (impar) y el panel deja ver 2 por cada lado: simétrico a cualquier ancho.
+          background: `repeating-linear-gradient(90deg, ${accent} 0 calc(100% / 15), ${theme.paper} calc(100% / 15) calc(200% / 15))`,
         }}
       >
         <span
-          className="flex h-[78%] w-[72%] flex-col items-center justify-center gap-1 rounded-sm border"
+          className="flex h-[78%] w-[73.333%] flex-col items-center justify-center gap-1 rounded-sm border"
           style={{ background: theme.paper, borderColor: ink }}
         >
           {line("h-1.5 w-8")}
@@ -118,7 +120,12 @@ export function StyleEditor({
   idPrefix?: string;
 }) {
   const { t } = useTranslation("invitation");
-  const set = (patch: Partial<InvitationStyle>) => onChange({ ...style, ...patch });
+  const set = (patch: Partial<InvitationStyle>) => {
+    const next = { ...style, ...patch };
+    // Plantillas con dibujos propios (retro, doodle, azulejo): sin motivos de acuarela de fondo.
+    const background = cleanBackground(next.background, next.template);
+    onChange(background === next.background ? next : { ...next, background });
+  };
   const palette = style.palette;
 
   return (

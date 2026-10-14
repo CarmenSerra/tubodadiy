@@ -1,12 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import { Doodle, InitialsHearts, doodlePatternSvg, type DoodleName } from "@/components/invitation/doodles";
+import { botanicalCornersBody, type BotanicalColors } from "@/components/invitation/invitation-botanical";
 import { splitNames } from "@/components/invitation/invitation-card-layouts";
 import type { InvitationTemplateId } from "@/components/invitation/invitation-model";
 import { mix, themeFor, type InvitationPalette } from "@/components/invitation/invitation-theme";
 
 /**
- * Plantillas de dibujitos (`doodle`, `hilo`, `retro`, `azulejo`): las capas de
+ * Guirnalda floral de «Botánico» y plantillas de dibujitos (`doodle`, `hilo`, `retro`, `azulejo`): las capas de
  * adorno de la tarjeta y de la tarjetita de agradecimiento, y el adorno central.
  * Todo son SVG de línea que toman el color con `currentColor` (lo fija el CSS con
  * los colores de la paleta elegida) y se miden en cqw, así que escalan con la
@@ -70,6 +71,29 @@ function PatternLayer({
   return <div className="inv-tplLayer inv-ddLayer" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
+/** Colores de la guirnalda de «Botánico»: variables CSS de la paleta de la invitación. */
+const GARLAND_COLORS: BotanicalColors = {
+  leaf: "var(--inv-leaf)",
+  leafDark: "var(--inv-leaf-dark)",
+  petal: "var(--inv-accent)",
+  petalLine: "var(--inv-accent-ink)",
+  center: "var(--inv-paper)",
+};
+
+/** Guirnalda floral de «Botánico»: esquina arriba a la izquierda y abajo a la derecha. `height` = alto de la caja con 100 de ancho. */
+function Garland({ height, scale = 1 }: { height: number; scale?: number }) {
+  return (
+    <svg
+      viewBox={`0 0 100 ${height}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+      className="inv-tplLayer inv-btLayer"
+      dangerouslySetInnerHTML={{ __html: botanicalCornersBody(height, GARLAND_COLORS, scale) }}
+    />
+  );
+}
+
 /** Cinta ondulada de color suave por detrás del texto (plantilla retro). */
 function Wave({ className }: { className?: string }) {
   return (
@@ -96,6 +120,8 @@ export function TemplateDecor({
   names: string;
 }): ReactNode {
   switch (template) {
+    case "botanico":
+      return <Garland height={140} />;
     case "doodle":
       return <PatternLayer template={template} palette={palette} names={names} width={400} height={560} seed={7} density="mid" />;
     case "retro":
@@ -157,6 +183,8 @@ export function ThanksDecor({
   names: string;
 }): ReactNode {
   switch (template) {
+    case "botanico":
+      return <Garland height={66.67} scale={0.7} />;
     case "doodle":
       return <PatternLayer template={template} palette={palette} names={names} width={420} height={280} seed={11} density="low" />;
     case "retro":

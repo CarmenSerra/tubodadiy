@@ -282,10 +282,12 @@ export function cleanEnvelopeColor(value: unknown): string | undefined {
 /** Estilo compartido, saneado (lo que se guarda en `designs/style`). */
 export function cleanStyle(value: Partial<InvitationStyle> | null | undefined): InvitationStyle {
   const palette = cleanPalette(value?.palette);
-  const background = cleanBackground(value?.background);
+  const template = cleanTemplate(value?.template);
+  // Con plantillas que ya llevan sus dibujos, los motivos de acuarela guardados se ignoran (liso).
+  const background = cleanBackground(value?.background, template);
   const envelopeColor = cleanEnvelopeColor(value?.envelopeColor);
   return {
-    template: cleanTemplate(value?.template),
+    template,
     ...(palette ? { palette } : {}),
     ...(background ? { background } : {}),
     layout: cleanLayout(value?.layout),
@@ -305,16 +307,15 @@ export function sameStyle(a: InvitationStyle, b: InvitationStyle): boolean {
 
 export function cleanContent(value: Partial<InvitationContent>): InvitationContent {
   const palette = cleanPalette(value.palette);
-  const background = cleanBackground(value.background);
+  const template = cleanTemplate(value.template);
+  const background = cleanBackground(value.background, template);
   const imageMode = IMAGE_MODES.includes(value.imageMode as InvitationImageMode)
     ? (value.imageMode as InvitationImageMode)
     : undefined;
   const photo = cleanPhoto(value.photo);
   const envelopeColor = cleanEnvelopeColor(value.envelopeColor);
   return {
-    template: TEMPLATE_IDS.includes(value.template as InvitationTemplateId)
-      ? (value.template as InvitationTemplateId)
-      : "botanico",
+    template,
     lang: normalizeLang(value.lang),
     names: clip(value.names, LIMITS.names),
     date: cleanDate(value.date),

@@ -29,7 +29,7 @@
     },
     "azulejo": {
       "label": "Tile",
-      "hint": "Stripes, bows and sprigs"
+      "hint": "Stripes and a heart couple"
     }
   },
   "share": {
@@ -324,6 +324,8 @@
       "popoverLabel": "Colour picker: {{role}}",
       "area": "Colour area: saturation and lightness",
       "hue": "Hue",
+      "fromPalette": "From your palette",
+      "fromPaletteColor": "Use {{role}} ({{hex}})",
       "suggestions": "Pastel suggestions",
       "suggestion": "Use {{hex}}",
       "hex": "HEX code",
@@ -344,6 +346,7 @@
       "label": "Background type",
       "motifsTitle": "With watercolour motifs",
       "motifsNote": "Watercolour drawings in the corners of the card. The central ornament changes with the motif.",
+      "ownArt": "This style already has its own drawings",
       "noMotifs": "No motifs",
       "motifsLabel": "Background with motifs"
     },

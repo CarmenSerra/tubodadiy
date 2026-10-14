@@ -2,6 +2,7 @@
 
 import {
   collection,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -141,7 +142,10 @@ export async function saveInvitation(input: SaveInvitationInput): Promise<void> 
     return;
   }
 
-  await setDoc(ref, input.isNew ? { ...data, createdAt: serverTimestamp() } : data, { merge: true });
+  // `merge` no quita lo que ya hay: sin color a mano (sobre «automático») se borra el que hubiera,
+  // si no la página pública se quedaría con el color antiguo aunque la pareja haya vuelto al automático.
+  const merged = { ...data, ...(content.envelopeColor ? {} : { envelopeColor: deleteField() }) };
+  await setDoc(ref, input.isNew ? { ...merged, createdAt: serverTimestamp() } : merged, { merge: true });
   // Tarea «Enviar invitaciones» (Papelería): publicar la marca; un borrador no la toca.
   if (input.published) void markInvitationsSent(input.planId, true);
 }
