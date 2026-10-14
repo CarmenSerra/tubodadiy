@@ -1596,3 +1596,278 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 .inv-azulejo .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) :is(.inv-cardMessage, .inv-azCouple) { display: none; }
 /* Hilo: calendario y vertical son las composiciones más altas; su caja de texto escala un poco para que quepa también con lugares largos. */
 .inv-root.inv-hilo .inv-card:is([data-layout="calendar"], [data-layout="vertical"]) .inv-cardBody { container-type: inline-size; margin-inline: 8cqw; padding-inline: 0; }
+
+/* ---------- Apertura del sobre (página pública) ---------- */
+
+/*
+ * El conjunto sale de la misma composición que la vista previa del editor (mismas
+ * medidas, en una unidad --u = 1 % del ancho de la escena). En reposo (fase `open`)
+ * las reglas base son la pose FINAL; la fase `closed` las sustituye por la pose del
+ * sobre cerrado y `opening` las anima hacia la final. Con «reducir movimiento» las
+ * poses cerradas no se aplican: se ve abierto desde el principio.
+ */
+.inv-openStageWrap {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem 1.5rem;
+}
+.inv-openScene {
+  position: relative;
+  width: max(20rem, min(100%, 44rem, calc((100dvh - 9.5rem) * 108 / 112)));
+  aspect-ratio: 108 / 112;
+  container-type: inline-size;
+}
+.inv-openStage {
+  --u: calc(100cqw / 108);
+  --env-closed: translateY(calc(var(--u) * -8.6)) scale(0.92) rotate(0deg);
+  --card-closed: translateY(calc(var(--u) * 24)) scale(0.62) rotate(0deg);
+  --thanks-closed: translate(calc(var(--u) * -14), calc(var(--u) * -16)) scale(0.6) rotate(-10deg);
+  --hint-top: calc(var(--u) * 75);
+  position: absolute;
+  top: calc(50% - var(--u) * 2);
+  left: calc(50% - var(--u) * 5);
+  width: calc(var(--u) * 100);
+  height: calc(var(--u) * 104);
+  transform: translate(-50%, -50%);
+}
+
+.inv-openEnvWrap {
+  position: absolute;
+  top: calc(var(--u) * 12);
+  left: calc(var(--u) * -2);
+  z-index: 0;
+  width: calc(var(--u) * 104);
+  transform: translateY(0) scale(1) rotate(-31deg);
+  filter: drop-shadow(0 calc(var(--u) * 1.4) calc(var(--u) * 2.6) rgb(30 24 20 / 0.3));
+}
+.inv-openEnv { display: block; width: 100%; height: auto; }
+.inv-envOpenFlap, .inv-envShutFlap { transform-origin: 500px 252px; }
+.inv-envShutFlap { opacity: 0; }
+
+.inv-openCard {
+  position: absolute;
+  top: calc(var(--u) * 6);
+  left: calc(var(--u) * 11);
+  z-index: 1;
+  transform: translateY(0) scale(1) rotate(-4deg);
+}
+.inv-openCard .inv-card {
+  width: calc(var(--u) * 56);
+  box-shadow:
+    0 calc(var(--u) * 2.4) calc(var(--u) * 4.6) calc(var(--u) * -0.8) rgb(30 24 24 / 0.38),
+    0 calc(var(--u) * 0.4) calc(var(--u) * 1) rgb(30 24 24 / 0.16);
+}
+.inv-openThanks {
+  position: absolute;
+  right: calc(var(--u) * 3);
+  bottom: calc(var(--u) * 4);
+  z-index: 2;
+  width: calc(var(--u) * 47);
+  transform: translate(0, 0) scale(1) rotate(4deg);
+}
+.inv-openThanks .inv-grat {
+  box-shadow:
+    0 calc(var(--u) * 1.8) calc(var(--u) * 3.6) calc(var(--u) * -0.6) rgb(30 24 24 / 0.4),
+    0 calc(var(--u) * 0.3) calc(var(--u) * 0.8) rgb(30 24 24 / 0.16);
+}
+
+/* Sello de lacre: botón sobre la punta de la solapa */
+.inv-seal {
+  position: absolute;
+  top: 68%;
+  left: 50%;
+  z-index: 3;
+  width: 16%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 calc(var(--u) * 0.7) calc(var(--u) * 1.1) rgb(30 20 20 / 0.5));
+  -webkit-tap-highlight-color: transparent;
+}
+.inv-seal::after { content: ""; position: absolute; inset: -22%; border-radius: 50%; }
+.inv-seal:disabled { cursor: default; }
+.inv-seal:focus-visible { outline: 3px solid var(--inv-focus); outline-offset: 4px; border-radius: 50%; }
+.inv-sealArt { display: block; width: 100%; height: 100%; }
+
+.inv-openHint {
+  position: absolute;
+  top: var(--hint-top);
+  right: 0;
+  left: 0;
+  z-index: 3;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: var(--inv-muted);
+  pointer-events: none;
+}
+
+.inv-openAction {
+  display: flex;
+  min-height: 5.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.inv-openCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+  animation: inv-open-fade 0.6s ease both;
+}
+.inv-ctaBtn {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0 1.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--inv-btn);
+  color: var(--inv-on-btn);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 0.7rem 1.5rem -0.9rem rgb(30 24 40 / 0.55);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.inv-minimal .inv-ctaBtn { border-radius: 2px; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.85rem; }
+.inv-ctaBtn:hover { opacity: 0.92; transform: translateY(-1px); }
+.inv-ctaBtn:focus-visible { outline: 3px solid var(--inv-focus); outline-offset: 3px; }
+.inv-ctaBtn svg { width: 1.1rem; height: 1.1rem; }
+.inv-openNote { margin: 0; max-width: 26rem; font-size: 0.92rem; color: var(--inv-muted); }
+.inv-openNote strong { color: var(--inv-ink); font-weight: 600; }
+
+.inv-after { animation: inv-open-fade 0.7s ease both; }
+/* Hasta que el sobre se abre, tampoco se ve el pie. */
+.inv-root:has(.inv-open:not([data-phase="open"])) .inv-footer { display: none; }
+
+/* Confirmación en un diálogo: lleva su propia copia del tema (el portal queda fuera de .inv-root). */
+.inv-sheetContent:focus { outline: none; }
+.inv-root.inv-sheet {
+  min-height: 0;
+  flex: none;
+  padding: 1.75rem 1.25rem 1.4rem;
+  background: var(--inv-paper);
+  box-shadow: inset 0 0 0 1px var(--inv-line);
+  overflow: visible;
+}
+.inv-sheet .inv-sheetTitle {
+  margin: 0;
+  padding-inline: 1.5rem;
+  text-align: center;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--inv-ink);
+}
+.inv-minimal .inv-sheetTitle {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--inv-accent-ink);
+}
+.inv-sheet .inv-sheetText { margin: 0.45rem 0 1.25rem; text-align: center; font-size: 0.97rem; color: var(--inv-muted); }
+.inv-sheet .inv-form { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.inv-sheet .inv-thanks { padding: 0.75rem 0 0.25rem; border: 0; background: transparent; }
+.inv-sheet .inv-deadline { margin: 0; text-align: center; }
+
+@keyframes inv-open-fade {
+  from { opacity: 0; transform: translateY(0.6rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Cerrado: solapa cerrada, sobre plano en el centro y las tarjetas guardadas dentro */
+  .inv-open[data-phase="closed"] .inv-openEnvWrap { transform: var(--env-closed); }
+  .inv-open[data-phase="closed"] .inv-envOpenFlap { opacity: 0; transform: scaleY(0); }
+  .inv-open[data-phase="closed"] .inv-envShutFlap { opacity: 1; }
+  .inv-open[data-phase="closed"] .inv-openCard { opacity: 0; visibility: hidden; transform: var(--card-closed); }
+  .inv-open[data-phase="closed"] .inv-openThanks { opacity: 0; visibility: hidden; transform: var(--thanks-closed); }
+  .inv-open[data-phase="closed"] .inv-seal { animation: inv-seal-breathe 2.8s ease-in-out infinite; }
+  .inv-open[data-phase="closed"] .inv-openHint { animation: inv-hint-breathe 2.8s ease-in-out infinite; }
+
+  /* Apertura (~2,3 s): el sello se despega, la solapa se abre, el sobre se coloca y salen las tarjetas */
+  .inv-open[data-phase="opening"] .inv-seal { animation: inv-seal-off 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; }
+  .inv-open[data-phase="opening"] .inv-openHint { animation: inv-hint-off 0.3s ease both; }
+  .inv-open:not([data-phase="closed"]) .inv-envShutFlap { animation: inv-flap-shut 0.4s 0.25s cubic-bezier(0.5, 0, 0.75, 0.5) both; }
+  .inv-open:not([data-phase="closed"]) .inv-envOpenFlap { animation: inv-flap-open 0.5s 0.62s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+  .inv-open:not([data-phase="closed"]) .inv-openEnvWrap { animation: inv-env-settle 0.95s 0.8s cubic-bezier(0.45, 0, 0.2, 1) both; }
+  .inv-open:not([data-phase="closed"]) .inv-openCard { animation: inv-card-out 1s 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .inv-open:not([data-phase="closed"]) .inv-openThanks { animation: inv-thanks-out 0.9s 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inv-seal, .inv-openHint { display: none; }
+  .inv-openCta, .inv-after { animation: none; }
+  .inv-ctaBtn { transition: none; }
+}
+
+@keyframes inv-seal-breathe { 50% { transform: translate(-50%, -50%) scale(1.07); } }
+@keyframes inv-hint-breathe { 50% { opacity: 0.72; } }
+@keyframes inv-hint-off { to { opacity: 0; } }
+@keyframes inv-seal-off {
+  30% { transform: translate(-50%, -60%) scale(1.16) rotate(-7deg); opacity: 1; }
+  100% { transform: translate(-28%, -150%) scale(0.8) rotate(22deg); opacity: 0; }
+}
+@keyframes inv-flap-shut {
+  from { opacity: 1; transform: scaleY(1); }
+  99% { opacity: 1; }
+  to { opacity: 0; transform: scaleY(0); }
+}
+@keyframes inv-flap-open {
+  from { opacity: 0; transform: scaleY(0); }
+  1% { opacity: 1; }
+  to { opacity: 1; transform: scaleY(1); }
+}
+@keyframes inv-env-settle { from { transform: var(--env-closed); } }
+@keyframes inv-card-out {
+  from { opacity: 0; transform: var(--card-closed); }
+  35% { opacity: 1; }
+}
+@keyframes inv-thanks-out {
+  from { opacity: 0; transform: var(--thanks-closed); }
+  35% { opacity: 1; }
+}
+
+/* Móvil: composición más vertical (invitación grande y la tarjetita debajo), el sobre asoma por los lados */
+@media (max-width: 640px) {
+  .inv-openStageWrap { padding-inline: 1rem; }
+  .inv-openScene {
+    width: max(17rem, min(100%, calc((100dvh - 9.5rem) * 100 / 145)));
+    aspect-ratio: 100 / 145;
+  }
+  .inv-openStage {
+    --u: calc(100cqw / 100);
+    --env-closed: translateY(calc(var(--u) * -14.6)) scale(0.84) rotate(0deg);
+    --card-closed: translateY(calc(var(--u) * 30)) scale(0.6) rotate(0deg);
+    --thanks-closed: translate(calc(var(--u) * -10), calc(var(--u) * -34)) scale(0.6) rotate(-10deg);
+    --hint-top: calc(var(--u) * 86);
+    top: 0;
+    left: 0;
+    height: calc(var(--u) * 145);
+    transform: none;
+  }
+  .inv-openEnvWrap { top: calc(var(--u) * 19.5); left: calc(var(--u) * -9); width: calc(var(--u) * 118); }
+  .inv-openCard { top: calc(var(--u) * 3); left: calc(var(--u) * 8); }
+  .inv-openCard .inv-card { width: calc(var(--u) * 76); }
+  .inv-openThanks { top: calc(var(--u) * 104); right: calc(var(--u) * 1); bottom: auto; width: calc(var(--u) * 58); }
+  .inv-seal { width: 19%; }
+}

@@ -10,6 +10,10 @@ import {
 } from "lucide-react";
 
 import { CopyButton } from "@/components/invitation/copy-button";
+import { InvitationEnvelope } from "@/components/invitation/invitation-envelope";
+import { InvitationOpening } from "@/components/invitation/invitation-opening";
+import { ThanksCard } from "@/components/invitation/invitation-thanks";
+import { WaxSeal, resolveSealColor } from "@/components/invitation/wax-seal";
 import { InvitationBackdrop, MotifSprig, isMotif } from "@/components/invitation/invitation-backgrounds";
 import { CardLayoutBody, type NameSize } from "@/components/invitation/invitation-card-layouts";
 import { DEFAULT_LAYOUT } from "@/components/invitation/invitation-layouts";
@@ -32,7 +36,7 @@ import {
   type InvitationPlace,
   type InvitationPublicData,
 } from "@/components/invitation/invitation-model";
-import { buildTheme, LEGACY_COLORS, type InvitationTheme } from "@/components/invitation/invitation-theme";
+import { buildTheme, LEGACY_COLORS, resolveEnvelope, type InvitationTheme } from "@/components/invitation/invitation-theme";
 import type { Lang } from "@/lib/i18n/config";
 import { formatMoney } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
@@ -141,7 +145,7 @@ interface InvitationViewProps {
   data: InvitationPublicData;
   /** `preview`: vista previa del editor (más compacta y sin animaciones de entrada). */
   mode?: "page" | "preview";
-  /** Formulario de respuesta (se inyecta para que esta vista no dependa del cliente). */
+  /** Formulario de respuesta, que se abre en un diálogo (se inyecta para que esta vista no dependa del cliente). */
   rsvp?: ReactNode;
   /** El plazo para confirmar ya ha pasado. */
   closed?: boolean;
@@ -290,6 +294,7 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
   // El texto de la invitación sigue el idioma que eligió la pareja, no el de quien la abre.
   const lang = data.lang;
   const t = getServerT(lang, "invitation");
+  const te = getServerT(lang, "envelope");
   const longDate = formatLongDate(data.date, lang);
   const preview = mode === "preview";
   const names = data.names || "Ana & Luis";
@@ -309,102 +314,148 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
   // el fondo elegido (rayas, motivos…) va dentro de la tarjeta.
   const palette = data.palette;
   const theme = themeOfInvitation(data);
+  const themeStyle = palette ? (theme.vars as CSSProperties) : undefined;
+
+  // Lo que hay debajo de la invitación: el mensaje largo, cuándo y dónde, y el regalo.
+  const details = (
+    <div className="inv-body">
+      {longMessage && (
+        <section className="inv-section" aria-label={t("view.messageLabel")}>
+          <p className="inv-message">{data.message}</p>
+        </section>
+      )}
+
+      {hasWhen && (
+        <section className="inv-section" aria-labelledby="inv-when">
+          <h2 id="inv-when" className="inv-sectionTitle">
+            {t("view.when")}
+          </h2>
+          {longDate && <p className="inv-whenDate">{longDate}</p>}
+          <ul className="inv-places" data-count={placeBlocks.length}>
+            {placeBlocks.map((block) => (
+              <PlaceCard key={block.kind} kind={block.kind} place={block.place} times={block.times} t={t} />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {data.gift && (
+        <section className="inv-section" aria-labelledby="inv-gift">
+          <h2 id="inv-gift" className="inv-sectionTitle">
+            {data.gift.mode === "list" ? t("view.gift.titleList") : t("view.gift.titleMoney")}
+          </h2>
+          <div className="inv-gift">
+            <GiftIcon aria-hidden="true" className="inv-sealIcon" />
+            {data.gift.mode === "list" && <GiftList gift={data.gift} t={t} lang={lang} />}
+            {data.gift.mode !== "list" && data.gift.message && (
+              <p className="inv-giftMessage">{data.gift.message}</p>
+            )}
+            {data.gift.mode !== "list" && data.gift.iban && (
+              <div className="inv-giftRow">
+                <div className="inv-giftValue">
+                  <span className="inv-giftLabel">{t("view.gift.iban")}</span>
+                  <span className="inv-giftNumber">{data.gift.iban}</span>
+                </div>
+                <CopyButton value={data.gift.iban.replace(/\s+/g, "")} label={t("view.gift.ibanName")} lang={lang} />
+              </div>
+            )}
+            {data.gift.mode !== "list" && data.gift.bizum && (
+              <div className="inv-giftRow">
+                <div className="inv-giftValue">
+                  <span className="inv-giftLabel">{t("view.gift.bizum")}</span>
+                  <span className="inv-giftNumber">{data.gift.bizum}</span>
+                </div>
+                <CopyButton value={data.gift.bizum} label={t("view.gift.bizumName")} lang={lang} />
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+
+  const footer = (
+    <footer className="inv-footer">
+      <p>{t("view.footer.withLove", { names })}</p>
+      <p className="inv-made">{t("view.footer.madeWith")}</p>
+    </footer>
+  );
+
+  if (!preview) {
+    const envelopeColor = resolveEnvelope(palette, data.envelopeColor, data.template);
+    const sealColor = resolveSealColor(envelopeColor, (palette?.colors ?? LEGACY_COLORS[data.template]));
+    return (
+      <div
+        className={cn("inv-root", `inv-${data.template}`)}
+        data-template={data.template}
+        data-themed={palette ? "" : undefined}
+        style={themeStyle}
+        lang={lang}
+      >
+        <Body className="inv-main">
+          <InvitationOpening
+              labels={{
+                scene: t("view.cardLabel"),
+                seal: te("seal.label"),
+                hint: te("seal.hint"),
+                opened: te("opened"),
+                cta: te("cta"),
+                dialogTitle: te("dialog.title"),
+                dialogDescription: te("dialog.description"),
+              }}
+              envelope={<InvitationEnvelope animated color={envelopeColor} className="inv-openEnv" />}
+              seal={<WaxSeal color={sealColor} className="inv-sealArt" />}
+              card={<InvitationCard data={data} preview />}
+              thanks={<ThanksCard data={data} />}
+              note={
+                closed ? undefined : deadline ? (
+                  <>
+                    {t("view.deadline.beforePrefix")}
+                    <strong>{deadline}</strong>
+                    {t("view.deadline.beforeSuffix")}
+                  </>
+                ) : undefined
+              }
+              dialogBody={
+                closed ? (
+                  <p className="inv-deadline">
+                    {deadline ? t("view.deadline.closedOn", { date: deadline }) : t("view.deadline.closed")}
+                  </p>
+                ) : (
+                  rsvp
+                )
+              }
+              sheet={{
+                className: `inv-${data.template}`,
+                style: themeStyle,
+                template: data.template,
+                themed: Boolean(palette),
+                lang,
+              }}
+            >
+              {details}
+          </InvitationOpening>
+        </Body>
+        {footer}
+      </div>
+    );
+  }
 
   return (
     <div
-      className={cn("inv-root", `inv-${data.template}`, preview && "inv-preview")}
+      className={cn("inv-root", `inv-${data.template}`, "inv-preview")}
       data-template={data.template}
       data-themed={palette ? "" : undefined}
-      style={palette ? (theme.vars as CSSProperties) : undefined}
+      style={themeStyle}
       lang={lang}
     >
       <Body className="inv-main">
         <section className="inv-stage" aria-label={t("view.cardLabel")}>
           <InvitationCard data={data} preview={preview} rise={!preview} />
         </section>
-
-        <div className="inv-body">
-          {longMessage && (
-            <section className="inv-section" aria-label={t("view.messageLabel")}>
-              <p className="inv-message">{data.message}</p>
-            </section>
-          )}
-
-          {hasWhen && (
-            <section className="inv-section" aria-labelledby="inv-when">
-              <h2 id="inv-when" className="inv-sectionTitle">
-                {t("view.when")}
-              </h2>
-              {longDate && <p className="inv-whenDate">{longDate}</p>}
-              <ul className="inv-places" data-count={placeBlocks.length}>
-                {placeBlocks.map((block) => (
-                  <PlaceCard key={block.kind} kind={block.kind} place={block.place} times={block.times} t={t} />
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {data.gift && (
-            <section className="inv-section" aria-labelledby="inv-gift">
-              <h2 id="inv-gift" className="inv-sectionTitle">
-                {data.gift.mode === "list" ? t("view.gift.titleList") : t("view.gift.titleMoney")}
-              </h2>
-              <div className="inv-gift">
-                <GiftIcon aria-hidden="true" className="inv-sealIcon" />
-                {data.gift.mode === "list" && <GiftList gift={data.gift} t={t} lang={lang} />}
-                {data.gift.mode !== "list" && data.gift.message && (
-                  <p className="inv-giftMessage">{data.gift.message}</p>
-                )}
-                {data.gift.mode !== "list" && data.gift.iban && (
-                  <div className="inv-giftRow">
-                    <div className="inv-giftValue">
-                      <span className="inv-giftLabel">{t("view.gift.iban")}</span>
-                      <span className="inv-giftNumber">{data.gift.iban}</span>
-                    </div>
-                    <CopyButton value={data.gift.iban.replace(/\s+/g, "")} label={t("view.gift.ibanName")} lang={lang} />
-                  </div>
-                )}
-                {data.gift.mode !== "list" && data.gift.bizum && (
-                  <div className="inv-giftRow">
-                    <div className="inv-giftValue">
-                      <span className="inv-giftLabel">{t("view.gift.bizum")}</span>
-                      <span className="inv-giftNumber">{data.gift.bizum}</span>
-                    </div>
-                    <CopyButton value={data.gift.bizum} label={t("view.gift.bizumName")} lang={lang} />
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          <section id="confirmar" className={cn("inv-section", "inv-rsvp")} aria-labelledby="inv-rsvp">
-            <h2 id="inv-rsvp" className="inv-sectionTitle">
-              {t("view.rsvpTitle")}
-            </h2>
-            {closed ? (
-              <p className="inv-deadline">
-                {deadline ? t("view.deadline.closedOn", { date: deadline }) : t("view.deadline.closed")}
-              </p>
-            ) : (
-              <>
-                {deadline && (
-                  <p className="inv-deadline">
-                    {t("view.deadline.beforePrefix")}
-                    <strong>{deadline}</strong>
-                    {t("view.deadline.beforeSuffix")}
-                  </p>
-                )}
-                {rsvp}
-              </>
-            )}
-          </section>
-        </div>
+        {details}
       </Body>
-
-      <footer className="inv-footer">
-        <p>{t("view.footer.withLove", { names })}</p>
-        <p className="inv-made">{t("view.footer.madeWith")}</p>
-      </footer>
+      {footer}
     </div>
   );
 }

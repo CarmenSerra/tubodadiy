@@ -1,0 +1,12 @@
+{
+  "seal": {
+    "label": "Abrir la invitación",
+    "hint": "Toca el sello para abrir"
+  },
+  "opened": "La invitación está abierta.",
+  "cta": "¿Nos acompañas?",
+  "dialog": {
+    "title": "¿Nos acompañas?",
+    "description": "Cuéntanos si podrás venir. Solo te llevará un minuto."
+  }
+}

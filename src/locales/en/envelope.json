@@ -1,0 +1,12 @@
+{
+  "seal": {
+    "label": "Open the invitation",
+    "hint": "Tap the seal to open"
+  },
+  "opened": "The invitation is open.",
+  "cta": "Will you join us?",
+  "dialog": {
+    "title": "Will you join us?",
+    "description": "Let us know if you can make it. It only takes a minute."
+  }
+}
