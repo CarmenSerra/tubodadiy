@@ -174,7 +174,6 @@ function ringsA() {
   sprig(c, [[24, 150], [64, 250], [150, 280], [260, 250]], 5, [PT.leaf, PAL.sage, PAL.eucal], { len: [40, 26], wid: 0.36, seed: 2 });
   sprig(c, [[150, 20], [200, 56], [250, 76], [320, 96]], 5, [PAL.olive, PAL.sageDeep], { len: [34, 22], wid: 0.26, seed: 3 });
   ringPair(c, T(138, 138, -22, 1.2), 2);
-  solitaire(c, T(282, 262, 22, 0.95), 4);
   sparkle(c, 250, 112, 13, 2);
   sparkle(c, 60, 56, 9, 3, PT.rose);
   sparkle(c, 215, 195, 8, 4);
@@ -187,7 +186,7 @@ function ringsB() {
   halo(c, 105, 105, 90, PT.rose[0], 0.14, 2);
   sprig(c, [[150, 14], [212, 26], [262, 76], [278, 150]], 5, [PAL.eucal, PAL.sage, PT.leaf], { len: [36, 22], wid: 0.34, seed: 1 });
   sprig(c, [[14, 206], [48, 252], [100, 270], [160, 264]], 4, [PAL.olive, PAL.sageDeep], { len: [30, 20], wid: 0.26, seed: 2 });
-  solitaire(c, T(112, 120, -16, 1.5), 1);
+  ringPair(c, T(112, 118, -16, 1.12), 1);
   sparkle(c, 214, 82, 12, 3);
   sparkle(c, 64, 196, 9, 2, PT.rose);
   heart(c, 226, 196, 24, -12, PT.rose, 3);
