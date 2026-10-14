@@ -81,7 +81,9 @@ function localizeMessage(message: string, lang: Lang): string {
 export function InvitationEditorPage() {
   const { t } = useTranslation("invitationPage");
   return (
-    <div className="flex flex-col gap-5">
+    // En monitores grandes esta pestaña sale del ancho del resto del plan (max-w-6xl del <main>)
+    // para que la vista previa lateral gane tamaño; hasta ~1100px mide lo mismo que las demás.
+    <div className="flex flex-col gap-4 lg:relative lg:left-1/2 lg:w-[max(100%,min(calc(100vw-3rem),100rem))] lg:-translate-x-1/2 md:gap-5">
       <div>
         <h2 className={SECTION_TITLE}>{t("page.title")}</h2>
         <p className="mt-1 text-sm text-ink-muted">{t("page.description")}</p>
@@ -499,7 +501,7 @@ function Editor({
 
   return (
     <>
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_25rem]">
+      <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] md:gap-4 lg:gap-6 xl:gap-8">
         <div className="flex min-w-0 flex-col gap-5">
           <div ref={stepperRef} className="scroll-mt-4">
             <nav aria-label={t("steps.label")}>
@@ -514,7 +516,7 @@ function Editor({
                         onClick={() => goTo(id)}
                         aria-current={active ? "step" : undefined}
                         className={cn(
-                          "flex min-h-14 w-full flex-col items-center gap-1 rounded-2xl border px-1.5 py-2 text-center outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac sm:flex-row sm:gap-3 sm:px-3.5 sm:text-left",
+                          "flex min-h-14 w-full flex-col items-center gap-1 rounded-2xl border px-1.5 py-2 text-center outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac sm:flex-row sm:gap-3 sm:px-3.5 sm:text-left md:flex-col md:gap-1 md:px-1.5 md:text-center xl:flex-row xl:gap-3 xl:px-3.5 xl:text-left",
                           active
                             ? "border-2 border-lilac bg-lilac-soft/60"
                             : "border-line bg-surface hover:bg-lilac-soft/50"
@@ -534,7 +536,7 @@ function Editor({
                             {stepTitle(id)}
                             {done && <span className="sr-only"> ({t("steps.done")})</span>}
                           </span>
-                          <span className="hidden truncate text-xs text-ink-muted sm:block">{t(`steps.${id}.hint`)}</span>
+                          <span className="hidden truncate text-xs text-ink-muted sm:block md:hidden xl:block">{t(`steps.${id}.hint`)}</span>
                         </span>
                       </button>
                     </li>
@@ -625,7 +627,7 @@ function Editor({
         <aside
           ref={previewRef}
           aria-label={t("preview.caption")}
-          className="flex scroll-mt-4 flex-col gap-2 lg:sticky lg:top-4"
+          className="flex scroll-mt-4 flex-col gap-2 md:sticky md:top-4"
         >
           <p className="text-center text-xs font-medium uppercase tracking-wider text-ink-muted">
             {t("preview.caption")}
@@ -633,7 +635,7 @@ function Editor({
           <div
             role="img"
             aria-label={t("preview.aria")}
-            className="relative aspect-[4/5] max-h-[calc(100dvh-9rem)] w-full overflow-hidden rounded-2xl border border-line-strong shadow-pop"
+            className="relative mx-auto aspect-[4/5] w-full md:max-w-[calc((100dvh-7rem)*0.8)] max-h-[calc(100dvh-9rem)] md:max-h-none overflow-hidden rounded-2xl border border-line-strong shadow-pop"
           >
             <InvitationComposition data={preview} envelopeColor={view.envelopeColor} />
           </div>
@@ -641,12 +643,12 @@ function Editor({
         </aside>
       </div>
 
-      {/* Móvil: la vista previa queda debajo; este botón lleva hasta ella. */}
+      {/* Móvil (una columna): la vista previa queda debajo; este botón lleva hasta ella. */}
       {!previewVisible && (
         <button
           type="button"
           onClick={showPreview}
-          className={cn(CTA_PRIMARY, "fixed right-4 bottom-4 z-30 h-12 px-5 shadow-pop lg:hidden")}
+          className={cn(CTA_PRIMARY, "fixed right-4 bottom-4 z-30 h-12 px-5 shadow-pop md:hidden")}
         >
           <EyeIcon aria-hidden="true" className="size-4" />
           {t("preview.floating")}
