@@ -8,6 +8,7 @@ import {
   HeartIcon,
   MailCheckIcon,
   MessageSquareTextIcon,
+  MinusIcon,
   PlusIcon,
   UtensilsCrossedIcon,
   XIcon,
@@ -19,16 +20,19 @@ import {
   DND_ITEM,
   DND_SLOT,
   canPlace,
+  coveredSlots,
   getActiveDrag,
   isCornerSlot,
+  maxSpanFor,
   parseDraggedItem,
   parseDraggedSlot,
   setActiveDrag,
+  spanOf,
 } from "@/components/invitation/custom-slots";
 import { Doodle } from "@/components/invitation/doodles";
 import { InvitationEnvelope } from "@/components/invitation/invitation-envelope";
 import {
-  CUSTOM_SLOTS,
+  CUSTOM_ROWS,
   formatShortDate,
   formatTime,
   type CustomDesign,
@@ -58,6 +62,8 @@ import "./custom-card.css";
 export type CustomContent = Omit<InvitationContent, "showGift"> & { gift?: InvitationGift | null };
 
 export type PlaceHandler = (slot: CustomSlotId, item: CustomSlotItem | null, from?: CustomSlotId) => void;
+/** Ampliar zona: `span` filas (1–3) para el hueco de `slot` (solo filas). */
+export type SpanHandler = (slot: CustomSlotId, span: number) => void;
 
 const paletteOf = (design: CustomDesign): InvitationPalette =>
   design.palette ?? { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } };
@@ -223,7 +229,97 @@ function TextBlock({ block, content, edit }: { block: CustomTextBlock; content: 
 
 function ItemView({ item, content, edit }: { item: CustomSlotItem; content: CustomContent; edit: boolean }) {
   if (item.kind === "doodle") return <Doodle name={item.name} className="cc-doodle" />;
-  return <TextBlock block={item.block} content={content} edit={edit} />;
+  return (
+    <div className="cc-fit">
+      <TextBlock block={item.block} content={content} edit={edit} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Ajuste del texto al hueco (ampliar zona)
+// ---------------------------------------------------------------------------
+
+const useIsoLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
+/** Escala mínima (respecto al tamaño de diseño) a la que se achica un texto que no cabe. */
+const FIT_MIN = 0.4;
+
+/**
+ * Cuánto puede crecer el texto (respecto a su tamaño de diseño) según las filas del hueco:
+ * los nombres crecen mucho; el mensaje, lo justo para seguir leyéndose como cuerpo.
+ */
+function fitMax(item: CustomSlotItem, span: number): number {
+  const table = item.kind === "text" && item.block === "names" ? [1, 3, 5] : item.kind === "text" && item.block === "message" ? [1, 1.5, 2.1] : [1, 1.8, 2.5];
+  return table[Math.min(Math.max(span, 1), 3) - 1];
+}
+
+/** Escala de partida (antes de medir: servidor y primer pintado) para que el hueco ampliado no salga diminuto. */
+function fitStart(item: CustomSlotItem, span: number): number {
+  const max = fitMax(item, span);
+  return span <= 1 ? 1 : 1 + (max - 1) * 0.45;
+}
+
+/**
+ * Deja `--cc-fit` en `item` con la mayor escala (entre `FIT_MIN` y `max`) con la que `content` cabe
+ * en el hueco. Si ni la mínima cabe (mensaje muy largo), recorta el mensaje por líneas con `--cc-clamp`.
+ */
+function fitToHole(item: HTMLElement, content: HTMLElement, max: number, slack: number) {
+  item.style.removeProperty("--cc-clamp");
+  const style = getComputedStyle(item);
+  const avail = (item.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)) * slack;
+  if (!(avail > 4)) return;
+  const set = (value: number) => item.style.setProperty("--cc-fit", (Math.round(value * 1000) / 1000).toString());
+  const fits = (value: number) => {
+    set(value);
+    return content.offsetHeight <= avail + 1 && content.scrollWidth <= content.clientWidth + 1;
+  };
+  if (fits(max)) return;
+  if (!fits(FIT_MIN)) {
+    const message = content.querySelector<HTMLElement>(".cc-message");
+    const line = message ? parseFloat(getComputedStyle(message).lineHeight) : NaN;
+    if (message && line > 0) item.style.setProperty("--cc-clamp", String(Math.max(1, Math.floor(avail / line))));
+    return;
+  }
+  let lo = FIT_MIN;
+  let hi = max;
+  for (let i = 0; i < 9; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (fits(mid)) lo = mid;
+    else hi = mid;
+  }
+  set(lo);
+}
+
+/**
+ * Hace que el texto de un hueco llene su espacio (y no se salga): mide al montar, cuando cambia el
+ * contenido, el número de filas o las fuentes, y cada vez que el hueco cambia de tamaño.
+ */
+function useFitToHole(
+  itemRef: React.RefObject<HTMLDivElement | null>,
+  item: CustomSlotItem | undefined,
+  span: number,
+  key: string
+) {
+  const text = item?.kind === "text";
+  const max = item ? fitMax(item, span) : 1;
+  const slack = item?.kind === "text" && item.block === "names" ? 1.1 : 1;
+  useIsoLayoutEffect(() => {
+    const box = itemRef.current;
+    const content = box?.querySelector<HTMLElement>(".cc-fit");
+    if (!box || !content || !text) return;
+    const run = () => fitToHole(box, content, max, slack);
+    run();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(run);
+    observer.observe(box);
+    const fonts = typeof document !== "undefined" ? document.fonts : undefined;
+    fonts?.addEventListener?.("loadingdone", run);
+    return () => {
+      observer.disconnect();
+      fonts?.removeEventListener?.("loadingdone", run);
+    };
+  }, [itemRef, text, max, slack, key]);
 }
 
 // ---------------------------------------------------------------------------
@@ -236,22 +332,33 @@ interface SlotProps {
   content: CustomContent;
   /** Se pintan los huecos vacíos y los marcos (modo edición). */
   edit: boolean;
-  /** Hay interacción (arrastrar, tocar, quitar). */
+  /** Hay interacción (arrastrar, tocar, quitar, ampliar). */
   interactive: boolean;
   selected: CustomSlotItem | null;
   over: boolean;
   dragging: boolean;
+  /** Filas que ocupa (solo filas; 1 si no está ampliado). */
+  span: number;
+  /** Cambia cuando cambia algo que altera el tamaño del texto (contenido, fuentes, modo). */
+  fitKey: string;
   onPlace?: PlaceHandler;
+  onSpan?: SpanHandler;
   onOver: (slot: CustomSlotId | null) => void;
   onDragging: (slot: CustomSlotId | null) => void;
   slots: Partial<Record<CustomSlotId, CustomSlotItem>>;
 }
 
-function Slot({ slot, item, content, edit, interactive, selected, over, dragging, onPlace, onOver, onDragging, slots }: SlotProps) {
+function Slot({ slot, item, content, edit, interactive, selected, over, dragging, span, fitKey, onPlace, onSpan, onOver, onDragging, slots }: SlotProps) {
   const { t } = useTranslation("customCard");
-  if (!edit && !item) return null;
+  const itemRef = React.useRef<HTMLDivElement>(null);
+  useFitToHole(itemRef, item, span, fitKey);
 
   const corner = isCornerSlot(slot);
+  // Fuera de edición los huecos vacíos no se ven: las esquinas no ocupan nada y las filas dejan su espacio en blanco.
+  if (!edit && !item) {
+    return corner ? null : <div className="cc-slot" data-slot={slot} style={{ "--cc-span": span } as CSSProperties} aria-hidden="true" />;
+  }
+
   const slotLabel = t(`slot.${slot}`);
   const itemLabel = (it: CustomSlotItem) => (it.kind === "text" ? t(`block.${it.block}`) : t(`doodle.${it.name}`, { defaultValue: it.name }));
 
@@ -287,23 +394,35 @@ function Slot({ slot, item, content, edit, interactive, selected, over, dragging
       }
     : {};
 
+  const label = item
+    ? span > 1
+      ? t("slot.filledSpan", { slot: slotLabel, item: itemLabel(item), count: span })
+      : t("slot.filled", { slot: slotLabel, item: itemLabel(item) })
+    : t("slot.empty", { slot: slotLabel });
+  const showSpan = interactive && !!onSpan && !!item && !corner;
+  const maxSpan = showSpan ? maxSpanFor(slots, slot) : 1;
+
   return (
     <div
       className="cc-slot"
       data-slot={slot}
       data-corner={corner ? "" : undefined}
       data-filled={item ? "" : undefined}
+      data-span={span > 1 ? span : undefined}
       data-over={over ? "" : undefined}
       data-dragging={dragging ? "" : undefined}
       data-target={tapOk ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
+      style={corner ? undefined : ({ "--cc-span": span } as CSSProperties)}
       role="group"
-      aria-label={item ? t("slot.filled", { slot: slotLabel, item: itemLabel(item) }) : t("slot.empty", { slot: slotLabel })}
+      aria-label={label}
       {...dnd}
     >
       {item ? (
         <div
+          ref={itemRef}
           className="cc-item"
+          style={item.kind === "text" ? ({ "--cc-fit": fitStart(item, span) } as CSSProperties) : undefined}
           draggable={interactive && !!onPlace}
           onDragStart={(event) => {
             event.dataTransfer.setData(DND_ITEM, JSON.stringify(item));
@@ -346,6 +465,36 @@ function Slot({ slot, item, content, edit, interactive, selected, over, dragging
           </span>
         </button>
       )}
+      {showSpan && item && (
+        <div className="cc-span" role="group" aria-label={t("span.group", { item: itemLabel(item), slot: slotLabel })}>
+          {/* aria-disabled (no disabled): el foco no se pierde al llegar al tope */}
+          <button
+            type="button"
+            className="cc-spanBtn"
+            aria-disabled={span <= 1}
+            aria-label={t("span.shrink", { item: itemLabel(item), slot: slotLabel, count: span - 1 })}
+            onClick={() => span > 1 && onSpan!(slot, span - 1)}
+          >
+            <span className="cc-spanDot">
+              <MinusIcon aria-hidden="true" />
+            </span>
+          </button>
+          <button
+            type="button"
+            className="cc-spanBtn"
+            aria-disabled={span >= maxSpan}
+            aria-label={t("span.grow", { item: itemLabel(item), slot: slotLabel, count: span + 1 })}
+            onClick={() => span < maxSpan && onSpan!(slot, span + 1)}
+          >
+            <span className="cc-spanDot">
+              <PlusIcon aria-hidden="true" />
+            </span>
+          </button>
+          <span className="sr-only" role="status">
+            {t("span.size", { count: span })}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -366,7 +515,9 @@ export interface CustomCardProps {
    * un elemento. `applyPlacement` de `custom-slots.ts` aplica estas reglas a los huecos.
    */
   onPlace?: PlaceHandler;
-  /** Con `mode="edit"`: la tarjeta ya se ve como la final (huecos vacíos y marcos se desvanecen) y no responde. */
+  /** Ampliar zona: en `edit`, cada elemento colocado en una fila muestra −/+ para ocupar 1–3 filas. */
+  onSpan?: SpanHandler;
+  /** Con `mode="edit"`: la tarjeta ya se ve como la final (sin huecos, marcos ni controles) y no responde. */
   final?: boolean;
   className?: string;
 }
@@ -376,7 +527,7 @@ export interface CustomCardProps {
  * dos esquinas abajo) donde se suelta un bloque de texto o un doodle. En `view` los huecos no se
  * ven y los vacíos no ocupan nada. Ocupa el ancho de su contenedor.
  */
-export function CustomCard({ content, design, mode, selected = null, onPlace, final = false, className }: CustomCardProps) {
+export function CustomCard({ content, design, mode, selected = null, onPlace, onSpan, final = false, className }: CustomCardProps) {
   const { t } = useTranslation("customCard");
   const tv = getServerT(content.lang ?? DEFAULT_LANG, "invitation");
   const [over, setOver] = React.useState<CustomSlotId | null>(null);
@@ -384,28 +535,48 @@ export function CustomCard({ content, design, mode, selected = null, onPlace, fi
   const edit = mode === "edit";
   const interactive = edit && !final;
   const slots = design.slots;
+  // Filas cubiertas por el span de otra: ni se dibujan como hueco ni aceptan drop.
+  const covered = coveredSlots(slots, design.spans);
+  // Todo lo que cambia el tamaño del texto dentro de su hueco (para volver a ajustarlo).
+  const fitKey = JSON.stringify([
+    content.names,
+    content.date,
+    content.ceremony,
+    content.banquet,
+    content.message,
+    content.rsvpDeadline,
+    content.lang,
+    design.titleFont,
+    design.bodyFont,
+    edit,
+    final,
+  ]);
 
-  const render = (slot: CustomSlotId) => (
-    <Slot
-      key={slot}
-      slot={slot}
-      item={slots[slot]}
-      content={content}
-      edit={edit}
-      interactive={interactive}
-      selected={selected}
-      over={over === slot}
-      dragging={dragging === slot}
-      onPlace={onPlace}
-      onOver={setOver}
-      onDragging={setDragging}
-      slots={slots}
-    />
-  );
+  const render = (slot: CustomSlotId) =>
+    covered.has(slot) ? null : (
+      <Slot
+        key={slot}
+        slot={slot}
+        item={slots[slot]}
+        content={content}
+        edit={edit}
+        interactive={interactive}
+        selected={selected}
+        over={over === slot}
+        dragging={dragging === slot}
+        span={spanOf(design.spans, slot)}
+        fitKey={fitKey}
+        onPlace={onPlace}
+        onSpan={onSpan}
+        onOver={setOver}
+        onDragging={setDragging}
+        slots={slots}
+      />
+    );
 
   return (
     <section
-      className={cn("cc-card", className)}
+      className={cn("cc-card", interactive && "cc-editing", className)}
       data-mode={mode}
       data-final={final ? "" : undefined}
       data-picking={interactive && selected ? "" : undefined}
@@ -415,7 +586,7 @@ export function CustomCard({ content, design, mode, selected = null, onPlace, fi
     >
       <div className="cc-grid">
         <div className="cc-band">{(["cornerTL", "cornerTR"] as const).map(render)}</div>
-        {CUSTOM_SLOTS.filter((s) => s.startsWith("row")).map(render)}
+        {CUSTOM_ROWS.map(render)}
         <div className="cc-band">{(["cornerBL", "cornerBR"] as const).map(render)}</div>
       </div>
       {/* Aviso para lectores de pantalla cuando hay algo elegido por colocar */}
@@ -461,12 +632,13 @@ export function CustomThanks({ content, design, className }: { content: CustomCo
 export interface CustomCompositionProps {
   content: CustomContent;
   design: CustomDesign;
-  /** `flat`: tarjetas rectas, el sobre debajo y la tarjetita a la derecha. `final`: como la ve el invitado. */
+  /** `flat`: tarjetas rectas, el sobre en vertical detrás de la tarjeta (asoma por abajo y los lados) y la tarjetita a la derecha. `final`: como la ve el invitado. */
   arrangement: "flat" | "final";
-  /** Se puede colocar elementos en la tarjeta (en `final` los huecos se desvanecen y no responden). */
+  /** Se puede colocar elementos en la tarjeta (en `final` no se ven huecos ni controles y no responde). */
   editable: boolean;
   selected?: CustomSlotItem | null;
   onPlace?: PlaceHandler;
+  onSpan?: SpanHandler;
   className?: string;
 }
 
@@ -475,7 +647,7 @@ export interface CustomCompositionProps {
  * transición (transform; sin movimiento si el usuario prefiere reducirlo). Tiene su propia
  * proporción: solo hay que darle ancho.
  */
-export function CustomComposition({ content, design, arrangement, editable, selected = null, onPlace, className }: CustomCompositionProps) {
+export function CustomComposition({ content, design, arrangement, editable, selected = null, onPlace, onSpan, className }: CustomCompositionProps) {
   const envelope = resolveEnvelope(paletteOf(design), design.envelopeColor, "minimal");
   return (
     <div className={cn("inv-root inv-preview cc-compose", className)} data-arrangement={arrangement} lang={content.lang}>
@@ -491,6 +663,7 @@ export function CustomComposition({ content, design, arrangement, editable, sele
             final={editable && arrangement === "final"}
             selected={selected}
             onPlace={onPlace}
+            onSpan={onSpan}
           />
         </div>
         <div className="cc-piece cc-pieceThanks">

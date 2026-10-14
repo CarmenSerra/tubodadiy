@@ -14,7 +14,17 @@
     "filled": "{{slot}}: {{item}}",
     "place": "Colocar «{{item}}» en {{slot}}",
     "remove": "Quitar «{{item}}» de {{slot}}",
-    "drag": "«{{item}}»: arrástralo a otro hueco para moverlo"
+    "drag": "«{{item}}»: arrástralo a otro hueco para moverlo",
+    "filledSpan": "{{slot}}: {{item}} ({{count}} filas)"
+  },
+  "span": {
+    "group": "Tamaño de «{{item}}» en {{slot}}",
+    "grow_one": "Ampliar «{{item}}» ({{slot}}) a {{count}} fila",
+    "grow_other": "Ampliar «{{item}}» ({{slot}}) a {{count}} filas",
+    "shrink_one": "Reducir «{{item}}» ({{slot}}) a {{count}} fila",
+    "shrink_other": "Reducir «{{item}}» ({{slot}}) a {{count}} filas",
+    "size_one": "Ocupa {{count}} fila",
+    "size_other": "Ocupa {{count}} filas"
   },
   "block": {
     "names": "Nombres",

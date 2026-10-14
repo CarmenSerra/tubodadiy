@@ -14,7 +14,17 @@
     "filled": "{{slot}}: {{item}}",
     "place": "Place “{{item}}” in {{slot}}",
     "remove": "Remove “{{item}}” from {{slot}}",
-    "drag": "“{{item}}”: drag it to another slot to move it"
+    "drag": "“{{item}}”: drag it to another slot to move it",
+    "filledSpan": "{{slot}}: {{item}} ({{count}} rows)"
+  },
+  "span": {
+    "group": "Size of “{{item}}” in {{slot}}",
+    "grow_one": "Enlarge “{{item}}” ({{slot}}) to {{count}} row",
+    "grow_other": "Enlarge “{{item}}” ({{slot}}) to {{count}} rows",
+    "shrink_one": "Shrink “{{item}}” ({{slot}}) to {{count}} row",
+    "shrink_other": "Shrink “{{item}}” ({{slot}}) to {{count}} rows",
+    "size_one": "Takes {{count}} row",
+    "size_other": "Takes {{count}} rows"
   },
   "block": {
     "names": "Names",

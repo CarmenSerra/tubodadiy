@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { CTA_PRIMARY, CTA_SECONDARY, SECTION_TITLE, Skeleton } from "@/components/dashboard/ui";
 import { BlankDesignPanel } from "@/components/invitation/blank-design-panel";
 import { CustomComposition } from "@/components/invitation/custom-card";
+import { placeInDesign, setSpan } from "@/components/invitation/custom-slots";
 import { DesignAccordion } from "@/components/invitation/design-accordion";
 import { InvitationDataStep } from "@/components/invitation/invitation-data-step";
 import { InvitationModeChooser, InvitationModeSwitch } from "@/components/invitation/invitation-mode-switch";
@@ -377,33 +378,15 @@ function Editor({
   const placeItem = React.useCallback(
     (slot: CustomSlotId, item: CustomSlotItem | null, from?: CustomSlotId) => {
       setSelected(null);
-      updateDesign((d) => {
-        const slots = { ...d.slots };
-        if (item === null) {
-          delete slots[slot];
-          return { ...d, slots };
-        }
-        if (slot.startsWith("corner") && item.kind === "text") return d;
-        if (from === slot) return d;
-        if (from) {
-          const target = slots[slot];
-          if (target) {
-            if (from.startsWith("corner") && target.kind === "text") return d;
-            slots[from] = target;
-          } else {
-            delete slots[from];
-          }
-        } else if (item.kind === "text") {
-          // Cada bloque de texto va una sola vez: si ya estaba en otro hueco, se mueve.
-          for (const key of CUSTOM_SLOTS) {
-            const other = slots[key];
-            if (key !== slot && other?.kind === "text" && other.block === item.block) delete slots[key];
-          }
-        }
-        slots[slot] = item;
-        return { ...d, slots };
-      });
+      // Quitar/mover/intercambiar deja coherentes también los spans (ampliar zona).
+      updateDesign((d) => placeInDesign(d, slot, item, from));
     },
+    [updateDesign]
+  );
+
+  /** Ampliar zona: cuántas filas (1–3) ocupa el hueco de una fila. */
+  const changeSpan = React.useCallback(
+    (slot: CustomSlotId, span: number) => updateDesign((d) => setSpan(d, slot, span)),
     [updateDesign]
   );
 
@@ -750,6 +733,7 @@ function Editor({
                   editable
                   selected={selected}
                   onPlace={placeItem}
+                  onSpan={changeSpan}
                 />
               </div>
               <p className="text-center text-[13px] text-ink-muted">

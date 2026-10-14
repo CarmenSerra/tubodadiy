@@ -97,6 +97,13 @@ export type CustomTextBlock = (typeof CUSTOM_TEXT_BLOCKS)[number];
 
 export type CustomSlotItem = { kind: "text"; block: CustomTextBlock } | { kind: "doodle"; name: DoodleName };
 
+/** Las seis filas (no las esquinas), de arriba abajo: solo ellas se pueden ampliar. */
+export const CUSTOM_ROWS = ["row1", "row2", "row3", "row4", "row5", "row6"] as const satisfies readonly CustomSlotId[];
+
+/** Filas que ocupa el hueco de un elemento: 1 (sin valor), 2 o 3. */
+export type CustomSpan = 2 | 3;
+export const CUSTOM_MAX_SPAN = 3;
+
 /** Diseño «Desde cero». Vive solo en la invitación (no toca el estilo compartido con «Reserva la fecha»). */
 export interface CustomDesign {
   /** Id de `CUSTOM_FONTS` (custom-fonts.ts); desconocido => fuente por defecto. */
@@ -106,6 +113,11 @@ export interface CustomDesign {
   /** Color del sobre elegido a mano; sin valor, el de la paleta. */
   envelopeColor?: string;
   slots: Partial<Record<CustomSlotId, CustomSlotItem>>;
+  /**
+   * Ampliar zona: un elemento colocado en una FILA puede ocupar 2 o 3 filas (sin valor, 1). Se
+   * estira hacia las filas de debajo, que deben estar libres, sin pasar de `row6`. Las esquinas no.
+   */
+  spans?: Partial<Record<CustomSlotId, CustomSpan>>;
 }
 
 /** Ids de fuente por defecto (deben existir en `CUSTOM_FONTS`; si no, se usa la fuente por defecto del tema). */
@@ -124,6 +136,27 @@ export function defaultCustomDesign(): CustomDesign {
 
 const FONT_ID_RE = /^[a-z0-9-]{1,40}$/;
 const isCornerSlot = (slot: CustomSlotId) => slot.startsWith("corner");
+
+/**
+ * Amplía-zona saneada: solo filas con un elemento colocado; cada span se recorta a las filas libres
+ * de debajo (sin elementos, sin pasar de `row6`) y se descarta si no queda ninguna. Devuelve
+ * `undefined` si no hay ninguno. Las filas ya cubiertas por un span anterior no admiten otro.
+ */
+export function cleanCustomSpans(slots: CustomDesign["slots"], value: unknown): CustomDesign["spans"] {
+  const source = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+  const spans: NonNullable<CustomDesign["spans"]> = {};
+  let coveredUntil = -1;
+  CUSTOM_ROWS.forEach((row, index) => {
+    const wanted = source[row];
+    if (index <= coveredUntil || !slots[row] || (wanted !== 2 && wanted !== 3)) return;
+    let span = 1;
+    while (span < wanted && index + span < CUSTOM_ROWS.length && !slots[CUSTOM_ROWS[index + span]]) span += 1;
+    if (span < 2) return;
+    spans[row] = span as CustomSpan;
+    coveredUntil = index + span - 1;
+  });
+  return Object.keys(spans).length ? spans : undefined;
+}
 
 /** Diseño «Desde cero» saneado: ids de hueco y elementos válidos, textos sin repetir y sin texto en las esquinas. */
 export function cleanCustomDesign(value: unknown): CustomDesign {
@@ -150,12 +183,14 @@ export function cleanCustomDesign(value: unknown): CustomDesign {
       slots[slot] = { kind: "text", block: block as CustomTextBlock };
     }
   }
+  const spans = cleanCustomSpans(slots, raw.spans);
   return {
     titleFont: font(raw.titleFont, DEFAULT_CUSTOM_TITLE_FONT),
     bodyFont: font(raw.bodyFont, DEFAULT_CUSTOM_BODY_FONT),
     ...(palette ? { palette } : {}),
     ...(envelopeColor ? { envelopeColor } : {}),
     slots,
+    ...(spans ? { spans } : {}),
   };
 }
 

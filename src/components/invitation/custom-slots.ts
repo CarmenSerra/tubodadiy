@@ -1,6 +1,10 @@
 import {
+  CUSTOM_MAX_SPAN,
+  CUSTOM_ROWS,
   CUSTOM_SLOTS,
   CUSTOM_TEXT_BLOCKS,
+  cleanCustomSpans,
+  type CustomDesign,
   type CustomSlotId,
   type CustomSlotItem,
   type CustomTextBlock,
@@ -66,6 +70,78 @@ export function applyPlacement(
   }
   next[slot] = item;
   return next;
+}
+
+// ---------------------------------------------------------------------------
+// Ampliar zona (spans)
+// ---------------------------------------------------------------------------
+
+export type CustomSpans = NonNullable<CustomDesign["spans"]>;
+
+/** Filas que ocupa el hueco de `slot` (1 si no tiene span o no es una fila). */
+export const spanOf = (spans: CustomDesign["spans"], slot: CustomSlotId): number => spans?.[slot] ?? 1;
+
+/** Filas cubiertas por el span de otra fila (no aceptan drop ni se dibujan como hueco). */
+export function coveredSlots(slots: CustomSlots, spans: CustomDesign["spans"]): Set<CustomSlotId> {
+  const covered = new Set<CustomSlotId>();
+  CUSTOM_ROWS.forEach((row, index) => {
+    if (!slots[row]) return;
+    for (let i = 1; i < spanOf(spans, row); i += 1) {
+      const below = CUSTOM_ROWS[index + i];
+      if (below) covered.add(below);
+    }
+  });
+  return covered;
+}
+
+/** Máximo de filas que puede ocupar el elemento de `slot` ahora mismo: 1 + filas libres de debajo (tope 3). */
+export function maxSpanFor(slots: CustomSlots, slot: CustomSlotId): number {
+  const index = CUSTOM_ROWS.findIndex((row) => row === slot);
+  if (index < 0) return 1;
+  let span = 1;
+  while (span < CUSTOM_MAX_SPAN && index + span < CUSTOM_ROWS.length && !slots[CUSTOM_ROWS[index + span]]) span += 1;
+  return span;
+}
+
+/** Cambia las filas que ocupa el elemento de `slot` (1 = sin ampliar); se recorta a lo que cabe. */
+export function setSpan(design: CustomDesign, slot: CustomSlotId, span: number): CustomDesign {
+  if (!design.slots[slot]) return design;
+  const wanted = Math.max(1, Math.min(Math.round(span), maxSpanFor(design.slots, slot)));
+  if (wanted === spanOf(design.spans, slot)) return design;
+  const spans: Record<string, unknown> = { ...design.spans };
+  if (wanted > 1) spans[slot] = wanted;
+  else delete spans[slot];
+  return withSpans(design, design.slots, spans);
+}
+
+/** `design` con los huecos y los spans dados (estos, saneados); sin la clave `spans` si no queda ninguno. */
+function withSpans(design: CustomDesign, slots: CustomSlots, spans: Record<string, unknown>): CustomDesign {
+  const { spans: _old, ...rest } = design;
+  void _old;
+  const clean = cleanCustomSpans(slots, spans);
+  return { ...rest, slots, ...(clean ? { spans: clean } : {}) };
+}
+
+/**
+ * Coloca, quita o traslada un elemento (ver `applyPlacement`) y deja coherentes los spans: al quitar
+ * un elemento su span desaparece; al trasladarlo lo lleva consigo si cabe (recortado si no) y el
+ * que se desplaza al origen vuelve a ocupar una sola fila. Las filas cubiertas por un span no
+ * aceptan nada. Devuelve el mismo `design` si no cambia nada.
+ */
+export function placeInDesign(design: CustomDesign, slot: CustomSlotId, item: CustomSlotItem | null, from?: CustomSlotId): CustomDesign {
+  if (coveredSlots(design.slots, design.spans).has(slot)) return design;
+  const slots = applyPlacement(design.slots, slot, item, from);
+  if (slots === design.slots) return design;
+  const spans: Record<string, unknown> = { ...design.spans };
+  if (item === null) {
+    delete spans[slot];
+  } else if (from && from !== slot) {
+    const moved = spans[from];
+    delete spans[from];
+    delete spans[slot];
+    if (moved) spans[slot] = moved;
+  }
+  return withSpans(design, slots, spans);
 }
 
 /** Lee y valida un elemento arrastrado (JSON); `null` si no es de los nuestros. */
