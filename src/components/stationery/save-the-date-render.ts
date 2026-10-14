@@ -1,5 +1,7 @@
+import { doodlePatternSvg, doodleSvg, initialsHeartsSvg, type DoodleName } from "@/components/invitation/doodles";
 import { layoutInStationery, type InvitationLayout } from "@/components/invitation/invitation-layouts";
 import { calendarOf, type CalendarMonth, type InvitationStyle } from "@/components/invitation/invitation-model";
+import { coupleInitials } from "@/components/invitation/invitation-template-decor";
 import {
   LEGACY_COLORS,
   buildTheme,
@@ -24,6 +26,10 @@ export interface CardFonts {
   display: string;
   script: string;
   body: string;
+  /** Letra a mano en mayúsculas (plantilla «Hilo»). */
+  hand: string;
+  /** Redondeada y gruesa (plantilla «Retro»). */
+  chunky: string;
 }
 
 /** Familias de la app (next/font las publica como variables CSS en <html>). */
@@ -37,6 +43,8 @@ export function readCardFonts(): CardFonts {
     display: family("--font-display", "Georgia, serif"),
     script: family("--font-script", "cursive"),
     body: family("--font-body", "system-ui, sans-serif"),
+    hand: family("--font-hand", "cursive"),
+    chunky: family("--font-chunky", "Georgia, serif"),
   };
 }
 
@@ -220,13 +228,32 @@ interface Theme {
   date: string;
   muted: string;
   rule: string;
-  nameFont: "script" | "display";
+  nameFont: "script" | "display" | "hand" | "chunky";
   nameSize: number;
   /** Mínimo para dejar los dos nombres en una sola línea; por debajo, se apilan. */
   inlineMin: number;
   stackedOnly?: boolean;
   dateStyle: "sentence" | "big" | "numeric";
   upperNames?: boolean;
+  /** Nombres en cursiva (tipografía display). */
+  nameItalic?: boolean;
+  /** Tipografías de los textos pequeños y de las fechas (por defecto, `body` y `display`). */
+  bodyKey?: keyof CardFonts;
+  displayKey?: keyof CardFonts;
+  /** Tipografía de las cifras de la fecha (por defecto, la display). */
+  dateKey?: keyof CardFonts;
+  /** Sin cursivas (las tipografías de «Hilo» y «Retro» no las tienen). */
+  noItalic?: boolean;
+  /** Todo el texto en mayúsculas («Hilo»). */
+  upperAll?: boolean;
+  /** Multiplica el cuerpo de los textos pequeños (la letra a mano es más menuda). */
+  capsScale?: number;
+  headingSize?: number;
+  headingSpacing?: number;
+  /** En lugar del filete con corazón: un dibujo (clave de `art`) centrado, de este ancho. */
+  divider?: { art: string; width: number };
+  /** SVG que hay que descargar antes de dibujar, por clave (ver `loadTemplateArt`). */
+  art: Record<string, string>;
 }
 
 /**
@@ -234,16 +261,18 @@ interface Theme {
  * (botánico, minimal, elegante) elige la composición y la paleta, los colores.
  * El fondo elegido (rayas, lunares…) se pinta entre el color base y los adornos.
  */
-function makeTheme(style: InvitationStyle): Theme {
+function makeTheme(style: InvitationStyle, design: SaveTheDateDesign): Theme {
   const tk: InvitationTheme = buildTheme(style.palette?.colors ?? LEGACY_COLORS[style.template], style.template);
   const accentInk = tk.vars["--inv-accent-ink"];
   const muted = tk.vars["--inv-muted"];
   const leafDark = tk.vars["--inv-leaf-dark"];
   const base: Pick<Theme, "top" | "bottom"> = { top: 250, bottom: 1150 };
+  const none: Record<string, string> = {};
 
   if (style.template === "minimal") {
     return {
       ...base,
+      art: none,
       top: 190,
       bottom: 1210,
       paintBackground(ctx) {
@@ -281,6 +310,7 @@ function makeTheme(style: InvitationStyle): Theme {
   if (style.template === "elegante") {
     return {
       ...base,
+      art: none,
       top: 200,
       bottom: 1200,
       paintBackground(ctx) {
@@ -358,32 +388,37 @@ function makeTheme(style: InvitationStyle): Theme {
     };
   }
 
+  if (isDoodleStyle(style.template)) return doodleTheme(style, design, tk, base);
+
   // botanico (el «Jardín» de siempre): manchas de color, ramitas de eucalipto y marco fino.
   return {
     ...base,
+    art: none,
     paintBackground(ctx) {
       ctx.fillStyle = tk.bg;
       ctx.fillRect(0, 0, CARD_W, CARD_H);
       paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
-      // Manchas de color
-      ctx.save();
-      ctx.globalAlpha = 0.85;
-      ctx.translate(-120, -90);
-      ctx.scale(3.6, 3.6);
-      ctx.fillStyle = mix(tk.primary, tk.bg, 0.62);
-      ctx.fill(PEBBLE);
-      ctx.restore();
-      ctx.save();
-      ctx.globalAlpha = 0.85;
-      ctx.beginPath();
-      ctx.arc(1040, 1450, 330, 0, Math.PI * 2);
-      ctx.fillStyle = mix(tk.leaf, tk.bg, 0.6);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(-40, 1330, 150, 0, Math.PI * 2);
-      ctx.fillStyle = mix(tk.primary, tk.bg, 0.8);
-      ctx.fill();
-      ctx.restore();
+      // Manchas de color: solo con la tarjeta lisa; con un fondo elegido (rayas, motivos…) se ven sucias.
+      if (!style.background || style.background === "plain") {
+        ctx.save();
+        ctx.globalAlpha = 0.85;
+        ctx.translate(-120, -90);
+        ctx.scale(3.6, 3.6);
+        ctx.fillStyle = mix(tk.primary, tk.bg, 0.62);
+        ctx.fill(PEBBLE);
+        ctx.restore();
+        ctx.save();
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.arc(1040, 1450, 330, 0, Math.PI * 2);
+        ctx.fillStyle = mix(tk.leaf, tk.bg, 0.6);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(-40, 1330, 150, 0, Math.PI * 2);
+        ctx.fillStyle = mix(tk.primary, tk.bg, 0.8);
+        ctx.fill();
+        ctx.restore();
+      }
       // Marco fino
       ctx.strokeStyle = accentInk;
       ctx.globalAlpha = 0.45;
@@ -584,10 +619,10 @@ function calendarBlock(cal: CalendarMonth, theme: Theme, fonts: CardFonts): Bloc
       c.textBaseline = "alphabetic";
       if ("letterSpacing" in c) c.letterSpacing = "0px";
       c.fillStyle = theme.date;
-      c.font = `italic 400 48px ${fonts.display}`;
+      c.font = `${theme.noItalic ? "" : "italic "}400 48px ${fonts.display}`;
       c.fillText(cal.title, cx, top + 46);
       c.fillStyle = theme.accent;
-      c.font = `600 24px ${fonts.body}`;
+      c.font = `600 ${24 * (theme.capsScale ?? 1)}px ${fonts.body}`;
       cal.weekdays.forEach((w, i) => c.fillText(w.toUpperCase(), left + colW * (i + 0.5), top + 98));
       cal.cells.forEach((day, i) => {
         if (day === null) return;
@@ -608,10 +643,10 @@ function calendarBlock(cal: CalendarMonth, theme: Theme, fonts: CardFonts): Bloc
           c.stroke(HEART);
           c.restore();
           c.fillStyle = theme.date;
-          c.font = `700 32px ${fonts.body}`;
+          c.font = `700 ${32 * (theme.capsScale ?? 1)}px ${fonts.body}`;
         } else {
           c.fillStyle = theme.muted;
-          c.font = `400 30px ${fonts.body}`;
+          c.font = `400 ${30 * (theme.capsScale ?? 1)}px ${fonts.body}`;
         }
         c.fillText(String(day), x, y);
       });
@@ -651,8 +686,8 @@ function archBlock(
       c.textAlign = "center";
       c.textBaseline = "alphabetic";
       c.fillStyle = theme.accent;
-      c.font = `500 26px ${fonts.body}`;
-      if ("letterSpacing" in c) c.letterSpacing = "7px";
+      c.font = `500 ${26 * Math.min(theme.capsScale ?? 1, 1.2)}px ${fonts.body}`;
+      if ("letterSpacing" in c) c.letterSpacing = theme.capsScale ? "4px" : "7px";
       c.fillText(parts.weekday.toUpperCase(), cx + 3, top + 168);
       c.fillText(parts.month.toUpperCase(), cx + 3, top + 312);
       c.fillStyle = theme.date;
@@ -660,11 +695,314 @@ function archBlock(
       c.font = `400 124px ${fonts.display}`;
       c.fillText(parts.day, cx, top + 274);
       c.fillStyle = theme.muted;
-      c.font = `500 28px ${fonts.body}`;
-      if ("letterSpacing" in c) c.letterSpacing = "6px";
+      c.font = `500 ${28 * Math.min(theme.capsScale ?? 1, 1.2)}px ${fonts.body}`;
+      if ("letterSpacing" in c) c.letterSpacing = theme.capsScale ? "3px" : "6px";
       c.fillText(parts.year, cx + 3, top + 350);
       c.restore();
     },
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Plantillas de dibujitos (doodle, hilo, retro, azulejo)               */
+/* ------------------------------------------------------------------ */
+
+const DOODLE_STYLES: readonly InvitationStyle["template"][] = ["doodle", "hilo", "retro", "azulejo"];
+
+function isDoodleStyle(template: InvitationStyle["template"]): boolean {
+  return DOODLE_STYLES.includes(template);
+}
+
+/** Dentro de una imagen SVG no hay tipografías de la página: los corazones con iniciales usan esta. */
+const HEARTS_FONT = "Georgia, 'Times New Roman', serif";
+
+const artLoads = new Map<string, Promise<HTMLImageElement | null>>();
+const artReady = new Map<string, HTMLImageElement>();
+
+const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+
+function loadArt(svg: string): Promise<HTMLImageElement | null> {
+  let cached = artLoads.get(svg);
+  if (!cached) {
+    cached = new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        artReady.set(svg, img);
+        resolve(img);
+      };
+      img.onerror = () => resolve(null);
+      img.src = svgUrl(svg);
+    });
+    // Los colores cambian mucho al elegir paleta: la caché no crece sin límite.
+    if (artLoads.size > 60) {
+      const oldest = artLoads.keys().next().value as string;
+      artLoads.delete(oldest);
+      artReady.delete(oldest);
+    }
+    artLoads.set(svg, cached);
+  }
+  return cached;
+}
+
+/** Ancho y alto con los que el generador de dibujos escribe el SVG (proporción del dibujo). */
+function svgSize(svg: string): { w: number; h: number } {
+  const w = /<svg[^>]*?\swidth="([\d.]+)"/.exec(svg)?.[1];
+  const h = /<svg[^>]*?\sheight="([\d.]+)"/.exec(svg)?.[1];
+  return { w: Number(w) || 100, h: Number(h) || 100 };
+}
+
+/**
+ * Descarga los dibujos (y las tipografías de la plantilla) del estilo elegido; hay
+ * que esperarla antes de `drawSaveTheDate`. Con las demás plantillas no hace nada.
+ */
+export async function loadTemplateArt(style: InvitationStyle, design: SaveTheDateDesign, fonts: CardFonts): Promise<void> {
+  if (!isDoodleStyle(style.template)) return;
+  const sample = `${design.heading}${design.name1}${design.name2}${design.place}${design.message}ÁÉÍÓÚÑáéíóúñ&0123456789`;
+  const art = Object.values(makeTheme(style, design).art);
+  const family = style.template === "hilo" ? fonts.hand : style.template === "retro" ? fonts.chunky : null;
+  try {
+    await Promise.all([
+      ...art.map(loadArt),
+      ...(family && typeof document !== "undefined" && document.fonts ? [document.fonts.load(`400 64px ${family}`, sample)] : []),
+    ]);
+  } catch {
+    /* se dibuja con la tipografía de respaldo */
+  }
+}
+
+/** Dibuja un dibujo ya cargado centrado en (`cx`, `cy`), de ancho `width`; sin imagen no hace nada. */
+function drawArt(ctx: Ctx, svg: string | undefined, cx: number, cy: number, width: number, rotation = 0, flipX = false) {
+  const img = svg ? artReady.get(svg) : undefined;
+  if (!svg || !img) return;
+  const { w, h } = svgSize(svg);
+  const height = (width * h) / w;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation);
+  if (flipX) ctx.scale(-1, 1);
+  ctx.drawImage(img, -width / 2, -height / 2, width, height);
+  ctx.restore();
+}
+
+/** Bloque de texto-aire con un dibujo centrado (el adorno central de las plantillas de dibujitos). */
+function artBlock(svg: string | undefined, width: number): Block {
+  const { w, h } = svg ? svgSize(svg) : { w: 1, h: 1 };
+  const height = (width * h) / w;
+  return {
+    height: height + 8,
+    draw(c, cx, top) {
+      drawArt(c, svg, cx, top + 4 + height / 2, width);
+    },
+  };
+}
+
+/** Cinta ondulada de «Retro» (en las mismas coordenadas 100 × 140 que la de la invitación). */
+const WAVE = new Path2D(
+  "M100 30 C 76 36, 78 62, 52 74 C 30 84, 16 100, 0 104 L 0 134 C 22 132, 38 116, 62 104 C 90 90, 86 70, 100 66 Z"
+);
+
+function roundedBox(ctx: Ctx, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+}
+
+function doodleTheme(
+  style: InvitationStyle,
+  design: SaveTheDateDesign,
+  tk: InvitationTheme,
+  base: Pick<Theme, "top" | "bottom">
+): Theme {
+  const ink = tk.ink;
+  const muted = tk.vars["--inv-muted"];
+  const accentInk = tk.vars["--inv-accent-ink"];
+  const paper = tk.paper;
+  const initials = coupleInitials(`${design.name1.trim()} & ${design.name2.trim()}`);
+  const stroke = (name: DoodleName, color: string, fill: string) => doodleSvg(name, color, fill);
+  const common = {
+    ...base,
+    heading: accentInk,
+    names: ink,
+    amp: accentInk,
+    accent: accentInk,
+    date: ink,
+    muted,
+    rule: tk.primary,
+  };
+
+  if (style.template === "doodle") {
+    // Patrón de dibujitos en el color principal y un recuadro liso encima con el texto.
+    const patternInk = mix(tk.primary, ink, 0.38);
+    const patternFill = mix(tk.primary, tk.bg, 0.3);
+    const art: Record<string, string> = {
+      // Mismas coordenadas (400 × 560) que el de la invitación, así se ve igual de denso.
+      pattern: doodlePatternSvg({ width: 400, height: 560, color: patternInk, fill: patternFill, seed: 7, density: "mid", initials: initials ?? undefined, fontFamily: HEARTS_FONT }),
+    };
+    if (initials) art.hearts = initialsHeartsSvg(initials.a, initials.b, accentInk, mix(tk.primary, paper, 0.55), HEARTS_FONT);
+    else art.hearts = stroke("heart", accentInk, mix(tk.primary, paper, 0.55));
+    return {
+      ...common,
+      art,
+      top: 250,
+      bottom: 1150,
+      maxWidth: 580,
+      paintBackground(ctx) {
+        ctx.fillStyle = tk.bg;
+        ctx.fillRect(0, 0, CARD_W, CARD_H);
+        paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+        drawArt(ctx, art.pattern, CARD_W / 2, CARD_H / 2, CARD_W);
+        // Recuadro liso con un halo suave.
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        ctx.fillStyle = paper;
+        roundedBox(ctx, 88, 160, CARD_W - 176, CARD_H - 320, 48);
+        ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = paper;
+        ctx.strokeStyle = tk.line;
+        ctx.lineWidth = 2;
+        roundedBox(ctx, 104, 176, CARD_W - 208, CARD_H - 352, 36);
+        ctx.fill();
+        ctx.stroke();
+      },
+      nameFont: "display",
+      nameItalic: true,
+      nameSize: 150,
+      inlineMin: 84,
+      dateStyle: "numeric",
+      divider: { art: "hearts", width: initials ? 250 : 90 },
+    };
+  }
+
+  if (style.template === "hilo") {
+    // Todo en un solo color (el oscuro), letra a mano en mayúsculas y el hilo en el centro.
+    const art = { hands: stroke("threadHands", ink, ink) };
+    return {
+      ...base,
+      art,
+      top: 150,
+      bottom: 1250,
+      maxWidth: 800,
+      paintBackground(ctx) {
+        ctx.fillStyle = tk.bg;
+        ctx.fillRect(0, 0, CARD_W, CARD_H);
+        paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+      },
+      heading: ink,
+      names: ink,
+      amp: ink,
+      accent: ink,
+      date: ink,
+      muted: ink,
+      rule: ink,
+      nameFont: "hand",
+      nameSize: 170,
+      inlineMin: 90,
+      upperNames: true,
+      dateStyle: "numeric",
+      bodyKey: "hand",
+      displayKey: "hand",
+      noItalic: true,
+      upperAll: true,
+      capsScale: 1.55,
+      headingSize: 42,
+      headingSpacing: 6,
+      divider: { art: "hands", width: 740 },
+    };
+  }
+
+  if (style.template === "retro") {
+    // Título redondeado y grueso, dibujitos en las esquinas y una onda de color detrás del texto.
+    const soft = mix(tk.primary, paper, 0.55);
+    const art = {
+      swirl: stroke("cornerSwirl", ink, soft),
+      disco: stroke("discoBall", ink, soft),
+      coupes: stroke("coupes", ink, soft),
+    };
+    const waveColor = mix(tk.line, paper, 0.3);
+    return {
+      ...common,
+      art,
+      top: 260,
+      bottom: 1140,
+      maxWidth: 680,
+      paintBackground(ctx) {
+        ctx.fillStyle = paper;
+        ctx.fillRect(0, 0, CARD_W, CARD_H);
+        paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+        ctx.save();
+        ctx.scale(CARD_W / 100, CARD_H / 140);
+        ctx.fillStyle = waveColor;
+        ctx.fill(WAVE);
+        ctx.restore();
+      },
+      paintForeground(ctx) {
+        drawArt(ctx, art.swirl, 30 + 85, 30 + 90, 170);
+        drawArt(ctx, art.swirl, CARD_W - 30 - 85, CARD_H - 30 - 90, 170, Math.PI);
+        drawArt(ctx, art.disco, CARD_W - 40 - 55, 40 + 55, 110, 0.17);
+        drawArt(ctx, art.coupes, 40 + 55, CARD_H - 40 - 55, 110, -0.14);
+      },
+      heading: ink,
+      accent: ink,
+      amp: accentInk,
+      nameFont: "chunky",
+      nameSize: 160,
+      inlineMin: 92,
+      dateStyle: "sentence",
+      dateKey: "chunky",
+    };
+  }
+
+  // azulejo: marco de rayas verticales, lazos, ramitas, la pareja y chispas.
+  const soft = mix(tk.primary, paper, 0.55);
+  const art = {
+    bow: stroke("bow", ink, soft),
+    sprig: stroke("sprig", ink, soft),
+    spark: stroke("sparkle", ink, soft),
+    couple: stroke("couple", ink, soft),
+  };
+  const stripe = mix(tk.primary, paper, 0.28);
+  return {
+    ...common,
+    art,
+    top: 250,
+    bottom: 1110,
+    maxWidth: 620,
+    paintBackground(ctx) {
+      ctx.fillStyle = paper;
+      ctx.fillRect(0, 0, CARD_W, CARD_H);
+      ctx.fillStyle = stripe;
+      for (let x = 0; x < CARD_W; x += 46) ctx.fillRect(x, 0, 23, CARD_H);
+      paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+      // Panel con doble línea.
+      ctx.fillStyle = paper;
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 3.5;
+      roundedBox(ctx, 60, 60, CARD_W - 120, CARD_H - 120, 22);
+      ctx.fill();
+      ctx.stroke();
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = 2.5;
+      roundedBox(ctx, 60 + 15.5, 60 + 15.5, CARD_W - 151, CARD_H - 151, 14);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    },
+    paintForeground(ctx) {
+      drawArt(ctx, art.bow, 85 + 65, 85 + 40, 130);
+      drawArt(ctx, art.bow, CARD_W - 85 - 65, 85 + 40, 130, 0, true);
+      drawArt(ctx, art.sprig, 85 + 50, CARD_H - 85 - 90, 100);
+      drawArt(ctx, art.sprig, CARD_W - 85 - 50, CARD_H - 85 - 90, 100, 0, true);
+      drawArt(ctx, art.spark, 140, 300, 40);
+      drawArt(ctx, art.spark, CARD_W - 140, 350, 30);
+      drawArt(ctx, art.spark, 150, CARD_H - 340, 30);
+      drawArt(ctx, art.spark, CARD_W - 150, CARD_H - 290, 40);
+    },
+    heading: ink,
+    nameFont: "display",
+    nameItalic: true,
+    nameSize: 150,
+    inlineMin: 84,
+    dateStyle: "sentence",
+    divider: { art: "couple", width: 170 },
   };
 }
 
@@ -676,17 +1014,25 @@ function buildBlocks(
   ctx: Ctx,
   design: SaveTheDateDesign,
   theme: Theme,
-  fonts: CardFonts,
+  rawFonts: CardFonts,
   lang: Lang,
   layout: InvitationLayout
 ): Block[] {
+  // Las plantillas de dibujitos cambian la tipografía de los textos pequeños y de las fechas.
+  const fonts: CardFonts = {
+    ...rawFonts,
+    body: rawFonts[theme.bodyKey ?? "body"],
+    display: rawFonts[theme.displayKey ?? "display"],
+  };
+  const it = theme.noItalic ? "" : "italic ";
+  const sc = theme.capsScale ?? 1;
   const W = theme.maxWidth;
   const blocks: Block[] = [];
   const gap = (h: number) => blocks.push(spacer(h));
 
   const caps = (size: number, color: string, spacing: number): TextStyle => ({
     font: (s) => `500 ${s}px ${fonts.body}`,
-    size,
+    size: size * sc,
     color,
     spacing,
     upper: true,
@@ -695,7 +1041,7 @@ function buildBlocks(
   // Encabezado
   const heading = design.heading.trim();
   if (heading) {
-    blocks.push(lineBlock(ctx, heading, caps(28, theme.heading, 9), W, 18));
+    blocks.push(lineBlock(ctx, heading, caps(theme.headingSize ?? 28, theme.heading, theme.headingSpacing ?? 9), W, 18));
     gap(34);
   }
 
@@ -706,16 +1052,20 @@ function buildBlocks(
     theme.nameFont === "script"
       ? { font: (s) => `400 ${s}px ${fonts.script}`, size: theme.nameSize, color: theme.names, lineHeight: 0.92 }
       : {
-          font: (s) => `400 ${s}px ${fonts.display}`,
+          font: (s) =>
+            `${theme.nameItalic ? "italic " : ""}400 ${s}px ${theme.nameFont === "display" ? fonts.display : fonts[theme.nameFont]}`,
           size: theme.nameSize,
           color: theme.names,
-          spacing: 8,
+          spacing: theme.nameFont === "chunky" ? 2 : theme.nameFont === "hand" ? 6 : 8,
           upper: theme.upperNames,
-          lineHeight: 1.05,
+          lineHeight: theme.nameFont === "chunky" ? 1.0 : 1.05,
         };
   const ampStyle: TextStyle = {
-    font: (s) => `italic 400 ${s}px ${fonts.display}`,
-    size: theme.nameFont === "script" ? 64 : 48,
+    font: (s) =>
+      theme.nameFont === "hand" || theme.nameFont === "chunky"
+        ? `400 ${s}px ${fonts[theme.nameFont]}`
+        : `${it}400 ${s}px ${fonts.display}`,
+    size: theme.nameFont === "script" ? 64 : theme.nameFont === "hand" ? 90 : theme.nameFont === "chunky" ? 70 : 48,
     color: theme.amp,
   };
 
@@ -750,15 +1100,21 @@ function buildBlocks(
   }
 
   if (!medallion && layout !== "editorial") {
-    blocks.push(ruleBlock(theme.rule, true));
+    const tight = layout === "calendar" || layout === "vertical";
+    blocks.push(
+      theme.divider
+        ? artBlock(theme.art[theme.divider.art], theme.divider.width * (tight ? 0.62 : 1))
+        : ruleBlock(theme.rule, true)
+    );
     gap(38);
   } else if (medallion) {
     gap(24);
   }
 
   // Fecha
+  const dateFont = rawFonts[theme.dateKey ?? theme.displayKey ?? "display"];
   const display = (size: number, color: string, extra: Partial<TextStyle> = {}): TextStyle => ({
-    font: (s) => `400 ${s}px ${fonts.display}`,
+    font: (s) => `400 ${s}px ${dateFont}`,
     size,
     color,
     ...extra,
@@ -801,7 +1157,7 @@ function buildBlocks(
         paragraphBlock(
           ctx,
           [date, where].filter(Boolean).join(t("view.layout.sentence.joiner")) + ".",
-          { font: (s) => `italic 400 ${s}px ${fonts.display}`, size: 56, color: theme.date, lineHeight: 1.4 },
+          { font: (s) => `${it}400 ${s}px ${fonts.display}`, size: 56 * sc, color: theme.date, lineHeight: 1.4, upper: theme.upperAll },
           W
         )
       );
@@ -829,7 +1185,7 @@ function buildBlocks(
         lineBlock(
           ctx,
           parts.month,
-          { font: (s) => `italic 400 ${s}px ${fonts.display}`, size: 56, color: theme.heading },
+          { font: (s) => `${it}400 ${s}px ${fonts.display}`, size: 56 * sc, color: theme.heading, upper: theme.upperAll },
           W,
           24
         )
@@ -853,10 +1209,11 @@ function buildBlocks(
         ctx,
         message,
         {
-          font: (s) => `italic 400 ${s}px ${fonts.display}`,
-          size: 36,
+          font: (s) => `${it}400 ${s}px ${fonts.display}`,
+          size: 36 * sc,
           color: theme.muted,
           lineHeight: 1.4,
+          upper: theme.upperAll,
         },
         Math.min(W, 640)
       )
@@ -879,7 +1236,7 @@ export function drawSaveTheDate(
 ) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  const theme = makeTheme(style);
+  const theme = makeTheme(style, design);
   const layout = layoutInStationery(style.layout ?? "classic");
   const k = canvas.width / CARD_W;
   ctx.setTransform(k, 0, 0, k, 0, 0);

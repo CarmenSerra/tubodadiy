@@ -5,6 +5,7 @@ import {
   CARD_W,
   drawSaveTheDate,
   loadCardFonts,
+  loadTemplateArt,
   readCardFonts,
 } from "@/components/stationery/save-the-date-render";
 import type { SaveTheDateDesign } from "@/lib/firebase/designs";
@@ -26,7 +27,7 @@ async function renderToCanvas(
   lang: Lang
 ): Promise<HTMLCanvasElement> {
   const fonts = readCardFonts();
-  await Promise.all([loadCardFonts(fonts, design), loadBackdrop(style)]);
+  await Promise.all([loadCardFonts(fonts, design), loadBackdrop(style), loadTemplateArt(style, design, fonts)]);
   const canvas = document.createElement("canvas");
   canvas.width = EXPORT_WIDTH;
   canvas.height = EXPORT_HEIGHT;

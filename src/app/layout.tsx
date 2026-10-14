@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Birthstone, DM_Sans, Newsreader } from "next/font/google";
+import { Birthstone, Caprasimo, Delicious_Handrawn, DM_Sans, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/lib/hooks/use-auth";
 import { ThemeFavicon } from "@/components/theme-favicon";
 import { Toaster } from "@/components/ui/sonner";
@@ -48,6 +48,27 @@ const birthstone = Birthstone({
   fallback: ["cursive"],
 });
 
+// Plantillas de invitación «Hilo» (letra a mano tipo rotulador, siempre en mayúsculas)
+// y «Retro» (título redondeado y grueso, tipo Cooper). Solo para los títulos de la
+// tarjeta; el canvas de «Reserva la fecha» las lee de estas mismas variables.
+const handrawn = Delicious_Handrawn({
+  variable: "--font-hand",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  preload: false, // solo la usan las tarjetas «Hilo»: se descarga cuando hace falta
+  fallback: ["cursive"],
+});
+
+const caprasimo = Caprasimo({
+  variable: "--font-chunky",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  preload: false, // idem, solo «Retro»
+  fallback: ["Georgia", "serif"],
+});
+
 // Título y descripción en el idioma de la cookie `tubodadiy-lang` (ver docs/i18n.md).
 export async function generateMetadata(): Promise<Metadata> {
   const t = getServerT(await getRequestLang(), "common");
@@ -65,7 +86,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={lang}
       data-theme="light"
       suppressHydrationWarning
-      className={`${dmSans.variable} ${newsreader.variable} ${birthstone.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${newsreader.variable} ${birthstone.variable} ${handrawn.variable} ${caprasimo.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />

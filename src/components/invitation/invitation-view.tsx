@@ -13,6 +13,7 @@ import { CopyButton } from "@/components/invitation/copy-button";
 import { InvitationBackdrop, MotifSprig, isMotif } from "@/components/invitation/invitation-backgrounds";
 import { CardLayoutBody, type NameSize } from "@/components/invitation/invitation-card-layouts";
 import { DEFAULT_LAYOUT } from "@/components/invitation/invitation-layouts";
+import { TemplateDecor, TemplateOrnament, isDoodleTemplate } from "@/components/invitation/invitation-template-decor";
 import {
   DiamondDivider,
   DotRule,
@@ -228,7 +229,11 @@ export function InvitationCard({
   const layout = data.layout ?? DEFAULT_LAYOUT;
   const theme = themeOfInvitation(data);
 
-  const ornament = isMotif(data.background) ? (
+  const doodleStyle = isDoodleTemplate(data.template);
+  // Las plantillas de dibujitos llevan su propio adorno central (corazones con iniciales, hilo, pareja…).
+  const ornament = doodleStyle ? (
+    <TemplateOrnament template={data.template} names={names} />
+  ) : isMotif(data.background) ? (
     <MotifSprig motif={data.background} />
   ) : data.template === "elegante" ? (
     <DiamondDivider className="inv-ornament" />
@@ -254,6 +259,7 @@ export function InvitationCard({
       data-motif={isMotif(data.background) ? data.background : undefined}
     >
       {(data.palette || data.background) && <InvitationBackdrop kind={data.background} theme={theme} />}
+      {doodleStyle && <TemplateDecor template={data.template} palette={data.palette} names={names} />}
       <div className="inv-cardBody">
         <CardLayoutBody
           layout={layout}
@@ -272,6 +278,7 @@ export function InvitationCard({
           eyebrow={data.template === "minimal" ? t("view.eyebrowMinimal") : t("view.eyebrow")}
           message={data.message}
           ornament={ornament}
+          ornamentAlways={doodleStyle}
           join={join}
         />
       </div>
@@ -290,7 +297,11 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
   const { placeBlocks } = resolvePlaces(data, t, lang);
   const hasWhen = placeBlocks.length > 0;
   const deadline = formatShortDate(data.rsvpDeadline, lang);
-  const longMessage = data.message.length > 130;
+  // «Hilo» (y «Azulejo» en las composiciones más cargadas) deja la tarjeta sin mensaje: va debajo.
+  const hidesCardMessage =
+    data.template === "hilo" ||
+    (data.template === "azulejo" && ["calendar", "vertical", "medallion"].includes(data.layout ?? DEFAULT_LAYOUT));
+  const longMessage = data.message.length > 130 || (hidesCardMessage && data.message.trim().length > 0);
   const Body = preview ? "div" : "main";
 
   // Con paleta, las variables de color salen de ella; sin paleta (invitaciones anteriores)

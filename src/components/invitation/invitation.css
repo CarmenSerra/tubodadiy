@@ -1368,3 +1368,231 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
   outline-offset: 2px;
 }
 .inv-picker .react-colorful__pointer { transition: none; }
+
+/* ---------- Plantillas de dibujitos: doodle, hilo, retro, azulejo ---------- */
+
+/*
+ * Dibujos de línea (SVG con `currentColor`) con los colores de la paleta. Las cajas
+ * de texto de doodle y azulejo son contenedores propios: así, todo lo de dentro (que
+ * se mide en cqw) escala con la caja y no con la tarjeta entera, y las ocho
+ * composiciones caben igual que en las demás plantillas.
+ */
+.inv-tplLayer { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.inv-tplDoodle { position: absolute; display: block; height: auto; }
+.inv-card .inv-ornament.inv-ddHearts,
+.inv-card .inv-ornament.inv-hiloHands,
+.inv-card .inv-ornament.inv-azCouple { height: auto; }
+
+/* ·· Dibujitos: patrón de dibujos de línea con un recuadro liso encima ·· */
+.inv-doodle .inv-card { background: var(--inv-bg); }
+.inv-ddLayer {
+  color: color-mix(in oklab, var(--inv-accent) 62%, var(--inv-ink));
+}
+.inv-root.inv-doodle .inv-card .inv-cardBody {
+  container-type: inline-size;
+  margin: 17cqw 11cqw;
+  padding: 6cqw 4.5cqw 4.5cqw;
+  background: var(--inv-paper);
+  border: 1px solid var(--inv-line);
+  border-radius: 3.4cqw;
+  box-shadow: 0 0 0 1.2cqw color-mix(in oklab, var(--inv-paper) 60%, transparent);
+  justify-content: space-evenly;
+  gap: 2cqw;
+}
+.inv-doodle .inv-names { font-family: var(--font-display), Georgia, serif; font-style: italic; font-weight: 500; font-size: calc(15cqw * var(--nk, 1)); }
+.inv-doodle .inv-names[data-size="m"] { font-size: calc(12cqw * var(--nk, 1)); }
+.inv-doodle .inv-names[data-size="s"] { font-size: calc(9.4cqw * var(--nk, 1)); }
+.inv-doodle .inv-names[data-size="xs"] { font-size: calc(7.6cqw * var(--nk, 1)); }
+.inv-doodle .inv-amp { font-size: 0.6em; }
+.inv-doodle .inv-cardMessage { font-style: italic; }
+.inv-ddHearts {
+  width: 36cqw;
+  flex: none;
+  color: var(--inv-accent-ink);
+  --doodle-fill: color-mix(in oklab, var(--inv-accent) 45%, var(--inv-paper));
+}
+.inv-ddHeart { width: 9cqw; flex: none; color: var(--inv-accent-ink); --doodle-fill: color-mix(in oklab, var(--inv-accent) 45%, var(--inv-paper)); }
+.inv-doodle .inv-grat { background: var(--inv-bg); }
+.inv-doodle .inv-gratBody {
+  inset: 7cqw 11cqw;
+  padding: 2.5cqw 8cqw;
+  gap: 1.1cqw;
+  background: var(--inv-paper);
+  border: 1px solid var(--inv-line);
+  border-radius: 2.6cqw;
+  box-shadow: 0 0 0 1cqw color-mix(in oklab, var(--inv-paper) 60%, transparent);
+}
+
+/* ·· Hilo: letra a mano en mayúsculas y un solo color (el oscuro de la paleta) ·· */
+.inv-hilo .inv-card,
+.inv-hilo .inv-grat {
+  --inv-accent: var(--inv-ink);
+  --inv-accent-ink: var(--inv-ink);
+  --inv-muted: var(--inv-ink);
+  --inv-line: color-mix(in oklab, var(--inv-ink) 28%, transparent);
+  color: var(--inv-ink);
+  background: var(--inv-bg);
+}
+.inv-hilo .inv-card *,
+.inv-hilo .inv-grat * {
+  font-family: var(--font-hand), "Segoe Print", cursive;
+  font-style: normal;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.inv-hilo .inv-card .inv-cardBody { padding: 8cqw 9cqw 6cqw; justify-content: space-between; gap: 2cqw; }
+.inv-hilo .inv-names { font-size: calc(14cqw * var(--nk, 1)); line-height: 1; letter-spacing: 0.04em; }
+.inv-hilo .inv-names[data-size="m"] { font-size: calc(11.5cqw * var(--nk, 1)); }
+.inv-hilo .inv-names[data-size="s"] { font-size: calc(9cqw * var(--nk, 1)); }
+.inv-hilo .inv-names[data-size="xs"] { font-size: calc(7.4cqw * var(--nk, 1)); }
+.inv-hilo .inv-amp { font-size: 0.7em; }
+.inv-hilo .inv-eyebrow { font-size: 6.4cqw; letter-spacing: 0.12em; line-height: 1; }
+.inv-hilo .inv-cardMessage { font-size: 4.2cqw; line-height: 1.2; letter-spacing: 0.03em; -webkit-line-clamp: 2; line-clamp: 2; }
+.inv-hilo .inv-cardVenue { font-size: 6cqw; line-height: 1.1; letter-spacing: 0.04em; }
+.inv-hilo .inv-whereTime { font-size: 5cqw; }
+.inv-hilo .inv-whereVenue { font-size: 5.4cqw; }
+.inv-hilo .inv-cardLater { font-size: 3.8cqw; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.inv-hilo .inv-cardJoin { font-size: 5.6cqw; letter-spacing: 0.06em; }
+.inv-hilo .inv-stripWeekday, .inv-hilo .inv-stripTime { font-size: 4.4cqw; letter-spacing: 0.06em; }
+.inv-hilo .inv-stripMonth { font-size: 4.4cqw; letter-spacing: 0.1em; }
+.inv-hilo .inv-stripYear { font-size: 4.2cqw; }
+.inv-hilo .inv-stripDay { font-size: 13cqw; }
+.inv-hilo .inv-bdWeekday { font-size: 4.4cqw; }
+.inv-hilo .inv-bdNumbers { font-size: 15cqw; }
+.inv-hilo .inv-calTitle { font-size: 6.4cqw; }
+.inv-hilo .inv-calHead { font-size: 3.4cqw; }
+.inv-hilo .inv-calCell { font-size: 4cqw; }
+.inv-hilo .inv-calOn b { font-size: 4.6cqw; }
+.inv-hilo .inv-sbWeekday, .inv-hilo .inv-sbMonth { font-size: 3.8cqw; }
+.inv-hilo .inv-sbDay { font-size: 19cqw; }
+.inv-hilo .inv-sbTime { font-size: 5cqw; }
+.inv-hilo .inv-sbVenue { font-size: 5cqw; }
+.inv-hilo .inv-edText { font-size: 6.4cqw; line-height: 1.3; }
+.inv-hilo .inv-mdAmp { font-size: 6.4cqw; }
+.inv-hilo .inv-mdWeekday, .inv-hilo .inv-mdMonth { font-size: 3.8cqw; }
+.inv-hilo .inv-mdDay { font-size: 17cqw; }
+.inv-hilo .inv-mdYear { font-size: 4cqw; }
+.inv-hilo .inv-blk dt { font-size: 3.4cqw; }
+.inv-hilo .inv-blk dd { font-size: 5.4cqw; }
+.inv-hilo .inv-vtWeekday { font-size: 4.2cqw; }
+.inv-hilo .inv-vtDay { font-size: 21cqw; }
+.inv-hilo .inv-vtMonth { font-size: 5cqw; }
+.inv-hilo .inv-vtYear { font-size: 4.2cqw; }
+.inv-hilo .inv-vtTime { font-size: 5cqw; }
+.inv-hiloHands { width: 46cqw; flex: none; color: var(--inv-ink); --doodle-fill: var(--inv-ink); }
+.inv-hilo .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) .inv-hiloHands { width: 26cqw; }
+.inv-hilo .inv-card[data-layout="sidebar"] .inv-hiloHands { width: 36cqw; }
+.inv-hilo .inv-sbVenue { -webkit-line-clamp: 2; line-clamp: 2; }
+/* Con las composiciones más cargadas, la letra a mano pide aire: sin el mensaje en la tarjeta (sigue en la página). */
+.inv-hilo .inv-card .inv-cardMessage { display: none; }
+.inv-hilo .inv-gratPhrase { font-size: 4.6cqw; }
+.inv-hilo .inv-gratDate { font-size: 4cqw; }
+.inv-hilo .inv-gratThanks { font-size: 6.4cqw; letter-spacing: 0.12em; }
+.inv-hilo .inv-gratGift { font-size: 3.8cqw; }
+.inv-hilo .inv-gratMono { font-size: 5.6cqw; }
+.inv-hilo .inv-sectionTitle, .inv-hilo .inv-whenDate { font-family: var(--font-hand), cursive; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; }
+.inv-hilo .inv-sectionTitle { font-size: 2.1rem; }
+
+/* ·· Retro: título redondeado y grueso, dibujitos en las esquinas y una onda de color ·· */
+.inv-retro .inv-card { background: var(--inv-paper); }
+.inv-rtLayer { color: var(--inv-ink); --doodle-fill: color-mix(in oklab, var(--inv-accent) 60%, var(--inv-paper)); }
+.inv-rtWave { position: absolute; inset: 0; width: 100%; height: 100%; fill: color-mix(in oklab, var(--inv-line) 70%, var(--inv-paper)); }
+.inv-rtSwirl { width: 17cqw; }
+.inv-rtDoodle { width: 11cqw; }
+.inv-rtTL { top: 3cqw; left: 3cqw; }
+.inv-rtBR { right: 3cqw; bottom: 3cqw; transform: rotate(180deg); }
+.inv-rtTR { top: 4cqw; right: 4cqw; transform: rotate(10deg); }
+.inv-rtBL { bottom: 4cqw; left: 4cqw; transform: rotate(-8deg); }
+.inv-grat .inv-rtTL { top: 3cqw; left: 4cqw; }
+.inv-grat .inv-rtBR { right: 4cqw; bottom: 3cqw; transform: none; }
+.inv-grat .inv-rtDoodle { width: 8cqw; }
+.inv-root.inv-retro .inv-card .inv-cardBody {
+  container-type: inline-size;
+  margin: 21cqw 9cqw 19cqw;
+  padding: 0 1cqw;
+  justify-content: space-evenly;
+  gap: 2cqw;
+}
+.inv-retro .inv-names {
+  font-family: var(--font-chunky), var(--font-display), Georgia, serif;
+  font-size: calc(17cqw * var(--nk, 1));
+  line-height: 1.02;
+  letter-spacing: 0.005em;
+}
+.inv-retro .inv-names[data-size="m"] { font-size: calc(13.5cqw * var(--nk, 1)); }
+.inv-retro .inv-names[data-size="s"] { font-size: calc(10.5cqw * var(--nk, 1)); }
+.inv-retro .inv-names[data-size="xs"] { font-size: calc(8.4cqw * var(--nk, 1)); }
+.inv-retro .inv-amp { font-size: 0.62em; color: var(--inv-accent-ink); }
+.inv-retro .inv-eyebrow { font-size: 4.4cqw; font-weight: 700; letter-spacing: 0.1em; text-transform: lowercase; color: var(--inv-ink); }
+.inv-retro :is(.inv-stripDay, .inv-bdNumbers, .inv-sbDay, .inv-mdDay, .inv-vtDay, .inv-calTitle) { font-family: var(--font-chunky), var(--font-display), Georgia, serif; font-style: normal; }
+.inv-retro .inv-cardVenue, .inv-retro .inv-whereVenue, .inv-retro .inv-sbVenue { font-style: normal; font-weight: 600; }
+.inv-retro .inv-cardJoin { font-family: var(--font-chunky), var(--font-display), serif; font-style: normal; font-size: 4.4cqw; color: var(--inv-ink); }
+.inv-rtOrnament { display: inline-flex; flex: none; align-items: center; gap: 2.6cqw; color: var(--inv-ink); --doodle-fill: color-mix(in oklab, var(--inv-accent) 70%, var(--inv-paper)); }
+.inv-rtSpark { width: 6cqw; height: auto; }
+.inv-rtHeart { width: 8.4cqw; height: auto; }
+.inv-retro .inv-sectionTitle { font-family: var(--font-chunky), var(--font-display), serif; font-weight: 400; }
+.inv-retro .inv-gratThanks { font-family: var(--font-chunky), var(--font-display), serif; font-weight: 400; font-size: 6cqw; letter-spacing: 0.04em; text-transform: lowercase; }
+.inv-retro .inv-gratBody { padding-inline: 17cqw; }
+
+/* ·· Azulejo: marco de rayas verticales, lazos, ramitas, pareja y chispas ·· */
+.inv-azulejo .inv-card,
+.inv-azulejo .inv-grat {
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--inv-accent) 72%, var(--inv-paper)) 0 2.3cqw,
+    var(--inv-paper) 2.3cqw 4.6cqw
+  );
+}
+.inv-azLayer { color: var(--inv-ink); --doodle-fill: color-mix(in oklab, var(--inv-accent) 55%, var(--inv-paper)); }
+.inv-azPanel {
+  position: absolute;
+  inset: 6cqw;
+  background: var(--inv-paper);
+  border-radius: 2.2cqw;
+  box-shadow:
+    0 0 0 0.35cqw color-mix(in oklab, var(--inv-ink) 85%, transparent),
+    inset 0 0 0 1.3cqw var(--inv-paper),
+    inset 0 0 0 calc(1.3cqw + 0.25cqw) color-mix(in oklab, var(--inv-ink) 55%, transparent);
+}
+.inv-grat .inv-azPanel { inset: 4cqw; border-radius: 1.8cqw; }
+.inv-azBow { width: 13cqw; top: 8.5cqw; }
+.inv-azTL { left: 8.5cqw; }
+.inv-azTR { right: 8.5cqw; transform: scaleX(-1); }
+.inv-grat .inv-azBow { width: 10cqw; top: 5.5cqw; }
+.inv-grat .inv-azTL { left: 6cqw; }
+.inv-grat .inv-azTR { right: 6cqw; }
+.inv-azSprig { width: 9cqw; bottom: 8cqw; }
+.inv-azBL { left: 8cqw; }
+.inv-azBR { right: 8cqw; transform: scaleX(-1); }
+.inv-azSpark { width: 5cqw; }
+.inv-azS1 { top: 10cqw; left: 30cqw; }
+.inv-azS2 { top: 14cqw; right: 29cqw; width: 4cqw; }
+.inv-azS3 { bottom: 11cqw; left: 26cqw; width: 4cqw; }
+.inv-azS4 { bottom: 9cqw; right: 27cqw; }
+.inv-root.inv-azulejo .inv-card .inv-cardBody {
+  container-type: inline-size;
+  margin: 18cqw 10cqw 22cqw;
+  padding: 0;
+  justify-content: space-evenly;
+  gap: 2cqw;
+}
+.inv-azulejo .inv-names { font-family: var(--font-display), Georgia, serif; font-style: italic; font-weight: 500; font-size: calc(15cqw * var(--nk, 1)); }
+.inv-azulejo .inv-names[data-size="m"] { font-size: calc(12cqw * var(--nk, 1)); }
+.inv-azulejo .inv-names[data-size="s"] { font-size: calc(9.4cqw * var(--nk, 1)); }
+.inv-azulejo .inv-names[data-size="xs"] { font-size: calc(7.6cqw * var(--nk, 1)); }
+.inv-azulejo .inv-amp { font-size: 0.6em; }
+.inv-azulejo .inv-eyebrow { color: var(--inv-ink); }
+.inv-azCouple { width: 16cqw; flex: none; color: var(--inv-ink); --doodle-fill: color-mix(in oklab, var(--inv-accent) 55%, var(--inv-paper)); }
+.inv-azulejo .inv-gratBody { inset: 5cqw 9cqw; padding: 2cqw 12cqw; }
+.inv-ddLayer > svg { display: block; width: 100%; height: 100%; }
+
+/* Retro y azulejo llevan dibujos en las esquinas: en las composiciones alineadas a la izquierda el texto deja sitio arriba y el enlace va centrado. */
+.inv-root:is(.inv-retro, .inv-azulejo, .inv-hilo) .inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) :is(.inv-ornament, .inv-cardJoin) { align-self: center; padding-left: 3cqw; }
+/* Retro: en las composiciones más cargadas, sin el adorno central (las esquinas ya decoran). */
+.inv-retro .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) .inv-rtOrnament { display: none; }
+.inv-hilo .inv-card[data-layout="medallion"] .inv-hiloHands { display: none; }
+.inv-doodle .inv-card[data-layout="medallion"] .inv-cardMessage { display: none; }
+/* Azulejo: en las composiciones más cargadas, sin mensaje ni pareja en la tarjeta (el marco ya decora). */
+.inv-azulejo .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) :is(.inv-cardMessage, .inv-azCouple) { display: none; }
+/* Hilo: calendario y vertical son las composiciones más altas; su caja de texto escala un poco para que quepa también con lugares largos. */
+.inv-root.inv-hilo .inv-card:is([data-layout="calendar"], [data-layout="vertical"]) .inv-cardBody { container-type: inline-size; margin-inline: 8cqw; padding-inline: 0; }

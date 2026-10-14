@@ -57,6 +57,11 @@ export interface LayoutPieces {
   message: string;
   /** Adorno central (ramita, rombo o línea de puntos). */
   ornament: ReactNode;
+  /**
+   * Las plantillas de dibujitos llevan su ilustración en TODAS las composiciones; en las
+   * demás plantillas, calendario, medallón y vertical no llevan adorno central.
+   */
+  ornamentAlways?: boolean;
   /** «¿Nos acompañas?» (enlace o texto). */
   join: ReactNode;
 }
@@ -226,6 +231,7 @@ function Calendar(p: LayoutPieces) {
         </div>
       )}
       <WhereLine p={p} />
+      {p.ornamentAlways && p.ornament}
       {p.join}
     </>
   );
@@ -337,6 +343,7 @@ function Medallion(p: LayoutPieces) {
       </div>
       <WhereLine p={p} />
       {p.message && <p className="inv-cardMessage">{p.message}</p>}
+      {p.ornamentAlways && p.ornament}
       {p.join}
     </>
   );
@@ -405,6 +412,7 @@ function Vertical(p: LayoutPieces) {
         </div>
       )}
       <Place p={p} />
+      {p.ornamentAlways && p.ornament}
       {p.join}
     </>
   );

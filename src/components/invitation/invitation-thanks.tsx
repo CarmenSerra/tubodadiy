@@ -1,5 +1,6 @@
 import { MotifCorners, isMotif } from "@/components/invitation/invitation-backgrounds";
 import type { InvitationGift, InvitationPublicData } from "@/components/invitation/invitation-model";
+import { ThanksDecor, isDoodleTemplate } from "@/components/invitation/invitation-template-decor";
 import { getServerT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ export function ThanksCard({ data, gift }: { data: InvitationPublicData; gift?: 
   return (
     <section className={cn("inv-grat")} aria-label={t("view.thanks.label")}>
       {isMotif(data.background) && <MotifCorners motif={data.background} />}
+      {isDoodleTemplate(data.template) && <ThanksDecor template={data.template} palette={data.palette} names={data.names || "Ana & Luis"} />}
       <div className="inv-gratBody">
         {date && <p className="inv-gratDate">{date}</p>}
         <p className="inv-gratPhrase">{t("view.thanks.phrase")}</p>

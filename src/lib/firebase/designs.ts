@@ -7,13 +7,17 @@ import { getFirebaseDb } from "@/lib/firebase/client";
 import { syncStepQuietly } from "@/lib/firebase/mutations";
 
 /** Plantillas del diseñador «Reserva la fecha». */
-export type SaveTheDateTemplate = "jardin" | "minimal" | "noche" | "arco";
+export type SaveTheDateTemplate = "jardin" | "minimal" | "noche" | "arco" | "doodle" | "hilo" | "retro" | "azulejo";
 
 export const SAVE_THE_DATE_TEMPLATES: readonly SaveTheDateTemplate[] = [
   "jardin",
   "minimal",
   "noche",
   "arco",
+  "doodle",
+  "hilo",
+  "retro",
+  "azulejo",
 ];
 
 /** Lo que se edita y se guarda de un diseño «Reserva la fecha». */

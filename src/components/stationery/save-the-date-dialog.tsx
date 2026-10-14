@@ -41,6 +41,7 @@ import {
   CARD_W,
   drawSaveTheDate,
   loadCardFonts,
+  loadTemplateArt,
   readCardFonts,
 } from "@/components/stationery/save-the-date-render";
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
@@ -224,7 +225,7 @@ function CardCanvas({
   React.useEffect(() => {
     let cancelled = false;
     const fonts = readCardFonts();
-    void Promise.all([loadCardFonts(fonts, design), loadBackdrop(style)]).then(() => {
+    void Promise.all([loadCardFonts(fonts, design), loadBackdrop(style), loadTemplateArt(style, design, fonts)]).then(() => {
       if (!cancelled && ref.current) drawSaveTheDate(ref.current, design, style, fonts, lang);
     });
     return () => {

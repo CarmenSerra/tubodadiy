@@ -14,6 +14,22 @@
     "elegante": {
       "label": "Elegante",
       "hint": "Cursiva con doble marco"
+    },
+    "doodle": {
+      "label": "Dibujitos",
+      "hint": "Fondo de dibujos de línea"
+    },
+    "hilo": {
+      "label": "Hilo",
+      "hint": "Letra a mano y un solo color"
+    },
+    "retro": {
+      "label": "Retro",
+      "hint": "Redondeado, con onda de color"
+    },
+    "azulejo": {
+      "label": "Azulejo",
+      "hint": "Rayas, lazos y ramitas"
     }
   },
   "share": {
@@ -332,7 +348,7 @@
       "note": "Así se ve cada fondo dentro de tu tarjeta, con tu paleta. La mesa de detrás es siempre lisa.",
       "label": "Tipo de fondo",
       "motifsTitle": "Con motivos de acuarela",
-      "motifsNote": "Ramas pintadas a mano en las esquinas de la tarjeta. El adorno central cambia con el motivo.",
+      "motifsNote": "Dibujos en acuarela en las esquinas de la tarjeta. El adorno central cambia con el motivo.",
       "motifsLabel": "Fondo con motivos"
     },
     "style": {
@@ -391,7 +407,13 @@
     "wildflowers": "Flores silvestres",
     "citrus": "Cítricos mixtos",
     "lavender": "Lavanda",
-    "pomegranates": "Granadas"
+    "pomegranates": "Granadas",
+    "rings": "Alianzas",
+    "toast": "Brindis",
+    "cake": "Tarta",
+    "bouquet": "Ramo",
+    "polaroid": "Polaroids",
+    "loveletters": "Cartas de amor"
   },
   "layouts": {
     "classic": "Clásico",

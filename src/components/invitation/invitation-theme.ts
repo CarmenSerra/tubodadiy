@@ -26,7 +26,7 @@ export interface InvitationPalette {
   colors: PaletteColors;
 }
 
-export type TemplateKind = "botanico" | "minimal" | "elegante";
+export type TemplateKind = "botanico" | "minimal" | "elegante" | "doodle" | "hilo" | "retro" | "azulejo";
 
 // ---- Paletas de serie ----
 
@@ -63,6 +63,10 @@ export const LEGACY_COLORS: Record<TemplateKind, PaletteColors> = {
   botanico: { primary: "#927aac", dark: "#26413c", accent: "#a9c2a4", soft: "#f6f2ec" },
   minimal: { primary: "#8a77a6", dark: "#1f1f26", accent: "#a9c2a4", soft: "#ffffff" },
   elegante: { primary: "#d4c0ea", dark: "#2b2a3b", accent: "#8faf8a", soft: "#f4f1eb" },
+  doodle: { primary: "#4f7a5e", dark: "#1f3b2e", accent: "#e9a0b0", soft: "#f4efdf" },
+  hilo: { primary: "#b5454f", dark: "#7a1f2b", accent: "#c98a8a", soft: "#f6f1ee" },
+  retro: { primary: "#a9cba5", dark: "#2c5e2e", accent: "#4f7a5e", soft: "#f2eddd" },
+  azulejo: { primary: "#8fa9d6", dark: "#233f7a", accent: "#a9bdd8", soft: "#f6f3ea" },
 };
 
 // ---- Color del sobre ----

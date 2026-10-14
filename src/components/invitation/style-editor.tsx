@@ -4,14 +4,91 @@ import * as React from "react";
 import { CheckIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { Doodle } from "@/components/invitation/doodles";
 import {
   TEMPLATES,
   type InvitationStyle,
   type InvitationTemplateId,
 } from "@/components/invitation/invitation-model";
+import { themeFor, type InvitationTheme } from "@/components/invitation/invitation-theme";
 import { LayoutEditor } from "@/components/invitation/layout-picker";
 import { BackgroundEditor, ColorEditor } from "@/components/invitation/palette-picker";
 import { cn } from "@/lib/utils";
+
+/** Miniatura de una plantilla con los colores de la paleta elegida. */
+function TemplateThumb({ id, theme }: { id: InvitationTemplateId; theme: InvitationTheme }) {
+  const ink = theme.ink;
+  const accent = theme.primary;
+  const line = (cls: string, color = ink) => <span className={cn("rounded-full", cls)} style={{ background: color }} />;
+
+  if (id === "doodle") {
+    const small = "absolute size-3.5";
+    return (
+      <>
+        <span className="absolute inset-0 overflow-hidden" style={{ color: accent }}>
+          <Doodle name="rings" className={cn(small, "left-1 top-0.5 -rotate-12")} />
+          <Doodle name="heart" className={cn(small, "right-1.5 top-1 rotate-12")} />
+          <Doodle name="flute" className={cn(small, "bottom-0.5 left-2 rotate-6")} />
+          <Doodle name="polaroid" className={cn(small, "bottom-0.5 right-1 -rotate-6")} />
+        </span>
+        <span
+          className="relative flex h-9 w-[58%] flex-col items-center justify-center gap-1 rounded-md border"
+          style={{ background: theme.paper, borderColor: theme.line }}
+        >
+          {line("h-1.5 w-9")}
+          {line("h-1 w-5", accent)}
+        </span>
+      </>
+    );
+  }
+  if (id === "hilo") {
+    return (
+      <>
+        {line("h-1.5 w-12")}
+        {line("h-1.5 w-8")}
+        <Doodle name="threadHands" className="mt-0.5 h-auto w-11" style={{ color: ink, ["--doodle-fill" as string]: ink }} />
+      </>
+    );
+  }
+  if (id === "retro") {
+    return (
+      <>
+        <span
+          className="absolute -left-2 top-6 h-4 w-[130%] -rotate-12 rounded-full"
+          style={{ background: theme.line, opacity: 0.8 }}
+        />
+        <Doodle name="sparkle" className="absolute right-1.5 top-1 size-3" style={{ color: ink }} />
+        <Doodle name="heart" className="absolute bottom-1 left-1.5 size-3" style={{ color: ink }} />
+        <span className="relative h-2.5 w-11 rounded-full" style={{ background: ink }} />
+        <span className="relative h-2.5 w-7 rounded-full" style={{ background: ink }} />
+      </>
+    );
+  }
+  if (id === "azulejo") {
+    return (
+      <span
+        className="absolute inset-0 flex items-center justify-center"
+        style={{
+          background: `repeating-linear-gradient(90deg, ${accent} 0 4px, ${theme.paper} 4px 8px)`,
+        }}
+      >
+        <span
+          className="flex h-[78%] w-[72%] flex-col items-center justify-center gap-1 rounded-sm border"
+          style={{ background: theme.paper, borderColor: ink }}
+        >
+          {line("h-1.5 w-8")}
+          <Doodle name="couple" className="h-3.5 w-auto" style={{ color: ink }} />
+        </span>
+      </span>
+    );
+  }
+  return (
+    <>
+      {line("h-1.5 w-10")}
+      {line("h-1 w-6", accent)}
+    </>
+  );
+}
 
 function StyleSection({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
@@ -42,13 +119,15 @@ export function StyleEditor({
 }) {
   const { t } = useTranslation("invitation");
   const set = (patch: Partial<InvitationStyle>) => onChange({ ...style, ...patch });
+  const palette = style.palette;
 
   return (
     <>
       <StyleSection title={t("editor.sections.style")} note={t("editor.style.shared")}>
-        <div role="radiogroup" aria-label={t("editor.template.label")} className="grid grid-cols-3 gap-2.5">
+        <div role="radiogroup" aria-label={t("editor.template.label")} className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {TEMPLATES.map((tpl) => {
             const active = style.template === tpl.id;
+            const theme = themeFor(palette, tpl.id);
             return (
               <button
                 key={tpl.id}
@@ -64,11 +143,10 @@ export function StyleEditor({
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-14 flex-col items-center justify-center gap-1 rounded-lg border border-black/5"
-                  style={{ background: tpl.swatch.bg }}
+                  className="relative flex h-16 flex-col items-center justify-center gap-1 overflow-hidden rounded-lg border border-black/5"
+                  style={{ background: theme.bg }}
                 >
-                  <span className="h-1.5 w-10 rounded-full" style={{ background: tpl.swatch.ink }} />
-                  <span className="h-1 w-6 rounded-full" style={{ background: tpl.swatch.accent }} />
+                  <TemplateThumb id={tpl.id} theme={theme} />
                 </span>
                 <span className="flex items-center gap-1 px-0.5 text-sm font-medium leading-tight text-ink-strong">
                   {active && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0 text-green" />}

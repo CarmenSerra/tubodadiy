@@ -60,12 +60,20 @@ const FROM_STATIONERY: Record<SaveTheDateTemplate, InvitationTemplateId> = {
   arco: "botanico",
   minimal: "minimal",
   noche: "elegante",
+  doodle: "doodle",
+  hilo: "hilo",
+  retro: "retro",
+  azulejo: "azulejo",
 };
 
 const TO_STATIONERY: Record<InvitationTemplateId, SaveTheDateTemplate> = {
   botanico: "jardin",
   minimal: "minimal",
   elegante: "noche",
+  doodle: "doodle",
+  hilo: "hilo",
+  retro: "retro",
+  azulejo: "azulejo",
 };
 
 export const templateFromStationery = (id: SaveTheDateTemplate): InvitationTemplateId => FROM_STATIONERY[id];

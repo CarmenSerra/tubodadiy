@@ -20,7 +20,7 @@ import type { GiftMode, PlanGift } from "@/lib/types";
  * Vive en `publicInvitations/{slug}`.
  */
 
-export type InvitationTemplateId = "botanico" | "minimal" | "elegante";
+export type InvitationTemplateId = "botanico" | "minimal" | "elegante" | "doodle" | "hilo" | "retro" | "azulejo";
 
 /**
  * OBSOLETO: la tarjeta ya no lleva imagen arriba (ni foto del lugar ni
@@ -163,6 +163,10 @@ export const TEMPLATES: {
   { id: "botanico", swatch: { bg: "#f6f2ec", ink: "#26413c", accent: "#927aac" } },
   { id: "minimal", swatch: { bg: "#ffffff", ink: "#1f1f26", accent: "#7a6a93" } },
   { id: "elegante", swatch: { bg: "#2f2e41", ink: "#f4f1eb", accent: "#d4c0ea" } },
+  { id: "doodle", swatch: { bg: "#f4efdf", ink: "#1f3b2e", accent: "#4f7a5e" } },
+  { id: "hilo", swatch: { bg: "#f6f1ee", ink: "#7a1f2b", accent: "#7a1f2b" } },
+  { id: "retro", swatch: { bg: "#f2eddd", ink: "#2c5e2e", accent: "#a9cba5" } },
+  { id: "azulejo", swatch: { bg: "#f6f3ea", ink: "#233f7a", accent: "#8fa9d6" } },
 ];
 
 /** Mensaje de bienvenida que lleva una invitación nueva, en el idioma de la invitación. */

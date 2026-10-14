@@ -14,6 +14,22 @@
     "elegante": {
       "label": "Elegant",
       "hint": "Italic with a double frame"
+    },
+    "doodle": {
+      "label": "Doodles",
+      "hint": "Line-drawing pattern"
+    },
+    "hilo": {
+      "label": "Thread",
+      "hint": "Handwriting in one colour"
+    },
+    "retro": {
+      "label": "Retro",
+      "hint": "Rounded, with a colour wave"
+    },
+    "azulejo": {
+      "label": "Tile",
+      "hint": "Stripes, bows and sprigs"
     }
   },
   "share": {
@@ -332,7 +348,7 @@
       "note": "This is how each background looks inside your card, with your palette. The table behind is always plain.",
       "label": "Background type",
       "motifsTitle": "With watercolour motifs",
-      "motifsNote": "Hand-painted branches in the corners of the card. The central ornament changes with the motif.",
+      "motifsNote": "Watercolour drawings in the corners of the card. The central ornament changes with the motif.",
       "motifsLabel": "Background with motifs"
     },
     "style": {
@@ -391,7 +407,13 @@
     "wildflowers": "Wildflowers",
     "citrus": "Mixed citrus",
     "lavender": "Lavender",
-    "pomegranates": "Pomegranates"
+    "pomegranates": "Pomegranates",
+    "rings": "Rings",
+    "toast": "Toast",
+    "cake": "Cake",
+    "bouquet": "Bouquet",
+    "polaroid": "Polaroids",
+    "loveletters": "Love letters"
   },
   "layouts": {
     "classic": "Classic",
