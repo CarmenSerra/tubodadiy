@@ -223,7 +223,6 @@
     "sections": {
       "color": "Colour",
       "background": "Card background",
-      "language": "Invitation language",
       "style": "Style",
       "couple": "The couple",
       "when": "When",
@@ -232,10 +231,6 @@
       "gift": "Gift",
       "publish": "Publish and share",
       "layout": "Layout"
-    },
-    "language": {
-      "label": "Invitation language",
-      "note": "Your guests will see the invitation and the reply form in this language. Your dashboard stays in your own language."
     },
     "template": {
       "label": "Template"
@@ -349,6 +344,7 @@
       "label": "Background type",
       "motifsTitle": "With watercolour motifs",
       "motifsNote": "Watercolour drawings in the corners of the card. The central ornament changes with the motif.",
+      "noMotifs": "No motifs",
       "motifsLabel": "Background with motifs"
     },
     "style": {

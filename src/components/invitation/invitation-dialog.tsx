@@ -66,7 +66,7 @@ import { Switch } from "@/components/ui/switch";
 import { TimePicker } from "@/components/ui/time-picker";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlanContext } from "@/lib/context/plan-context";
-import { LANGUAGES, type Lang } from "@/lib/i18n/config";
+import type { Lang } from "@/lib/i18n/config";
 import { useLanguage } from "@/lib/i18n/provider";
 import {
   SlugTakenError,
@@ -225,6 +225,11 @@ function InvitationBody({
   );
 }
 
+/** El mensaje de serie (de cualquier idioma) pasa al idioma indicado; uno escrito a mano o vacío no se toca. */
+function localizeMessage(message: string, lang: Lang): string {
+  return message.trim() && isDefaultMessage(message) ? defaultMessage(lang) : message;
+}
+
 function Editor({
   planId,
   planGift,
@@ -255,7 +260,13 @@ function Editor({
   // se ofrece «Actualizar desde el plan». Lo escrito a mano nunca se pisa.
   const [initial] = React.useState(() => {
     // El estilo es el compartido con «Reserva la fecha»; lo demás, lo guardado o lo que sabe el plan.
-    if (saved) return applyPlanFill({ ...contentOf(saved), ...style, envelopeColor: style.envelopeColor }, {});
+    if (saved) {
+      const content = contentOf(saved);
+      return applyPlanFill(
+        { ...content, lang: appLang, message: localizeMessage(content.message, appLang), ...style, envelopeColor: style.envelopeColor },
+        {}
+      );
+    }
     return applyPlanFill({ ...defaultContent(null, appLang), ...style, envelopeColor: style.envelopeColor }, planFill);
   });
   const [form, setForm] = React.useState<InvitationContent>(initial.content);
@@ -266,7 +277,15 @@ function Editor({
   const [copied, setCopied] = React.useState(false);
 
   const published = Boolean(saved?.published);
-  const clean = React.useMemo(() => cleanContent(form), [form]);
+  // El idioma de la invitación es el que la pareja usa en la app: se fija al guardar y la vista
+  // previa lo usa. Una invitación ya guardada conserva su `lang` hasta que se vuelva a guardar.
+  const clean = React.useMemo(() => cleanContent({ ...form, lang: appLang }), [form, appLang]);
+  // Si cambia el idioma de la app, el mensaje de serie pasa al nuevo idioma; uno escrito a mano no se toca.
+  const [seenLang, setSeenLang] = React.useState(appLang);
+  if (seenLang !== appLang) {
+    setSeenLang(appLang);
+    setForm((f) => ({ ...f, message: localizeMessage(f.message, appLang) }));
+  }
 
   // ---- Enlace: lo propone el nombre de la pareja (o del plan) y se puede editar ----
   const [slugEdit, setSlugEdit] = React.useState<string | null>(null);
@@ -290,8 +309,18 @@ function Editor({
   // El color del sobre (solo si es manual) vive en el estilo compartido, no en la invitación
   // guardada: la referencia es lo que dice ese estilo, aunque la invitación no lo tenga.
   const baseline = React.useMemo(
-    () => (saved ? cleanContent({ ...contentOf(saved), envelopeColor: style.envelopeColor }) : null),
-    [saved, style.envelopeColor]
+    () => {
+      if (!saved) return null;
+      // El idioma guardado no cuenta como cambio: solo se actualiza al guardar por otro motivo.
+      const content = contentOf(saved);
+      return cleanContent({
+        ...content,
+        lang: appLang,
+        message: localizeMessage(content.message, appLang),
+        envelopeColor: style.envelopeColor,
+      });
+    },
+    [saved, style.envelopeColor, appLang]
   );
   const dirty = !baseline || slugChanged || JSON.stringify(clean) !== JSON.stringify(baseline);
   React.useEffect(() => {
@@ -343,13 +372,6 @@ function Editor({
 
   const set = <K extends keyof InvitationContent>(key: K, value: InvitationContent[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
-  // Al cambiar de idioma, el mensaje de serie pasa al nuevo idioma; uno escrito a mano no se toca.
-  const setInvitationLang = (next: Lang) =>
-    setForm((f) =>
-      f.lang === next
-        ? f
-        : { ...f, lang: next, message: isDefaultMessage(f.message) ? defaultMessage(next) : f.message }
-    );
   const setPlace = (key: "ceremony" | "banquet", patch: Partial<InvitationPlace>) =>
     setForm((f) => ({ ...f, [key]: { ...f[key], ...patch } }));
 
@@ -513,31 +535,6 @@ function Editor({
                 </button>
               </div>
             )}
-            <Section title={t("editor.sections.language")} note={t("editor.language.note")}>
-              <div role="radiogroup" aria-label={t("editor.language.label")} className="grid grid-cols-2 gap-2.5">
-                {LANGUAGES.map((l) => {
-                  const active = form.lang === l.code;
-                  return (
-                    <button
-                      key={l.code}
-                      type="button"
-                      role="radio"
-                      lang={l.code}
-                      aria-checked={active}
-                      onClick={() => setInvitationLang(l.code)}
-                      className={cn(
-                        "flex min-h-11 items-center justify-center gap-1.5 rounded-xl border bg-raised px-3 text-sm font-medium text-ink-strong outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                        active ? "border-lilac ring-2 ring-lilac" : "border-line-strong hover:border-lilac"
-                      )}
-                    >
-                      {active && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0 text-green" />}
-                      {l.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </Section>
-
             <StyleEditor
               style={styleOf(form)}
               onChange={(next) => setForm((f) => ({ ...f, ...next }))}

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon } from "lucide-react";
+import { BanIcon, CheckIcon } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 import { useTranslation } from "react-i18next";
 
@@ -346,53 +346,65 @@ export function BackgroundEditor({
   const plain = BACKGROUND_IDS.filter((id) => !isMotif(id));
   const motifs = BACKGROUND_IDS.filter((id) => isMotif(id));
 
-  const grid = (ids: readonly InvitationBackground[], label: string) => (
+  type Option = { id: InvitationBackground; label: string; active: boolean; none?: boolean };
+  const options = (ids: readonly InvitationBackground[]): Option[] =>
+    ids.map((id) => ({ id, label: t(`backgrounds.${id}`), active: selected === id }));
+  // «Sin motivos» deja el fondo en liso; se ve marcada mientras el fondo no sea un motivo.
+  const motifOptions: Option[] = [
+    { id: "plain", label: t("editor.background.noMotifs"), active: !isMotif(selected), none: true },
+    ...options(motifs),
+  ];
+
+  const grid = (items: Option[], label: string) => (
     <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-2.5">
-      {ids.map((id) => {
-        const active = selected === id;
-        return (
-          <button
-            key={id}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => onChange(id)}
-            className={cn(CARD, "p-2", CARD_STATE(active))}
+      {items.map(({ id, label: name, active, none }) => (
+        <button
+          key={none ? "none" : id}
+          type="button"
+          role="radio"
+          aria-checked={active}
+          onClick={() => onChange(id)}
+          className={cn(CARD, "p-2", CARD_STATE(active))}
+        >
+          <span
+            aria-hidden="true"
+            className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg border border-black/10 isolate"
+            style={{ background: "var(--inv-app-table)" }}
           >
+            {/* La mesa es lisa; el fondo elegido va dentro de la tarjeta. */}
             <span
-              aria-hidden="true"
-              className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg border border-black/10 isolate"
-              style={{ background: "var(--inv-app-table)" }}
+              className="inv-miniCard relative flex h-[84%] flex-col items-center justify-center gap-1 overflow-hidden rounded-[3px] border px-2"
+              style={{ background: theme.paper, borderColor: theme.line }}
             >
-              {/* La mesa es lisa; el fondo elegido va dentro de la tarjeta. */}
-              <span
-                className="inv-miniCard relative flex h-[84%] flex-col items-center justify-center gap-1 overflow-hidden rounded-[3px] border px-2"
-                style={{ background: theme.paper, borderColor: theme.line }}
-              >
-                <InvitationBackdrop kind={id} theme={theme} scale={2.2} />
-                <span className="relative z-[1] h-1.5 w-4/5 rounded-full" style={{ background: theme.ink }} />
-                <span className="relative z-[1] h-1 w-1/2 rounded-full" style={{ background: theme.primary }} />
-              </span>
+              {none ? (
+                <BanIcon className="relative z-[1] size-7 opacity-60" strokeWidth={1.5} style={{ color: theme.ink }} />
+              ) : (
+                <>
+                  <InvitationBackdrop kind={id} theme={theme} scale={2.2} />
+                  <span className="relative z-[1] h-1.5 w-4/5 rounded-full" style={{ background: theme.ink }} />
+                  <span className="relative z-[1] h-1 w-1/2 rounded-full" style={{ background: theme.primary }} />
+                </>
+              )}
             </span>
-            <span className="flex min-h-8 items-start gap-1 px-0.5 text-[13px] font-medium leading-tight text-ink-strong">
-              {active && <CheckIcon aria-hidden="true" className="mt-px size-3.5 shrink-0 text-green" />}
-              {t(`backgrounds.${id}`)}
-            </span>
-          </button>
-        );
-      })}
+          </span>
+          <span className="flex min-h-8 items-start gap-1 px-0.5 text-[13px] font-medium leading-tight text-ink-strong">
+            {active && <CheckIcon aria-hidden="true" className="mt-px size-3.5 shrink-0 text-green" />}
+            {name}
+          </span>
+        </button>
+      ))}
     </div>
   );
 
   return (
     <div className="flex flex-col gap-5">
-      {grid(plain, t("editor.background.label"))}
+      {grid(options(plain), t("editor.background.label"))}
       <div className="flex flex-col gap-3">
         <div>
           <h4 className="text-sm font-semibold text-ink">{t("editor.background.motifsTitle")}</h4>
           <p className="mt-0.5 text-[13px] text-ink-muted">{t("editor.background.motifsNote")}</p>
         </div>
-        {grid(motifs, t("editor.background.motifsLabel"))}
+        {grid(motifOptions, t("editor.background.motifsLabel"))}
       </div>
     </div>
   );

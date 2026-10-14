@@ -223,7 +223,6 @@
     "sections": {
       "color": "Color",
       "background": "Fondo de la tarjeta",
-      "language": "Idioma de la invitación",
       "style": "Estilo",
       "couple": "La pareja",
       "when": "Cuándo",
@@ -232,10 +231,6 @@
       "gift": "Regalo",
       "publish": "Publicar y compartir",
       "layout": "Composición"
-    },
-    "language": {
-      "label": "Idioma de la invitación",
-      "note": "Tus invitados verán la invitación y el formulario en este idioma. Tu panel sigue en tu idioma."
     },
     "template": {
       "label": "Plantilla"
@@ -349,6 +344,7 @@
       "label": "Tipo de fondo",
       "motifsTitle": "Con motivos de acuarela",
       "motifsNote": "Dibujos en acuarela en las esquinas de la tarjeta. El adorno central cambia con el motivo.",
+      "noMotifs": "Sin motivos",
       "motifsLabel": "Fondo con motivos"
     },
     "style": {
