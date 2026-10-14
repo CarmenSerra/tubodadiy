@@ -55,7 +55,7 @@ function rng(seed: number) {
 }
 
 export const CELL: Record<Density, number> = { low: 170, mid: 124, high: 92 };
-const EXCLUDED = new Set<DoodleName>(["threadHands", "couple", "car", "cornerSwirl"]);
+const EXCLUDED = new Set<DoodleName>(["threadHands", "couple", "heartCouple", "car", "cornerSwirl"]);
 export const DEFAULT_PATTERN_NAMES: DoodleName[] = DOODLE_NAMES.filter((n) => !EXCLUDED.has(n));
 
 type Item = { name: DoodleName | "initials"; x: number; y: number; rot: number };

@@ -952,20 +952,17 @@ function doodleTheme(
     };
   }
 
-  // azulejo: marco de rayas verticales, lazos, ramitas, la pareja y chispas.
+  // azulejo: marco de rayas verticales y la pareja de corazones (sin lazos, ramitas ni chispas).
   const soft = mix(tk.primary, paper, 0.55);
   const art = {
-    bow: stroke("bow", ink, soft),
-    sprig: stroke("sprig", ink, soft),
-    spark: stroke("sparkle", ink, soft),
-    couple: stroke("couple", ink, soft),
+    couple: stroke("heartCouple", ink, soft),
   };
   const stripe = mix(tk.primary, paper, 0.28);
   return {
     ...common,
     art,
-    top: 250,
-    bottom: 1110,
+    top: 205,
+    bottom: 1195,
     maxWidth: 620,
     paintBackground(ctx) {
       ctx.fillStyle = paper;
@@ -986,23 +983,13 @@ function doodleTheme(
       ctx.stroke();
       ctx.globalAlpha = 1;
     },
-    paintForeground(ctx) {
-      drawArt(ctx, art.bow, 85 + 65, 85 + 40, 130);
-      drawArt(ctx, art.bow, CARD_W - 85 - 65, 85 + 40, 130, 0, true);
-      drawArt(ctx, art.sprig, 85 + 50, CARD_H - 85 - 90, 100);
-      drawArt(ctx, art.sprig, CARD_W - 85 - 50, CARD_H - 85 - 90, 100, 0, true);
-      drawArt(ctx, art.spark, 140, 300, 40);
-      drawArt(ctx, art.spark, CARD_W - 140, 350, 30);
-      drawArt(ctx, art.spark, 150, CARD_H - 340, 30);
-      drawArt(ctx, art.spark, CARD_W - 150, CARD_H - 290, 40);
-    },
     heading: ink,
     nameFont: "display",
     nameItalic: true,
     nameSize: 150,
     inlineMin: 84,
     dateStyle: "sentence",
-    divider: { art: "couple", width: 170 },
+    divider: { art: "couple", width: 290 },
   };
 }
 

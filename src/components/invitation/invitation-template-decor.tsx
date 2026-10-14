@@ -112,14 +112,6 @@ export function TemplateDecor({
       return (
         <div className="inv-tplLayer inv-azLayer" aria-hidden="true">
           <div className="inv-azPanel" />
-          <Corner name="bow" className="inv-azBow inv-azTL" />
-          <Corner name="bow" className="inv-azBow inv-azTR" />
-          <Corner name="sprig" className="inv-azSprig inv-azBL" />
-          <Corner name="sprig" className="inv-azSprig inv-azBR" />
-          <Corner name="sparkle" className="inv-azSpark inv-azS1" />
-          <Corner name="sparkle" className="inv-azSpark inv-azS2" />
-          <Corner name="sparkle" className="inv-azSpark inv-azS3" />
-          <Corner name="sparkle" className="inv-azSpark inv-azS4" />
         </div>
       );
     default:
@@ -148,7 +140,8 @@ export function TemplateOrnament({ template, names }: { template: InvitationTemp
         </span>
       );
     case "azulejo":
-      return <Doodle name="couple" className="inv-ornament inv-azCouple" />;
+      // El ancho en línea gana al de invitation.css (16cqw): la pareja de corazones es más ancha que alta.
+      return <Doodle name="heartCouple" className="inv-ornament inv-azCouple" style={{ width: "42cqw" }} />;
     default:
       return null;
   }
@@ -179,8 +172,6 @@ export function ThanksDecor({
       return (
         <div className="inv-tplLayer inv-azLayer" aria-hidden="true">
           <div className="inv-azPanel" />
-          <Corner name="bow" className="inv-azBow inv-azTL" />
-          <Corner name="bow" className="inv-azBow inv-azTR" />
         </div>
       );
     default:

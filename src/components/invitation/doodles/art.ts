@@ -5,7 +5,7 @@ export const DOODLE_NAMES = [
   "rings", "ring", "polaroid", "wineGlass", "coupes", "flute", "martini", "sodaBottle",
   "instantCamera", "planeWindow", "heartCake", "cakeSlice", "tieredCake", "candle", "handRing",
   "heel", "loafer", "bouquet", "discoBall", "envelope", "flowers", "sparkle", "heart", "bow",
-  "sprig", "threadHands", "couple", "car", "waxSeal", "cornerSwirl",
+  "sprig", "threadHands", "couple", "heartCouple", "car", "waxSeal", "cornerSwirl",
 ] as const;
 export type DoodleName = (typeof DOODLE_NAMES)[number];
 
@@ -324,6 +324,76 @@ const couple = () =>
   // manos unidas
   P(C([[44, 48], [49, 56], [58, 58]], { j: 0.2 }));
 
+/* ---------- pareja de corazones ---------- */
+/** Corazón alargado (punta abajo) de ancho w y alto h, centrado en el origen. */
+const longHeart = (w: number, h: number, j = 0.4) => {
+  const p = (x: number, y: number) => `${Math.round((x * w + jit(j)) * 10) / 10} ${Math.round((y * h + jit(j)) * 10) / 10}`;
+  return (
+    `M${p(0, 0.5)}C${p(-0.1, 0.3)} ${p(-0.5, 0.08)} ${p(-0.5, -0.18)}` +
+    `C${p(-0.5, -0.42)} ${p(-0.14, -0.55)} ${p(0, -0.3)}` +
+    `C${p(0.14, -0.55)} ${p(0.5, -0.42)} ${p(0.5, -0.18)}` +
+    `C${p(0.5, 0.08)} ${p(0.1, 0.3)} ${p(0, 0.5)}Z`
+  );
+};
+const cheek = (x: number, y: number) => `<circle cx="${x}" cy="${y}" r="1.9" fill="§A" stroke-width="0.7"/>`;
+const shoe = (pts: Pt[]) => P(C(pts, { closed: true, j: 0.15 }), FILL);
+
+const heartCouple = () => {
+  // novio (ligeramente inclinado hacia ella)
+  const groom =
+    P(longHeart(46, 60)) +
+    P("M-9 -7Q-6.5 -4.2 -4 -7") + P("M4 -7Q6.5 -4.2 9 -7") +
+    cheek(-10.5, -2) + cheek(10.5, -2) +
+    P("M-2 -1.5Q0 0.8 2 -1.5") +
+    // pajarita
+    P(L([[-1.5, 13], [-9.5, 8.5], [-9.5, 17.5], [-1.5, 13]], { j: 0.15 }), FILL) +
+    P(L([[1.5, 13], [9.5, 8.5], [9.5, 17.5], [1.5, 13]], { j: 0.15 }), FILL) +
+    `<rect x="-1.8" y="11.2" width="3.6" height="3.6" rx="1" fill="§I" stroke-width="0.6"/>`;
+  // novia
+  const bride =
+    P(longHeart(46, 60)) +
+    P("M-9 -7Q-6.5 -4.2 -4 -7") + P("M4 -7Q6.5 -4.2 9 -7") +
+    cheek(-10.5, -2) + cheek(10.5, -2) +
+    P("M-1.8 -2.2Q-3.2 0 0 0.6Q2.2 0.2 0.6 -1.4");
+  return (
+    // velo de la novia (por detrás)
+    P(C([[86, 47], [80, 54], [77, 64], [75, 77]], { j: 0.3 })) +
+    P(C([[75, 77], [79, 80], [83, 76], [87, 80], [91, 76], [93, 73]], { j: 0.25 })) +
+    P(C([[81, 56], [82, 66], [81, 76]], { j: 0.25 })) +
+    G("translate(44 56) rotate(4)", groom) +
+    G("translate(106 57) rotate(-4)", bride) +
+    // piernas y zapatos
+    P(C([[36, 78], [33, 90], [31, 101]], { j: 0.25 })) +
+    P(C([[48, 81], [51, 91], [53, 101]], { j: 0.25 })) +
+    shoe([[34, 99.5], [28, 100], [22, 103.5], [22.5, 108], [29, 108.5], [35, 106]]) +
+    shoe([[50, 99.5], [56, 100], [62, 103.5], [61.5, 108], [55, 108.5], [49, 106]]) +
+    P(C([[101, 80], [99, 91], [97, 101]], { j: 0.25 })) +
+    P(C([[114, 80], [117, 91], [120, 101]], { j: 0.25 })) +
+    shoe([[99, 99.5], [93, 100], [88, 103.5], [88.5, 108], [95, 108.5], [101, 106]]) +
+    shoe([[118, 99.5], [124, 100], [129, 103.5], [128.5, 108], [122, 108.5], [116, 106]]) +
+    // brazos: manos cogidas
+    P(C([[66, 47], [70, 46], [74, 42]], { j: 0.2 })) +
+    P(C([[85, 46], [81, 44], [77.5, 41.5]], { j: 0.2 })) +
+    P(E(75, 41, 3.2, 2.7, { a0: 0.4 })) +
+    // brazo con la copa
+    P(C([[22, 46], [14, 47], [10, 41], [10, 34]], { j: 0.25 })) +
+    P(E(10, 31.5, 2.6, 2.8, { a0: 1 })) +
+    P(C([[3.5, 14], [5, 21], [10, 24.5], [15, 21], [16.5, 14]], { j: 0.12 })) +
+    P(L([[3, 14], [17, 14]], { j: 0.15 })) +
+    P("M4.6 16.6Q10 21 15.4 16.6Z", FILL) +
+    P(L([[10, 24.5], [10, 29]], { j: 0.05 })) +
+    // brazo con el ramo
+    P(C([[129, 46], [136, 47], [139, 41], [138.5, 36]], { j: 0.25 })) +
+    P(E(138.4, 33.5, 2.6, 2.8, { a0: 1 })) +
+    P(L([[134.5, 22], [138, 31]], { j: 0.1 })) + P(L([[141, 20], [139, 31]], { j: 0.1 })) +
+    P(flowerPath(133.5, 18.5, 8, 5, 0.3)) + P(flowerPath(142, 15.5, 8, 5, 1)) +
+    dot(133.5, 18.5, 1) + dot(142, 15.5, 1) +
+    lf(143, 25, -20, 7) +
+    // corazoncitos
+    miniHeart(49, 12, 10) + miniHeart(77, 15, 13) + miniHeart(103, 9, 10)
+  );
+};
+
 const can = (x: number, y: number, r: number) =>
   G(`translate(${x} ${y}) rotate(${r})`, P(R(-4.5, -6, 9, 12, 1.5, 0.2)) + P(L([[-4.5, -3], [4.5, -3]], { j: 0.1 })));
 
@@ -369,6 +439,7 @@ export const ART: Record<DoodleName, Art> = {
   sprig: mk(60, 100, sprig, { seed: 35 }),
   threadHands: mk(300, 120, threadHands, { seed: 36, sw: 2.6 }),
   couple: mk(110, 110, couple, { seed: 37 }),
+  heartCouple: mk(150, 112, heartCouple, { seed: 41, sw: 1.7 }),
   car: mk(140, 90, car, { seed: 38, sw: 2.2 }),
   waxSeal: mk(100, 100, waxSeal, { seed: 39 }),
   cornerSwirl: mk(100, 100, swirl, { seed: 40 }),

@@ -77,7 +77,7 @@ function TemplateThumb({ id, theme }: { id: InvitationTemplateId; theme: Invitat
           style={{ background: theme.paper, borderColor: ink }}
         >
           {line("h-1.5 w-8")}
-          <Doodle name="couple" className="h-3.5 w-auto" style={{ color: ink }} />
+          <Doodle name="heartCouple" className="h-3.5 w-auto" style={{ color: ink }} />
         </span>
       </span>
     );
