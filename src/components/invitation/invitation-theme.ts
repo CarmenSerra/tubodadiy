@@ -33,22 +33,27 @@ export type TemplateKind = "botanico" | "minimal" | "elegante";
 export interface PresetPalette {
   id: string;
   colors: PaletteColors;
+  /**
+   * Color del sobre cuando nadie lo ha elegido a mano: un rol de la propia paleta
+   * (el que mejor funciona como papel de sobre) o un `#rrggbb` explícito.
+   */
+  envelope: ColorRole | string;
 }
 
 /** El nombre de cada una sale de `invitation:palettes.<id>`. */
 export const PALETTES: PresetPalette[] = [
-  { id: "burdeos-oliva", colors: { primary: "#d9a7b0", dark: "#4f1d2e", accent: "#7d8450", soft: "#f5eee0" } },
-  { id: "lavanda-salvia", colors: { primary: "#a28bc4", dark: "#2f4a43", accent: "#9db89a", soft: "#f4f0f6" } },
-  { id: "terracota-arena", colors: { primary: "#d4876a", dark: "#4b2b1f", accent: "#b9a07a", soft: "#f7ecdf" } },
-  { id: "azul-marfil", colors: { primary: "#8fa9c4", dark: "#27394d", accent: "#a9bdb0", soft: "#f7f3ea" } },
-  { id: "botella-oro", colors: { primary: "#c2a257", dark: "#1f3b2e", accent: "#4f7a5e", soft: "#f4eedd" } },
-  { id: "melocoton-salvia", colors: { primary: "#f0ab90", dark: "#3f4a3a", accent: "#9cb08f", soft: "#fbf1e6" } },
-  { id: "piedra-rosa", colors: { primary: "#e2b5bc", dark: "#3a3d45", accent: "#a3a7ae", soft: "#f3f0ee" } },
-  { id: "mediterraneo", colors: { primary: "#ebd27f", dark: "#26356b", accent: "#c9795a", soft: "#fbf8f0" } },
-  { id: "ciruela-albaricoque", colors: { primary: "#e9a98d", dark: "#43243b", accent: "#a86a8b", soft: "#f8ede6" } },
-  { id: "eucalipto-marfil", colors: { primary: "#9db5a3", dark: "#2e4238", accent: "#d8c3a0", soft: "#f4f2ea" } },
-  { id: "menta-coral", colors: { primary: "#f0a39a", dark: "#264b45", accent: "#9fd0bd", soft: "#f6f4ee" } },
-  { id: "rosa-te-cacao", colors: { primary: "#e8bfb0", dark: "#4a3328", accent: "#c79a8a", soft: "#faf1ec" } },
+  { id: "burdeos-oliva", colors: { primary: "#d9a7b0", dark: "#4f1d2e", accent: "#7d8450", soft: "#f5eee0" }, envelope: "accent" },
+  { id: "lavanda-salvia", colors: { primary: "#a28bc4", dark: "#2f4a43", accent: "#9db89a", soft: "#f4f0f6" }, envelope: "primary" },
+  { id: "terracota-arena", colors: { primary: "#d4876a", dark: "#4b2b1f", accent: "#b9a07a", soft: "#f7ecdf" }, envelope: "primary" },
+  { id: "azul-marfil", colors: { primary: "#8fa9c4", dark: "#27394d", accent: "#a9bdb0", soft: "#f7f3ea" }, envelope: "primary" },
+  { id: "botella-oro", colors: { primary: "#c2a257", dark: "#1f3b2e", accent: "#4f7a5e", soft: "#f4eedd" }, envelope: "accent" },
+  { id: "melocoton-salvia", colors: { primary: "#f0ab90", dark: "#3f4a3a", accent: "#9cb08f", soft: "#fbf1e6" }, envelope: "accent" },
+  { id: "piedra-rosa", colors: { primary: "#e2b5bc", dark: "#3a3d45", accent: "#a3a7ae", soft: "#f3f0ee" }, envelope: "primary" },
+  { id: "mediterraneo", colors: { primary: "#ebd27f", dark: "#26356b", accent: "#c9795a", soft: "#fbf8f0" }, envelope: "accent" },
+  { id: "ciruela-albaricoque", colors: { primary: "#e9a98d", dark: "#43243b", accent: "#a86a8b", soft: "#f8ede6" }, envelope: "accent" },
+  { id: "eucalipto-marfil", colors: { primary: "#9db5a3", dark: "#2e4238", accent: "#d8c3a0", soft: "#f4f2ea" }, envelope: "primary" },
+  { id: "menta-coral", colors: { primary: "#f0a39a", dark: "#264b45", accent: "#9fd0bd", soft: "#f6f4ee" }, envelope: "primary" },
+  { id: "rosa-te-cacao", colors: { primary: "#e8bfb0", dark: "#4a3328", accent: "#c79a8a", soft: "#faf1ec" }, envelope: "accent" },
 ];
 
 export const DEFAULT_PALETTE: PresetPalette = PALETTES[1];
@@ -62,22 +67,87 @@ export const LEGACY_COLORS: Record<TemplateKind, PaletteColors> = {
 
 // ---- Color del sobre ----
 
-/** Muestras de color del sobre. El nombre sale de `invitation:envelope.colors.<id>`. */
-export const ENVELOPE_COLORS = [
-  { id: "olive", hex: "#767a4d" },
-  { id: "sage", hex: "#9aae92" },
-  { id: "burgundy", hex: "#6f2a3c" },
-  { id: "terracotta", hex: "#b5694a" },
-  { id: "dusty-blue", hex: "#8499b3" },
-  { id: "cream", hex: "#eadfc8" },
-  { id: "kraft", hex: "#b99a72" },
-  { id: "dusty-pink", hex: "#d9a9a8" },
-  { id: "bottle-green", hex: "#2f5442" },
-  { id: "slate", hex: "#5f6b78" },
+/** Muestras de color del sobre (van dentro del selector del círculo «Sobre»). */
+export const ENVELOPE_SWATCHES = [
+  "#7a7f50", // oliva
+  "#9aae92", // salvia
+  "#6f2a3c", // burdeos
+  "#b5694a", // terracota
+  "#8499b3", // azul empolvado
+  "#eadfc8", // crema
+  "#b99a72", // kraft
+  "#d9a9a8", // rosa empolvado
+  "#2f5442", // verde botella
+  "#5f6b78", // pizarra
 ] as const;
 
-/** El sobre de la foto de referencia: verde oliva. */
-export const DEFAULT_ENVELOPE = ENVELOPE_COLORS[0].hex;
+/**
+ * El oliva que se guardaba SIEMPRE como `envelopeColor` antes de que el sobre saliera
+ * de la paleta. Un estilo guardado con este valor se trata como «automático».
+ */
+export const LEGACY_DEFAULT_ENVELOPE = "#767a4d";
+
+/** Sobre de respaldo si no hay ni paleta ni color (no debería ocurrir). */
+export const FALLBACK_ENVELOPE = "#7a7f50";
+
+/** Saturación y luminosidad HSL (0-1). */
+function hsl(hex: string): { s: number; l: number } {
+  const [r, g, b] = toRgb(hex).map((v) => v / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  return { s, l };
+}
+
+/**
+ * Regla automática para paletas personalizadas: entre el color principal, el de
+ * acento y el oscuro, el más saturado y de tono medio. Se descartan los casi
+ * blancos y los casi negros (un sobre negro o blanco desentona); el suave (fondo)
+ * nunca entra. Si ninguno vale, el principal.
+ */
+export function autoEnvelope(colors: PaletteColors): string {
+  let best: string | null = null;
+  let bestScore = -1;
+  for (const role of ["accent", "primary", "dark"] as const) {
+    const { s, l } = hsl(colors[role]);
+    if (l < 0.2 || l > 0.82) continue;
+    // 1 en l = 0,5; baja hacia los extremos. Pesa más la saturación.
+    const midness = 1 - Math.abs(l - 0.5) / 0.4;
+    const score = s * 0.7 + midness * 0.3;
+    if (score > bestScore + 1e-6) {
+      best = colors[role];
+      bestScore = score;
+    }
+  }
+  return best ?? colors.primary;
+}
+
+/** Color automático del sobre para estos colores: el definido en su paleta de serie o la regla. */
+export function paletteEnvelope(colors: PaletteColors): string {
+  const preset = presetFor(colors);
+  if (!preset) return autoEnvelope(colors);
+  return isHex(preset.envelope) ? preset.envelope : colors[preset.envelope as ColorRole];
+}
+
+/** Guardado a mano → el color; el antiguo oliva por defecto o nada → `undefined` (automático). */
+export function manualEnvelope(value: unknown): string | undefined {
+  const hex = normalizeHex(value);
+  return hex && hex !== LEGACY_DEFAULT_ENVELOPE ? hex : undefined;
+}
+
+/**
+ * Color efectivo del sobre: el elegido a mano o, si no, el de la paleta. Sin paleta
+ * (invitaciones antiguas) se usan los colores de la plantilla.
+ */
+export function resolveEnvelope(
+  palette: InvitationPalette | undefined,
+  manual: string | undefined,
+  template: TemplateKind = "botanico"
+): string {
+  return manualEnvelope(manual) ?? paletteEnvelope(palette?.colors ?? LEGACY_COLORS[template]);
+}
 
 // ---- Color ----
 
@@ -176,11 +246,6 @@ export interface InvitationTheme {
   /** Oscuro (plantilla elegante): el fondo es el color oscuro. */
   isDark: boolean;
   bg: string;
-  /**
-   * La «mesa»: el color liso de detrás de las tarjetas (fondo de la página pública,
-   * de la vista previa del editor y de «Reserva la fecha»). Sin motivos ni texturas.
-   */
-  table: string;
   paper: string;
   ink: string;
   /** Flores, rayas, lunares… */
@@ -200,16 +265,22 @@ export function buildTheme(colors: PaletteColors, template: TemplateKind = "bota
   return template === "elegante" ? darkTheme(colors) : lightTheme(colors, template);
 }
 
-/** Gris-crema con el que se apaga el color suave de la paleta para hacer la mesa. */
-const TABLE_GRAY = "#d9d5cc";
+/**
+ * La «mesa» (el fondo liso de detrás de las tarjetas) NO depende de la paleta: es el
+ * mismo color fijo para todas. En la página pública es este (claro; oscuro en la
+ * plantilla elegante, que lleva texto claro fuera de la tarjeta); en el editor y en
+ * «Reserva la fecha» sale del fondo de los diálogos (`--inv-app-table`, ver invitation.css).
+ * Los textos que van directamente sobre la mesa deben leerse con ellos.
+ */
+export const PUBLIC_TABLE_LIGHT = "#fbf9f7";
+export const PUBLIC_TABLE_DARK = "#1d1c28";
 
 function lightTheme(c: PaletteColors, template: TemplateKind): InvitationTheme {
   const bg = template === "minimal" ? mix(c.soft, "#ffffff", 0.5) : c.soft;
   const paper = mix(bg, "#ffffff", 0.55);
-  const table = mix(bg, TABLE_GRAY, 0.62);
   // Peor fondo posible: la tarjeta con una raya del color principal encima.
   const worstBg = mix(bg, c.primary, 0.4);
-  const bgs = [bg, paper, worstBg, table];
+  const bgs = [bg, paper, worstBg, PUBLIC_TABLE_LIGHT];
   const ink = ensureContrast(c.dark, bgs, 7);
   const muted = ensureContrast(mix(ink, bg, 0.25), bgs, MIN_TEXT_CONTRAST + 0.3);
   const accent = ensureContrast(c.primary, paper, 1.8);
@@ -223,7 +294,6 @@ function lightTheme(c: PaletteColors, template: TemplateKind): InvitationTheme {
   const fieldLine = ensureContrast(mix(ink, field, 0.5), field, 3);
   const vars = {
     "--inv-bg": bg,
-    "--inv-table": table,
     "--inv-paper": paper,
     "--inv-ink": ink,
     "--inv-muted": muted,
@@ -239,7 +309,7 @@ function lightTheme(c: PaletteColors, template: TemplateKind): InvitationTheme {
     "--inv-focus": accentInk,
     "--inv-danger": ensureContrast("#9f3a38", [bg, paper], MIN_TEXT_CONTRAST),
   };
-  return { vars, isDark: false, bg, table, paper, ink, primary: accent, leaf, line };
+  return { vars, isDark: false, bg, paper, ink, primary: accent, leaf, line };
 }
 
 function darkTheme(c: PaletteColors): InvitationTheme {
@@ -247,8 +317,7 @@ function darkTheme(c: PaletteColors): InvitationTheme {
   let bg = c.dark;
   for (let i = 1; i <= 30 && luminance(bg) > 0.05; i++) bg = mix(c.dark, "#000000", i / 30);
   const paper = mix(bg, c.primary, 0.14);
-  const table = mix(bg, "#14131a", 0.5);
-  const bgs = [bg, paper, table];
+  const bgs = [bg, paper, PUBLIC_TABLE_DARK];
   const ink = ensureContrast(c.soft, bgs, 9);
   const muted = ensureContrast(mix(ink, bg, 0.2), bgs, MIN_TEXT_CONTRAST + 0.3);
   const accent = ensureContrast(c.primary, bgs, 3);
@@ -260,7 +329,6 @@ function darkTheme(c: PaletteColors): InvitationTheme {
   const onBtn = pickOn(accentInk, [bg, "#000000", "#ffffff"]);
   const vars = {
     "--inv-bg": bg,
-    "--inv-table": table,
     "--inv-paper": paper,
     "--inv-ink": ink,
     "--inv-muted": muted,
@@ -276,7 +344,7 @@ function darkTheme(c: PaletteColors): InvitationTheme {
     "--inv-focus": accentInk,
     "--inv-danger": "#f2adaa",
   };
-  return { vars, isDark: true, bg, table, paper, ink, primary: accent, leaf, line };
+  return { vars, isDark: true, bg, paper, ink, primary: accent, leaf, line };
 }
 
 /** El primero de `options` que da contraste de texto sobre `bg`; si ninguno, el mejor. */

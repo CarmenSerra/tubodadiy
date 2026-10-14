@@ -255,8 +255,8 @@ function Editor({
   // se ofrece «Actualizar desde el plan». Lo escrito a mano nunca se pisa.
   const [initial] = React.useState(() => {
     // El estilo es el compartido con «Reserva la fecha»; lo demás, lo guardado o lo que sabe el plan.
-    if (saved) return applyPlanFill({ ...contentOf(saved), ...style }, {});
-    return applyPlanFill({ ...defaultContent(null, appLang), ...style }, planFill);
+    if (saved) return applyPlanFill({ ...contentOf(saved), ...style, envelopeColor: style.envelopeColor }, {});
+    return applyPlanFill({ ...defaultContent(null, appLang), ...style, envelopeColor: style.envelopeColor }, planFill);
   });
   const [form, setForm] = React.useState<InvitationContent>(initial.content);
   // Qué valores puso el plan: mientras un campo siga valiendo eso, se puede refrescar.
@@ -287,11 +287,11 @@ function Editor({
     year: clean.date.slice(0, 4),
   });
 
-  // El color del sobre vive en el estilo compartido (no en la invitación guardada): si la
-  // invitación no lo tiene, no cuenta como cambio hasta que se toque.
+  // El color del sobre (solo si es manual) vive en el estilo compartido, no en la invitación
+  // guardada: la referencia es lo que dice ese estilo, aunque la invitación no lo tenga.
   const baseline = React.useMemo(
-    () => (saved ? cleanContent({ ...contentOf(saved), envelopeColor: initial.content.envelopeColor }) : null),
-    [saved, initial.content.envelopeColor]
+    () => (saved ? cleanContent({ ...contentOf(saved), envelopeColor: style.envelopeColor }) : null),
+    [saved, style.envelopeColor]
   );
   const dirty = !baseline || slugChanged || JSON.stringify(clean) !== JSON.stringify(baseline);
   React.useEffect(() => {

@@ -13,14 +13,14 @@ import {
 } from "@/components/invitation/invitation-backgrounds";
 import {
   COLOR_ROLES,
-  DEFAULT_ENVELOPE,
-  ENVELOPE_COLORS,
+  ENVELOPE_SWATCHES,
   LEGACY_COLORS,
   PALETTES,
-  luminance,
   needsTextAdjustment,
   normalizeHex,
+  manualEnvelope,
   presetFor,
+  resolveEnvelope,
   themeFor,
   type ColorRole,
   type InvitationPalette,
@@ -56,16 +56,24 @@ function setRole(colors: PaletteColors, role: ColorRole, hex: string): Invitatio
 export function ColorEditor({
   template,
   palette,
+  envelopeColor,
   onChange,
+  onEnvelopeChange,
 }: {
   template: TemplateKind;
   palette: InvitationPalette | undefined;
+  /** Color del sobre elegido a mano; sin valor, el sobre sigue a la paleta. */
+  envelopeColor: string | undefined;
   onChange: (palette: InvitationPalette) => void;
+  /** `undefined` = volver al color de la paleta. */
+  onEnvelopeChange: (hex: string | undefined) => void;
 }) {
   const { t } = useTranslation("invitation");
   const colors = palette?.colors ?? LEGACY_COLORS[template];
   const activePreset = presetFor(palette?.colors);
   const adjust = Boolean(palette) && needsTextAdjustment(colors);
+  const envelopeManual = manualEnvelope(envelopeColor);
+  const envelopeHex = resolveEnvelope(palette, envelopeColor, template);
 
   return (
     <div className="flex flex-col gap-5">
@@ -106,7 +114,7 @@ export function ColorEditor({
             {palette ? (palette.id === "custom" && !activePreset ? t("editor.color.customActive") : t("editor.color.customizeNote")) : t("editor.color.legacy")}
           </p>
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
           {COLOR_ROLES.map((role) => (
             <ColorDot
               key={role}
@@ -115,6 +123,16 @@ export function ColorEditor({
               onPick={(hex) => onChange(setRole(colors, role, hex))}
             />
           ))}
+          <ColorDot
+            role="envelope"
+            colors={colors}
+            hex={envelopeHex}
+            suggestions={ENVELOPE_SWATCHES}
+            onPick={onEnvelopeChange}
+            extra={
+              <EnvelopeAuto manual={Boolean(envelopeManual)} onReset={() => onEnvelopeChange(undefined)} />
+            }
+          />
         </div>
         {adjust && (
           <p role="status" className="rounded-lg bg-lilac-soft px-3 py-2 text-[13px] text-ink">
@@ -126,18 +144,48 @@ export function ColorEditor({
   );
 }
 
+/** Estado del color del sobre dentro de su selector, y el botón para volver al de la paleta. */
+function EnvelopeAuto({ manual, onReset }: { manual: boolean; onReset: () => void }) {
+  const { t } = useTranslation("invitation");
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-[13px] text-ink-muted">{t("editor.color.envelope.note")}</p>
+      <p role="status" className="text-[13px] font-medium text-ink">
+        {manual ? t("editor.color.envelope.manual") : t("editor.color.envelope.auto")}
+      </p>
+      {manual && (
+        <button
+          type="button"
+          onClick={onReset}
+          className="h-10 self-start rounded-full border border-line-strong px-4 text-sm font-medium text-ink outline-none transition-colors hover:bg-lilac-soft focus-visible:ring-2 focus-visible:ring-lilac"
+        >
+          {t("editor.color.envelope.useAuto")}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function ColorDot({
   role,
   colors,
+  hex: shownHex,
+  suggestions,
+  extra,
   onPick,
 }: {
-  role: ColorRole;
+  role: ColorRole | "envelope";
   colors: PaletteColors;
+  /** Color que enseña el círculo si no es el del rol (el sobre, que puede ser automático). */
+  hex?: string;
+  suggestions?: readonly string[];
+  /** Contenido extra del selector, sobre el botón «Listo». */
+  extra?: React.ReactNode;
   onPick: (hex: string) => void;
 }) {
   const { t } = useTranslation("invitation");
   const [open, setOpen] = React.useState(false);
-  const hex = colors[role];
+  const hex = shownHex ?? colors[role as ColorRole];
   const label = t(`editor.color.roles.${role}`);
   return (
     <div className="flex min-w-0 flex-col items-center gap-1.5">
@@ -155,14 +203,15 @@ function ColorDot({
           sideOffset={8}
           collisionPadding={12}
           aria-label={t("editor.color.popoverLabel", { role: label })}
-          className="w-[min(19rem,calc(100vw-1.5rem))] rounded-2xl border-line-strong bg-surface p-3.5 shadow-pop"
+          className="max-h-[var(--radix-popover-content-available-height)] w-[min(19rem,calc(100vw-1.5rem))] overflow-y-auto rounded-2xl border-line-strong bg-surface p-3.5 shadow-pop"
           // El foco va al selector; Esc o «Listo» devuelven el foco al círculo.
         >
           <ColorPanel
             id={role}
             hex={hex}
-            suggestions={SUGGESTIONS[role]}
+            suggestions={suggestions ?? SUGGESTIONS[role as ColorRole]}
             adjust={(role === "dark" || role === "soft") && needsTextAdjustment(colors)}
+            extra={extra}
             onPick={onPick}
             onDone={() => setOpen(false)}
           />
@@ -178,6 +227,7 @@ function ColorPanel({
   hex,
   suggestions,
   adjust = false,
+  extra,
   onPick,
   onDone,
 }: {
@@ -187,6 +237,8 @@ function ColorPanel({
   suggestions: readonly string[];
   /** Aviso de que el texto se ajustará solo para leerse. */
   adjust?: boolean;
+  /** Contenido propio del selector (el estado del sobre), sobre el botón «Listo». */
+  extra?: React.ReactNode;
   onPick: (hex: string) => void;
   onDone: () => void;
 }) {
@@ -263,6 +315,7 @@ function ColorPanel({
           {t("editor.color.adjusted")}
         </p>
       )}
+      {extra}
       <button
         type="button"
         onClick={onDone}
@@ -309,7 +362,7 @@ export function BackgroundEditor({
             <span
               aria-hidden="true"
               className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg border border-black/10 isolate"
-              style={{ background: theme.table }}
+              style={{ background: "var(--inv-app-table)" }}
             >
               {/* La mesa es lisa; el fondo elegido va dentro de la tarjeta. */}
               <span
@@ -341,100 +394,6 @@ export function BackgroundEditor({
         </div>
         {grid(motifs, t("editor.background.motifsLabel"))}
       </div>
-    </div>
-  );
-}
-
-// ---- Color del sobre ----
-
-/** Tonos para el selector personalizado del sobre. */
-const ENVELOPE_SUGGESTIONS = ["#767a4d", "#9aae92", "#6f2a3c", "#b5694a", "#8499b3", "#eadfc8", "#b99a72", "#d9a9a8", "#2f5442", "#5f6b78"];
-
-/** Muestras de color del sobre + «personalizado» con el selector de color. */
-export function EnvelopeEditor({
-  color,
-  onChange,
-}: {
-  color: string | undefined;
-  onChange: (hex: string) => void;
-}) {
-  const { t } = useTranslation("invitation");
-  const [open, setOpen] = React.useState(false);
-  const hex = normalizeHex(color) ?? DEFAULT_ENVELOPE;
-  const preset = ENVELOPE_COLORS.find((c) => c.hex === hex);
-  return (
-    <div role="radiogroup" aria-label={t("envelope.label")} className="grid grid-cols-5 gap-x-2 gap-y-3 sm:grid-cols-6">
-      {ENVELOPE_COLORS.map((c) => {
-        const active = preset?.id === c.id;
-        return (
-          <button
-            key={c.id}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            aria-label={t(`envelope.colors.${c.id}`)}
-            title={t(`envelope.colors.${c.id}`)}
-            onClick={() => onChange(c.hex)}
-            className="group flex min-w-0 flex-col items-center gap-1.5 rounded-lg p-1 outline-none focus-visible:ring-2 focus-visible:ring-lilac"
-          >
-            <span
-              aria-hidden="true"
-              className={cn(
-                "relative grid size-10 place-items-center rounded-full border border-black/15 shadow-sm transition-transform group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100",
-                active && "ring-2 ring-lilac ring-offset-2 ring-offset-surface"
-              )}
-              style={{ background: c.hex }}
-            >
-              {active && <CheckIcon className="size-4" style={{ color: luminance(c.hex) > 0.45 ? "#26302b" : "#ffffff" }} />}
-            </span>
-            <span className="w-full break-words text-center text-[11px] leading-tight text-ink-muted">
-              {t(`envelope.colors.${c.id}`)}
-            </span>
-          </button>
-        );
-      })}
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={!preset}
-            aria-label={t("envelope.custom")}
-            className="group flex min-w-0 flex-col items-center gap-1.5 rounded-lg p-1 outline-none focus-visible:ring-2 focus-visible:ring-lilac"
-          >
-            <span
-              aria-hidden="true"
-              className={cn(
-                "relative grid size-10 place-items-center rounded-full border border-black/15 shadow-sm transition-transform group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100",
-                !preset && "ring-2 ring-lilac ring-offset-2 ring-offset-surface"
-              )}
-              style={{
-                background: preset
-                  ? "conic-gradient(from 0deg, #e8b4bc, #e9d27f, #a9c9a4, #8fa9c4, #a28bc4, #e8b4bc)"
-                  : hex,
-              }}
-            >
-              {!preset && <CheckIcon className="size-4" style={{ color: luminance(hex) > 0.45 ? "#26302b" : "#ffffff" }} />}
-            </span>
-            <span className="w-full break-words text-center text-[11px] leading-tight text-ink-muted">{t("envelope.custom")}</span>
-          </button>
-        </PopoverTrigger>
-        <PopoverContent
-          align="center"
-          sideOffset={8}
-          collisionPadding={12}
-          aria-label={t("envelope.popoverLabel")}
-          className="w-[min(19rem,calc(100vw-1.5rem))] rounded-2xl border-line-strong bg-surface p-3.5 shadow-pop"
-        >
-          <ColorPanel
-            id="envelope"
-            hex={hex}
-            suggestions={ENVELOPE_SUGGESTIONS}
-            onPick={onChange}
-            onDone={() => setOpen(false)}
-          />
-        </PopoverContent>
-      </Popover>
     </div>
   );
 }

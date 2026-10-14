@@ -16,7 +16,7 @@ import { CTA_PRIMARY, CTA_SECONDARY, Skeleton } from "@/components/dashboard/ui"
 import { FIELD, FIELD_LABEL } from "@/components/guests/brand-dialog";
 import { EnvelopeFrame } from "@/components/invitation/invitation-envelope";
 import { sameStyle, styleOf, type InvitationStyle } from "@/components/invitation/invitation-model";
-import { themeFor } from "@/components/invitation/invitation-theme";
+import { resolveEnvelope } from "@/components/invitation/invitation-theme";
 import { StyleEditor } from "@/components/invitation/style-editor";
 import { loadBackdrop } from "@/components/stationery/save-the-date-backdrop";
 import {
@@ -522,7 +522,10 @@ function Editor({
               className="overflow-hidden rounded-xl border border-line shadow-pop"
             >
               {/* La tarjeta sobre un sobre del color elegido (el mismo de la invitación). */}
-              <EnvelopeFrame color={style.envelopeColor} background={themeFor(style.palette, style.template).table}>
+              <EnvelopeFrame
+                color={resolveEnvelope(style.palette, style.envelopeColor, style.template)}
+                background="var(--inv-app-table)"
+              >
                 <CardCanvas design={preview} style={style} pixels={720} lang={lang} />
               </EnvelopeFrame>
             </div>

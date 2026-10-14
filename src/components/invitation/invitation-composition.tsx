@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 
 import { InvitationEnvelope } from "@/components/invitation/invitation-envelope";
 import type { InvitationPublicData } from "@/components/invitation/invitation-model";
+import { resolveEnvelope } from "@/components/invitation/invitation-theme";
 import { ThanksCard } from "@/components/invitation/invitation-thanks";
 import { InvitationCard, themeOfInvitation } from "@/components/invitation/invitation-view";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ export function InvitationComposition({
   className,
 }: {
   data: InvitationPublicData;
+  /** Color del sobre elegido a mano; sin valor, el de la paleta. */
   envelopeColor?: string;
   className?: string;
 }) {
@@ -37,7 +39,7 @@ export function InvitationComposition({
       lang={data.lang}
     >
       <div className="inv-composeStage">
-        <InvitationEnvelope color={envelopeColor} className="inv-composeEnv" />
+        <InvitationEnvelope color={resolveEnvelope(palette, envelopeColor, data.template)} className="inv-composeEnv" />
         <div className="inv-composeCard">
           <InvitationCard data={data} preview />
         </div>

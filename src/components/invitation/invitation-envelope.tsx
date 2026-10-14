@@ -1,13 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { DEFAULT_ENVELOPE, mix, normalizeHex } from "@/components/invitation/invitation-theme";
+import { FALLBACK_ENVELOPE, mix, normalizeHex } from "@/components/invitation/invitation-theme";
 import { cn } from "@/lib/utils";
 
 import "./invitation.css";
 
 /**
  * Sobre abierto de papel texturizado, dibujado con SVG (sin imágenes): el color
- * se elige en el editor y la textura es ruido `feTurbulence` (grano + fibras).
+ * (ya resuelto: a mano o el de la paleta) llega por `color` y la textura es ruido `feTurbulence` (grano + fibras).
  * Es solo presentación (sin hooks), así que vale para servidor y cliente.
  */
 export function InvitationEnvelope({
@@ -19,7 +19,7 @@ export function InvitationEnvelope({
   className?: string;
   style?: CSSProperties;
 }) {
-  const base = normalizeHex(color) ?? DEFAULT_ENVELOPE;
+  const base = normalizeHex(color) ?? FALLBACK_ENVELOPE;
   // El id depende del color: dos sobres iguales en la página comparten defs idénticas.
   const uid = `env-${base.slice(1)}`;
   const dark = mix(base, "#000000", 0.32);

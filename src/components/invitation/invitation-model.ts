@@ -3,8 +3,8 @@ import { DEFAULT_BACKGROUND, cleanBackground, type InvitationBackground } from "
 import { DEFAULT_LAYOUT, cleanLayout, type InvitationLayout } from "@/components/invitation/invitation-layouts";
 import {
   COLOR_ROLES,
-  DEFAULT_ENVELOPE,
   DEFAULT_PALETTE,
+  manualEnvelope,
   normalizeHex,
   type InvitationPalette,
   type PaletteColors,
@@ -42,7 +42,10 @@ export interface InvitationStyle {
   background?: InvitationBackground;
   /** Cómo se coloca la fecha, la hora, el lugar y los nombres. Sin valor, la clásica. */
   layout?: InvitationLayout;
-  /** Color del sobre (`#rrggbb`) de la vista previa y de «Reserva la fecha». Sin valor, verde oliva. */
+  /**
+   * Color del sobre (`#rrggbb`) de la vista previa y de «Reserva la fecha», SOLO si se eligió a mano.
+   * Sin valor, el sobre sale de la paleta (ver `resolveEnvelope`).
+   */
   envelopeColor?: string;
 }
 
@@ -106,7 +109,7 @@ export interface InvitationContent {
   background?: InvitationBackground;
   /** Composición de la tarjeta (compartida con «Reserva la fecha» cuando esta la sabe dibujar). */
   layout?: InvitationLayout;
-  /** Color del sobre de la vista previa (compartido con «Reserva la fecha»). */
+  /** Color del sobre elegido a mano (compartido con «Reserva la fecha»); sin valor, el de la paleta. */
   envelopeColor?: string;
   /** Obsoleto e ignorado (ver `InvitationImageMode`). */
   imageMode?: InvitationImageMode;
@@ -189,7 +192,6 @@ export function defaultContent(weddingDate: string | null, lang: Lang = DEFAULT_
     palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
     background: DEFAULT_BACKGROUND,
     layout: DEFAULT_LAYOUT,
-    envelopeColor: DEFAULT_ENVELOPE,
   };
 }
 
@@ -265,9 +267,12 @@ export function cleanTemplate(value: unknown): InvitationTemplateId {
   return TEMPLATE_IDS.includes(value as InvitationTemplateId) ? (value as InvitationTemplateId) : "botanico";
 }
 
-/** Color del sobre saneado: `#rrggbb` o `undefined`. */
+/**
+ * Color del sobre elegido a mano, saneado: `#rrggbb` o `undefined` (automático, el de la paleta).
+ * El oliva que antes se guardaba siempre cuenta como automático.
+ */
 export function cleanEnvelopeColor(value: unknown): string | undefined {
-  return normalizeHex(value) ?? undefined;
+  return manualEnvelope(value);
 }
 
 /** Estilo compartido, saneado (lo que se guarda en `designs/style`). */

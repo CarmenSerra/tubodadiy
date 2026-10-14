@@ -233,7 +233,7 @@ export function LayoutEditor({
               <span
                 aria-hidden="true"
                 className="flex h-24 items-center justify-center rounded-lg border border-black/10 py-2"
-                style={{ background: theme.table }}
+                style={{ background: "var(--inv-app-table)" }}
               >
                 <span
                   className="flex aspect-[5/7] h-full items-center justify-center overflow-hidden rounded-[3px] border"

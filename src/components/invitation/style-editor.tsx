@@ -10,7 +10,7 @@ import {
   type InvitationTemplateId,
 } from "@/components/invitation/invitation-model";
 import { LayoutEditor } from "@/components/invitation/layout-picker";
-import { BackgroundEditor, ColorEditor, EnvelopeEditor } from "@/components/invitation/palette-picker";
+import { BackgroundEditor, ColorEditor } from "@/components/invitation/palette-picker";
 import { cn } from "@/lib/utils";
 
 function StyleSection({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
@@ -26,7 +26,7 @@ function StyleSection({ title, note, children }: { title: string; note?: string;
 }
 
 /**
- * Estilo compartido del plan: plantilla (tipografía), composición, paleta, fondo de la tarjeta y color del sobre.
+ * Estilo compartido del plan: plantilla (tipografía), composición, paleta (con el color del sobre), fondo de la tarjeta.
  * Es el mismo selector en el editor de la invitación y en «Reserva la fecha»,
  * porque los dos se ven siempre con el mismo estilo.
  */
@@ -97,7 +97,9 @@ export function StyleEditor({
         <ColorEditor
           template={style.template}
           palette={style.palette}
+          envelopeColor={style.envelopeColor}
           onChange={(palette) => set({ palette })}
+          onEnvelopeChange={(envelopeColor) => set({ envelopeColor })}
         />
       </StyleSection>
 
@@ -108,10 +110,6 @@ export function StyleEditor({
           background={style.background}
           onChange={(background) => set({ background })}
         />
-      </StyleSection>
-
-      <StyleSection title={t("editor.sections.envelope")} note={t("editor.envelope.note")}>
-        <EnvelopeEditor color={style.envelopeColor} onChange={(envelopeColor) => set({ envelopeColor })} />
       </StyleSection>
     </>
   );

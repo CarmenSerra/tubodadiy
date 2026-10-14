@@ -3,10 +3,23 @@
  * app y cada plantilla define su propia paleta con variables locales.
  */
 
+/*
+ * La «mesa» de detrás de las tarjetas: un color liso y FIJO, el mismo para todas las
+ * paletas (no sale de ellas). En el editor y en «Reserva la fecha» (dentro de la app)
+ * es el fondo de los diálogos (--surface) aclarado con blanco, así sigue
+ * coherente en modo oscuro; en la página pública (sin tema de la app) es su
+ * equivalente claro fijo (= #f8f5f1 aclarado un 40 %).
+ */
+:root {
+  --inv-app-table: color-mix(in srgb, var(--surface, #f8f5f1) 60%, #ffffff);
+}
+html[data-theme="dark"] {
+  --inv-app-table: color-mix(in srgb, var(--surface, #474755) 86%, #ffffff);
+}
+
 .inv-root {
   --inv-bg: #f6f2ec;
-  /* La «mesa» de detrás de las tarjetas: un color liso, sin motivos ni texturas. */
-  --inv-table: #e6e2d9;
+  --inv-table: #fbf9f7;
   --inv-paper: #fdfbf8;
   --inv-ink: #26413c;
   --inv-muted: #51655d;
@@ -38,12 +51,13 @@
 .inv-preview {
   min-height: 0;
 }
+/* Dentro de la app (vista previa del editor) la mesa sale del fondo de los diálogos. */
+.inv-root.inv-preview { --inv-table: var(--inv-app-table); }
 
 /* ---------- Plantillas ---------- */
 
 .inv-minimal {
   --inv-bg: #ffffff;
-  --inv-table: #ebebed;
   --inv-paper: #f8f7fa;
   --inv-ink: #1f1f26;
   --inv-muted: #565663;
@@ -58,6 +72,7 @@
 
 .inv-elegante {
   --inv-bg: #2b2a3b;
+  /* Fuera de la tarjeta lleva texto claro: su mesa pública es oscura (la misma para todas las paletas). */
   --inv-table: #1d1c28;
   --inv-paper: #353449;
   --inv-ink: #f4f1eb;

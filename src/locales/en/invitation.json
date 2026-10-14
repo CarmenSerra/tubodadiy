@@ -215,7 +215,6 @@
       "whereNote": "If something doesn't apply, leave it blank and it won't appear.",
       "gift": "Gift",
       "publish": "Publish and share",
-      "envelope": "Envelope colour",
       "layout": "Layout"
     },
     "language": {
@@ -305,7 +304,8 @@
         "primary": "Main",
         "dark": "Text",
         "accent": "Accent",
-        "soft": "Background"
+        "soft": "Background",
+        "envelope": "Envelope"
       },
       "change": "Change the {{role}} colour (current: {{hex}})",
       "custom": "Custom palette",
@@ -320,7 +320,13 @@
       "done": "Done",
       "adjusted": "The text and background are too similar: on the invitation we automatically darkened or lightened the text so it stays readable.",
       "contrastGood": "Easy to read",
-      "legacy": "This invitation uses the colours of its template. Pick a palette to change them."
+      "legacy": "This invitation uses the colours of its template. Pick a palette to change them.",
+      "envelope": {
+        "note": "By default it comes from the palette and changes with it. It shows in the preview and in “Save the date”; your guests don't see it.",
+        "auto": "Currently using the palette's colour.",
+        "manual": "Colour picked by hand: it doesn't change when you switch palette.",
+        "useAuto": "Use the palette's colour"
+      }
     },
     "background": {
       "note": "This is how each background looks inside your card, with your palette. The table behind is always plain.",
@@ -348,9 +354,6 @@
         "two": "love",
         "three": "together"
       }
-    },
-    "envelope": {
-      "note": "The envelope in the preview and in “Save the date”. Your guests don't see it."
     },
     "layout": {
       "label": "Card layout",
@@ -389,23 +392,6 @@
     "citrus": "Mixed citrus",
     "lavender": "Lavender",
     "pomegranates": "Pomegranates"
-  },
-  "envelope": {
-    "label": "Envelope colour",
-    "custom": "Custom",
-    "popoverLabel": "Choose the envelope colour",
-    "colors": {
-      "olive": "Olive",
-      "sage": "Sage",
-      "burgundy": "Burgundy",
-      "terracotta": "Terracotta",
-      "dusty-blue": "Dusty blue",
-      "cream": "Cream",
-      "kraft": "Kraft",
-      "dusty-pink": "Dusty pink",
-      "bottle-green": "Bottle green",
-      "slate": "Slate"
-    }
   },
   "layouts": {
     "classic": "Classic",

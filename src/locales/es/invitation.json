@@ -215,7 +215,6 @@
       "whereNote": "Si algo no aplica, déjalo en blanco y no aparecerá.",
       "gift": "Regalo",
       "publish": "Publicar y compartir",
-      "envelope": "Color del sobre",
       "layout": "Composición"
     },
     "language": {
@@ -305,7 +304,8 @@
         "primary": "Principal",
         "dark": "Texto",
         "accent": "Acento",
-        "soft": "Fondo"
+        "soft": "Fondo",
+        "envelope": "Sobre"
       },
       "change": "Cambiar el color {{role}} (actual: {{hex}})",
       "custom": "Paleta personalizada",
@@ -320,7 +320,13 @@
       "done": "Listo",
       "adjusted": "El texto y el fondo se parecen demasiado: en la invitación hemos oscurecido o aclarado el texto automáticamente para que se lea bien.",
       "contrastGood": "Se lee bien",
-      "legacy": "Esta invitación usa los colores de su plantilla. Elige una paleta para cambiarlos."
+      "legacy": "Esta invitación usa los colores de su plantilla. Elige una paleta para cambiarlos.",
+      "envelope": {
+        "note": "Por defecto sale de la paleta y cambia con ella. Se ve en la vista previa y en «Reserva la fecha»; tus invitados no lo ven.",
+        "auto": "Ahora usa el color de la paleta.",
+        "manual": "Color elegido a mano: no cambia al cambiar de paleta.",
+        "useAuto": "Usar el de la paleta"
+      }
     },
     "background": {
       "note": "Así se ve cada fondo dentro de tu tarjeta, con tu paleta. La mesa de detrás es siempre lisa.",
@@ -348,9 +354,6 @@
         "two": "amor",
         "three": "juntos"
       }
-    },
-    "envelope": {
-      "note": "El sobre de la vista previa y de «Reserva la fecha». Tus invitados no lo ven."
     },
     "layout": {
       "label": "Composición de la tarjeta",
@@ -389,23 +392,6 @@
     "citrus": "Cítricos mixtos",
     "lavender": "Lavanda",
     "pomegranates": "Granadas"
-  },
-  "envelope": {
-    "label": "Color del sobre",
-    "custom": "Otro",
-    "popoverLabel": "Elegir el color del sobre",
-    "colors": {
-      "olive": "Oliva",
-      "sage": "Salvia",
-      "burgundy": "Burdeos",
-      "terracotta": "Terracota",
-      "dusty-blue": "Azul empolvado",
-      "cream": "Crema",
-      "kraft": "Kraft",
-      "dusty-pink": "Rosa empolvado",
-      "bottle-green": "Verde botella",
-      "slate": "Pizarra"
-    }
   },
   "layouts": {
     "classic": "Clásico",

@@ -1,6 +1,6 @@
 "use client";
 
-import { doc, getDocs, serverTimestamp, setDoc, updateDoc, type DocumentData } from "firebase/firestore";
+import { deleteField, doc, getDocs, serverTimestamp, setDoc, updateDoc, type DocumentData } from "firebase/firestore";
 
 import {
   cleanStyle,
@@ -8,7 +8,7 @@ import {
   type InvitationTemplateId,
 } from "@/components/invitation/invitation-model";
 import { DEFAULT_LAYOUT } from "@/components/invitation/invitation-layouts";
-import { DEFAULT_ENVELOPE, DEFAULT_PALETTE } from "@/components/invitation/invitation-theme";
+import { DEFAULT_PALETTE } from "@/components/invitation/invitation-theme";
 import type { SaveTheDateTemplate } from "@/lib/firebase/designs";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { planInvitationQuery } from "@/lib/firebase/invitation";
@@ -47,7 +47,8 @@ export async function syncInvitationStyle(planId: string, style: InvitationStyle
     ...(clean.palette ? { palette: clean.palette } : {}),
     ...(clean.background ? { background: clean.background } : {}),
     ...(clean.layout ? { layout: clean.layout } : {}),
-    ...(clean.envelopeColor ? { envelopeColor: clean.envelopeColor } : {}),
+    // Sobre automático (sin color a mano): se borra el que hubiera para no arrastrar uno antiguo.
+    envelopeColor: clean.envelopeColor ?? deleteField(),
     updatedAt: serverTimestamp(),
   });
 }
@@ -87,6 +88,5 @@ export function resolveStyle(sources: {
     palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
     background: "plain",
     layout: DEFAULT_LAYOUT,
-    envelopeColor: DEFAULT_ENVELOPE,
   };
 }
