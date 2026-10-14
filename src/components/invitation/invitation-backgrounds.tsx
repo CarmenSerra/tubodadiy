@@ -29,6 +29,13 @@ export const BACKGROUND_IDS = [
   "citrus",
   "lavender",
   "pomegranates",
+  // Motivos de fiesta en acuarela
+  "rings",
+  "toast",
+  "cake",
+  "bouquet",
+  "polaroid",
+  "loveletters",
 ] as const;
 export type InvitationBackground = (typeof BACKGROUND_IDS)[number];
 
@@ -57,6 +64,12 @@ export const MOTIF_IDS = [
   "citrus",
   "lavender",
   "pomegranates",
+  "rings",
+  "toast",
+  "cake",
+  "bouquet",
+  "polaroid",
+  "loveletters",
 ] as const satisfies readonly InvitationBackground[];
 export type InvitationMotif = (typeof MOTIF_IDS)[number];
 

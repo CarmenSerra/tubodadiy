@@ -10,6 +10,7 @@
 //   node scripts/watercolor/generate.mjs --set stationery [--only a,b] [--sheet ruta.png]
 import { Canvas, PAL, bez, blob, f, leaf, mix, rng, smooth, stemPath } from "./lib.mjs";
 import { branch, flowerHead, paintLeaf } from "./motifs.mjs";
+import { PARTY_MOTIFS } from "./motifs-party.mjs";
 
 const DEG = Math.PI / 180;
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -533,4 +534,6 @@ export const STATIONERY_MOTIFS = [
   ...trio("citrus", citrusA, citrusB, citrusS),
   ...trio("lavender", lavenderA, lavenderB, lavenderS),
   ...trio("pomegranates", pomegranatesA, pomegranatesB, pomegranatesS),
+  // Fiesta: alianzas, brindis, tarta, ramo, fotos instantáneas y cartas de amor
+  ...PARTY_MOTIFS,
 ];
