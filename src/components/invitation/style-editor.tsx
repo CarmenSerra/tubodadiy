@@ -92,6 +92,58 @@ function TemplateThumb({ id, theme }: { id: InvitationTemplateId; theme: Invitat
   );
 }
 
+/** Las plantillas (tipografía y adornos) como tarjetas con miniatura, con los colores de la paleta elegida. */
+export function TemplateGrid({
+  template,
+  palette,
+  onChange,
+  idPrefix = "style",
+}: {
+  template: InvitationTemplateId;
+  palette: InvitationStyle["palette"];
+  onChange: (template: InvitationTemplateId) => void;
+  idPrefix?: string;
+}) {
+  const { t } = useTranslation("invitation");
+  return (
+    <div className="@container">
+      <div role="radiogroup" aria-label={t("editor.template.label")} className="grid grid-cols-2 gap-2.5 @md:grid-cols-4">
+        {TEMPLATES.map((tpl) => {
+          const active = template === tpl.id;
+          const theme = themeFor(palette, tpl.id);
+          return (
+            <button
+              key={tpl.id}
+              type="button"
+              role="radio"
+              id={`${idPrefix}-tpl-${tpl.id}`}
+              aria-checked={active}
+              onClick={() => onChange(tpl.id as InvitationTemplateId)}
+              className={cn(
+                "flex flex-col gap-2 rounded-2xl border-2 bg-raised p-2 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+                active ? "border-lilac bg-lilac-soft/60" : "border-line hover:border-lilac"
+              )}
+            >
+              <span
+                aria-hidden="true"
+                className="relative flex h-16 flex-col items-center justify-center gap-1 overflow-hidden rounded-lg border border-black/5"
+                style={{ background: theme.bg }}
+              >
+                <TemplateThumb id={tpl.id} theme={theme} />
+              </span>
+              <span className="flex items-center gap-1 px-0.5 text-sm font-medium leading-tight text-ink-strong">
+                {active && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0 text-green" />}
+                {t(`templates.${tpl.id}.label`)}
+              </span>
+              <span className="px-0.5 text-xs leading-snug text-ink-muted">{t(`templates.${tpl.id}.hint`)}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function StyleSection({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-4">
@@ -131,41 +183,12 @@ export function StyleEditor({
   return (
     <>
       <StyleSection title={t("editor.sections.style")} note={t("editor.style.shared")}>
-        <div role="radiogroup" aria-label={t("editor.template.label")} className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          {TEMPLATES.map((tpl) => {
-            const active = style.template === tpl.id;
-            const theme = themeFor(palette, tpl.id);
-            return (
-              <button
-                key={tpl.id}
-                type="button"
-                role="radio"
-                id={`${idPrefix}-tpl-${tpl.id}`}
-                aria-checked={active}
-                onClick={() => set({ template: tpl.id as InvitationTemplateId })}
-                className={cn(
-                  "flex flex-col gap-2 rounded-xl border bg-raised p-2 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                  active ? "border-lilac ring-2 ring-lilac" : "border-line-strong hover:border-lilac"
-                )}
-              >
-                <span
-                  aria-hidden="true"
-                  className="relative flex h-16 flex-col items-center justify-center gap-1 overflow-hidden rounded-lg border border-black/5"
-                  style={{ background: theme.bg }}
-                >
-                  <TemplateThumb id={tpl.id} theme={theme} />
-                </span>
-                <span className="flex items-center gap-1 px-0.5 text-sm font-medium leading-tight text-ink-strong">
-                  {active && <CheckIcon aria-hidden="true" className="size-3.5 shrink-0 text-green" />}
-                  {t(`templates.${tpl.id}.label`)}
-                </span>
-                <span className="hidden px-0.5 text-xs leading-snug text-ink-muted sm:block">
-                  {t(`templates.${tpl.id}.hint`)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <TemplateGrid
+          template={style.template}
+          palette={palette}
+          onChange={(template) => set({ template })}
+          idPrefix={idPrefix}
+        />
       </StyleSection>
 
       <StyleSection title={t("editor.sections.layout")} note={t("editor.layout.note")}>

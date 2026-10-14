@@ -226,8 +226,8 @@ export function LayoutEditor({
               aria-checked={active}
               onClick={() => onChange(id)}
               className={cn(
-                "flex flex-col gap-1.5 rounded-xl border bg-raised p-1.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                active ? "border-lilac ring-2 ring-lilac" : "border-line-strong hover:border-lilac"
+                "flex flex-col gap-1.5 rounded-xl border-2 bg-raised p-1.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+                active ? "border-lilac bg-lilac-soft/60" : "border-line hover:border-lilac"
               )}
             >
               <span

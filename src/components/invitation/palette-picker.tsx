@@ -34,9 +34,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 
 const CARD =
-  "flex flex-col gap-2 rounded-xl border bg-raised p-2.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
+  "flex flex-col gap-2 rounded-2xl border-2 bg-raised p-2.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 const CARD_STATE = (active: boolean) =>
-  active ? "border-lilac ring-2 ring-lilac" : "border-line-strong hover:border-lilac";
+  active ? "border-lilac bg-lilac-soft/60" : "border-line hover:border-lilac";
 
 /** Sugerencias por rol: pasteles para colores claros, tonos profundos para el texto. */
 const SUGGESTIONS: Record<ColorRole, string[]> = {
@@ -69,16 +69,40 @@ export function ColorEditor({
   /** `undefined` = volver al color de la paleta. */
   onEnvelopeChange: (hex: string | undefined) => void;
 }) {
-  const { t } = useTranslation("invitation");
-  const colors = palette?.colors ?? LEGACY_COLORS[template];
-  const activePreset = presetFor(palette?.colors);
-  const adjust = Boolean(palette) && needsTextAdjustment(colors);
-  const envelopeManual = manualEnvelope(envelopeColor);
-  const envelopeHex = resolveEnvelope(palette, envelopeColor, template);
-
   return (
     <div className="flex flex-col gap-5">
-      <div role="radiogroup" aria-label={t("editor.color.paletteLabel")} className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+      <PaletteGrid palette={palette} onChange={onChange} />
+      <ColorTuner
+        template={template}
+        palette={palette}
+        envelopeColor={envelopeColor}
+        onChange={onChange}
+        onEnvelopeChange={onEnvelopeChange}
+      />
+    </div>
+  );
+}
+
+/** Las paletas prediseñadas. `dots`: cuatro círculos y el nombre (el acordeón); `bars`: cuatro franjas. */
+export function PaletteGrid({
+  palette,
+  onChange,
+  variant = "bars",
+}: {
+  palette: InvitationPalette | undefined;
+  onChange: (palette: InvitationPalette) => void;
+  variant?: "bars" | "dots";
+}) {
+  const { t } = useTranslation("invitation");
+  const activePreset = presetFor(palette?.colors);
+  const dots = variant === "dots";
+  return (
+    <div className="@container">
+      <div
+        role="radiogroup"
+        aria-label={t("editor.color.paletteLabel")}
+        className={cn("grid grid-cols-2 gap-2.5", dots ? "@md:grid-cols-3" : "sm:grid-cols-3")}
+      >
         {PALETTES.map((p) => {
           const active = activePreset?.id === p.id;
           return (
@@ -88,18 +112,26 @@ export function ColorEditor({
               role="radio"
               aria-checked={active}
               onClick={() => onChange({ id: p.id, colors: { ...p.colors } })}
-              className={cn(CARD, CARD_STATE(active))}
+              className={cn(CARD, CARD_STATE(active), dots && "min-h-[4.5rem] justify-center")}
             >
-              <span aria-hidden="true" className="flex gap-1">
+              <span aria-hidden="true" className={cn("flex", dots ? "gap-1.5" : "gap-1")}>
                 {COLOR_ROLES.map((role) => (
                   <span
                     key={role}
-                    className="h-8 flex-1 rounded-md border border-black/10"
+                    className={cn(
+                      "border border-black/10",
+                      dots ? "size-7 rounded-full" : "h-8 flex-1 rounded-md"
+                    )}
                     style={{ background: p.colors[role] }}
                   />
                 ))}
               </span>
-              <span className="flex min-h-9 items-start gap-1 px-0.5 text-[13px] sm:min-h-5 font-medium leading-tight text-ink-strong">
+              <span
+                className={cn(
+                  "flex items-start gap-1 px-0.5 text-[13px] font-medium leading-tight text-ink-strong",
+                  dots ? "min-h-9" : "min-h-9 sm:min-h-5"
+                )}
+              >
                 {active && <CheckIcon aria-hidden="true" className="mt-px size-3.5 shrink-0 text-green" />}
                 {t(`palettes.${p.id}`)}
               </span>
@@ -107,41 +139,70 @@ export function ColorEditor({
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-raised p-4">
+/**
+ * Los cinco círculos (principal, texto, acento, fondo y sobre) con su selector.
+ * `bare`: sin la tarjeta ni el título (el acordeón ya trae los suyos).
+ */
+export function ColorTuner({
+  template,
+  palette,
+  envelopeColor,
+  onChange,
+  onEnvelopeChange,
+  bare = false,
+}: {
+  template: TemplateKind;
+  palette: InvitationPalette | undefined;
+  envelopeColor: string | undefined;
+  onChange: (palette: InvitationPalette) => void;
+  onEnvelopeChange: (hex: string | undefined) => void;
+  bare?: boolean;
+}) {
+  const { t } = useTranslation("invitation");
+  const colors = palette?.colors ?? LEGACY_COLORS[template];
+  const activePreset = presetFor(palette?.colors);
+  const adjust = Boolean(palette) && needsTextAdjustment(colors);
+  const envelopeManual = manualEnvelope(envelopeColor);
+  const envelopeHex = resolveEnvelope(palette, envelopeColor, template);
+
+  return (
+    <div className={cn("flex flex-col gap-3", !bare && "rounded-2xl border border-line bg-raised p-4")}>
+      {!bare && (
         <div>
           <h4 className="text-sm font-semibold text-ink">{t("editor.color.customize")}</h4>
           <p className="mt-0.5 text-[13px] text-ink-muted">
             {palette ? (palette.id === "custom" && !activePreset ? t("editor.color.customActive") : t("editor.color.customizeNote")) : t("editor.color.legacy")}
           </p>
         </div>
-        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
-          {COLOR_ROLES.map((role) => (
-            <ColorDot
-              key={role}
-              role={role}
-              colors={colors}
-              onPick={(hex) => onChange(setRole(colors, role, hex))}
-            />
-          ))}
+      )}
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+        {COLOR_ROLES.map((role) => (
           <ColorDot
-            role="envelope"
+            key={role}
+            role={role}
             colors={colors}
-            hex={envelopeHex}
-            paletteRow={paletteRow(colors)}
-            suggestions={ENVELOPE_SWATCHES}
-            onPick={onEnvelopeChange}
-            extra={
-              <EnvelopeAuto manual={Boolean(envelopeManual)} onReset={() => onEnvelopeChange(undefined)} />
-            }
+            onPick={(hex) => onChange(setRole(colors, role, hex))}
           />
-        </div>
-        {adjust && (
-          <p role="status" className="rounded-lg bg-lilac-soft px-3 py-2 text-[13px] text-ink">
-            {t("editor.color.adjusted")}
-          </p>
-        )}
+        ))}
+        <ColorDot
+          role="envelope"
+          colors={colors}
+          hex={envelopeHex}
+          paletteRow={paletteRow(colors)}
+          suggestions={ENVELOPE_SWATCHES}
+          onPick={onEnvelopeChange}
+          extra={<EnvelopeAuto manual={Boolean(envelopeManual)} onReset={() => onEnvelopeChange(undefined)} />}
+        />
       </div>
+      {adjust && (
+        <p role="status" className="rounded-lg bg-lilac-soft px-3 py-2 text-[13px] text-ink">
+          {t("editor.color.adjusted")}
+        </p>
+      )}
     </div>
   );
 }

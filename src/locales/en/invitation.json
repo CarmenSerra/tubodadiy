@@ -423,5 +423,34 @@
     "medallion": "Medallion",
     "block": "Block",
     "vertical": "Vertical"
+  },
+  "design": {
+    "sections": {
+      "style": "Style",
+      "palette": "Color palette",
+      "layout": "Layout",
+      "background": "Card background",
+      "motifs": "Watercolor motifs",
+      "colors": "Fine-tune colors"
+    },
+    "more": "More options",
+    "notes": {
+      "style": "The lettering and decorations of your invitation.",
+      "palette": "One set of colors for the whole invitation.",
+      "layout": "Where the date, time, place and names go.",
+      "layoutShared": "\"Save the date\" uses the same one, except Side column and Block.",
+      "background": "What the card paper looks like, in your palette.",
+      "motifs": "Watercolor drawings in the corners.",
+      "colors": "Tap a circle to change that color."
+    },
+    "summary": {
+      "customPalette": "Custom",
+      "legacyPalette": "Template colors",
+      "colorsAuto": "From the chosen palette",
+      "colorsCustom": "Custom",
+      "motifBackground": "With motifs",
+      "motifsUnavailable": "Not available in this style"
+    },
+    "layoutInvitationOnly": "This only changes the invitation: \"Save the date\" keeps the classic one."
   }
 }

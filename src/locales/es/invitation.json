@@ -423,5 +423,34 @@
     "medallion": "Medallón",
     "block": "Bloque",
     "vertical": "Vertical"
+  },
+  "design": {
+    "sections": {
+      "style": "Estilo",
+      "palette": "Paleta de color",
+      "layout": "Composición",
+      "background": "Fondo de la tarjeta",
+      "motifs": "Motivos de acuarela",
+      "colors": "Ajustar colores uno a uno"
+    },
+    "more": "Más opciones",
+    "notes": {
+      "style": "La letra y los adornos de tu invitación.",
+      "palette": "Un juego de colores para toda la invitación.",
+      "layout": "Dónde van la fecha, la hora, el lugar y los nombres.",
+      "layoutShared": "«Reserva la fecha» usa la misma, salvo Lateral y Bloque.",
+      "background": "Cómo es el papel de la tarjeta, con tu paleta.",
+      "motifs": "Dibujos en acuarela en las esquinas.",
+      "colors": "Pulsa un círculo para cambiar ese color."
+    },
+    "summary": {
+      "customPalette": "Personalizada",
+      "legacyPalette": "Colores de la plantilla",
+      "colorsAuto": "Según la paleta elegida",
+      "colorsCustom": "Personalizados",
+      "motifBackground": "Con motivos",
+      "motifsUnavailable": "No disponible en este estilo"
+    },
+    "layoutInvitationOnly": "Solo cambia la invitación: «Reserva la fecha» mantiene la clásica."
   }
 }
