@@ -234,6 +234,10 @@ export function InvitationCard({
   const theme = themeOfInvitation(data);
 
   const doodleStyle = isDoodleTemplate(data.template);
+  // Plantillas con marco y panel interior (el fondo se pinta dentro del panel, no en el marco).
+  const innerSurface = data.template === "azulejo" || data.template === "doodle";
+  const backdrop =
+    data.palette || data.background ? <InvitationBackdrop kind={data.background} theme={theme} /> : null;
   // «Botánico» lleva una guirnalda floral en las esquinas, salvo con un motivo de acuarela (que ya trae las suyas).
   const garland = data.template === "botanico" && !isMotif(data.background);
   // Las plantillas de dibujitos llevan su propio adorno central (corazones con iniciales, hilo, pareja…).
@@ -265,8 +269,17 @@ export function InvitationCard({
       data-motif={isMotif(data.background) ? data.background : undefined}
       data-garland={garland ? "" : undefined}
     >
-      {(data.palette || data.background) && <InvitationBackdrop kind={data.background} theme={theme} />}
-      {(doodleStyle || garland) && <TemplateDecor template={data.template} palette={data.palette} names={names} />}
+      {/* El fondo elegido va en la superficie interior de la tarjeta. En «Azulejo» y «Dibujitos» el marco (rayas, patrón de dibujos) lleva su
+          propio panel interior: allí se pinta el fondo, no debajo del marco. */}
+      {!innerSurface && backdrop}
+      {(doodleStyle || garland) && (
+        <TemplateDecor template={data.template} palette={data.palette} names={names} backdrop={backdrop} />
+      )}
+      {data.template === "doodle" && (
+        <div className="inv-ddSurface" aria-hidden="true">
+          {backdrop}
+        </div>
+      )}
       <div className="inv-cardBody">
         <CardLayoutBody
           layout={layout}

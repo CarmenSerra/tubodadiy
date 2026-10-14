@@ -1414,14 +1414,23 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 .inv-ddLayer {
   color: color-mix(in oklab, var(--inv-accent) 62%, var(--inv-ink));
 }
-.inv-root.inv-doodle .inv-card .inv-cardBody {
-  container-type: inline-size;
-  margin: 17cqw 11cqw;
-  padding: 6cqw 4.5cqw 4.5cqw;
+/* El recuadro liso (superficie interior de la tarjeta: lleva el fondo elegido) va detrás; la caja de texto va encima, sin pintar. */
+.inv-ddSurface {
+  position: absolute;
+  inset: 17cqw 11cqw;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
   background: var(--inv-paper);
   border: 1px solid var(--inv-line);
   border-radius: 3.4cqw;
   box-shadow: 0 0 0 1.2cqw color-mix(in oklab, var(--inv-paper) 60%, transparent);
+}
+.inv-root.inv-doodle .inv-card .inv-cardBody {
+  container-type: inline-size;
+  margin: 17cqw 11cqw;
+  padding: 6cqw 4.5cqw 4.5cqw;
+  border: 1px solid transparent;
   justify-content: space-evenly;
   gap: 2cqw;
 }
@@ -1581,8 +1590,17 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
   inset: calc(100cqw * 5 / 79);
   background: var(--inv-paper);
   border-radius: 2.2cqw;
+  box-shadow: 0 0 0 0.35cqw color-mix(in oklab, var(--inv-ink) 85%, transparent);
+}
+/* El fondo elegido (si lo hay) se pinta dentro del panel; el anillo liso y la línea fina van encima. */
+.inv-azPanel > .inv-bgLayer { border-radius: inherit; }
+.inv-azPanel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
   box-shadow:
-    0 0 0 0.35cqw color-mix(in oklab, var(--inv-ink) 85%, transparent),
     inset 0 0 0 1.3cqw var(--inv-paper),
     inset 0 0 0 calc(1.3cqw + 0.25cqw) color-mix(in oklab, var(--inv-ink) 55%, transparent);
 }

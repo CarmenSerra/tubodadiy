@@ -856,9 +856,9 @@ function doodleTheme(
       bottom: 1150,
       maxWidth: 580,
       paintBackground(ctx) {
+        // El marco (color de fondo + patrón de dibujitos) no lleva el fondo elegido: va dentro del recuadro.
         ctx.fillStyle = tk.bg;
         ctx.fillRect(0, 0, CARD_W, CARD_H);
-        paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
         drawArt(ctx, art.pattern, CARD_W / 2, CARD_H / 2, CARD_W);
         // Recuadro liso con un halo suave.
         ctx.save();
@@ -872,6 +872,12 @@ function doodleTheme(
         ctx.lineWidth = 2;
         roundedBox(ctx, 104, 176, CARD_W - 208, CARD_H - 352, 36);
         ctx.fill();
+        // El fondo elegido, recortado al recuadro.
+        ctx.save();
+        ctx.clip();
+        paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+        ctx.restore();
+        roundedBox(ctx, 104, 176, CARD_W - 208, CARD_H - 352, 36);
         ctx.stroke();
       },
       nameFont: "display",
@@ -981,8 +987,7 @@ function doodleTheme(
       ctx.fillStyle = stripe;
       const band = CARD_W / AZULEJO_BANDS;
       for (let i = 0; i < AZULEJO_BANDS; i += 2) ctx.fillRect(i * band, 0, band, CARD_H);
-      paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
-      // Panel con doble línea: deja ver 5 franjas por cada lado.
+      // Panel con doble línea: deja ver 5 franjas por cada lado. El fondo elegido va dentro del panel, no en las rayas.
       const inset = band * 5;
       ctx.fillStyle = paper;
       ctx.strokeStyle = ink;
@@ -990,6 +995,12 @@ function doodleTheme(
       roundedBox(ctx, inset, inset, CARD_W - 2 * inset, CARD_H - 2 * inset, 22);
       ctx.fill();
       ctx.stroke();
+      // Recortado a la línea interior, como en la invitación (el anillo liso entre las dos líneas queda limpio).
+      ctx.save();
+      roundedBox(ctx, inset + 15.5, inset + 15.5, CARD_W - 2 * inset - 31, CARD_H - 2 * inset - 31, 14);
+      ctx.clip();
+      paintBackdrop(ctx, style.background, tk, CARD_W, CARD_H);
+      ctx.restore();
       ctx.globalAlpha = 0.55;
       ctx.lineWidth = 2.5;
       roundedBox(ctx, inset + 15.5, inset + 15.5, CARD_W - 2 * inset - 31, CARD_H - 2 * inset - 31, 14);

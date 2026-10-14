@@ -114,10 +114,13 @@ export function TemplateDecor({
   template,
   palette,
   names,
+  backdrop,
 }: {
   template: InvitationTemplateId;
   palette: InvitationPalette | undefined;
   names: string;
+  /** Fondo elegido para la tarjeta: en «Azulejo» se pinta dentro del panel interior (el marco de rayas no lo lleva). */
+  backdrop?: ReactNode;
 }): ReactNode {
   switch (template) {
     case "botanico":
@@ -137,7 +140,7 @@ export function TemplateDecor({
     case "azulejo":
       return (
         <div className="inv-tplLayer inv-azLayer" aria-hidden="true">
-          <div className="inv-azPanel" />
+          <div className="inv-azPanel">{backdrop}</div>
         </div>
       );
     default:
