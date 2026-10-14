@@ -1,4 +1,3 @@
-import { INVITATION_PARAM } from "@/components/invitation/invitation-launcher";
 import { honeymoonHref } from "@/lib/honeymoon-model";
 import type { AppointmentCategory } from "@/lib/firebase/appointments";
 import type { StepTaskAuto } from "@/lib/types";
@@ -19,6 +18,21 @@ export type PlanTool = "ceremony" | "legal-docs" | "gift";
 export const NEW_VENDOR_PARAM = "nuevo";
 /** Parámetro de Invitados que filtra por respuesta (p. ej. `pending`). */
 export const GUEST_STATUS_PARAM = "estado";
+
+/** Parámetro del Resumen que abre una herramienta del plan en su diálogo (p. ej. `?herramienta=regalo`). */
+export const PLAN_TOOL_PARAM = "herramienta";
+/** Valor de `PLAN_TOOL_PARAM` que abre los datos del regalo. */
+export const GIFT_TOOL_VALUE = "regalo";
+
+/** Pestaña Invitación (editor de la invitación en tres pasos). */
+export function invitationHref(planId: string) {
+  return `/plan/${planId}/invitation`;
+}
+
+/** Resumen del plan con el diálogo del regalo abierto. */
+export function giftToolHref(planId: string) {
+  return `/plan/${planId}?${PLAN_TOOL_PARAM}=${GIFT_TOOL_VALUE}`;
+}
 
 /** Pestaña Ceremonia; el ancla lleva a su sección. */
 export function ceremonyHref(planId: string, section?: "tipo" | "oficiante" | "documentos" | "cronograma") {
@@ -65,11 +79,7 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
     case "stationery-save-date":
       return { kind: "save-the-date", labelKey: "taskLinks.saveTheDate" };
     case "invitations-send":
-      return {
-        kind: "href",
-        href: `/plan/${planId}/guests?${INVITATION_PARAM}=1`,
-        labelKey: "taskLinks.invitation",
-      };
+      return { kind: "href", href: invitationHref(planId), labelKey: "taskLinks.invitation" };
     case "honeymoon-destination":
       return { kind: "href", href: honeymoonHref(planId), labelKey: "taskLinks.honeymoon" };
     case "honeymoon-book":

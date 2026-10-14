@@ -20,7 +20,8 @@ import { PhaseTabs, type PhaseTab } from "@/components/plan/phase-tabs";
 import { Bone, StepCardSkeleton } from "@/components/plan/plan-shell";
 import { PlanProgressBar } from "@/components/plan/plan-progress";
 import { stepElementId, stepTriggerId } from "@/components/plan/step-card";
-import { PlanToolsProvider } from "@/components/plan-tools/plan-tools-launcher";
+import { GIFT_TOOL_VALUE, PLAN_TOOL_PARAM } from "@/components/plan/task-links";
+import { PlanToolsProvider, usePlanToolsLauncher } from "@/components/plan-tools/plan-tools-launcher";
 import { TimelineLauncherProvider } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { useLanguage } from "@/lib/i18n/provider";
@@ -105,6 +106,27 @@ function SummaryItem({
       </dd>
     </div>
   );
+}
+
+/**
+ * Enlace directo `?herramienta=regalo` (lo usa «Configurar en Regalo» de la pestaña
+ * Invitación): abre los datos del regalo sobre el Resumen. El parámetro se limpia de
+ * la URL al abrirse, para que cerrar y recargar no lo vuelva a abrir.
+ */
+function ToolFromLink() {
+  const launcher = usePlanToolsLauncher();
+  const searchParams = useSearchParams();
+  const param = searchParams.get(PLAN_TOOL_PARAM);
+
+  React.useEffect(() => {
+    if (!param) return;
+    if (param === GIFT_TOOL_VALUE) launcher?.open("gift");
+    const url = new URL(window.location.href);
+    url.searchParams.delete(PLAN_TOOL_PARAM);
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [param, launcher]);
+
+  return null;
 }
 
 function PlanOverview() {
@@ -416,6 +438,7 @@ export default function PlanOverviewPage() {
         <TimelineLauncherProvider>
           <PlanToolsProvider>
             <AgendaProviders>
+              <ToolFromLink />
               <PlanOverview />
             </AgendaProviders>
           </PlanToolsProvider>

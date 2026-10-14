@@ -1,0 +1,129 @@
+{
+  "page": {
+    "title": "Tu invitación",
+    "description": "Rellena los datos, elige el diseño y comparte un único enlace: quien lo abra podrá confirmar sin crear cuenta."
+  },
+  "loading": "Cargando la invitación",
+  "loadError": "No se ha podido cargar la invitación. Recarga la página e inténtalo de nuevo.",
+  "guestsLink": "Invitación",
+  "steps": {
+    "label": "Pasos de la invitación",
+    "data": { "title": "Datos", "hint": "Nombres, fecha y lugar" },
+    "design": { "title": "Diseño", "hint": "Estilo y colores" },
+    "share": { "title": "Compartir", "hint": "Publicar y enviar" },
+    "done": "Completado"
+  },
+  "nav": {
+    "back": "Atrás",
+    "next": "Siguiente: {{step}}"
+  },
+  "save": {
+    "idle": "Los cambios se guardan solos",
+    "saving": "Guardando…",
+    "saved": "Guardado automáticamente",
+    "error": "No se ha podido guardar",
+    "goShare": "Ir a Compartir",
+    "retry": "Reintentar",
+    "blocked": "Sin guardar: elige un enlace válido y libre en «Compartir»"
+  },
+  "fill": {
+    "filled": "Hemos rellenado lo que ya está en tu plan. Lo que cambies aquí no se sobrescribe.",
+    "canFill": "Los campos vacíos se pueden rellenar con los datos de tu plan.",
+    "refresh": "Actualizar desde el plan",
+    "upToDate": "Tu invitación ya está al día con los datos de tu plan.",
+    "updated_one": "Se ha actualizado {{count}} campo con los datos de tu plan.",
+    "updated_other": "Se han actualizado {{count}} campos con los datos de tu plan."
+  },
+  "couple": {
+    "title": "La pareja",
+    "names": "Nombres",
+    "message": "Mensaje de bienvenida (opcional)",
+    "messageHint": "Unas palabras para tus invitados."
+  },
+  "when": {
+    "title": "Cuándo",
+    "date": "Fecha de la boda",
+    "deadline": "Confirmar antes del (opcional)",
+    "deadlineHint": "Después de esa fecha, el formulario de confirmación se cierra.",
+    "noDeadline": "Sin fecha límite"
+  },
+  "where": {
+    "title": "Dónde",
+    "note": "Lo que dejes en blanco no aparece en la invitación.",
+    "ceremony": "Ceremonia",
+    "banquet": "Banquete",
+    "name": "Lugar",
+    "time": "Hora",
+    "address": "Dirección",
+    "addressPlaceholder": "Calle, número, localidad",
+    "namePlaceholder": {
+      "ceremony": "Iglesia de San Miguel",
+      "banquet": "Finca Los Olivos"
+    },
+    "map": "Enlace al mapa (opcional)",
+    "mapHint": "Si lo dejas vacío, «Cómo llegar» buscará la dirección en Google Maps.",
+    "mapError": "Pega una dirección web que empiece por http:// o https://."
+  },
+  "gift": {
+    "title": "Regalo",
+    "label": "Mostrar los datos del regalo",
+    "helpList": "Tus invitados verán la lista de cosas que has guardado en el plan (sin lo que ya tenéis).",
+    "helpMoney": "Tus invitados verán el IBAN o Bizum que has guardado en el plan.",
+    "emptyList": "Tu lista de regalos aún no tiene nada que enseñar.",
+    "emptyMoney": "Aún no has añadido un IBAN o un Bizum.",
+    "notShown": "Tienes un regalo preparado, pero no está marcado para mostrarse en la invitación.",
+    "notChosen": "Aún no has elegido cómo recibir el regalo (dinero o lista de cosas).",
+    "configure": "Configurar en Regalo"
+  },
+  "share": {
+    "title": "Publica y comparte",
+    "draft": "Borrador",
+    "published": "Publicada",
+    "publish": "Publicar invitación",
+    "publishing": "Publicando…",
+    "draftNote": "Ahora es un borrador: nadie puede verla hasta que la publiques.",
+    "publishedNote": "Cualquiera con el enlace puede verla y confirmar. Lo que cambies a partir de ahora se ve enseguida en el enlace.",
+    "link": "Enlace de tu invitación",
+    "copy": "Copiar enlace",
+    "whatsapp": "Compartir por WhatsApp",
+    "view": "Ver invitación",
+    "newTab": "(se abre en una pestaña nueva)",
+    "unpublish": {
+      "button": "Despublicar",
+      "question": "¿Despublicar la invitación? El enlace dejará de funcionar para tus invitados.",
+      "confirm": "Sí, despublicar",
+      "cancel": "Cancelar"
+    }
+  },
+  "slug": {
+    "label": "Enlace personalizado",
+    "help": "Solo minúsculas, números y guion bajo (_), entre {{min}} y {{max}} caracteres. Se aplica al salir del campo.",
+    "invalid": "El enlace debe tener entre {{min}} y {{max}} caracteres y solo minúsculas, números o _.",
+    "taken": "Este enlace ya está en uso. Prueba con otro.",
+    "suggestion": "Te sugerimos:",
+    "checking": "Comprobando si está libre…",
+    "error": "No se ha podido comprobar ahora; lo comprobaremos al guardar.",
+    "free": "Está libre",
+    "mine": "Es el enlace actual de tu invitación",
+    "moves": "Si lo cambias, el enlace anterior dejará de funcionar: comparte el nuevo. Las respuestas que ya has recibido se conservan.",
+    "words": { "one": "boda", "two": "amor", "three": "juntos" }
+  },
+  "preview": {
+    "caption": "Vista previa en directo",
+    "aria": "Vista previa: la invitación sobre un sobre, con la tarjeta de agradecimiento encima",
+    "shared": "El estilo y la paleta se comparten con «Reserva la fecha».",
+    "floating": "Ver invitación"
+  },
+  "toasts": {
+    "namesRequired": "Escribe los nombres de la pareja antes de publicar.",
+    "slugInvalid": "Revisa el enlace: entre {{min}} y {{max}} caracteres, solo minúsculas, números o _.",
+    "slugTaken": "Ese enlace ya está en uso. Elige otro.",
+    "saveFailed": "No se ha podido guardar la invitación. Se reintentará con el siguiente cambio.",
+    "published": "Invitación publicada. Ya puedes compartir el enlace.",
+    "publishFailed": "No se ha podido publicar la invitación. Inténtalo de nuevo.",
+    "unpublished": "Invitación despublicada. El enlace ya no funciona.",
+    "unpublishFailed": "No se ha podido despublicar. Inténtalo de nuevo.",
+    "linkCopied": "Enlace copiado",
+    "copyFailed": "No se ha podido copiar. Selecciona el enlace y cópialo a mano."
+  }
+}

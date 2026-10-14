@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 
 import { usePlanContext } from "@/lib/context/plan-context";
 import { GuestsList } from "@/components/guests/guests-list";
-import { InvitationLauncherProvider } from "@/components/invitation/invitation-launcher";
 import { GUEST_STATUS_PARAM } from "@/components/plan/task-links";
 import type { RsvpStatus } from "@/lib/types";
 
@@ -36,9 +35,7 @@ function GuestsFromLink({ planId }: { planId: string }) {
   }, [param]);
 
   return (
-    <InvitationLauncherProvider>
-      <GuestsList planId={planId} initialStatus={initialStatus} />
-    </InvitationLauncherProvider>
+    <GuestsList planId={planId} initialStatus={initialStatus} />
   );
 }
 

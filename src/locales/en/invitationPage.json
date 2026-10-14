@@ -1,0 +1,129 @@
+{
+  "page": {
+    "title": "Your invitation",
+    "description": "Fill in the details, pick the design and share a single link: anyone who opens it can reply without creating an account."
+  },
+  "loading": "Loading the invitation",
+  "loadError": "We couldn't load the invitation. Reload the page and try again.",
+  "guestsLink": "Invitation",
+  "steps": {
+    "label": "Invitation steps",
+    "data": { "title": "Details", "hint": "Names, date and venue" },
+    "design": { "title": "Design", "hint": "Style and colours" },
+    "share": { "title": "Share", "hint": "Publish and send" },
+    "done": "Completed"
+  },
+  "nav": {
+    "back": "Back",
+    "next": "Next: {{step}}"
+  },
+  "save": {
+    "idle": "Changes are saved automatically",
+    "saving": "Saving…",
+    "saved": "Saved automatically",
+    "error": "We couldn't save",
+    "goShare": "Go to Share",
+    "retry": "Try again",
+    "blocked": "Not saved: pick a valid, free link in “Share”"
+  },
+  "fill": {
+    "filled": "We've filled in what's already in your plan. What you change here is never overwritten.",
+    "canFill": "Empty fields can be filled in from your plan.",
+    "refresh": "Update from plan",
+    "upToDate": "Your invitation is already up to date with your plan.",
+    "updated_one": "{{count}} field was updated from your plan.",
+    "updated_other": "{{count}} fields were updated from your plan."
+  },
+  "couple": {
+    "title": "The couple",
+    "names": "Names",
+    "message": "Welcome message (optional)",
+    "messageHint": "A few words for your guests."
+  },
+  "when": {
+    "title": "When",
+    "date": "Wedding date",
+    "deadline": "Reply by (optional)",
+    "deadlineHint": "After that date, the reply form closes.",
+    "noDeadline": "No deadline"
+  },
+  "where": {
+    "title": "Where",
+    "note": "Anything you leave blank won't appear on the invitation.",
+    "ceremony": "Ceremony",
+    "banquet": "Reception",
+    "name": "Venue",
+    "time": "Time",
+    "address": "Address",
+    "addressPlaceholder": "Street, number, town",
+    "namePlaceholder": {
+      "ceremony": "St Michael's Church",
+      "banquet": "Olive Grove Estate"
+    },
+    "map": "Map link (optional)",
+    "mapHint": "If left empty, “Get directions” will search for the address on Google Maps.",
+    "mapError": "Paste a web address that starts with http:// or https://."
+  },
+  "gift": {
+    "title": "Gift",
+    "label": "Show the gift details",
+    "helpList": "Your guests will see the list of things you've saved in your plan (without what you already have).",
+    "helpMoney": "Your guests will see the IBAN or Bizum you've saved in your plan.",
+    "emptyList": "Your gift list has nothing to show yet.",
+    "emptyMoney": "You haven't added an IBAN or Bizum yet.",
+    "notShown": "You have a gift set up, but it isn't marked to appear on the invitation.",
+    "notChosen": "You haven't chosen how to receive gifts yet (money or a list of things).",
+    "configure": "Set up in Gift"
+  },
+  "share": {
+    "title": "Publish and share",
+    "draft": "Draft",
+    "published": "Published",
+    "publish": "Publish invitation",
+    "publishing": "Publishing…",
+    "draftNote": "It's a draft for now: nobody can see it until you publish it.",
+    "publishedNote": "Anyone with the link can view it and reply. Whatever you change from now on shows up at the link straight away.",
+    "link": "Your invitation link",
+    "copy": "Copy link",
+    "whatsapp": "Share on WhatsApp",
+    "view": "View invitation",
+    "newTab": "(opens in a new tab)",
+    "unpublish": {
+      "button": "Unpublish",
+      "question": "Unpublish the invitation? The link will stop working for your guests.",
+      "confirm": "Yes, unpublish",
+      "cancel": "Cancel"
+    }
+  },
+  "slug": {
+    "label": "Custom link",
+    "help": "Lowercase letters, numbers and underscores (_) only, {{min}} to {{max}} characters. It applies when you leave the field.",
+    "invalid": "The link must be {{min}} to {{max}} characters long, with lowercase letters, numbers or _ only.",
+    "taken": "This link is already in use. Try another one.",
+    "suggestion": "We suggest:",
+    "checking": "Checking whether it is free…",
+    "error": "We couldn't check it right now; we'll check it when saving.",
+    "free": "It is free",
+    "mine": "This is your invitation's current link",
+    "moves": "If you change it, the previous link will stop working: share the new one. The replies you have already received are kept.",
+    "words": { "one": "wedding", "two": "love", "three": "together" }
+  },
+  "preview": {
+    "caption": "Live preview",
+    "aria": "Preview: the invitation on an envelope, with the thank-you card on top",
+    "shared": "Style and palette are shared with “Save the date”.",
+    "floating": "View invitation"
+  },
+  "toasts": {
+    "namesRequired": "Enter the couple's names before publishing.",
+    "slugInvalid": "Check the link: {{min}} to {{max}} characters, lowercase letters, numbers or _ only.",
+    "slugTaken": "That link is already in use. Choose another one.",
+    "saveFailed": "We couldn't save the invitation. We'll try again with your next change.",
+    "published": "Invitation published. You can now share the link.",
+    "publishFailed": "We couldn't publish the invitation. Please try again.",
+    "unpublished": "Invitation unpublished. The link no longer works.",
+    "unpublishFailed": "We couldn't unpublish it. Please try again.",
+    "linkCopied": "Link copied",
+    "copyFailed": "We couldn't copy it. Select the link and copy it by hand."
+  }
+}

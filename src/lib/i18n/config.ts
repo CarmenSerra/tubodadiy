@@ -50,6 +50,7 @@ export const NAMESPACES = [
   "tools",
   "honeymoon",
   "invitation",
+  "invitationPage",
   "envelope",
   "errors",
 ] as const;

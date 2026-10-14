@@ -23,7 +23,7 @@ import {
 import { GuestIdeas } from "@/components/ideas/guest-ideas";
 import { GuestSummary, GuestsSkeleton } from "@/components/guests/guest-summary";
 import { RsvpMenu, RsvpSegmented } from "@/components/guests/rsvp";
-import { InvitationButton } from "@/components/invitation/invitation-launcher";
+import { InvitationLink } from "@/components/invitation/invitation-link";
 import { InvitationResponses } from "@/components/invitation/invitation-responses";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { guestsQuery, mapGuest } from "@/lib/firebase/plans";
@@ -104,7 +104,7 @@ export function GuestsList({
         <p className="mt-1 text-sm text-ink-muted">{t("list.description")}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <InvitationButton />
+        <InvitationLink planId={planId} />
         {!loading && guests.length > 0 && (
           <>
             <GuestFormDialog planId={planId} groups={groups} />

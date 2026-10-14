@@ -12,6 +12,7 @@ import esErrors from "@/locales/es/errors.json";
 import esGuests from "@/locales/es/guests.json";
 import esHoneymoon from "@/locales/es/honeymoon.json";
 import esInvitation from "@/locales/es/invitation.json";
+import esInvitationPage from "@/locales/es/invitationPage.json";
 import esLanding from "@/locales/es/landing.json";
 import esOnboarding from "@/locales/es/onboarding.json";
 import esPlan from "@/locales/es/plan.json";
@@ -30,6 +31,7 @@ import enErrors from "@/locales/en/errors.json";
 import enGuests from "@/locales/en/guests.json";
 import enHoneymoon from "@/locales/en/honeymoon.json";
 import enInvitation from "@/locales/en/invitation.json";
+import enInvitationPage from "@/locales/en/invitationPage.json";
 import enLanding from "@/locales/en/landing.json";
 import enOnboarding from "@/locales/en/onboarding.json";
 import enPlan from "@/locales/en/plan.json";
@@ -60,6 +62,7 @@ export const RESOURCES = {
     tools: esTools,
     honeymoon: esHoneymoon,
     invitation: esInvitation,
+    invitationPage: esInvitationPage,
     envelope: esEnvelope,
     errors: esErrors,
   },
@@ -79,6 +82,7 @@ export const RESOURCES = {
     tools: enTools,
     honeymoon: enHoneymoon,
     invitation: enInvitation,
+    invitationPage: enInvitationPage,
     envelope: enEnvelope,
     errors: enErrors,
   },

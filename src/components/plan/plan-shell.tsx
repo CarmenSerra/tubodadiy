@@ -39,7 +39,7 @@ function PlanShellSkeleton() {
     <div className="flex flex-col gap-6" role="status" aria-label={t("shell.loading")}>
       <Bone className="h-10 w-2/3 max-w-sm bg-track" />
       <div className="flex gap-6 border-b border-line pb-3">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
+        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
           <Bone key={i} className="h-4 w-16 bg-track sm:w-20" />
         ))}
       </div>
