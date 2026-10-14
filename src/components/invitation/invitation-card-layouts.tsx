@@ -18,16 +18,31 @@ export function splitNames(names: string): [string, string] | null {
   return parts.length === 2 ? [parts[0], parts[1]] : null;
 }
 
+/**
+ * «Ana» + «& Luis». El «& Segundo» es una pieza que no se parte (`inv-nameRest`): si «Ana & Luis»
+ * no cabe en una línea, el salto cae entre los dos nombres y queda «Ana» / «& Luis». Eso lo decide
+ * el propio CSS (flex-wrap) según el ancho real, así que vale igual en servidor, vista previa y móvil.
+ */
+function NamePair({ pair }: { pair: [string, string] }) {
+  return (
+    <>
+      <span className="inv-nameA">{pair[0]}</span>
+      <span className="inv-nameRest">
+        <span className="inv-amp" aria-hidden="true">
+          &amp;
+        </span>
+        <span className="inv-nameB">{pair[1]}</span>
+      </span>
+    </>
+  );
+}
+
 export function Names({ names }: { names: string }) {
   const pair = splitNames(names);
   if (!pair) return <>{names}</>;
   return (
     <>
-      <span className="inv-nameA">{pair[0]}</span>
-      <span className="inv-amp" aria-hidden="true">
-        &amp;
-      </span>
-      <span className="inv-nameB">{pair[1]}</span>
+      <NamePair pair={pair} />
       <span className="sr-only">{names}</span>
     </>
   );
@@ -291,16 +306,18 @@ function Editorial(p: LayoutPieces) {
   const sentence = pieces.join(t("view.layout.sentence.joiner"));
   return (
     <>
-      <p className="inv-eyebrow">{p.eyebrow}</p>
-      <NamesHeading p={p} />
-      {sentence && (
-        <p className="inv-edText">
-          {sentence}
-          <span aria-hidden="true">.</span>
-        </p>
-      )}
-      <LaterLines p={p} />
-      {p.message && <p className="inv-cardMessage">{p.message}</p>}
+      <div className="inv-lead">
+        <p className="inv-eyebrow">{p.eyebrow}</p>
+        <NamesHeading p={p} />
+        {sentence && (
+          <p className="inv-edText">
+            {sentence}
+            <span aria-hidden="true">.</span>
+          </p>
+        )}
+        <LaterLines p={p} />
+        {p.message && <p className="inv-cardMessage">{p.message}</p>}
+      </div>
       {p.ornament}
       {p.join}
     </>
@@ -312,20 +329,15 @@ function Editorial(p: LayoutPieces) {
 function Medallion(p: LayoutPieces) {
   const { parts } = p;
   const pair = splitNames(p.names);
-  const [a, b] = pair ?? [p.names, ""];
   return (
     <>
       <p className="inv-eyebrow">{p.eyebrow}</p>
       <h1 className="sr-only">{p.names}</h1>
       <div className="inv-md">
-        <p className="inv-names inv-mdName" data-size={p.nameSize} aria-hidden="true">
-          {a}
+        {/* «Ana & Luis» junto, justo encima del medallón (o «Ana» / «& Luis» si no cabe). */}
+        <p className="inv-names inv-mdNames" data-size={p.nameSize} aria-hidden="true">
+          {pair ? <NamePair pair={pair} /> : p.names}
         </p>
-        {pair && (
-          <p className="inv-mdAmp" aria-hidden="true">
-            &amp;
-          </p>
-        )}
         {parts && (
           <div className="inv-mdArch" aria-hidden="true">
             <p className="inv-mdWeekday">{parts.weekday}</p>
@@ -333,11 +345,6 @@ function Medallion(p: LayoutPieces) {
             <p className="inv-mdMonth">{parts.month}</p>
             <p className="inv-mdYear">{parts.year}</p>
           </div>
-        )}
-        {pair && (
-          <p className="inv-names inv-mdName" data-size={p.nameSize} aria-hidden="true">
-            {b}
-          </p>
         )}
         {parts && <span className="sr-only">{p.longDate}</span>}
       </div>
@@ -370,19 +377,21 @@ function Block(p: LayoutPieces) {
   }
   return (
     <>
-      <p className="inv-eyebrow">{p.eyebrow}</p>
-      <NamesHeading p={p} />
-      {rows.length > 0 && (
-        <dl className="inv-blk">
-          {rows.map((row) => (
-            <div key={row.key} className="inv-blkRow">
-              <dt>{row.label}</dt>
-              <dd>{row.value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-      {p.message && <p className="inv-cardMessage">{p.message}</p>}
+      <div className="inv-lead">
+        <p className="inv-eyebrow">{p.eyebrow}</p>
+        <NamesHeading p={p} />
+        {rows.length > 0 && (
+          <dl className="inv-blk">
+            {rows.map((row) => (
+              <div key={row.key} className="inv-blkRow">
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {p.message && <p className="inv-cardMessage">{p.message}</p>}
+      </div>
       {p.ornament}
       {p.join}
     </>

@@ -140,8 +140,7 @@ export function TemplateOrnament({ template, names }: { template: InvitationTemp
         </span>
       );
     case "azulejo":
-      // El ancho en línea gana al de invitation.css (16cqw): la pareja de corazones es más ancha que alta.
-      return <Doodle name="heartCouple" className="inv-ornament inv-azCouple" style={{ width: "42cqw" }} />;
+      return <Doodle name="heartCouple" className="inv-ornament inv-azCouple" />;
     default:
       return null;
   }

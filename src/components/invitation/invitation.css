@@ -237,6 +237,12 @@ html[data-theme="dark"] {
   color: var(--inv-ink);
 }
 .inv-names .inv-amp { color: var(--inv-accent); }
+/*
+ * «& Segundo» es una pieza que no se parte. Por defecto no genera caja (el «&» y el nombre
+ * se colocan como antes); en editorial, bloque y medallón es un bloque flex que, si «Ana & Luis»
+ * no cabe en una línea, baja entero a la segunda («Ana» / «& Luis»).
+ */
+.inv-nameRest { display: contents; }
 
 .inv-botanico .inv-names { font-family: var(--font-script), cursive; font-size: calc(16cqw * var(--nk, 1)); line-height: 0.95; }
 .inv-botanico .inv-names[data-size="m"] { font-size: calc(12.5cqw * var(--nk, 1)); }
@@ -550,8 +556,8 @@ html[data-theme="dark"] {
 }
 .inv-sbInfo .inv-cardLater { font-size: 2.6cqw; }
 
-/* Nombres en dos líneas («María José» / «& Juan») en las composiciones alineadas a la izquierda */
-.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-names {
+/* Columna lateral: nombres siempre en dos líneas («María José» / «& Juan») */
+.inv-card[data-layout="sidebar"] .inv-names {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
@@ -559,7 +565,31 @@ html[data-theme="dark"] {
   column-gap: 2.2cqw;
   line-height: 0.98;
 }
-.inv-card:is([data-layout="sidebar"], [data-layout="editorial"], [data-layout="block"]) .inv-nameA { grid-column: 1 / -1; }
+.inv-card[data-layout="sidebar"] .inv-nameA { grid-column: 1 / -1; }
+
+/*
+ * Editorial, bloque y medallón: «Ana & Luis» en una línea si cabe; si no, «Ana» arriba y
+ * «& Luis» debajo. Lo decide flex-wrap con el ancho real (sin medir con JS), así que sale
+ * igual en el servidor, la vista previa, las miniaturas y el móvil.
+ */
+.inv-card:is([data-layout="editorial"], [data-layout="block"], [data-layout="medallion"]) .inv-names {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.28em;
+}
+.inv-card:is([data-layout="editorial"], [data-layout="block"]) .inv-names { line-height: 0.98; }
+.inv-card:is([data-layout="editorial"], [data-layout="block"], [data-layout="medallion"]) .inv-nameRest {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0 0.28em;
+}
+.inv-card:is([data-layout="editorial"], [data-layout="block"], [data-layout="medallion"]) :is(.inv-nameA, .inv-nameB) { min-width: 0; }
+
+/* Editorial y bloque: eyebrow, nombres y texto juntos (sin el hueco grande entre ellos); el adorno y el enlace quedan abajo */
+.inv-lead { display: flex; width: 100%; flex-direction: column; gap: 3.4cqw; }
+.inv-lead > p { margin: 0; }
 
 /* Editorial: nombres enormes y la fecha escrita como una frase */
 .inv-card[data-layout="editorial"] .inv-names { --nk: 1.18; }
@@ -575,17 +605,9 @@ html[data-theme="dark"] {
 }
 .inv-card[data-layout="editorial"] .inv-cardLater { text-align: left; }
 
-/* Arco / medallón: la fecha en un arco entre los nombres */
-.inv-md { display: flex; width: 100%; flex-direction: column; align-items: center; gap: 1.2cqw; }
-.inv-mdName { --nk: 0.9; }
-.inv-mdAmp {
-  margin: 0;
-  font-family: var(--font-display), Georgia, serif;
-  font-size: 5.4cqw;
-  font-style: italic;
-  line-height: 1;
-  color: var(--inv-accent);
-}
+/* Arco / medallón: los nombres justo encima del arco con la fecha */
+.inv-md { display: flex; width: 100%; flex-direction: column; align-items: center; gap: 2.4cqw; }
+.inv-md .inv-mdNames { --nk: 0.9; justify-content: center; }
 .inv-mdArch {
   display: flex;
   width: 41cqw;
@@ -1468,7 +1490,6 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 .inv-hilo .inv-sbTime { font-size: 5cqw; }
 .inv-hilo .inv-sbVenue { font-size: 5cqw; }
 .inv-hilo .inv-edText { font-size: 6.4cqw; line-height: 1.3; }
-.inv-hilo .inv-mdAmp { font-size: 6.4cqw; }
 .inv-hilo .inv-mdWeekday, .inv-hilo .inv-mdMonth { font-size: 3.8cqw; }
 .inv-hilo .inv-mdDay { font-size: 17cqw; }
 .inv-hilo .inv-mdYear { font-size: 4cqw; }
@@ -1534,7 +1555,7 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 .inv-retro .inv-gratThanks { font-family: var(--font-chunky), var(--font-display), serif; font-weight: 400; font-size: 6cqw; letter-spacing: 0.04em; text-transform: lowercase; }
 .inv-retro .inv-gratBody { padding-inline: 17cqw; }
 
-/* ·· Azulejo: marco de rayas verticales, lazos, ramitas, pareja y chispas ·· */
+/* ·· Azulejo: marco de rayas verticales y pareja de corazones ·· */
 .inv-azulejo .inv-card,
 .inv-azulejo .inv-grat {
   background: repeating-linear-gradient(
@@ -1555,21 +1576,7 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
     inset 0 0 0 calc(1.3cqw + 0.25cqw) color-mix(in oklab, var(--inv-ink) 55%, transparent);
 }
 .inv-grat .inv-azPanel { inset: 4cqw; border-radius: 1.8cqw; }
-.inv-azBow { width: 13cqw; top: 8.5cqw; }
-.inv-azTL { left: 8.5cqw; }
-.inv-azTR { right: 8.5cqw; transform: scaleX(-1); }
-.inv-grat .inv-azBow { width: 10cqw; top: 5.5cqw; }
-.inv-grat .inv-azTL { left: 6cqw; }
-.inv-grat .inv-azTR { right: 6cqw; }
-.inv-azSprig { width: 9cqw; bottom: 8cqw; }
-.inv-azBL { left: 8cqw; }
-.inv-azBR { right: 8cqw; transform: scaleX(-1); }
-.inv-azSpark { width: 5cqw; }
-.inv-azS1 { top: 10cqw; left: 30cqw; }
-.inv-azS2 { top: 14cqw; right: 29cqw; width: 4cqw; }
-.inv-azS3 { bottom: 11cqw; left: 26cqw; width: 4cqw; }
-.inv-azS4 { bottom: 9cqw; right: 27cqw; }
-.inv-root.inv-azulejo .inv-card .inv-cardBody {
+.inv-grat .inv-grat .inv-grat .inv-root.inv-azulejo .inv-card .inv-cardBody {
   container-type: inline-size;
   margin: 18cqw 10cqw 22cqw;
   padding: 0;
@@ -1582,7 +1589,7 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 .inv-azulejo .inv-names[data-size="xs"] { font-size: calc(7.6cqw * var(--nk, 1)); }
 .inv-azulejo .inv-amp { font-size: 0.6em; }
 .inv-azulejo .inv-eyebrow { color: var(--inv-ink); }
-.inv-azCouple { width: 16cqw; flex: none; color: var(--inv-ink); --doodle-fill: color-mix(in oklab, var(--inv-accent) 55%, var(--inv-paper)); }
+.inv-card .inv-ornament.inv-azCouple { width: 42cqw; flex: none; color: var(--inv-ink); --doodle-fill: color-mix(in oklab, var(--inv-accent) 55%, var(--inv-paper)); }
 .inv-azulejo .inv-gratBody { inset: 5cqw 9cqw; padding: 2cqw 12cqw; }
 .inv-ddLayer > svg { display: block; width: 100%; height: 100%; }
 
@@ -1592,8 +1599,9 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
 .inv-retro .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) .inv-rtOrnament { display: none; }
 .inv-hilo .inv-card[data-layout="medallion"] .inv-hiloHands { display: none; }
 .inv-doodle .inv-card[data-layout="medallion"] .inv-cardMessage { display: none; }
-/* Azulejo: en las composiciones más cargadas, sin mensaje ni pareja en la tarjeta (el marco ya decora). */
-.inv-azulejo .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) :is(.inv-cardMessage, .inv-azCouple) { display: none; }
+/* Azulejo: en las composiciones más cargadas, sin mensaje (el marco ya decora) y con la pareja más pequeña. */
+.inv-azulejo .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) .inv-cardMessage { display: none; }
+.inv-azulejo .inv-card:is([data-layout="calendar"], [data-layout="vertical"], [data-layout="medallion"]) .inv-ornament.inv-azCouple { width: 28cqw; }
 /* Hilo: calendario y vertical son las composiciones más altas; su caja de texto escala un poco para que quepa también con lugares largos. */
 .inv-root.inv-hilo .inv-card:is([data-layout="calendar"], [data-layout="vertical"]) .inv-cardBody { container-type: inline-size; margin-inline: 8cqw; padding-inline: 0; }
 

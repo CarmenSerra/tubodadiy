@@ -553,6 +553,51 @@ function paragraphBlock(ctx: Ctx, text: string, style: TextStyle, maxWidth: numb
   };
 }
 
+interface Segment {
+  text: string;
+  style: TextStyle;
+}
+
+/**
+ * Varios textos en una sola línea, sobre la misma línea base y centrados («Ana», «&», «Luis»,
+ * cada uno con su estilo). Si no caben en `maxWidth`, se reducen todos a la vez hasta `minScale`.
+ * `fits` dice si caben sin reducir el cuerpo (para decidir entre una línea y dos).
+ */
+function inlineBlock(
+  ctx: Ctx,
+  segments: Segment[],
+  gapEm: number,
+  maxWidth: number,
+  minScale: number
+): Block & { fits: boolean } {
+  const shown = segments.map((seg) => ({ ...seg, text: seg.style.upper ? seg.text.toUpperCase() : seg.text }));
+  // El cuerpo y el interlineado los marca el texto más grande (el «&» es más pequeño).
+  const main = shown.reduce((a, b) => (b.style.size > a.style.size ? b : a));
+  const base = main.style.size;
+  const widthAt = (k: number) =>
+    shown.reduce((sum, seg) => sum + measure(ctx, seg.text, seg.style, seg.style.size * k), 0) +
+    gapEm * base * k * (shown.length - 1);
+  let k = 1;
+  const fits = widthAt(1) <= maxWidth;
+  while (k > minScale && widthAt(k) > maxWidth) k -= 0.02;
+  const total = widthAt(k);
+  const lh = (main.style.lineHeight ?? 1) * base * k;
+  return {
+    fits,
+    height: lh,
+    draw(c, cx, top) {
+      let x = cx - total / 2;
+      for (const seg of shown) {
+        const size = seg.style.size * k;
+        applyStyle(c, seg.style, size);
+        c.textAlign = "left";
+        c.fillText(seg.text, x, top + lh * 0.78);
+        x += measure(ctx, seg.text, seg.style, size) + gapEm * base * k;
+      }
+    },
+  };
+}
+
 function spacer(height: number): Block {
   return { height, draw() {} };
 }
@@ -1059,22 +1104,53 @@ function buildBlocks(
   const parts = dateParts(design.date, lang);
   const medallion = layout === "medallion" && Boolean(parts) && Boolean(n1) && Boolean(n2);
 
-  if (medallion && parts) {
-    // Nombre – & – arco con la fecha – nombre
+  // Editorial y medallón: «Ana & Luis» en una línea si cabe a este tamaño de letra; si no, «Ana»
+  // arriba y «& Luis» debajo (el «&» más pequeño y con su color, como en la invitación).
+  const pairedNames = (): void => {
+    const oneLine = inlineBlock(
+      ctx,
+      [
+        { text: n1, style: nameStyle },
+        { text: "&", style: ampStyle },
+        { text: n2, style: nameStyle },
+      ],
+      0.28,
+      W,
+      30 / nameStyle.size
+    );
+    if (oneLine.fits) {
+      blocks.push(oneLine);
+      return;
+    }
     blocks.push(lineBlock(ctx, n1, nameStyle, W, 40));
-    gap(4);
-    blocks.push(lineBlock(ctx, "&", ampStyle, W, 30));
-    gap(18);
+    gap(6);
+    blocks.push(
+      inlineBlock(
+        ctx,
+        [
+          { text: "&", style: ampStyle },
+          { text: n2, style: nameStyle },
+        ],
+        0.28,
+        W,
+        40 / nameStyle.size
+      )
+    );
+  };
+
+  if (medallion && parts) {
+    // Nombres justo encima del arco con la fecha
+    pairedNames();
+    gap(22);
     blocks.push(archBlock(parts, theme, fonts));
-    gap(18);
-    blocks.push(lineBlock(ctx, n2, nameStyle, W, 40));
   } else if (n1 || n2) {
     const both = n1 && n2;
     const joined = both ? `${n1} & ${n2}` : n1 || n2;
     const shown = nameStyle.upper ? joined.toUpperCase() : joined;
     const inlineSize = fitSize(ctx, shown, nameStyle, W, 10);
-    // En «Editorial» los nombres van siempre en dos líneas, grandes.
-    if (!both || (!theme.stackedOnly && layout !== "editorial" && inlineSize >= theme.inlineMin)) {
+    if (both && layout === "editorial") {
+      pairedNames();
+    } else if (!both || (!theme.stackedOnly && inlineSize >= theme.inlineMin)) {
       blocks.push(lineBlock(ctx, joined, nameStyle, W, 30));
     } else {
       blocks.push(lineBlock(ctx, n1, nameStyle, W, 40));
