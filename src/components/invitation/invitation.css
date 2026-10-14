@@ -1699,6 +1699,13 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
     0 calc(var(--u) * 2.4) calc(var(--u) * 4.6) calc(var(--u) * -0.8) rgb(30 24 24 / 0.38),
     0 calc(var(--u) * 0.4) calc(var(--u) * 1) rgb(30 24 24 / 0.16);
 }
+/* «Desde cero»: la tarjeta propia ocupa el mismo sitio que la de plantilla. */
+.inv-openCard .inv-openCustom {
+  width: calc(var(--u) * 56);
+  box-shadow:
+    0 calc(var(--u) * 2.4) calc(var(--u) * 4.6) calc(var(--u) * -0.8) rgb(30 24 24 / 0.38),
+    0 calc(var(--u) * 0.4) calc(var(--u) * 1) rgb(30 24 24 / 0.16);
+}
 .inv-openThanks {
   position: absolute;
   right: calc(var(--u) * 3);
@@ -1906,6 +1913,7 @@ a.inv-cardJoin:focus-visible { outline: 3px solid var(--inv-focus); outline-offs
   .inv-openEnvWrap { top: calc(var(--u) * 19.5); left: calc(var(--u) * -9); width: calc(var(--u) * 118); }
   .inv-openCard { top: calc(var(--u) * 3); left: calc(var(--u) * 8); }
   .inv-openCard .inv-card { width: calc(var(--u) * 76); }
+  .inv-openCard .inv-openCustom { width: calc(var(--u) * 76); }
   .inv-openThanks { top: calc(var(--u) * 104); right: calc(var(--u) * 1); bottom: auto; width: calc(var(--u) * 58); }
   .inv-seal { width: 19%; }
 }

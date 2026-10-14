@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Birthstone, Caprasimo, Delicious_Handrawn, DM_Sans, Newsreader } from "next/font/google";
+import { CUSTOM_FONT_VARIABLES } from "@/components/invitation/custom-font-loader";
 import { AuthProvider } from "@/lib/hooks/use-auth";
 import { ThemeFavicon } from "@/components/theme-favicon";
 import { Toaster } from "@/components/ui/sonner";
@@ -86,7 +87,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={lang}
       data-theme="light"
       suppressHydrationWarning
-      className={`${dmSans.variable} ${newsreader.variable} ${birthstone.variable} ${handrawn.variable} ${caprasimo.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${newsreader.variable} ${birthstone.variable} ${handrawn.variable} ${caprasimo.variable} ${CUSTOM_FONT_VARIABLES} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />

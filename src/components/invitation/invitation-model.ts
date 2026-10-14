@@ -9,6 +9,7 @@ import {
   type InvitationPalette,
   type PaletteColors,
 } from "@/components/invitation/invitation-theme";
+import { DOODLE_NAMES, type DoodleName } from "@/components/invitation/doodles/art";
 import { DEFAULT_LANG, normalizeLang, type Lang } from "@/lib/i18n/config";
 import { dateFormatter } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
@@ -81,6 +82,83 @@ export interface InvitationGift {
   items?: InvitationGiftItem[];
 }
 
+// ---- Modo «Desde cero» ----
+
+/** «template»: plantilla de siempre. «blank»: la pareja coloca bloques y doodles en una tarjeta en blanco. */
+export type InvitationMode = "template" | "blank";
+
+/** Huecos fijos de la tarjeta, de arriba abajo. Esquinas: solo doodles; filas: texto o doodle. */
+export const CUSTOM_SLOTS = ["cornerTL", "cornerTR", "row1", "row2", "row3", "row4", "row5", "row6", "cornerBL", "cornerBR"] as const;
+export type CustomSlotId = (typeof CUSTOM_SLOTS)[number];
+
+/** Bloques de información que se pueden colocar; cada uno como mucho una vez. */
+export const CUSTOM_TEXT_BLOCKS = ["names", "date", "ceremony", "banquet", "message", "rsvp"] as const;
+export type CustomTextBlock = (typeof CUSTOM_TEXT_BLOCKS)[number];
+
+export type CustomSlotItem = { kind: "text"; block: CustomTextBlock } | { kind: "doodle"; name: DoodleName };
+
+/** Diseño «Desde cero». Vive solo en la invitación (no toca el estilo compartido con «Reserva la fecha»). */
+export interface CustomDesign {
+  /** Id de `CUSTOM_FONTS` (custom-fonts.ts); desconocido => fuente por defecto. */
+  titleFont: string;
+  bodyFont: string;
+  palette?: InvitationPalette;
+  /** Color del sobre elegido a mano; sin valor, el de la paleta. */
+  envelopeColor?: string;
+  slots: Partial<Record<CustomSlotId, CustomSlotItem>>;
+}
+
+/** Ids de fuente por defecto (deben existir en `CUSTOM_FONTS`; si no, se usa la fuente por defecto del tema). */
+const DEFAULT_CUSTOM_TITLE_FONT = "cormorant-garamond";
+const DEFAULT_CUSTOM_BODY_FONT = "lora";
+
+/** Diseño en blanco: sin nada colocado y con la paleta por defecto. */
+export function defaultCustomDesign(): CustomDesign {
+  return {
+    titleFont: DEFAULT_CUSTOM_TITLE_FONT,
+    bodyFont: DEFAULT_CUSTOM_BODY_FONT,
+    palette: { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } },
+    slots: {},
+  };
+}
+
+const FONT_ID_RE = /^[a-z0-9-]{1,40}$/;
+const isCornerSlot = (slot: CustomSlotId) => slot.startsWith("corner");
+
+/** Diseño «Desde cero» saneado: ids de hueco y elementos válidos, textos sin repetir y sin texto en las esquinas. */
+export function cleanCustomDesign(value: unknown): CustomDesign {
+  const raw = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+  const font = (v: unknown, fallback: string) => (typeof v === "string" && FONT_ID_RE.test(v) ? v : fallback);
+  const palette = cleanPalette(raw.palette);
+  const envelopeColor = cleanEnvelopeColor(raw.envelopeColor);
+  const source = (raw.slots && typeof raw.slots === "object" ? raw.slots : {}) as Record<string, unknown>;
+  const slots: CustomDesign["slots"] = {};
+  const usedBlocks = new Set<CustomTextBlock>();
+  for (const slot of CUSTOM_SLOTS) {
+    const item = source[slot];
+    if (!item || typeof item !== "object") continue;
+    const { kind, block, name } = item as { kind?: unknown; block?: unknown; name?: unknown };
+    if (kind === "doodle" && DOODLE_NAMES.includes(name as DoodleName)) {
+      slots[slot] = { kind: "doodle", name: name as DoodleName };
+    } else if (
+      kind === "text" &&
+      !isCornerSlot(slot) &&
+      CUSTOM_TEXT_BLOCKS.includes(block as CustomTextBlock) &&
+      !usedBlocks.has(block as CustomTextBlock)
+    ) {
+      usedBlocks.add(block as CustomTextBlock);
+      slots[slot] = { kind: "text", block: block as CustomTextBlock };
+    }
+  }
+  return {
+    titleFont: font(raw.titleFont, DEFAULT_CUSTOM_TITLE_FONT),
+    bodyFont: font(raw.bodyFont, DEFAULT_CUSTOM_BODY_FONT),
+    ...(palette ? { palette } : {}),
+    ...(envelopeColor ? { envelopeColor } : {}),
+    slots,
+  };
+}
+
 /** Lo que edita la pareja. */
 export interface InvitationContent {
   template: InvitationTemplateId;
@@ -115,6 +193,10 @@ export interface InvitationContent {
   imageMode?: InvitationImageMode;
   /** Obsoleto e ignorado: foto del lugar de invitaciones antiguas. */
   photo?: string;
+  /** Sin valor, «template». Con «blank» manda `custom` en lugar de la plantilla. */
+  mode?: InvitationMode;
+  /** Diseño «Desde cero»; se conserva al volver a «template» y viceversa. */
+  custom?: CustomDesign;
 }
 
 /** Lo que se ve en la página pública. */
@@ -314,6 +396,7 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     : undefined;
   const photo = cleanPhoto(value.photo);
   const envelopeColor = cleanEnvelopeColor(value.envelopeColor);
+  const custom = value.custom ? cleanCustomDesign(value.custom) : undefined;
   return {
     template,
     lang: normalizeLang(value.lang),
@@ -331,6 +414,8 @@ export function cleanContent(value: Partial<InvitationContent>): InvitationConte
     ...(envelopeColor ? { envelopeColor } : {}),
     ...(imageMode ? { imageMode } : {}),
     ...(photo ? { photo } : {}),
+    ...(value.mode === "blank" ? { mode: "blank" as const } : {}),
+    ...(custom ? { custom } : {}),
   };
 }
 

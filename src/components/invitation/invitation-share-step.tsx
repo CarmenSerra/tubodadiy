@@ -31,6 +31,8 @@ export function InvitationShareStep({
   onPublish,
   onUnpublish,
   onCopy,
+  missingBlocks = [],
+  onGoDesign,
 }: {
   published: boolean;
   slug: string;
@@ -50,6 +52,9 @@ export function InvitationShareStep({
   onPublish: () => void;
   onUnpublish: () => void;
   onCopy: () => void;
+  /** Modo «Desde cero»: bloques importantes (nombres, fecha) que aún no están colocados en la tarjeta. */
+  missingBlocks?: readonly ("names" | "date")[];
+  onGoDesign?: () => void;
 }) {
   const { t } = useTranslation("invitationPage");
   const [confirming, setConfirming] = React.useState(false);
@@ -133,6 +138,25 @@ export function InvitationShareStep({
           )}
         </div>
       </div>
+
+      {missingBlocks.length > 0 && (
+        <div role="status" className="flex flex-col items-start gap-1 rounded-xl bg-lilac-soft px-4 py-3 text-sm text-ink">
+          <p>
+            {t("share.missingBlocks", {
+              blocks: missingBlocks.map((b) => t(`blank.blocks.${b}`).toLowerCase()).join(", "),
+            })}
+          </p>
+          {onGoDesign && (
+            <button
+              type="button"
+              onClick={onGoDesign}
+              className="min-h-11 rounded-md font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-lilac"
+            >
+              {t("share.missingBlocksAction")}
+            </button>
+          )}
+        </div>
+      )}
 
       {!published ? (
         <div className="flex flex-col items-start gap-3">

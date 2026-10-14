@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 
 import { CopyButton } from "@/components/invitation/copy-button";
+import { CustomCard, CustomThanks } from "@/components/invitation/custom-card";
+import { fontFamilyOf } from "@/components/invitation/custom-fonts";
 import { InvitationEnvelope } from "@/components/invitation/invitation-envelope";
 import { InvitationOpening } from "@/components/invitation/invitation-opening";
 import { ThanksCard } from "@/components/invitation/invitation-thanks";
@@ -25,18 +27,21 @@ import {
 } from "@/components/invitation/invitation-ornaments";
 import {
   dateParts,
+  defaultCustomDesign,
   formatLongDate,
   formatShortDate,
   formatTime,
   mapLink,
   placeIsEmpty,
   samePlace,
+  type CustomDesign,
+  type InvitationContent,
   type InvitationGift,
   type InvitationGiftItem,
   type InvitationPlace,
   type InvitationPublicData,
 } from "@/components/invitation/invitation-model";
-import { buildTheme, LEGACY_COLORS, resolveEnvelope, type InvitationTheme } from "@/components/invitation/invitation-theme";
+import { buildTheme, DEFAULT_PALETTE, LEGACY_COLORS, resolveEnvelope, type InvitationTheme } from "@/components/invitation/invitation-theme";
 import type { Lang } from "@/lib/i18n/config";
 import { formatMoney } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
@@ -306,6 +311,34 @@ export function InvitationCard({
   );
 }
 
+/**
+ * Invitación «Desde cero» (`mode === "blank"`): el diseño propio manda sobre la plantilla.
+ * Devuelve el diseño con la paleta ya resuelta, los datos "vistos" por las piezas que siguen
+ * dibujándose igual que en plantilla (tarjetita de agradecimiento, diálogo, sobre) y las variables
+ * de color y de fuente de la raíz.
+ */
+function blankViewOf(data: InvitationPublicData) {
+  const base = data.custom ?? defaultCustomDesign();
+  const palette = base.palette ?? { id: DEFAULT_PALETTE.id, colors: { ...DEFAULT_PALETTE.colors } };
+  const design: CustomDesign = { ...base, palette };
+  // Neutra («minimal»): sin adornos de plantilla ni fondo; manda la paleta del diseño.
+  const shown: InvitationPublicData = {
+    ...data,
+    template: "minimal",
+    palette,
+    background: undefined,
+    layout: undefined,
+    envelopeColor: design.envelopeColor,
+  };
+  const style = {
+    ...buildTheme(palette.colors, "minimal").vars,
+    "--font-display": fontFamilyOf(design.titleFont),
+    "--font-body": fontFamilyOf(design.bodyFont),
+  } as CSSProperties;
+  const content: InvitationContent = { ...data, showGift: Boolean(data.gift) };
+  return { design, shown, style, content };
+}
+
 export function InvitationView({ data, mode = "page", rsvp, closed = false }: InvitationViewProps) {
   // El texto de la invitación sigue el idioma que eligió la pareja, no el de quien la abre.
   const lang = data.lang;
@@ -398,14 +431,19 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
   );
 
   if (!preview) {
-    const envelopeColor = resolveEnvelope(palette, data.envelopeColor, data.template);
-    const sealColor = resolveSealColor(envelopeColor, (palette?.colors ?? LEGACY_COLORS[data.template]));
+    const blank = data.mode === "blank" ? blankViewOf(data) : null;
+    // En «Desde cero» la raíz, el sobre, el sello y el diálogo salen de la paleta y las fuentes del diseño.
+    const shown = blank?.shown ?? data;
+    const shownPalette = shown.palette;
+    const shownStyle = blank?.style ?? themeStyle;
+    const envelopeColor = resolveEnvelope(shownPalette, shown.envelopeColor, shown.template);
+    const sealColor = resolveSealColor(envelopeColor, (shownPalette?.colors ?? LEGACY_COLORS[shown.template]));
     return (
       <div
-        className={cn("inv-root", `inv-${data.template}`)}
-        data-template={data.template}
-        data-themed={palette ? "" : undefined}
-        style={themeStyle}
+        className={cn("inv-root", `inv-${shown.template}`)}
+        data-template={shown.template}
+        data-themed={shownPalette ? "" : undefined}
+        style={shownStyle}
         lang={lang}
       >
         <Body className="inv-main">
@@ -421,8 +459,16 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
               }}
               envelope={<InvitationEnvelope animated color={envelopeColor} className="inv-openEnv" />}
               seal={<WaxSeal color={sealColor} className="inv-sealArt" />}
-              card={<InvitationCard data={data} preview />}
-              thanks={<ThanksCard data={data} />}
+              card={
+                blank ? (
+                  <div className="inv-openCustom">
+                    <CustomCard content={blank.content} design={blank.design} mode="view" />
+                  </div>
+                ) : (
+                  <InvitationCard data={data} preview />
+                )
+              }
+              thanks={blank ? <CustomThanks content={blank.content} design={blank.design} /> : <ThanksCard data={shown} />}
               note={
                 closed ? undefined : deadline ? (
                   <>
@@ -442,10 +488,10 @@ export function InvitationView({ data, mode = "page", rsvp, closed = false }: In
                 )
               }
               sheet={{
-                className: `inv-${data.template}`,
-                style: themeStyle,
-                template: data.template,
-                themed: Boolean(palette),
+                className: `inv-${shown.template}`,
+                style: shownStyle,
+                template: shown.template,
+                themed: Boolean(shownPalette),
                 lang,
               }}
             >

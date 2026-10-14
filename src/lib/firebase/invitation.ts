@@ -144,7 +144,13 @@ export async function saveInvitation(input: SaveInvitationInput): Promise<void> 
 
   // `merge` no quita lo que ya hay: sin color a mano (sobre «automático») se borra el que hubiera,
   // si no la página pública se quedaría con el color antiguo aunque la pareja haya vuelto al automático.
-  const merged = { ...data, ...(content.envelopeColor ? {} : { envelopeColor: deleteField() }) };
+  // Lo mismo con `mode` (sin valor = plantilla) y con `custom` (solo existe si la pareja usó «Desde cero»).
+  const merged = {
+    ...data,
+    ...(content.envelopeColor ? {} : { envelopeColor: deleteField() }),
+    ...(content.mode ? {} : { mode: deleteField() }),
+    ...(content.custom ? {} : { custom: deleteField() }),
+  };
   await setDoc(ref, input.isNew ? { ...merged, createdAt: serverTimestamp() } : merged, { merge: true });
   // Tarea «Enviar invitaciones» (Papelería): publicar la marca; un borrador no la toca.
   if (input.published) void markInvitationsSent(input.planId, true);

@@ -1,0 +1,70 @@
+{
+  "slot": {
+    "cornerTL": "Top left corner",
+    "cornerTR": "Top right corner",
+    "cornerBL": "Bottom left corner",
+    "cornerBR": "Bottom right corner",
+    "row1": "Row 1",
+    "row2": "Row 2",
+    "row3": "Row 3",
+    "row4": "Row 4",
+    "row5": "Row 5",
+    "row6": "Row 6",
+    "empty": "{{slot}}: empty",
+    "filled": "{{slot}}: {{item}}",
+    "place": "Place “{{item}}” in {{slot}}",
+    "remove": "Remove “{{item}}” from {{slot}}",
+    "drag": "“{{item}}”: drag it to another slot to move it"
+  },
+  "block": {
+    "names": "Names",
+    "date": "Date",
+    "ceremony": "Ceremony",
+    "banquet": "Banquet",
+    "message": "Message",
+    "rsvp": "RSVP"
+  },
+  "placeholder": {
+    "date": "Wedding date",
+    "ceremony": "Ceremony venue",
+    "banquet": "Banquet venue",
+    "message": "Your message goes here"
+  },
+  "item": {
+    "pick": "“{{item}}”: tap to pick it, then tap a slot, or drag it",
+    "picked": "“{{item}}” picked: tap a slot to place it"
+  },
+  "doodle": {
+    "rings": "Rings",
+    "ring": "Ring",
+    "polaroid": "Polaroid",
+    "wineGlass": "Wine glass",
+    "coupes": "Champagne coupes",
+    "flute": "Champagne flute",
+    "martini": "Martini",
+    "sodaBottle": "Soda bottle",
+    "instantCamera": "Instant camera",
+    "planeWindow": "Plane window",
+    "heartCake": "Heart cake",
+    "cakeSlice": "Slice of cake",
+    "tieredCake": "Tiered cake",
+    "candle": "Candle",
+    "handRing": "Hand with ring",
+    "heel": "High heel",
+    "loafer": "Loafer",
+    "bouquet": "Bouquet",
+    "discoBall": "Disco ball",
+    "envelope": "Envelope",
+    "flowers": "Flowers",
+    "sparkle": "Sparkle",
+    "heart": "Heart",
+    "bow": "Bow",
+    "sprig": "Sprig",
+    "threadHands": "Hands joined by a thread",
+    "couple": "Couple",
+    "heartCouple": "Couple with a heart",
+    "car": "Car",
+    "waxSeal": "Wax seal",
+    "cornerSwirl": "Corner swirl"
+  }
+}

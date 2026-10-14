@@ -52,6 +52,7 @@ export const NAMESPACES = [
   "invitation",
   "invitationPage",
   "envelope",
+  "customCard",
   "errors",
 ] as const;
 

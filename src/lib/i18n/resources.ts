@@ -7,6 +7,7 @@ import esBudget from "@/locales/es/budget.json";
 import esCeremony from "@/locales/es/ceremony.json";
 import esCommon from "@/locales/es/common.json";
 import esDashboard from "@/locales/es/dashboard.json";
+import esCustomCard from "@/locales/es/customCard.json";
 import esEnvelope from "@/locales/es/envelope.json";
 import esErrors from "@/locales/es/errors.json";
 import esGuests from "@/locales/es/guests.json";
@@ -26,6 +27,7 @@ import enBudget from "@/locales/en/budget.json";
 import enCeremony from "@/locales/en/ceremony.json";
 import enCommon from "@/locales/en/common.json";
 import enDashboard from "@/locales/en/dashboard.json";
+import enCustomCard from "@/locales/en/customCard.json";
 import enEnvelope from "@/locales/en/envelope.json";
 import enErrors from "@/locales/en/errors.json";
 import enGuests from "@/locales/en/guests.json";
@@ -64,6 +66,7 @@ export const RESOURCES = {
     invitation: esInvitation,
     invitationPage: esInvitationPage,
     envelope: esEnvelope,
+    customCard: esCustomCard,
     errors: esErrors,
   },
   en: {
@@ -84,6 +87,7 @@ export const RESOURCES = {
     invitation: enInvitation,
     invitationPage: enInvitationPage,
     envelope: enEnvelope,
+    customCard: enCustomCard,
     errors: enErrors,
   },
 } as const satisfies Record<Lang, Record<Namespace, Bundle>>;

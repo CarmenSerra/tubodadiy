@@ -1,21 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { AlertCircleIcon, CheckIcon, EyeIcon, Loader2Icon } from "lucide-react";
+import { AlertCircleIcon, CheckIcon, EyeIcon, Loader2Icon, PencilIcon, SparklesIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CTA_PRIMARY, CTA_SECONDARY, SECTION_TITLE, Skeleton } from "@/components/dashboard/ui";
+import { BlankDesignPanel } from "@/components/invitation/blank-design-panel";
+import { CustomComposition } from "@/components/invitation/custom-card";
 import { DesignAccordion } from "@/components/invitation/design-accordion";
 import { InvitationDataStep } from "@/components/invitation/invitation-data-step";
+import { InvitationModeChooser, InvitationModeSwitch } from "@/components/invitation/invitation-mode-switch";
 import { InvitationShareStep } from "@/components/invitation/invitation-share-step";
 import {
+  CUSTOM_SLOTS,
   SLUG_MAX,
   SLUG_MIN,
   cleanContent,
   cleanStyle,
   cleanUrl,
   defaultContent,
+  defaultCustomDesign,
   defaultMessage,
   generateSlug,
   invitationPath,
@@ -27,8 +32,12 @@ import {
   styleOf,
   typedSlug,
   whatsappLink,
+  type CustomDesign,
+  type CustomSlotId,
+  type CustomSlotItem,
   type InvitationContent,
   type InvitationDoc,
+  type InvitationMode,
   type InvitationPlace,
   type InvitationPublicData,
   type InvitationStyle,
@@ -271,12 +280,15 @@ function Editor({
       }
     }
 
-    // El estilo es del plan: «Reserva la fecha» se ve igual que la invitación.
-    const style = styleOf(content);
-    const styleJson = JSON.stringify(cleanStyle(style));
-    if (styleJson !== styleWritten.current) {
-      await saveSharedStyle(ctx.planId, style);
-      styleWritten.current = styleJson;
+    // El estilo es del plan: «Reserva la fecha» se ve igual que la invitación. El modo «Desde cero»
+    // tiene diseño propio y no lo toca.
+    if (content.mode !== "blank") {
+      const style = styleOf(content);
+      const styleJson = JSON.stringify(cleanStyle(style));
+      if (styleJson !== styleWritten.current) {
+        await saveSharedStyle(ctx.planId, style);
+        styleWritten.current = styleJson;
+      }
     }
     await saveInvitation({
       slug,
@@ -325,6 +337,82 @@ function Editor({
     update((f) => ({ ...f, [key]: value }));
   const setPlace = (key: "ceremony" | "banquet", patch: Partial<InvitationPlace>) =>
     update((f) => ({ ...f, [key]: { ...f[key], ...patch } }));
+
+  // ---- Modo: «Desde plantilla» (lo de siempre) o «Desde cero» (la pareja coloca cada elemento) ----
+  const mode: InvitationMode = view.mode === "blank" ? "blank" : "template";
+  const blank = mode === "blank";
+  /** Una invitación sin guardar empieza por elegir el modo; una guardada ya lo tiene. */
+  const [modeChosen, setModeChosen] = React.useState(Boolean(saved));
+  const design = React.useMemo<CustomDesign>(() => view.custom ?? defaultCustomDesign(), [view.custom]);
+  /** Elemento de la batería seleccionado con un toque, a la espera de tocar un hueco. */
+  const [selected, setSelected] = React.useState<CustomSlotItem | null>(null);
+  /** Vista previa: tarjetas planas para colocar o composición final. */
+  const [finalView, setFinalView] = React.useState(false);
+
+  function changeMode(next: InvitationMode) {
+    if (next === mode) return;
+    setSelected(null);
+    setFinalView(false);
+    // Los dos diseños se conservan: solo cambia cuál se usa.
+    update((f) => ({ ...f, mode: next, custom: f.custom ?? defaultCustomDesign() }));
+  }
+
+  function chooseMode(next: InvitationMode) {
+    setModeChosen(true);
+    if (next === "blank") {
+      // Sin autoguardar todavía: el documento se crea con el primer cambio real.
+      const nextForm = { ...formRef.current, mode: "blank" as const, custom: formRef.current.custom ?? defaultCustomDesign() };
+      formRef.current = nextForm;
+      setForm(nextForm);
+    }
+  }
+
+  const updateDesign = React.useCallback(
+    (change: (d: CustomDesign) => CustomDesign) =>
+      update((f) => ({ ...f, custom: change(f.custom ?? defaultCustomDesign()) })),
+    [update]
+  );
+
+  /** Coloca (o quita, con `item === null`) un elemento en un hueco; con `from`, es un traslado entre huecos (intercambia). */
+  const placeItem = React.useCallback(
+    (slot: CustomSlotId, item: CustomSlotItem | null, from?: CustomSlotId) => {
+      setSelected(null);
+      updateDesign((d) => {
+        const slots = { ...d.slots };
+        if (item === null) {
+          delete slots[slot];
+          return { ...d, slots };
+        }
+        if (slot.startsWith("corner") && item.kind === "text") return d;
+        if (from === slot) return d;
+        if (from) {
+          const target = slots[slot];
+          if (target) {
+            if (from.startsWith("corner") && target.kind === "text") return d;
+            slots[from] = target;
+          } else {
+            delete slots[from];
+          }
+        } else if (item.kind === "text") {
+          // Cada bloque de texto va una sola vez: si ya estaba en otro hueco, se mueve.
+          for (const key of CUSTOM_SLOTS) {
+            const other = slots[key];
+            if (key !== slot && other?.kind === "text" && other.block === item.block) delete slots[key];
+          }
+        }
+        slots[slot] = item;
+        return { ...d, slots };
+      });
+    },
+    [updateDesign]
+  );
+
+  /** Bloques que la invitación necesita para tener sentido y que aún no están colocados en la tarjeta. */
+  const missingBlocks = React.useMemo(() => {
+    if (!blank) return [];
+    const placed = new Set(CUSTOM_SLOTS.map((s) => design.slots[s]).flatMap((i) => (i?.kind === "text" ? [i.block] : [])));
+    return (["names", "date"] as const).filter((b) => !placed.has(b));
+  }, [blank, design.slots]);
 
   // ---- Enlace: lo propone el nombre de la pareja (o del plan) y se puede editar ----
   const [slugEdit, setSlugEdit] = React.useState<string | null>(null);
@@ -489,7 +577,7 @@ function Editor({
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [modeChosen]);
 
   function showPreview() {
     previewRef.current?.scrollIntoView({ block: "start", behavior: prefersReducedMotion() ? "auto" : "smooth" });
@@ -499,10 +587,13 @@ function Editor({
   const prev = stepIndex > 0 ? STEPS[stepIndex - 1] : null;
   const next = stepIndex < STEPS.length - 1 ? STEPS[stepIndex + 1] : null;
 
+  if (!modeChosen) return <InvitationModeChooser onChoose={chooseMode} />;
+
   return (
     <>
       <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] md:gap-4 lg:gap-6 xl:gap-8">
         <div className="flex min-w-0 flex-col gap-5">
+          <InvitationModeSwitch mode={mode} onChange={changeMode} />
           <div ref={stepperRef} className="scroll-mt-4">
             <nav aria-label={t("steps.label")}>
               <ol className="grid grid-cols-3 gap-2">
@@ -560,7 +651,10 @@ function Editor({
                 gift={{ available: giftAvailable, planGift }}
               />
             )}
-            {step === "design" && (
+            {step === "design" && blank && (
+              <BlankDesignPanel design={design} onChange={updateDesign} selected={selected} onSelect={setSelected} />
+            )}
+            {step === "design" && !blank && (
               <DesignAccordion
                 style={styleOf(view)}
                 onChange={(next) =>
@@ -598,6 +692,8 @@ function Editor({
                 onPublish={() => void handlePublish()}
                 onUnpublish={() => void handleUnpublish()}
                 onCopy={() => void handleCopy()}
+                missingBlocks={missingBlocks}
+                onGoDesign={() => goTo("design")}
               />
             )}
           </div>
@@ -632,14 +728,46 @@ function Editor({
           <p className="text-center text-xs font-medium uppercase tracking-wider text-ink-muted">
             {t("preview.caption")}
           </p>
-          <div
-            role="img"
-            aria-label={t("preview.aria")}
-            className="relative mx-auto aspect-[4/5] w-full md:max-w-[calc((100dvh-7rem)*0.8)] max-h-[calc(100dvh-9rem)] md:max-h-none overflow-hidden rounded-2xl border border-line-strong shadow-pop"
-          >
-            <InvitationComposition data={preview} envelopeColor={view.envelopeColor} />
-          </div>
-          <p className="text-center text-[13px] text-ink-muted">{t("preview.shared")}</p>
+          {blank ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelected(null);
+                  setFinalView((v) => !v);
+                }}
+                className={cn(CTA_SECONDARY, "mx-auto h-11")}
+              >
+                {finalView ? <PencilIcon aria-hidden="true" className="size-4" /> : <SparklesIcon aria-hidden="true" className="size-4" />}
+                {finalView ? t("blank.preview.backToEdit") : t("blank.preview.final")}
+              </button>
+              <div role="group" aria-label={t("blank.preview.aria")} className="relative mx-auto w-full">
+                <CustomComposition
+                  content={view}
+                  design={design}
+                  arrangement={finalView ? "final" : "flat"}
+                  // Siempre editable: en «final» la propia tarjeta desvanece los huecos y no responde.
+                  editable
+                  selected={selected}
+                  onPlace={placeItem}
+                />
+              </div>
+              <p className="text-center text-[13px] text-ink-muted">
+                {finalView ? t("blank.preview.finalNote") : selected ? t("blank.preview.tapSlot") : t("blank.preview.own")}
+              </p>
+            </>
+          ) : (
+            <>
+              <div
+                role="img"
+                aria-label={t("preview.aria")}
+                className="relative mx-auto aspect-[4/5] w-full md:max-w-[calc((100dvh-7rem)*0.8)] max-h-[calc(100dvh-9rem)] md:max-h-none overflow-hidden rounded-2xl border border-line-strong shadow-pop"
+              >
+                <InvitationComposition data={preview} envelopeColor={view.envelopeColor} />
+              </div>
+              <p className="text-center text-[13px] text-ink-muted">{t("preview.shared")}</p>
+            </>
+          )}
         </aside>
       </div>
 

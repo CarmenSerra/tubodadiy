@@ -87,6 +87,8 @@
     "copy": "Copiar enlace",
     "whatsapp": "Compartir por WhatsApp",
     "view": "Ver invitación",
+    "missingBlocks": "Aún no has colocado en la tarjeta: {{blocks}}. Tus invitados no los verán.",
+    "missingBlocksAction": "Ir a Diseño para colocarlos",
     "newTab": "(se abre en una pestaña nueva)",
     "unpublish": {
       "button": "Despublicar",
@@ -125,5 +127,101 @@
     "unpublishFailed": "No se ha podido despublicar. Inténtalo de nuevo.",
     "linkCopied": "Enlace copiado",
     "copyFailed": "No se ha podido copiar. Selecciona el enlace y cópialo a mano."
+  },
+  "mode": {
+    "label": "Cómo la diseñas",
+    "template": "Desde plantilla",
+    "blank": "Desde cero"
+  },
+  "modeChooser": {
+    "title": "¿Cómo quieres crear tu invitación?",
+    "description": "Puedes cambiar de modo cuando quieras: cada uno conserva su propio diseño.",
+    "blank": {
+      "title": "Desde cero",
+      "description": "Una tarjeta en blanco: eliges las fuentes y los colores, y colocas tú cada texto y cada dibujito donde quieras.",
+      "cta": "Empezar en blanco"
+    },
+    "template": {
+      "title": "Desde plantilla",
+      "description": "Elige un estilo ya diseñado, ajusta los colores y listo. El camino rápido.",
+      "cta": "Elegir una plantilla"
+    }
+  },
+  "blank": {
+    "fonts": {
+      "title": "Fuentes",
+      "note": "Elige por separado la fuente de los nombres (título) y la del resto de textos. Toca primero cuál quieres cambiar.",
+      "roleLabel": "Qué fuente estás eligiendo",
+      "role": {
+        "title": "Título",
+        "body": "Texto"
+      },
+      "groupLabel": "Fuentes de estilo {{style}} para {{role}}"
+    },
+    "palette": {
+      "title": "Paleta",
+      "note": "Los colores de la tarjeta, los dibujos y el sobre."
+    },
+    "elements": {
+      "title": "Elementos",
+      "summaryNone": "Nada colocado todavía",
+      "summary_one": "{{count}} hueco ocupado",
+      "summary_other": "{{count}} huecos ocupados",
+      "note": "Arrastra un elemento a un hueco de la tarjeta. En el móvil, toca el elemento y luego el hueco. Las esquinas solo admiten dibujos.",
+      "hint": "Toca un elemento para seleccionarlo y después toca un hueco de la tarjeta.",
+      "selected": "Seleccionado: {{name}}. Ahora toca un hueco de la tarjeta (o toca el elemento otra vez para soltarlo).",
+      "blocks": "Información",
+      "doodles": "Dibujitos",
+      "allPlaced": "Ya has colocado toda la información."
+    },
+    "blocks": {
+      "names": "Nombres",
+      "date": "Fecha",
+      "ceremony": "Ceremonia",
+      "banquet": "Banquete",
+      "message": "Mensaje",
+      "rsvp": "Confirmar asistencia"
+    },
+    "doodles": {
+      "rings": "Alianzas",
+      "ring": "Anillo",
+      "polaroid": "Polaroid",
+      "wineGlass": "Copa de vino",
+      "coupes": "Copas de cava",
+      "flute": "Copa flauta",
+      "martini": "Copa de cóctel",
+      "sodaBottle": "Botella de refresco",
+      "instantCamera": "Cámara instantánea",
+      "planeWindow": "Ventanilla de avión",
+      "heartCake": "Tarta con corazón",
+      "cakeSlice": "Trozo de tarta",
+      "tieredCake": "Tarta de pisos",
+      "candle": "Vela",
+      "handRing": "Mano con anillo",
+      "heel": "Zapato de tacón",
+      "loafer": "Mocasín",
+      "bouquet": "Ramo",
+      "discoBall": "Bola de discoteca",
+      "envelope": "Sobre",
+      "flowers": "Flores",
+      "sparkle": "Destello",
+      "heart": "Corazón",
+      "bow": "Lazo",
+      "sprig": "Ramita",
+      "threadHands": "Manos unidas con hilo",
+      "couple": "Pareja",
+      "heartCouple": "Pareja con corazón",
+      "car": "Coche",
+      "waxSeal": "Sello de lacre",
+      "cornerSwirl": "Voluta de esquina"
+    },
+    "preview": {
+      "aria": "Vista previa de la invitación desde cero",
+      "final": "Resultado final",
+      "backToEdit": "Volver a editar",
+      "own": "Este diseño es solo de la invitación: «Reserva la fecha» no cambia.",
+      "tapSlot": "Toca un hueco de la tarjeta para colocar el elemento.",
+      "finalNote": "Así la verá quien abra tu enlace."
+    }
   }
 }

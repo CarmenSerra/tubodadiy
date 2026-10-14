@@ -1,0 +1,70 @@
+{
+  "slot": {
+    "cornerTL": "Esquina superior izquierda",
+    "cornerTR": "Esquina superior derecha",
+    "cornerBL": "Esquina inferior izquierda",
+    "cornerBR": "Esquina inferior derecha",
+    "row1": "Fila 1",
+    "row2": "Fila 2",
+    "row3": "Fila 3",
+    "row4": "Fila 4",
+    "row5": "Fila 5",
+    "row6": "Fila 6",
+    "empty": "{{slot}}: vacío",
+    "filled": "{{slot}}: {{item}}",
+    "place": "Colocar «{{item}}» en {{slot}}",
+    "remove": "Quitar «{{item}}» de {{slot}}",
+    "drag": "«{{item}}»: arrástralo a otro hueco para moverlo"
+  },
+  "block": {
+    "names": "Nombres",
+    "date": "Fecha",
+    "ceremony": "Ceremonia",
+    "banquet": "Banquete",
+    "message": "Mensaje",
+    "rsvp": "Confirmación"
+  },
+  "placeholder": {
+    "date": "Fecha de la boda",
+    "ceremony": "Lugar de la ceremonia",
+    "banquet": "Lugar del banquete",
+    "message": "Aquí irá tu mensaje"
+  },
+  "item": {
+    "pick": "«{{item}}»: toca para elegirlo y luego toca un hueco, o arrástralo",
+    "picked": "«{{item}}» elegido: toca un hueco para colocarlo"
+  },
+  "doodle": {
+    "rings": "Alianzas",
+    "ring": "Anillo",
+    "polaroid": "Polaroid",
+    "wineGlass": "Copa de vino",
+    "coupes": "Copas de cava",
+    "flute": "Copa de champán",
+    "martini": "Martini",
+    "sodaBottle": "Botella de refresco",
+    "instantCamera": "Cámara instantánea",
+    "planeWindow": "Ventanilla de avión",
+    "heartCake": "Tarta con corazón",
+    "cakeSlice": "Porción de tarta",
+    "tieredCake": "Tarta de pisos",
+    "candle": "Vela",
+    "handRing": "Mano con anillo",
+    "heel": "Zapato de tacón",
+    "loafer": "Mocasín",
+    "bouquet": "Ramo",
+    "discoBall": "Bola de discoteca",
+    "envelope": "Sobre",
+    "flowers": "Flores",
+    "sparkle": "Destello",
+    "heart": "Corazón",
+    "bow": "Lazo",
+    "sprig": "Ramita",
+    "threadHands": "Manos unidas por un hilo",
+    "couple": "Pareja",
+    "heartCouple": "Pareja con corazón",
+    "car": "Coche",
+    "waxSeal": "Sello de lacre",
+    "cornerSwirl": "Voluta de esquina"
+  }
+}

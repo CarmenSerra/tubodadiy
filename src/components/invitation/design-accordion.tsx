@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 type SectionId = "style" | "palette" | "layout" | "background" | "motifs";
 
 /** Una sección del acordeón: botón con título, resumen de lo elegido y chevron. */
-function Section({
+export function Section({
   id,
   title,
   summary,
