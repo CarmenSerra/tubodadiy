@@ -16,7 +16,8 @@
     "vendors": "Vendors",
     "budget": "Budget",
     "honeymoon": "Honeymoon",
-    "banquet": "Banquet"
+    "banquet": "Banquet",
+    "style": "Style"
   },
   "progress": {
     "label": "Plan progress",
@@ -46,7 +47,9 @@
     "ceremonyTab": "Go to the Ceremony tab",
     "officiant": "Go to the officiant's details",
     "legalDocs": "See the legal documents guide",
-    "gift": "Open the gift details"
+    "gift": "Open the gift details",
+    "style": "Go to style",
+    "guestsNeeds": "Go to guest needs"
   },
   "status": {
     "options": {

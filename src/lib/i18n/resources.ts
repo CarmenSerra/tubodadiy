@@ -19,6 +19,7 @@ import esHoneymoon from "@/locales/es/honeymoon.json";
 import esInvitation from "@/locales/es/invitation.json";
 import esInvitationPage from "@/locales/es/invitationPage.json";
 import esLanding from "@/locales/es/landing.json";
+import esLook from "@/locales/es/look.json";
 import esOnboarding from "@/locales/es/onboarding.json";
 import esPlan from "@/locales/es/plan.json";
 import esSteps from "@/locales/es/steps.json";
@@ -43,6 +44,7 @@ import enHoneymoon from "@/locales/en/honeymoon.json";
 import enInvitation from "@/locales/en/invitation.json";
 import enInvitationPage from "@/locales/en/invitationPage.json";
 import enLanding from "@/locales/en/landing.json";
+import enLook from "@/locales/en/look.json";
 import enOnboarding from "@/locales/en/onboarding.json";
 import enPlan from "@/locales/en/plan.json";
 import enSteps from "@/locales/en/steps.json";
@@ -74,6 +76,7 @@ export const RESOURCES = {
     tools: esTools,
     honeymoon: esHoneymoon,
     banquet: esBanquet,
+    look: esLook,
     invitation: esInvitation,
     invitationPage: esInvitationPage,
     envelope: esEnvelope,
@@ -99,6 +102,7 @@ export const RESOURCES = {
     tools: enTools,
     honeymoon: enHoneymoon,
     banquet: enBanquet,
+    look: enLook,
     invitation: enInvitation,
     invitationPage: enInvitationPage,
     envelope: enEnvelope,

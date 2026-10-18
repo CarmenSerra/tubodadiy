@@ -104,7 +104,7 @@ export function BeautySection({
           }
         />
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid items-start gap-4 md:grid-cols-2">
           {items.map((item) => (
             <BeautyCard
               key={item.id}

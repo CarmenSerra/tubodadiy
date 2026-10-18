@@ -27,7 +27,7 @@ import { useAppointmentsLauncher } from "@/components/appointments/appointments-
 import { usePlanToolsLauncher } from "@/components/plan-tools/plan-tools-launcher";
 import { useEditPlanLauncher } from "@/components/plan/edit-plan-launcher";
 import { STATUS_LABEL_KEY, StepStatusControl } from "@/components/plan/step-status";
-import { taskTarget } from "@/components/plan/task-links";
+import { manualTaskTarget, taskTarget } from "@/components/plan/task-links";
 import { TaskDetailsDialog } from "@/components/plan/task-details-dialog";
 import { assigneeLabel, hasTaskDetails, taskDateOrNull, taskStatus } from "@/components/plan/task-model";
 import { useSaveTheDateLauncher } from "@/components/stationery/stationery-launcher";
@@ -111,7 +111,7 @@ export function StepCard({
 
   // Flecha de una tarea base hacia su herramienta; `null` si no tiene o no se puede abrir aquí.
   function taskArrow(task: PlanStep["tasks"][number]) {
-    const target = taskTarget(task.auto, planId);
+    const target = taskTarget(task.auto, planId) ?? manualTaskTarget(step.category, task.title, planId);
     if (!target) return null;
     const targetLabel = t(target.labelKey);
     const label = `${targetLabel}: ${taskTitle(task)}`;

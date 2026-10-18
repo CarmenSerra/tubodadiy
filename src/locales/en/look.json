@@ -1,0 +1,303 @@
+{
+  "nav": {
+    "label": "Style"
+  },
+  "page": {
+    "title": "Style",
+    "description": "Outfits, beauty, rings and decor in one place, with an inspiration board so everything matches. It saves automatically and everyone planning with you can see it.",
+    "tabsLabel": "Style sections",
+    "tabs": {
+      "vestuario": "Outfits",
+      "belleza": "Beauty",
+      "anillos": "Rings",
+      "decoracion": "Decor"
+    },
+    "loading": "Loading style",
+    "loadError": {
+      "title": "We couldn't load your style",
+      "text": "Check your connection and try again in a moment."
+    }
+  },
+  "status": {
+    "searching": "Searching",
+    "chosen": "Chosen",
+    "ordered": "Ordered",
+    "ready": "Ready"
+  },
+  "people": {
+    "partnerA": "Partner A",
+    "partnerB": "Partner B",
+    "bridesmaid": "Bridesmaids",
+    "groomsman": "Groomsmen and witnesses",
+    "kid": "Children",
+    "other": "Someone else"
+  },
+  "form": {
+    "optional": "(optional)",
+    "price": "Price (€)",
+    "pricePlaceholder": "E.g. 1200",
+    "status": "Status",
+    "notes": "Notes",
+    "cancel": "Cancel",
+    "save": "Save",
+    "vendor": "Vendor from your list",
+    "vendorHint": "This only links: nothing changes in Vendors.",
+    "noVendor": "Not linked",
+    "deletedVendor": "Deleted vendor",
+    "unnamedVendor": "Unnamed",
+    "errors": {
+      "price": "Enter a valid amount, for example 1200 or 1,200.50."
+    }
+  },
+  "card": {
+    "vendor": "Vendor:"
+  },
+  "budget": {
+    "add": "Add to budget",
+    "added": "Added to the budget as a pending expense.",
+    "addError": "We couldn't add it to the budget.",
+    "inBudget": "Already in the budget.",
+    "view": "View budget",
+    "concept": {
+      "outfit": "Outfits: {{name}}",
+      "beauty": "Beauty: {{name}}",
+      "rings": "Rings: {{name}}",
+      "decor": "Decor: {{name}}"
+    }
+  },
+  "outfit": {
+    "title": "Outfits",
+    "description": "One look per person: the couple, bridesmaids, groomsmen, the little ones… with their shop, price and progress.",
+    "add": "Add look",
+    "empty": {
+      "title": "No looks yet",
+      "text": "Start with the couple and add everyone else whenever you like. Note the outfit, where you are buying it and how far along it is."
+    },
+    "added": "Look added.",
+    "updated": "Look updated.",
+    "deleted": "Look deleted.",
+    "saveError": "We couldn't save the look.",
+    "deleteError": "We couldn't delete the look.",
+    "card": {
+      "noOutfit": "No outfit yet",
+      "edit": "Edit the look for {{name}}",
+      "delete": "Delete the look for {{name}}",
+      "shop": "Shop or designer:",
+      "accessories": "Accessories:"
+    },
+    "fittings": {
+      "title": "Fittings",
+      "description": "Fittings are outfit appointments in your agenda, so they also show up on the Overview.",
+      "add": "Add fitting",
+      "viewAll": "View agenda",
+      "empty": "You haven't added any fittings yet.",
+      "done": "Done"
+    },
+    "form": {
+      "newTitle": "New look",
+      "editTitle": "Edit look",
+      "who": "Who is it for?",
+      "personName": "Name",
+      "personNamePlaceholder": "E.g. Marta",
+      "outfit": "Outfit or look",
+      "outfitPlaceholder": "E.g. Crepe dress with a bateau neckline",
+      "shop": "Shop or designer",
+      "shopPlaceholder": "E.g. Atelier Rosa",
+      "accessories": "Accessories",
+      "accessoriesHint": "Shoes, veil, tie, headpiece, jewellery…",
+      "accessoriesPlaceholder": "E.g. Nude shoes, short veil"
+    }
+  },
+  "beauty": {
+    "title": "Beauty",
+    "description": "Hair and makeup: who is doing it, for whom, when the trial is and what time they start on the wedding day.",
+    "add": "Add service",
+    "empty": {
+      "title": "No hair or makeup noted yet",
+      "text": "Add who does your hair or makeup, the trial date and the time on the wedding day."
+    },
+    "services": {
+      "hair": "Hair",
+      "makeup": "Makeup",
+      "both": "Hair and makeup",
+      "other": "Other"
+    },
+    "added": "Service added.",
+    "updated": "Service updated.",
+    "deleted": "Service deleted.",
+    "saveError": "We couldn't save the service.",
+    "deleteError": "We couldn't delete the service.",
+    "card": {
+      "noOne": "Not said who it's for",
+      "edit": "Edit {{name}}",
+      "delete": "Delete {{name}}",
+      "provider": "Stylist or salon:",
+      "trial": "Trial",
+      "dayTime": "Wedding day"
+    },
+    "form": {
+      "newTitle": "New beauty service",
+      "editTitle": "Edit beauty service",
+      "service": "Service",
+      "forWho": "Who is it for?",
+      "forWhoPlaceholder": "E.g. Bride, mother of the bride",
+      "provider": "Stylist or salon",
+      "providerPlaceholder": "E.g. Lola's Studio",
+      "trialLegend": "Trial",
+      "trialDate": "Day",
+      "trialTime": "Time",
+      "trialPlace": "Place",
+      "trialPlacePlaceholder": "E.g. 3 Main Street",
+      "dayTime": "Time on the wedding day",
+      "dayTimeHint": "What time they need to start with you."
+    },
+    "routine": {
+      "title": "Pre-wedding routine",
+      "progress": "{{done}} of {{total}}",
+      "description": "Optional: treatments you want to do before the wedding, so they don't pile up at the last minute.",
+      "addSuggestions": "Add suggestions",
+      "remove": "Remove “{{label}}”",
+      "newLabel": "New routine item",
+      "newPlaceholder": "E.g. Facial two weeks before",
+      "add": "Add",
+      "saveError": "We couldn't save the routine.",
+      "suggestions": {
+        "facial": "Facial, 2 weeks before",
+        "nails": "Manicure, 2 days before",
+        "haircut": "Haircut or colour touch-up, 1 week before",
+        "hydration": "Daily hydration for the last month",
+        "sleep": "Sleep well the week before",
+        "brows": "Brows, 1 week before"
+      }
+    }
+  },
+  "rings": {
+    "title": "Rings and wedding bands",
+    "description": "A single sheet for the bands: model, shop, sizes, engraving and when they're collected.",
+    "summary": "Rings summary",
+    "pickupOn": "Pick-up: {{date}}",
+    "saved": "Rings saved.",
+    "saveError": "We couldn't save the rings.",
+    "unsaved": "You have unsaved changes.",
+    "partnerA": "Partner A's ring",
+    "partnerB": "Partner B's ring",
+    "fields": {
+      "model": "Model",
+      "modelPlaceholder": "E.g. Flat white gold band, 4 mm",
+      "shop": "Shop or jeweller",
+      "shopPlaceholder": "E.g. Aurora Jewellers",
+      "size": "Size",
+      "sizePlaceholder": "E.g. 14",
+      "engraving": "Engraving",
+      "engravingPlaceholder": "E.g. Date or initials",
+      "price": "Total price (€)",
+      "priceHint": "Both rings together.",
+      "pickupDate": "Pick-up date"
+    }
+  },
+  "decor": {
+    "title": "Decor and flowers",
+    "description": "The decor elements with their vendor and status, and below them the inspiration board and your wedding colours.",
+    "add": "Add element",
+    "suggestions": "Ideas to get started",
+    "empty": {
+      "title": "No elements yet",
+      "text": "Tap one of the ideas above or add your own: centrepieces, bouquet, ceremony, photo booth…"
+    },
+    "kinds": {
+      "centerpieces": "Centrepieces",
+      "bouquet": "Bouquet",
+      "boutonnieres": "Boutonnieres",
+      "ceremony": "Ceremony",
+      "arch": "Arch or altar",
+      "aisle": "Aisle",
+      "photocall": "Photo booth backdrop",
+      "tableware": "Table and tableware",
+      "lighting": "Lighting",
+      "signs": "Signs and signage",
+      "other": "Other"
+    },
+    "added": "Element added.",
+    "updated": "Element updated.",
+    "deleted": "Element deleted.",
+    "saveError": "We couldn't save the element.",
+    "deleteError": "We couldn't delete the element.",
+    "card": {
+      "edit": "Edit {{name}}",
+      "delete": "Delete {{name}}",
+      "provider": "Vendor:"
+    },
+    "form": {
+      "newTitle": "New element",
+      "editTitle": "Edit element",
+      "kind": "Type",
+      "title": "Your own name",
+      "titleHint": "If you leave it empty, the type is shown.",
+      "titlePlaceholder": "E.g. Peony centrepieces on the top table",
+      "provider": "Florist or vendor",
+      "providerPlaceholder": "E.g. Valley Flowers"
+    }
+  },
+  "palette": {
+    "title": "Colour palette",
+    "description": "Your wedding colours, handy for when you talk to florists, stationers or dress makers.",
+    "pick": "Pick a colour",
+    "hex": "Hex code",
+    "add": "Add colour",
+    "remove": "Remove colour {{color}}",
+    "invalidHex": "Enter a valid code, for example #927AAC.",
+    "full": "You already have {{max}} colours. Remove one to add another.",
+    "presetsTitle": "Or start with a palette",
+    "replaced": "Palette replaced.",
+    "saveError": "We couldn't save the palette.",
+    "presets": {
+      "lavenderSage": "Lavender and sage",
+      "dustyRose": "Dusty rose",
+      "terracotta": "Terracotta",
+      "dustyBlue": "Dusty blue",
+      "burgundyGold": "Burgundy and gold"
+    }
+  },
+  "mood": {
+    "title": "Moodboard",
+    "description": "Your inspiration board: paste an image link or upload photos from your device.",
+    "add": "Add image",
+    "count": "{{current}} of {{max}} images",
+    "full": "You've reached the limit of {{max}} images.",
+    "empty": {
+      "title": "Your board is empty",
+      "text": "Keep bouquets, tables, colours, dresses… everything that makes you think “that's it”. It will be easier to explain to whoever helps you."
+    },
+    "untitled": "Untitled image",
+    "open": "Open image: {{name}}",
+    "broken": "The image can't be shown",
+    "added_one": "Image added.",
+    "added_other": "{{count}} images added.",
+    "someSkipped": "Only {{max}} images fit: the extra ones weren't added.",
+    "saveError": "We couldn't save the image.",
+    "deleted": "Image deleted.",
+    "deleteError": "We couldn't delete the image.",
+    "addDialog": {
+      "title": "Add to the moodboard",
+      "label": "Label",
+      "labelHint": "A word or two to recognise it: “bouquet”, “table”…",
+      "labelPlaceholder": "E.g. Wildflower bouquet",
+      "url": "Image link",
+      "invalidUrl": "Enter a link that starts with http:// or https://.",
+      "addUrl": "Add link",
+      "or": "or",
+      "upload": "Upload from your device",
+      "processing": "Preparing images…",
+      "uploadHint": "Each one is reduced to about {{kb}} KB. {{room}} more fit.",
+      "notImage": "Choose an image file.",
+      "processError": "We couldn't prepare one of the images."
+    },
+    "view": {
+      "title": "Moodboard image",
+      "label": "Label",
+      "openOriginal": "Open original image",
+      "newTab": "(opens in a new tab)",
+      "delete": "Delete image"
+    }
+  }
+}

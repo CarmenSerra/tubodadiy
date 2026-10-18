@@ -16,7 +16,8 @@
     "vendors": "Proveedores",
     "budget": "Presupuesto",
     "honeymoon": "Luna de miel",
-    "banquet": "Banquete"
+    "banquet": "Banquete",
+    "style": "Estilo"
   },
   "progress": {
     "label": "Progreso del plan",
@@ -46,7 +47,9 @@
     "ceremonyTab": "Ir a la pestaña Ceremonia",
     "officiant": "Ir a la ficha del oficiante",
     "legalDocs": "Ver la guía de documentos legales",
-    "gift": "Abrir los datos del regalo"
+    "gift": "Abrir los datos del regalo",
+    "style": "Ir a estilo",
+    "guestsNeeds": "Ir a necesidades de invitados"
   },
   "status": {
     "options": {

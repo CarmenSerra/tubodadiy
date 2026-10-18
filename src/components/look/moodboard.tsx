@@ -208,7 +208,7 @@ function Board({ planId, images }: { planId: string; images: MoodImage[] }) {
             {t("mood.add")}
           </button>
           <p className="text-xs tabular-nums text-ink-muted">
-            {full ? t("mood.full", { max: MOODBOARD_MAX }) : t("mood.count", { count: images.length, max: MOODBOARD_MAX })}
+            {full ? t("mood.full", { max: MOODBOARD_MAX }) : t("mood.count", { current: images.length, max: MOODBOARD_MAX })}
           </p>
         </div>
       </div>

@@ -101,3 +101,15 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
       return null;
   }
 }
+
+/** Tareas base sin `auto` (se guardan solo como texto) que también tienen herramienta. */
+const MANUAL_TASK_TARGETS: Record<string, (planId: string) => TaskTarget> = {
+  "vestuario|Elegir vestido/traje": (planId) => ({ kind: "href", href: `/plan/${planId}/estilo#vestuario`, labelKey: "taskLinks.style" }),
+  "alojamiento_transporte|Buscar alojamientos cercanos": (planId) => ({ kind: "href", href: `/plan/${planId}/guests`, labelKey: "taskLinks.guestsNeeds" }),
+  "alojamiento_transporte|Organizar transporte": (planId) => ({ kind: "href", href: `/plan/${planId}/guests`, labelKey: "taskLinks.guestsNeeds" }),
+};
+
+/** Herramienta de una tarea base manual, por categoría y título original. */
+export function manualTaskTarget(category: string, title: string, planId: string): TaskTarget | null {
+  return MANUAL_TASK_TARGETS[`${category}|${title}`]?.(planId) ?? null;
+}

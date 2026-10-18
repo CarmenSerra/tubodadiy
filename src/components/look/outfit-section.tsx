@@ -101,7 +101,7 @@ export function OutfitSection({
           }
         />
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid items-start gap-4 md:grid-cols-2">
           {outfits.map((outfit) => (
             <OutfitCard
               key={outfit.id}

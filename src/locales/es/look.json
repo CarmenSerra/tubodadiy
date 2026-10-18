@@ -1,0 +1,303 @@
+{
+  "nav": {
+    "label": "Estilo"
+  },
+  "page": {
+    "title": "Estilo",
+    "description": "Vestuario, belleza, anillos y decoración en un mismo sitio, con un tablero de inspiración para que todo case. Se guarda solo y lo ven quienes planifican contigo.",
+    "tabsLabel": "Secciones de estilo",
+    "tabs": {
+      "vestuario": "Vestuario",
+      "belleza": "Belleza",
+      "anillos": "Anillos",
+      "decoracion": "Decoración"
+    },
+    "loading": "Cargando el estilo",
+    "loadError": {
+      "title": "No hemos podido cargar el estilo",
+      "text": "Comprueba tu conexión e inténtalo de nuevo en unos momentos."
+    }
+  },
+  "status": {
+    "searching": "Buscando",
+    "chosen": "Elegido",
+    "ordered": "Encargado",
+    "ready": "Listo"
+  },
+  "people": {
+    "partnerA": "Pareja A",
+    "partnerB": "Pareja B",
+    "bridesmaid": "Damas de honor",
+    "groomsman": "Padrinos y testigos",
+    "kid": "Niños y niñas",
+    "other": "Otra persona"
+  },
+  "form": {
+    "optional": "(opcional)",
+    "price": "Precio (€)",
+    "pricePlaceholder": "Ej. 1200",
+    "status": "Estado",
+    "notes": "Notas",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "vendor": "Proveedor de tu lista",
+    "vendorHint": "Solo enlaza: no cambia nada en Proveedores.",
+    "noVendor": "Sin enlazar",
+    "deletedVendor": "Proveedor eliminado",
+    "unnamedVendor": "Sin nombre",
+    "errors": {
+      "price": "Escribe un importe válido, por ejemplo 1200 o 1.200,50."
+    }
+  },
+  "card": {
+    "vendor": "Proveedor:"
+  },
+  "budget": {
+    "add": "Añadir al presupuesto",
+    "added": "Añadido al presupuesto como gasto pendiente.",
+    "addError": "No hemos podido añadirlo al presupuesto.",
+    "inBudget": "Ya está en el presupuesto.",
+    "view": "Ver presupuesto",
+    "concept": {
+      "outfit": "Vestuario: {{name}}",
+      "beauty": "Belleza: {{name}}",
+      "rings": "Alianzas: {{name}}",
+      "decor": "Decoración: {{name}}"
+    }
+  },
+  "outfit": {
+    "title": "Vestuario",
+    "description": "Un look por persona: la pareja, las damas, los padrinos, los más peques… con su tienda, su precio y cómo va cada uno.",
+    "add": "Añadir look",
+    "empty": {
+      "title": "Todavía no hay ningún look",
+      "text": "Empieza por la pareja y ve sumando al resto cuando quieras. Anota la prenda, dónde la compras y en qué punto está."
+    },
+    "added": "Look añadido.",
+    "updated": "Look actualizado.",
+    "deleted": "Look eliminado.",
+    "saveError": "No hemos podido guardar el look.",
+    "deleteError": "No hemos podido eliminar el look.",
+    "card": {
+      "noOutfit": "Sin prenda todavía",
+      "edit": "Editar el look de {{name}}",
+      "delete": "Eliminar el look de {{name}}",
+      "shop": "Tienda o diseñador:",
+      "accessories": "Complementos:"
+    },
+    "fittings": {
+      "title": "Pruebas",
+      "description": "Las pruebas son citas de vestuario de tu agenda, así que también salen en el Resumen.",
+      "add": "Añadir prueba",
+      "viewAll": "Ver agenda",
+      "empty": "Aún no tienes pruebas apuntadas.",
+      "done": "Hecha"
+    },
+    "form": {
+      "newTitle": "Nuevo look",
+      "editTitle": "Editar look",
+      "who": "¿Para quién?",
+      "personName": "Nombre",
+      "personNamePlaceholder": "Ej. Marta",
+      "outfit": "Prenda o look",
+      "outfitPlaceholder": "Ej. Vestido de crepé con escote barco",
+      "shop": "Tienda o diseñador",
+      "shopPlaceholder": "Ej. Atelier Rosa",
+      "accessories": "Complementos",
+      "accessoriesHint": "Zapatos, velo, corbata, tocado, joyas…",
+      "accessoriesPlaceholder": "Ej. Zapatos nude, velo corto"
+    }
+  },
+  "beauty": {
+    "title": "Belleza",
+    "description": "Peluquería y maquillaje: con quién, para quién, cuándo es la prueba y a qué hora empiezan el día de la boda.",
+    "add": "Añadir servicio",
+    "empty": {
+      "title": "Aún no has apuntado peluquería ni maquillaje",
+      "text": "Añade quién te peina o te maquilla, la fecha de la prueba y la hora del día de la boda."
+    },
+    "services": {
+      "hair": "Peluquería",
+      "makeup": "Maquillaje",
+      "both": "Peluquería y maquillaje",
+      "other": "Otro"
+    },
+    "added": "Servicio añadido.",
+    "updated": "Servicio actualizado.",
+    "deleted": "Servicio eliminado.",
+    "saveError": "No hemos podido guardar el servicio.",
+    "deleteError": "No hemos podido eliminar el servicio.",
+    "card": {
+      "noOne": "Sin indicar para quién",
+      "edit": "Editar {{name}}",
+      "delete": "Eliminar {{name}}",
+      "provider": "Profesional o salón:",
+      "trial": "Prueba",
+      "dayTime": "Día de la boda"
+    },
+    "form": {
+      "newTitle": "Nuevo servicio de belleza",
+      "editTitle": "Editar servicio de belleza",
+      "service": "Servicio",
+      "forWho": "¿Para quién?",
+      "forWhoPlaceholder": "Ej. Novia, madre de la novia",
+      "provider": "Profesional o salón",
+      "providerPlaceholder": "Ej. Estudio Lola",
+      "trialLegend": "Prueba",
+      "trialDate": "Día",
+      "trialTime": "Hora",
+      "trialPlace": "Lugar",
+      "trialPlacePlaceholder": "Ej. Calle Mayor 3",
+      "dayTime": "Hora el día de la boda",
+      "dayTimeHint": "A qué hora tienen que empezar contigo."
+    },
+    "routine": {
+      "title": "Rutina previa",
+      "progress": "{{done}} de {{total}}",
+      "description": "Opcional: cuidados que quieres hacer antes de la boda, para no dejarlos a última hora.",
+      "addSuggestions": "Añadir sugerencias",
+      "remove": "Quitar «{{label}}»",
+      "newLabel": "Nuevo cuidado de la rutina",
+      "newPlaceholder": "Ej. Limpieza facial dos semanas antes",
+      "add": "Añadir",
+      "saveError": "No hemos podido guardar la rutina.",
+      "suggestions": {
+        "facial": "Limpieza facial, 2 semanas antes",
+        "nails": "Manicura, 2 días antes",
+        "haircut": "Corte o retoque de color, 1 semana antes",
+        "hydration": "Hidratación diaria del último mes",
+        "sleep": "Dormir bien la semana previa",
+        "brows": "Cejas, 1 semana antes"
+      }
+    }
+  },
+  "rings": {
+    "title": "Anillos y alianzas",
+    "description": "Una sola ficha para las alianzas: modelo, tienda, tallas, grabado y cuándo se recogen.",
+    "summary": "Resumen de las alianzas",
+    "pickupOn": "Recogida: {{date}}",
+    "saved": "Alianzas guardadas.",
+    "saveError": "No hemos podido guardar las alianzas.",
+    "unsaved": "Tienes cambios sin guardar.",
+    "partnerA": "Alianza de la pareja A",
+    "partnerB": "Alianza de la pareja B",
+    "fields": {
+      "model": "Modelo",
+      "modelPlaceholder": "Ej. Alianza plana de oro blanco, 4 mm",
+      "shop": "Tienda o joyería",
+      "shopPlaceholder": "Ej. Joyería Aurora",
+      "size": "Talla",
+      "sizePlaceholder": "Ej. 14",
+      "engraving": "Grabado",
+      "engravingPlaceholder": "Ej. Fecha o iniciales",
+      "price": "Precio total (€)",
+      "priceHint": "Las dos alianzas juntas.",
+      "pickupDate": "Fecha de recogida"
+    }
+  },
+  "decor": {
+    "title": "Decoración y flores",
+    "description": "Los elementos de la decoración con su proveedor y su estado, y debajo el tablero de inspiración y los colores de tu boda.",
+    "add": "Añadir elemento",
+    "suggestions": "Ideas para empezar",
+    "empty": {
+      "title": "Todavía no hay elementos",
+      "text": "Toca una de las ideas de arriba o añade lo tuyo: centros de mesa, ramo, ceremonia, photocall…"
+    },
+    "kinds": {
+      "centerpieces": "Centros de mesa",
+      "bouquet": "Ramo",
+      "boutonnieres": "Prendidos",
+      "ceremony": "Ceremonia",
+      "arch": "Arco o altar",
+      "aisle": "Pasillo",
+      "photocall": "Photocall",
+      "tableware": "Mesa y vajilla",
+      "lighting": "Iluminación",
+      "signs": "Carteles y señalética",
+      "other": "Otro"
+    },
+    "added": "Elemento añadido.",
+    "updated": "Elemento actualizado.",
+    "deleted": "Elemento eliminado.",
+    "saveError": "No hemos podido guardar el elemento.",
+    "deleteError": "No hemos podido eliminar el elemento.",
+    "card": {
+      "edit": "Editar {{name}}",
+      "delete": "Eliminar {{name}}",
+      "provider": "Proveedor:"
+    },
+    "form": {
+      "newTitle": "Nuevo elemento",
+      "editTitle": "Editar elemento",
+      "kind": "Tipo",
+      "title": "Nombre propio",
+      "titleHint": "Si lo dejas vacío se muestra el tipo.",
+      "titlePlaceholder": "Ej. Centros de peonías en la mesa presidencial",
+      "provider": "Floristería o proveedor",
+      "providerPlaceholder": "Ej. Flores del Valle"
+    }
+  },
+  "palette": {
+    "title": "Paleta de colores",
+    "description": "Los colores de tu boda, para tenerlos a mano al hablar con floristas, papelería o vestuario.",
+    "pick": "Elige un color",
+    "hex": "Código hex",
+    "add": "Añadir color",
+    "remove": "Quitar el color {{color}}",
+    "invalidHex": "Escribe un código válido, por ejemplo #927AAC.",
+    "full": "Ya tienes {{max}} colores. Quita alguno para añadir otro.",
+    "presetsTitle": "O empieza con una paleta",
+    "replaced": "Paleta sustituida.",
+    "saveError": "No hemos podido guardar la paleta.",
+    "presets": {
+      "lavenderSage": "Lavanda y salvia",
+      "dustyRose": "Rosa empolvado",
+      "terracotta": "Terracota",
+      "dustyBlue": "Azul empolvado",
+      "burgundyGold": "Burdeos y dorado"
+    }
+  },
+  "mood": {
+    "title": "Moodboard",
+    "description": "Tu tablero de inspiración: pega el enlace de una imagen o sube fotos desde tu dispositivo.",
+    "add": "Añadir imagen",
+    "count": "{{current}} de {{max}} imágenes",
+    "full": "Has llegado al máximo de {{max}} imágenes.",
+    "empty": {
+      "title": "Tu tablero está vacío",
+      "text": "Guarda aquí ramos, mesas, colores, vestidos… todo lo que te haga pensar «eso es». Luego será más fácil explicárselo a quien te ayude."
+    },
+    "untitled": "Imagen sin título",
+    "open": "Abrir imagen: {{name}}",
+    "broken": "No se puede mostrar la imagen",
+    "added_one": "Imagen añadida.",
+    "added_other": "{{count}} imágenes añadidas.",
+    "someSkipped": "Solo caben {{max}} imágenes: las que sobraban no se han añadido.",
+    "saveError": "No hemos podido guardar la imagen.",
+    "deleted": "Imagen eliminada.",
+    "deleteError": "No hemos podido eliminar la imagen.",
+    "addDialog": {
+      "title": "Añadir al moodboard",
+      "label": "Etiqueta",
+      "labelHint": "Una palabra o dos para reconocerla: «ramo», «mesa»…",
+      "labelPlaceholder": "Ej. Ramo silvestre",
+      "url": "Enlace de la imagen",
+      "invalidUrl": "Escribe un enlace que empiece por http:// o https://.",
+      "addUrl": "Añadir enlace",
+      "or": "o",
+      "upload": "Subir desde el dispositivo",
+      "processing": "Preparando imágenes…",
+      "uploadHint": "Se reducen a unos {{kb}} KB cada una. Caben {{room}} más.",
+      "notImage": "Elige un archivo de imagen.",
+      "processError": "No hemos podido preparar alguna imagen."
+    },
+    "view": {
+      "title": "Imagen del moodboard",
+      "label": "Etiqueta",
+      "openOriginal": "Abrir imagen original",
+      "newTab": "(se abre en una pestaña nueva)",
+      "delete": "Eliminar imagen"
+    }
+  }
+}

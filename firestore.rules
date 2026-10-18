@@ -93,6 +93,11 @@ service cloud.firestore {
       }
 
       // Banquete: plan de mesas (`tables`) y platos del menú (`menu`).
+      // Estilo: vestuario, belleza, anillos, decoración, moodboard y paleta.
+      match /style/{document=**} {
+        allow read, write: if isPlanMember(planId);
+      }
+
       match /tables/{tableId} {
         allow read, write: if isPlanMember(planId);
       }

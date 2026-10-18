@@ -98,7 +98,7 @@ export function DecorSection({ planId, items, vendors }: { planId: string; items
       {items.length === 0 ? (
         <EmptyState title={t("decor.empty.title")} text={t("decor.empty.text")} />
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid items-start gap-4 md:grid-cols-2">
           {items.map((item) => (
             <DecorCard
               key={item.id}
