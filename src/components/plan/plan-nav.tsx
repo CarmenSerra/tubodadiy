@@ -20,6 +20,7 @@ export function PlanNav({ planId }: { planId: string }) {
     { href: `${base}/estilo`, label: t("nav.style") },
     { href: `${base}/vendors`, label: t("nav.vendors") },
     { href: `${base}/budget`, label: t("nav.budget") },
+    { href: `${base}/dia-b`, label: t("nav.dayof") },
     { href: `${base}/honeymoon`, label: t("nav.honeymoon") },
   ];
 

@@ -17,7 +17,8 @@
     "budget": "Budget",
     "honeymoon": "Honeymoon",
     "banquet": "Banquet",
-    "style": "Style"
+    "style": "Style",
+    "dayof": "Wedding day"
   },
   "progress": {
     "label": "Plan progress",

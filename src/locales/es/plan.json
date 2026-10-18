@@ -17,7 +17,8 @@
     "budget": "Presupuesto",
     "honeymoon": "Luna de miel",
     "banquet": "Banquete",
-    "style": "Estilo"
+    "style": "Estilo",
+    "dayof": "Día B"
   },
   "progress": {
     "label": "Progreso del plan",
