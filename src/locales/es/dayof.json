@@ -1,0 +1,195 @@
+{
+  "common": {
+    "newTab": "(se abre en una pestaña nueva)",
+    "callAria": "Llamar al {{phone}}",
+    "loading": "Cargando",
+    "loadError": "No hemos podido cargar estos datos. Comprueba tu conexión; tus datos siguen guardados."
+  },
+  "form": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "required": "obligatorio"
+  },
+  "summary": {
+    "title": "El día B",
+    "noDate": "Aún no tenéis fecha. Cuando la tengáis, aquí veréis el día de un vistazo.",
+    "navLabel": "Ir a una sección del Día B",
+    "contacts": "Contactos",
+    "shots": "Fotos clave",
+    "shotsValue": "{{done}}/{{total}}",
+    "songs": "Canciones",
+    "schedule": "Momentos de la escaleta"
+  },
+  "contacts": {
+    "title": "Contactos del día",
+    "description": "A quién llamar si algo se tuerce: coordinadora, fotógrafo, catering, familiares de confianza…",
+    "add": "Añadir contacto",
+    "fromVendors": "Añadir desde proveedores",
+    "empty": "Todavía no hay contactos. Añade a quien necesitéis tener a mano el día de la boda; podéis copiarlos de vuestros proveedores.",
+    "noPhone": "Sin teléfono",
+    "editAria": "Editar a {{name}}",
+    "printNote": "Estos contactos salen al pie de la escaleta impresa y se pueden elegir como responsables de cada momento.",
+    "deleted": "Contacto eliminado",
+    "errors": {
+      "name": "Escribe el nombre del contacto.",
+      "save": "No se ha podido guardar el contacto.",
+      "delete": "No se ha podido eliminar el contacto."
+    },
+    "form": {
+      "editTitle": "Editar contacto",
+      "newTitle": "Nuevo contacto",
+      "description": "Nombre, rol y teléfono de la persona.",
+      "delete": "Eliminar contacto",
+      "fields": {
+        "name": "Nombre",
+        "role": "Rol",
+        "phone": "Teléfono"
+      },
+      "placeholders": {
+        "role": "Fotógrafa, madre de la novia, coordinador…"
+      }
+    },
+    "vendors": {
+      "title": "Añadir desde proveedores",
+      "description": "Elige proveedores para copiarlos como contactos del día.",
+      "help": "Se copian su nombre, categoría y teléfono; tus proveedores no cambian.",
+      "none": "Aún no tienes proveedores guardados.",
+      "goToVendors": "Ir a Proveedores",
+      "allAdded": "Todos tus proveedores ya están en los contactos.",
+      "listLabel": "Proveedores",
+      "submit_one": "Añadir {{count}} contacto",
+      "submit_other": "Añadir {{count}} contactos",
+      "submitNone": "Añadir",
+      "added_one": "{{count}} contacto añadido",
+      "added_other": "{{count}} contactos añadidos"
+    }
+  },
+  "shots": {
+    "title": "Fotos clave",
+    "description": "La lista que le pasáis al fotógrafo: lo que no puede faltar, por momentos del día.",
+    "empty": "Todavía no hay fotos en la lista. Podéis empezar con una plantilla sugerida y quitar o añadir lo que queráis.",
+    "progress": "{{done}} de {{total}} fotos hechas",
+    "progressBar": "{{percent}} % de las fotos hechas",
+    "groupDone": "Hechas:",
+    "groups": {
+      "prep": "Preparativos",
+      "ceremony": "Ceremonia",
+      "family": "Familia y amigos",
+      "couple": "Pareja",
+      "party": "Fiesta"
+    },
+    "template": {
+      "load": "Cargar plantilla sugerida",
+      "restore_one": "Recuperar {{count}} sugerida",
+      "restore_other": "Recuperar {{count}} sugeridas",
+      "loaded_one": "{{count}} foto añadida",
+      "loaded_other": "{{count}} fotos añadidas"
+    },
+    "deleted": "Foto eliminada de la lista",
+    "deleteAria": "Quitar «{{name}}» de la lista",
+    "errors": {
+      "template": "No se ha podido cargar la plantilla.",
+      "update": "No se ha podido actualizar la foto.",
+      "delete": "No se ha podido quitar la foto.",
+      "add": "No se ha podido añadir la foto."
+    },
+    "addForm": {
+      "label": "Añadir una foto a la lista",
+      "item": "Otra foto que no puede faltar",
+      "placeholder": "Con los abuelos, con el equipo de fútbol…",
+      "group": "Momento",
+      "add": "Añadir"
+    },
+    "suggested": {
+      "dress": "El vestido",
+      "suit": "El traje",
+      "rings": "Las alianzas",
+      "gettingReady": "Preparándose con familia y amigos",
+      "details": "Detalles: zapatos, ramo, invitaciones",
+      "entrance": "La entrada a la ceremonia",
+      "vows": "Los votos o el «sí, quiero»",
+      "ringsExchange": "El intercambio de anillos",
+      "kiss": "El primer beso",
+      "exit": "La salida de la ceremonia",
+      "parents": "Con los padres y madres",
+      "grandparents": "Con los abuelos",
+      "siblings": "Con los hermanos",
+      "allFamily": "Foto de toda la familia",
+      "friends": "Con el grupo de amigos",
+      "portrait": "Retrato de la pareja",
+      "sunset": "La pareja al atardecer",
+      "detailsCouple": "Las manos y los anillos de cerca",
+      "banquetEntrance": "La entrada al banquete",
+      "cake": "El corte de la tarta",
+      "firstDance": "El primer baile",
+      "toast": "El brindis",
+      "dancefloor": "La pista de baile"
+    }
+  },
+  "playlist": {
+    "title": "Playlist",
+    "description": "La música por momentos, con lo imprescindible y lo que no queréis que suene.",
+    "summary_one": "{{count}} canción · {{must}} imprescindibles · {{avoid}} para no poner",
+    "summary_other": "{{count}} canciones · {{must}} imprescindibles · {{avoid}} para no poner",
+    "moments": {
+      "cocktail": "Cóctel",
+      "banquet": "Banquete",
+      "firstDance": "Primer baile",
+      "party": "Fiesta",
+      "general": "Cualquier momento"
+    },
+    "emptyMoment": "Todavía sin canciones.",
+    "add": "Añadir canción",
+    "addTo": "Añadir canción a {{moment}}",
+    "editAria": "Editar «{{title}}»",
+    "listen": "Escuchar",
+    "flags": {
+      "must": "Imprescindible",
+      "avoid": "No poner"
+    },
+    "deleted": "Canción eliminada",
+    "errors": {
+      "title": "Escribe el título de la canción.",
+      "url": "Pega un enlace válido, por ejemplo https://open.spotify.com/…",
+      "save": "No se ha podido guardar la canción.",
+      "delete": "No se ha podido eliminar la canción."
+    },
+    "form": {
+      "editTitle": "Editar canción",
+      "newTitle": "Nueva canción",
+      "description": "Momento, título, artista, enlace y si es imprescindible o no hay que ponerla.",
+      "delete": "Eliminar canción",
+      "fields": {
+        "moment": "Momento",
+        "title": "Canción",
+        "artist": "Artista",
+        "url": "Enlace (opcional)",
+        "flag": "¿Cómo es esta canción?"
+      },
+      "urlHint": "Spotify, YouTube, Apple Music…",
+      "flags": {
+        "normal": "Una más",
+        "must": "Imprescindible",
+        "avoid": "No poner"
+      },
+      "flagHelp": {
+        "normal": "Una canción más de la lista.",
+        "must": "El DJ o la banda tiene que ponerla sí o sí.",
+        "avoid": "Que no suene en ningún caso: sirve para pasarle la lista negra al DJ."
+      }
+    }
+  },
+  "schedule": {
+    "title": "Escaleta del día",
+    "description": "La escaleta hora a hora es el cronograma del plan: se edita en su propio diálogo.",
+    "empty": "Todavía no hay escaleta. Podéis partir de una plantilla y ajustar las horas con calma.",
+    "create": "Crear la escaleta",
+    "open": "Abrir la escaleta",
+    "print": "Imprimir / PDF",
+    "summary_one": "{{count}} momento, de las {{from}} a las {{to}}.",
+    "summary_other": "{{count}} momentos, de las {{from}} a las {{to}}.",
+    "owners": "{{done}} de {{total}} momentos con responsable.",
+    "ownersNoContacts": "Cuando añadas contactos, podrás elegir quién se encarga de cada momento."
+  }
+}

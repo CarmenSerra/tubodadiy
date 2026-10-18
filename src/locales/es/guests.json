@@ -37,7 +37,9 @@
     "shownOf_other": "<hl>{{shown}}</hl> de {{count}} invitados",
     "total_one": "{{count}} invitado",
     "total_other": "{{count}} invitados",
-    "clear": "Limpiar filtros"
+    "clear": "Limpiar filtros",
+    "dietLabel": "Filtrar por alergia o dieta",
+    "allDiets": "Todas las dietas"
   },
   "summary": {
     "title": "Resumen de invitados",
@@ -88,7 +90,17 @@
     "dietaryPlaceholder": "Vegetariano, alergias...",
     "notes": "Notas",
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "household": "Familia o unidad",
+    "householdPlaceholder": "Familia García",
+    "householdHint": "Quienes comparten familia o unidad se pueden ver juntos y agradecer a la vez.",
+    "diets": "Alergias, intolerancias y dietas",
+    "needsLodging": "Necesita alojamiento",
+    "lodgingPlace": "Dónde se alojará",
+    "lodgingPlaceholder": "Hotel, casa de un familiar… (opcional)",
+    "needsTransport": "Necesita transporte",
+    "transportFrom": "Desde dónde o qué autobús",
+    "transportPlaceholder": "Sale de Madrid, autobús 2… (opcional)"
   },
   "list": {
     "title": "Lista de invitados",
@@ -118,7 +130,12 @@
       "companion": "Acompañante",
       "dietary": "Notas dietéticas",
       "actions": "Acciones"
-    }
+    },
+    "noHousehold": "Sin familia",
+    "lodging": "Alojamiento",
+    "transport": "Transporte",
+    "giftThanked": "Regalo agradecido",
+    "giftPending": "Regalo por agradecer"
   },
   "ideas": {
     "groups": {
@@ -147,5 +164,95 @@
     "groupsHint": "Toca uno para añadir a alguien directamente en ese grupo.",
     "addInGroup": "Añadir invitado en «{{group}}»",
     "addInGroupExists": "Añadir invitado en «{{group}}» (ya tienes este grupo)"
+  },
+  "groupBy": {
+    "label": "Agrupar",
+    "none": "Sin agrupar",
+    "group": "Por grupo",
+    "household": "Por familia"
+  },
+  "views": {
+    "label": "Vistas de invitados",
+    "list": "Lista",
+    "needs": "Necesidades",
+    "gifts": "Regalos",
+    "pendingThanks_one": "{{count}} agradecimiento pendiente",
+    "pendingThanks_other": "{{count}} agradecimientos pendientes"
+  },
+  "needs": {
+    "diets": {
+      "title": "Alergias y dietas",
+      "empty": "Nadie tiene alergias ni dietas apuntadas. Márcalas al editar un invitado y aquí verás cuántas hay de cada una.",
+      "summary_one": "{{count}} invitado con alguna alergia o dieta. Pulsa una para ver quiénes son.",
+      "summary_other": "{{count}} invitados con alguna alergia o dieta. Pulsa una para ver quiénes son.",
+      "hint": "Cuenta a los invitados que no han dicho que no, sin sus acompañantes."
+    },
+    "lodging": {
+      "title": "Alojamiento",
+      "empty": "Nadie necesita alojamiento por ahora.",
+      "unspecified": "Sin indicar dónde"
+    },
+    "transport": {
+      "title": "Transporte",
+      "empty": "Nadie necesita transporte por ahora.",
+      "unspecified": "Sin indicar desde dónde"
+    },
+    "guestsCount_one": "{{count}} invitado",
+    "guestsCount_other": "{{count}} invitados",
+    "peopleCount_one": "{{count}} persona contando acompañantes",
+    "peopleCount_other": "{{count}} personas contando acompañantes"
+  },
+  "gifts": {
+    "title": "Regalos y agradecimientos",
+    "description": "Apunta qué os han regalado y no se te escapará ningún «gracias».",
+    "add": "Registrar regalo",
+    "empty": {
+      "title": "Aún no hay regalos apuntados",
+      "text": "Cuando alguien os regale algo, apúntalo aquí con lo que sea y su importe si quieres. Después podrás ir marcando los agradecimientos."
+    },
+    "summary": {
+      "received": "Regalos",
+      "receivedDetail_one": "de {{count}} invitado o familia",
+      "receivedDetail_other": "de {{count}} invitados o familias",
+      "pending": "Por agradecer",
+      "pendingDetail_one": "agradecimiento pendiente",
+      "pendingDetail_other": "agradecimientos pendientes",
+      "sent": "Agradecidos",
+      "sentDetail": "ya les has dado las gracias",
+      "money": "En dinero",
+      "moneyDetail": "suma de los importes apuntados"
+    },
+    "pending": {
+      "title": "Agradecimientos pendientes",
+      "allDone": "Estás al día: ya has dado las gracias por todos los regalos."
+    },
+    "sentList": {
+      "title": "Ya agradecidos"
+    },
+    "noDescription": "Regalo sin descripción",
+    "editFor": "Editar el regalo de {{name}}",
+    "sentOn": "Agradecido el {{date}}",
+    "sentNoDate": "Agradecido",
+    "markSent": "Marcar como agradecido",
+    "markPending": "Volver a pendiente",
+    "markedSent": "{{name}}: agradecimiento enviado",
+    "markedPending": "{{name}}: vuelve a pendiente",
+    "saved": "Regalo guardado",
+    "removed": "Regalo eliminado",
+    "saveError": "No se ha podido guardar el regalo.",
+    "dialog": {
+      "newTitle": "Registrar regalo",
+      "editTitle": "Regalo de {{name}}",
+      "from": "¿Quién lo regala?",
+      "fromPlaceholder": "Elige un invitado",
+      "what": "Qué os han regalado",
+      "whatPlaceholder": "Vajilla, sobre, viaje…",
+      "amount": "Importe (opcional)",
+      "amountPlaceholder": "150",
+      "amountError": "Escribe un importe válido, por ejemplo 150.",
+      "thankYouSent": "Ya les he dado las gracias",
+      "thankYouDate": "Fecha del agradecimiento",
+      "remove": "Quitar regalo"
+    }
   }
 }

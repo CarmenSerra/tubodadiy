@@ -4,6 +4,9 @@ import * as React from "react";
 import { FileCheck2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { MusicSection } from "@/components/ceremony/music-section";
+import { ReadingsSection } from "@/components/ceremony/readings-section";
+import { WitnessesSection } from "@/components/ceremony/witnesses-section";
 import { CeremonySummary } from "@/components/ceremony/ceremony-summary";
 import { CeremonyTypeSection } from "@/components/ceremony/ceremony-type-section";
 import { OfficiantSection } from "@/components/ceremony/officiant-section";
@@ -12,7 +15,7 @@ import { TimelineSection } from "@/components/ceremony/timeline-section";
 import { CeremonyDialog } from "@/components/plan-tools/ceremony-dialog";
 import { LegalDocsBody } from "@/components/plan-tools/legal-docs-dialog";
 
-/** Pestaña «Ceremonia»: tipo, oficiante, documentos legales y resumen del cronograma. */
+/** Pestaña «Ceremonia»: tipo, oficiante, documentos, lecturas, música, testigos y resumen del cronograma. */
 export function CeremonyPage() {
   const { t } = useTranslation("ceremony");
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -43,6 +46,11 @@ export function CeremonyPage() {
       >
         <LegalDocsBody onChooseCeremony={openPicker} />
       </CeremonySection>
+      <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+        <ReadingsSection />
+        <MusicSection />
+      </div>
+      <WitnessesSection />
       <TimelineSection />
       <CeremonyDialog open={pickerOpen} onOpenChange={setPickerOpen} />
     </div>

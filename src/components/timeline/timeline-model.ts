@@ -1,6 +1,7 @@
 import { DEFAULT_LANG, localeOf, type Lang } from "@/lib/i18n/config";
 import { dateFormatter, parseDateOnly } from "@/lib/i18n/format";
 import { getServerT } from "@/lib/i18n/server";
+import { responsibleText, contactsById, type DayContact } from "@/lib/dayof-model";
 import type { TimelineItem } from "@/lib/types";
 
 /** `t` fijo al namespace `timeline` para funciones puras que reciben el idioma por parámetro. */
@@ -56,7 +57,7 @@ export function endMin(item: Pick<TimelineItem, "startMin" | "durationMin">): nu
 }
 
 /** Orden estable por hora de inicio (luego fin, creación e id). */
-export function sortItems(items: TimelineItem[]): TimelineItem[] {
+export function sortItems<T extends TimelineItem>(items: T[]): T[] {
   return [...items].sort(
     (a, b) =>
       a.startMin - b.startMin ||
@@ -279,19 +280,24 @@ const oneLine = (text: string) => text.replace(/\s+/g, " ").trim();
 
 /** Cronograma en texto plano, listo para pegar en un mensaje o correo. */
 export function timelineToText(
-  sorted: TimelineItem[],
+  sorted: (TimelineItem & { responsibleContactId?: string })[],
   plan: { title: string; weddingDate: string | null },
-  lang: Lang = DEFAULT_LANG
+  lang: Lang = DEFAULT_LANG,
+  contacts: DayContact[] = []
 ): string {
   const t = tl(lang);
+  const byId = contactsById(contacts);
   const date = formatLongDate(plan.weddingDate, lang);
   const heading = [t("text.heading"), weddingName(plan.title, lang), date].filter(Boolean).join(" — ");
   const lines = sorted.map((item) => {
     const parts = [item.title];
     if (item.location.trim()) parts.push(oneLine(item.location));
-    if (item.responsible.trim()) parts.push(t("text.responsible", { name: oneLine(item.responsible) }));
+    const owner = responsibleText(item, byId, { phone: true });
+    if (owner) parts.push(t("text.responsible", { name: oneLine(owner) }));
     if (item.notes.trim()) parts.push(t("text.notes", { notes: oneLine(item.notes) }));
     return `${formatRangeText(item)} ${parts.join(" · ")}`;
   });
-  return [heading, "", ...lines].join("\n");
+  const people = contacts.map((c) => [c.name, c.role.trim(), c.phone.trim()].filter(Boolean).join(" · "));
+  const footer = people.length > 0 ? ["", t("text.contacts"), ...people] : [];
+  return [heading, "", ...lines, ...footer].join("\n");
 }

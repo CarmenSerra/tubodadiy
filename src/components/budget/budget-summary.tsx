@@ -1,4 +1,4 @@
-import { BadgeCheckIcon, CalculatorIcon, HourglassIcon, WalletIcon } from "lucide-react";
+import { BadgeCheckIcon, CalculatorIcon, HourglassIcon, ReceiptIcon, ScaleIcon, WalletIcon } from "lucide-react";
 import { Trans, useTranslation } from "react-i18next";
 
 import { CARD } from "@/components/dashboard/ui";
@@ -7,7 +7,7 @@ import { StatTile } from "@/components/guests/guest-summary";
 import { useLanguage } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 import type { BudgetItem } from "@/lib/types";
-import { computeTotals, formatDue, formatMoney } from "./budget-math";
+import { computeTotals, formatDeviation, formatDue, formatMoney } from "./budget-math";
 
 /** Barra de uso del presupuesto en dos tramos: pagado (salvia) y pendiente (lila). */
 function UsageBar({ paid, pending, label }: { paid: number; pending: number; label: string }) {
@@ -85,7 +85,7 @@ export function BudgetSummary({
               label={t("summary.barLabel", {
                 paid: money(totals.paid),
                 pending: money(totals.pending),
-                percent: totals.plannedPercent,
+                percent: totals.expectedPercent,
               })}
             />
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-ink-muted">
@@ -102,9 +102,9 @@ export function BudgetSummary({
               <span>
                 {over
                   ? t("summary.overNote")
-                  : totals.planned === 0
+                  : totals.expected === 0
                     ? t("summary.noExpenses")
-                    : t("summary.withinNote", { percent: totals.plannedPercent })}
+                    : t("summary.withinNote", { percent: totals.expectedPercent })}
               </span>
             </div>
           </>
@@ -115,7 +115,7 @@ export function BudgetSummary({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         <StatTile
           icon={<WalletIcon />}
           tone="lilac"
@@ -124,15 +124,48 @@ export function BudgetSummary({
           detail={t("summary.tiles.totalDetail")}
         />
         <StatTile
-          icon={<BadgeCheckIcon />}
+          icon={<CalculatorIcon />}
           tone="sage"
+          label={t("summary.tiles.planned")}
+          value={money(totals.planned)}
+          detail={t("summary.tiles.plannedDetail")}
+        />
+        <StatTile
+          icon={<ReceiptIcon />}
+          tone="lilac"
+          label={t("summary.tiles.actual")}
+          value={totals.actualCount === 0 ? "—" : money(totals.actual)}
+          detail={
+            totals.actualCount === 0
+              ? t("summary.tiles.noActual")
+              : t("summary.tiles.actualDetail", { count: totals.actualCount, total: totals.itemCount })
+          }
+        />
+        <StatTile
+          icon={<ScaleIcon />}
+          tone="sage"
+          label={t("summary.tiles.deviation")}
+          value={totals.actualCount === 0 ? "—" : formatDeviation(totals.deviation, lang)}
+          detail={
+            totals.actualCount === 0
+              ? t("summary.tiles.noDeviation")
+              : totals.deviation > 0
+                ? t("summary.tiles.deviationMore")
+                : totals.deviation < 0
+                  ? t("summary.tiles.deviationLess")
+                  : t("summary.tiles.deviationSame")
+          }
+        />
+        <StatTile
+          icon={<BadgeCheckIcon />}
+          tone="lilac"
           label={t("summary.tiles.paid")}
           value={money(totals.paid)}
           detail={totals.paidCount === 0 ? t("summary.tiles.nothingPaid") : t("summary.tiles.paidCount", { count: totals.paidCount })}
         />
         <StatTile
           icon={<HourglassIcon />}
-          tone="lilac"
+          tone="sage"
           label={t("summary.tiles.pending")}
           value={money(totals.pending)}
           detail={
@@ -140,13 +173,6 @@ export function BudgetSummary({
               ? t("summary.tiles.nothingPending")
               : `${t("summary.tiles.expenseCount", { count: totals.pendingCount })}${totals.nextDue ? ` · ${t("summary.tiles.nextOn", { date: formatDue(totals.nextDue, lang) })}` : ""}`
           }
-        />
-        <StatTile
-          icon={<CalculatorIcon />}
-          tone="sage"
-          label={t("summary.tiles.planned")}
-          value={money(totals.planned)}
-          detail={t("summary.tiles.plannedDetail")}
         />
       </div>
     </section>
@@ -163,8 +189,8 @@ export function BudgetSummarySkeleton() {
         <Bone className="h-3 w-full rounded-full" />
         <Bone className="h-3 w-2/3" />
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => (
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
           <div key={i} className={cn(CARD, "flex flex-col gap-3 p-4 sm:p-5")}>
             <div className="flex items-center gap-3">
               <Bone className="size-9 shrink-0 rounded-full sm:size-10" />

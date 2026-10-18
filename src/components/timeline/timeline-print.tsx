@@ -17,17 +17,19 @@ import {
   weddingName,
 } from "@/components/timeline/timeline-model";
 import { PlanProvider, usePlanContext } from "@/lib/context/plan-context";
-import { mapTimelineItem, timelineItemsQuery } from "@/lib/firebase/plans";
+import { useDayContactsMap } from "@/components/dayof/use-dayof";
+import { responsibleText, type DayContact } from "@/lib/dayof-model";
+import { timelineItemsQuery } from "@/lib/firebase/plans";
+import { mapTimelineMoment, type TimelineMoment } from "@/lib/firebase/timeline";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useLanguage } from "@/lib/i18n/provider";
-import type { TimelineItem } from "@/lib/types";
 
 function DayMark({ day }: { day: number }) {
   if (day <= 0) return null;
   return <sup className="ml-0.5 font-sans text-xs font-medium">+{day}</sup>;
 }
 
-function PrintRow({ item }: { item: TimelineItem }) {
+function PrintRow({ item, owner }: { item: TimelineMoment; owner: string }) {
   const { t } = useTranslation("timeline");
   const { lang } = useLanguage();
   const end = endMin(item);
@@ -36,7 +38,7 @@ function PrintRow({ item }: { item: TimelineItem }) {
   const meta = [
     item.durationMin > 0 ? formatDuration(item.durationMin, lang) : null,
     item.location.trim() || null,
-    item.responsible.trim() ? t("text.responsible", { name: item.responsible.trim() }) : null,
+    owner ? t("text.responsible", { name: owner }) : null,
   ].filter(Boolean);
 
   return (
@@ -73,19 +75,47 @@ function PrintRow({ item }: { item: TimelineItem }) {
   );
 }
 
+/** Contactos de emergencia y clave del día, al pie de la escaleta. */
+function PrintContacts({ contacts }: { contacts: DayContact[] }) {
+  const { t } = useTranslation("timeline");
+  return (
+    <section aria-labelledby="print-contacts-title" className="mt-8 break-inside-avoid border-t-2 border-ink pt-4">
+      <h2 id="print-contacts-title" className="font-display text-xl font-semibold text-ink">
+        {t("print.contacts.title")}
+      </h2>
+      <ul className="mt-2 grid gap-x-8 sm:grid-cols-2">
+        {contacts.map((contact) => (
+          <li
+            key={contact.id}
+            className="flex break-inside-avoid items-baseline justify-between gap-3 border-b border-ink/25 py-2 text-sm"
+          >
+            <span className="min-w-0 break-words text-ink-strong">
+              <span className="font-medium">{contact.name}</span>
+              {contact.role.trim() && <span className="text-ink"> · {contact.role}</span>}
+            </span>
+            <span className="shrink-0 tabular-nums text-ink">{contact.phone.trim() || t("print.contacts.noPhone")}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function PrintDocument() {
   const { t } = useTranslation("timeline");
   const { lang } = useLanguage();
   const { planId, plan, loading, isMember } = usePlanContext();
   const { data, loading: itemsLoading, error } = useCollection(
     timelineItemsQuery(planId),
-    mapTimelineItem
+    mapTimelineMoment
   );
   const items = React.useMemo(() => sortItems(data), [data]);
+  const contacts = useDayContactsMap(planId);
 
   // Abre el diálogo de impresión una sola vez, cuando ya está todo pintado.
   const printed = React.useRef(false);
-  const ready = !loading && isMember && !itemsLoading && !error && items.length > 0;
+  const ready =
+    !loading && isMember && !itemsLoading && !contacts.loading && !error && items.length > 0;
   React.useEffect(() => {
     if (!ready || printed.current) return;
     printed.current = true;
@@ -103,7 +133,7 @@ function PrintDocument() {
     };
   }, [ready]);
 
-  if (loading || itemsLoading) {
+  if (loading || itemsLoading || contacts.loading) {
     return (
       <div role="status" aria-label={t("print.preparing")} className="flex justify-center py-24">
         <Loader2 className="size-6 animate-spin text-ink-muted" />
@@ -165,7 +195,7 @@ function PrintDocument() {
           <>
             <ol>
               {items.map((item) => (
-                <PrintRow key={item.id} item={item} />
+                <PrintRow key={item.id} item={item} owner={responsibleText(item, contacts.byId, { phone: true })} />
               ))}
             </ol>
             {items.some((i) => dayIndex(endMin(i)) > 0) && (
@@ -173,6 +203,8 @@ function PrintDocument() {
             )}
           </>
         )}
+
+        {contacts.data.length > 0 && <PrintContacts contacts={contacts.data} />}
       </main>
     </div>
   );

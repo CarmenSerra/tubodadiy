@@ -1,0 +1,195 @@
+{
+  "common": {
+    "newTab": "(opens in a new tab)",
+    "callAria": "Call {{phone}}",
+    "loading": "Loading",
+    "loadError": "We couldn't load this data. Check your connection; your data is still saved."
+  },
+  "form": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "required": "required"
+  },
+  "summary": {
+    "title": "The wedding day",
+    "noDate": "You don't have a date yet. Once you do, you'll see the day at a glance here.",
+    "navLabel": "Jump to a section of the wedding day",
+    "contacts": "Contacts",
+    "shots": "Key photos",
+    "shotsValue": "{{done}}/{{total}}",
+    "songs": "Songs",
+    "schedule": "Schedule moments"
+  },
+  "contacts": {
+    "title": "Contacts for the day",
+    "description": "Who to call if something goes wrong: coordinator, photographer, caterer, trusted family…",
+    "add": "Add contact",
+    "fromVendors": "Add from vendors",
+    "empty": "There are no contacts yet. Add anyone you'll need at hand on the wedding day; you can copy them from your vendors.",
+    "noPhone": "No phone",
+    "editAria": "Edit {{name}}",
+    "printNote": "These contacts appear at the foot of the printed schedule and can be chosen as the person in charge of each moment.",
+    "deleted": "Contact deleted",
+    "errors": {
+      "name": "Enter the contact's name.",
+      "save": "The contact couldn't be saved.",
+      "delete": "The contact couldn't be deleted."
+    },
+    "form": {
+      "editTitle": "Edit contact",
+      "newTitle": "New contact",
+      "description": "The person's name, role and phone.",
+      "delete": "Delete contact",
+      "fields": {
+        "name": "Name",
+        "role": "Role",
+        "phone": "Phone"
+      },
+      "placeholders": {
+        "role": "Photographer, mother of the bride, coordinator…"
+      }
+    },
+    "vendors": {
+      "title": "Add from vendors",
+      "description": "Pick vendors to copy them as contacts for the day.",
+      "help": "Their name, category and phone are copied; your vendors stay unchanged.",
+      "none": "You don't have any saved vendors yet.",
+      "goToVendors": "Go to Vendors",
+      "allAdded": "All your vendors are already in your contacts.",
+      "listLabel": "Vendors",
+      "submit_one": "Add {{count}} contact",
+      "submit_other": "Add {{count}} contacts",
+      "submitNone": "Add",
+      "added_one": "{{count}} contact added",
+      "added_other": "{{count}} contacts added"
+    }
+  },
+  "shots": {
+    "title": "Key photos",
+    "description": "The list you hand your photographer: what can't be missed, by moment of the day.",
+    "empty": "There are no photos on the list yet. You can start from a suggested template and remove or add whatever you like.",
+    "progress": "{{done}} of {{total}} photos taken",
+    "progressBar": "{{percent}}% of the photos taken",
+    "groupDone": "Done:",
+    "groups": {
+      "prep": "Getting ready",
+      "ceremony": "Ceremony",
+      "family": "Family and friends",
+      "couple": "Couple",
+      "party": "Party"
+    },
+    "template": {
+      "load": "Load suggested template",
+      "restore_one": "Restore {{count}} suggestion",
+      "restore_other": "Restore {{count}} suggestions",
+      "loaded_one": "{{count}} photo added",
+      "loaded_other": "{{count}} photos added"
+    },
+    "deleted": "Photo removed from the list",
+    "deleteAria": "Remove “{{name}}” from the list",
+    "errors": {
+      "template": "The template couldn't be loaded.",
+      "update": "The photo couldn't be updated.",
+      "delete": "The photo couldn't be removed.",
+      "add": "The photo couldn't be added."
+    },
+    "addForm": {
+      "label": "Add a photo to the list",
+      "item": "Another must-have photo",
+      "placeholder": "With the grandparents, with the football team…",
+      "group": "Moment",
+      "add": "Add"
+    },
+    "suggested": {
+      "dress": "The dress",
+      "suit": "The suit",
+      "rings": "The rings",
+      "gettingReady": "Getting ready with family and friends",
+      "details": "Details: shoes, bouquet, invitations",
+      "entrance": "The ceremony entrance",
+      "vows": "The vows or the “I do”",
+      "ringsExchange": "The ring exchange",
+      "kiss": "The first kiss",
+      "exit": "The ceremony exit",
+      "parents": "With the parents",
+      "grandparents": "With the grandparents",
+      "siblings": "With the siblings",
+      "allFamily": "Whole-family photo",
+      "friends": "With the group of friends",
+      "portrait": "Portrait of the couple",
+      "sunset": "The couple at sunset",
+      "detailsCouple": "Close-up of hands and rings",
+      "banquetEntrance": "The banquet entrance",
+      "cake": "Cutting the cake",
+      "firstDance": "The first dance",
+      "toast": "The toast",
+      "dancefloor": "The dance floor"
+    }
+  },
+  "playlist": {
+    "title": "Playlist",
+    "description": "The music by moment, with the must-plays and what you don't want to hear.",
+    "summary_one": "{{count}} song · {{must}} must-plays · {{avoid}} to avoid",
+    "summary_other": "{{count}} songs · {{must}} must-plays · {{avoid}} to avoid",
+    "moments": {
+      "cocktail": "Cocktail hour",
+      "banquet": "Banquet",
+      "firstDance": "First dance",
+      "party": "Party",
+      "general": "Any moment"
+    },
+    "emptyMoment": "No songs yet.",
+    "add": "Add song",
+    "addTo": "Add a song to {{moment}}",
+    "editAria": "Edit “{{title}}”",
+    "listen": "Listen",
+    "flags": {
+      "must": "Must play",
+      "avoid": "Do not play"
+    },
+    "deleted": "Song deleted",
+    "errors": {
+      "title": "Enter the song title.",
+      "url": "Paste a valid link, for example https://open.spotify.com/…",
+      "save": "The song couldn't be saved.",
+      "delete": "The song couldn't be deleted."
+    },
+    "form": {
+      "editTitle": "Edit song",
+      "newTitle": "New song",
+      "description": "Moment, title, artist, link, and whether it's a must-play or should be avoided.",
+      "delete": "Delete song",
+      "fields": {
+        "moment": "Moment",
+        "title": "Song",
+        "artist": "Artist",
+        "url": "Link (optional)",
+        "flag": "What kind of song is it?"
+      },
+      "urlHint": "Spotify, YouTube, Apple Music…",
+      "flags": {
+        "normal": "Just one more",
+        "must": "Must play",
+        "avoid": "Do not play"
+      },
+      "flagHelp": {
+        "normal": "Just another song on the list.",
+        "must": "The DJ or band has to play it, no matter what.",
+        "avoid": "It must not be played under any circumstances: handy for handing the DJ a blacklist."
+      }
+    }
+  },
+  "schedule": {
+    "title": "Day schedule",
+    "description": "The hour-by-hour schedule is the plan's timeline: it's edited in its own dialog.",
+    "empty": "There's no schedule yet. You can start from a template and adjust the times at your own pace.",
+    "create": "Create the schedule",
+    "open": "Open the schedule",
+    "print": "Print / PDF",
+    "summary_one": "{{count}} moment, from {{from}} to {{to}}.",
+    "summary_other": "{{count}} moments, from {{from}} to {{to}}.",
+    "owners": "{{done}} of {{total}} moments have someone in charge.",
+    "ownersNoContacts": "Once you add contacts, you can choose who is in charge of each moment."
+  }
+}

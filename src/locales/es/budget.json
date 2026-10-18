@@ -33,7 +33,7 @@
     "pending": "Pendiente",
     "overNote": "Lo previsto supera el total: es buen momento para reajustar partidas con calma.",
     "noExpenses": "Aún no hay gastos apuntados.",
-    "withinNote": "Lo previsto es el {{percent}}% del total. Vas dentro de tu presupuesto.",
+    "withinNote": "Entre lo real y lo previsto llevas el {{percent}}% del total. Vas dentro de tu presupuesto.",
     "noTotal": "Aún no has fijado un presupuesto total.",
     "tiles": {
       "total": "Presupuesto total",
@@ -48,18 +48,38 @@
       "expenseCount_one": "{{count}} gasto",
       "expenseCount_other": "{{count}} gastos",
       "nextOn": "próximo, el {{date}}",
-      "planned": "Total previsto",
-      "plannedDetail": "pagado + pendiente"
+      "planned": "Previsto",
+      "plannedDetail": "suma de los importes previstos",
+      "actual": "Real",
+      "noActual": "aún sin importes reales",
+      "actualDetail_one": "importe real en {{count}} de {{total}} partidas",
+      "actualDetail_other": "importes reales en {{count}} de {{total}} partidas",
+      "deviation": "Desviación",
+      "noDeviation": "real frente a previsto",
+      "deviationMore": "más de lo previsto en las partidas con real",
+      "deviationLess": "menos de lo previsto en las partidas con real",
+      "deviationSame": "justo lo previsto en las partidas con real"
     }
   },
   "breakdown": {
     "title": "Por categorías",
-    "total": "Total previsto:",
-    "note": "Importe = pagado + pendiente. El porcentaje es sobre el total previsto.",
+    "total": "Total esperado:",
+    "note": "Esperado = el importe real donde ya lo sabes y el previsto en el resto. La desviación es real menos previsto. El porcentaje es sobre el total esperado.",
     "items_one": "{{count}} partida",
     "items_other": "{{count}} partidas",
     "paid": "Pagado",
-    "pending": "Pendiente"
+    "pending": "Pendiente",
+    "allocatedTotal": "Repartido:",
+    "allocate": "Repartir por categorías",
+    "editAllocation": "Editar el reparto",
+    "noteWithAllocation": "Esperado = el importe real donde ya lo sabes y el previsto en el resto. Se compara con lo que repartiste para cada categoría.",
+    "planned": "Previsto",
+    "actual": "Real",
+    "deviation": "Desviación",
+    "allocated": "Asignado",
+    "withinAllocation": "Dentro de lo asignado: te quedan {{amount}}.",
+    "aboveAllocation": "Supera lo asignado en {{amount}}; puedes ajustar el reparto con calma.",
+    "noItemsYet": "Aún no hay partidas en esta categoría."
   },
   "form": {
     "addExpense": "Añadir gasto",
@@ -78,9 +98,10 @@
     "customPlaceholder": "Mariachis, fuegos artificiales, tarta sorpresa…",
     "errors": {
       "customCategory": "Escribe el nombre de tu categoría o elige una de la lista.",
-      "category": "Elige una categoría o crea la tuya."
+      "category": "Elige una categoría o crea la tuya.",
+      "installments": "Revisa los importes de los plazos."
     },
-    "amount": "Importe (€)",
+    "amount": "Importe previsto (€)",
     "status": "Estado",
     "state": {
       "pending": {
@@ -96,7 +117,44 @@
     "optional": "(opcional)",
     "duePlaceholder": "¿Para cuándo hay que pagarlo?",
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "actual": "Importe real (€)",
+    "actualHint": "Cuando sepas lo que cuesta de verdad (presupuesto firmado, factura), apúntalo: contará en lugar del previsto.",
+    "vendor": "Proveedor",
+    "vendorNone": "Sin proveedor",
+    "vendorHint": "Enlázalo con un proveedor para ver lo pagado y pendiente en su ficha.",
+    "payer": "Quién paga",
+    "payerNone": "Sin asignar",
+    "payerCustomOption": "✨ Otro pagador…",
+    "payerCustomName": "Nombre del pagador",
+    "payerCustomPlaceholder": "Los padrinos, tía Carmen…",
+    "payMode": {
+      "legend": "Cómo se paga",
+      "single": {
+        "title": "Pago único",
+        "hint": "Todo de una vez"
+      },
+      "multi": {
+        "title": "En varios plazos",
+        "hint": "Señal, mitad, resto…"
+      }
+    },
+    "paidDate": "Fecha de pago",
+    "paidDatePlaceholder": "¿Cuándo lo pagaste?",
+    "installments": {
+      "number": "Plazo {{n}}",
+      "remove": "Quitar el plazo {{n}}",
+      "amount": "Importe (€)",
+      "due": "Fecha límite",
+      "duePlaceholder": "¿Para cuándo?",
+      "paid": "Pagado",
+      "paidDate": "Fecha de pago",
+      "paidDatePlaceholder": "¿Cuándo lo pagaste?",
+      "add": "Añadir plazo",
+      "sumOk": "Los plazos suman justo el importe.",
+      "sumHint": "Los plazos suman {{sum}} de {{cost}}.",
+      "adjust": "Ajustar el último plazo"
+    }
   },
   "list": {
     "title": "Presupuesto",
@@ -106,7 +164,8 @@
       "paid": "Pagado",
       "pending": "Pendiente",
       "overdue": "Venció el {{date}}",
-      "due": "Vence el {{date}}"
+      "due": "Vence el {{date}}",
+      "partial": "Pagado {{paid}} de {{cost}}"
     },
     "markPaid": "Marcar pagado",
     "markPaidAria": "Marcar «{{name}}» como pagado",
@@ -128,7 +187,24 @@
       "amount": "Importe",
       "status": "Estado",
       "actions": "Acciones"
-    }
+    },
+    "allocate": "Repartir por categorías",
+    "installmentsToggle": "{{paid}} de {{total}} plazos",
+    "installmentsToggleAria": "Ver los plazos de «{{name}}»",
+    "installmentsLabel": "Plazos de «{{name}}»",
+    "installmentLine": "Plazo {{n}} · {{amount}}",
+    "paidOn": "Pagado el {{date}}",
+    "noDueDate": "Sin fecha límite",
+    "unmarkInstallment": "Deshacer",
+    "markInstallmentAria": "Marcar el plazo {{n}} de «{{name}}» como pagado",
+    "unmarkInstallmentAria": "Deshacer el pago del plazo {{n}} de «{{name}}»",
+    "remainingNoInstallment": "Faltan {{amount}} sin plazo asignado: edita la partida para añadir otro plazo.",
+    "plannedLine": "Previsto {{amount}}",
+    "vendorTag": "Proveedor: {{name}}",
+    "payerTag": "Paga: {{name}}",
+    "installmentMarkedPaid": "Plazo {{n}} de «{{name}}» marcado como pagado",
+    "installmentPaidAnnouncement": "«{{name}}», plazo {{n}}: pagado",
+    "installmentUnmarkedAnnouncement": "«{{name}}», plazo {{n}}: pago deshecho"
   },
   "ideas": {
     "items": {
@@ -291,5 +367,62 @@
       "done": "{{number}} partidas añadidas",
       "error": "No se han podido añadir las partidas."
     }
+  },
+  "payers": {
+    "title": "Quién paga",
+    "couple": "Pareja",
+    "familyA": "Familia de A",
+    "familyB": "Familia de B",
+    "note": "Cuánto corresponde a cada pagador según las partidas que tienen alguien asignado.",
+    "noneAssigned": "Aún no has dicho quién paga cada partida. Edita una partida y elige el pagador: aquí verás el resumen.",
+    "unassigned": "Sin asignar",
+    "editNames": "Cambiar nombres",
+    "editHint": "Dale a cada pagador el nombre que quieras (por ejemplo «Familia de Marta»). Déjalo vacío para usar el nombre por defecto.",
+    "saved": "Nombres guardados",
+    "saveError": "No se han podido guardar los nombres."
+  },
+  "allocation": {
+    "title": "Repartir el presupuesto por categorías",
+    "description": "Decide cuánto quieres dedicar a cada cosa. Partimos de un reparto típico de bodas en España; ajústalo a tu medida.",
+    "total": "Presupuesto total (€)",
+    "totalPlaceholder": "Por ejemplo, 25000",
+    "modeLegend": "Repartir por",
+    "mode": {
+      "percent": "Porcentaje",
+      "amount": "Importe"
+    },
+    "assigned": "Repartido: {{assigned}} de {{total}} ({{percent}}%)",
+    "unassigned": "Te quedan {{amount}} por repartir.",
+    "above": "Has repartido {{amount}} de más sobre el total; ajusta lo que quieras.",
+    "assignedNoTotal": "Repartido: {{assigned}}. Indica el presupuesto total para ver cuánto te queda.",
+    "rowsLabel": "Categorías del reparto",
+    "categoryName": "Nombre de la categoría",
+    "categoryPlaceholder": "Mariachis, fuegos artificiales…",
+    "amountLabel": "Importe",
+    "percentLabel": "Porcentaje",
+    "remove": "Quitar «{{name}}» del reparto",
+    "thisCategory": "esta categoría",
+    "addCategory": "Añadir categoría",
+    "useTypical": "Usar el reparto típico",
+    "typicalNote": "El reparto típico es orientativo para una boda media en España. En la pestaña Presupuesto verás cada categoría comparada con lo previsto y lo real.",
+    "save": "Guardar reparto",
+    "saved": "Reparto guardado",
+    "saveError": "No se ha podido guardar el reparto.",
+    "errors": {
+      "needTotal": "Indica el presupuesto total para repartir por porcentaje."
+    }
+  },
+  "vendorSummary": {
+    "title": "Presupuesto y pagos",
+    "add": "Apuntar un pago",
+    "empty": "Aún no hay gastos del presupuesto enlazados a este proveedor.",
+    "emptyWithCost": "Aún no hay gastos enlazados. Precio de la ficha: {{amount}}.",
+    "expected": "Total",
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "nextDue": "Próximo pago: {{date}}",
+    "itemPaid": "Pagado · {{amount}}",
+    "itemPending": "{{paid}} de {{cost}}",
+    "seeBudget": "Ver en Presupuesto"
   }
 }

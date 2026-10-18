@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { deleteField } from "firebase/firestore";
 import { CopyIcon, PlusIcon, PrinterIcon, Undo2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -38,18 +39,20 @@ import {
 } from "@/components/ui/dialog";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { markTimelineProgress } from "@/lib/firebase/mutations";
-import { mapTimelineItem, timelineItemsQuery } from "@/lib/firebase/plans";
+import { timelineItemsQuery } from "@/lib/firebase/plans";
 import {
   addTimelineItems,
   deleteTimelineItem,
   deleteTimelineItems,
   restoreTimelineItem,
+  mapTimelineMoment,
   shiftTimelineItems,
   updateTimelineItem,
+  type TimelineMoment,
 } from "@/lib/firebase/timeline";
+import { useDayContactsMap } from "@/components/dayof/use-dayof";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useLanguage } from "@/lib/i18n/provider";
-import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -222,12 +225,13 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
   const { planId, plan } = usePlanContext();
   const { t } = useTranslation("timeline");
   const { lang } = useLanguage();
-  const { data, loading, error } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
+  const { data, loading, error } = useCollection(timelineItemsQuery(planId), mapTimelineMoment);
   const items = React.useMemo(() => sortItems(data), [data]);
+  const contacts = useDayContactsMap(planId);
   const isDesktop = useIsDesktop();
 
   const [cascade, setCascade] = React.useState(readCascadePref);
-  const [form, setForm] = React.useState<{ open: boolean; item?: TimelineItem }>({ open: false });
+  const [form, setForm] = React.useState<{ open: boolean; item?: TimelineMoment }>({ open: false });
   const [creating, setCreating] = React.useState(false);
   const [announcement, setAnnouncement] = React.useState("");
 
@@ -259,7 +263,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
     }
   }
 
-  async function handleNudge(item: TimelineItem, delta: number) {
+  async function handleNudge(item: TimelineMoment, delta: number) {
     const updates = planShift(items, item.id, delta, cascade);
     if (!updates) return;
     // Las horas de antes, para devolver cada momento a su sitio.
@@ -301,6 +305,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
             durationMin: before.durationMin,
             location: before.location,
             responsible: before.responsible,
+            responsibleContactId: before.responsibleContactId ?? deleteField(),
             notes: before.notes,
             highlight: before.highlight,
           }),
@@ -316,7 +321,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
 
   async function handleCopy() {
     if (!plan) return;
-    const ok = await copyText(timelineToText(items, plan, lang));
+    const ok = await copyText(timelineToText(items, plan, lang, contacts.data));
     if (ok) {
       toast.success(t("dialog.copied"));
       void markTimelineProgress(planId, "share");
@@ -395,6 +400,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
         ) : hasItems ? (
           <TimelineRoadmap
             items={items}
+            contactsById={contacts.byId}
             cascade={cascade}
             onEdit={(item) => setForm({ open: true, item })}
             onNudge={handleNudge}

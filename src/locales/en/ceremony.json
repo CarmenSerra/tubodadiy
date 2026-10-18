@@ -120,5 +120,108 @@
     "empty": "There are no moments yet. You can start from a template (getting ready, ceremony, cocktails, banquet, dancing…) and fine-tune the times at your own pace, or start from scratch.",
     "create": "Create the timeline",
     "until": "until"
+  },
+  "readings": {
+    "title": "Readings",
+    "description": "The texts read during the ceremony, who reads them and in what order.",
+    "add": "Add reading",
+    "empty": "There are no readings yet. Add a poem, a text or a passage, and who will read it.",
+    "editAria": "Edit the reading “{{title}}”",
+    "readBy": "Read by {{name}}",
+    "openLink": "Open link",
+    "moveUp": "Move “{{title}}” up one position",
+    "moveDown": "Move “{{title}}” down one position",
+    "moved": "“{{title}}” moves to position {{position}} of {{total}}",
+    "deleted": "Reading deleted",
+    "errors": {
+      "move": "The order couldn't be changed.",
+      "title": "Give the reading a title.",
+      "url": "Paste a valid link, for example https://…",
+      "save": "The reading couldn't be saved.",
+      "delete": "The reading couldn't be deleted."
+    },
+    "form": {
+      "editTitle": "Edit reading",
+      "newTitle": "New reading",
+      "description": "Title, text or link, and who reads it.",
+      "delete": "Delete reading",
+      "fields": {
+        "title": "Title",
+        "reader": "Who reads it",
+        "text": "Text (optional)",
+        "url": "Link (optional)"
+      },
+      "placeholders": {
+        "title": "A Neruda poem, Corinthians 13…",
+        "reader": "Ana's sister, a friend…"
+      },
+      "urlHint": "If the text is on a website, paste the link here."
+    }
+  },
+  "music": {
+    "title": "Ceremony music",
+    "description": "What plays at the entrance, the signing, the exit…",
+    "add": "Add song",
+    "empty": "No music chosen yet. Add a song for each moment: entrance, signing, exit…",
+    "editAria": "Edit “{{song}}”",
+    "listen": "Listen",
+    "moments": {
+      "entrance": "Entrance",
+      "rings": "Rings",
+      "signing": "Signing",
+      "exit": "Exit",
+      "other": "Another moment"
+    },
+    "deleted": "Song deleted",
+    "errors": {
+      "song": "Enter the song title.",
+      "url": "Paste a valid link, for example https://open.spotify.com/…",
+      "save": "The song couldn't be saved.",
+      "delete": "The song couldn't be deleted."
+    },
+    "form": {
+      "editTitle": "Edit song",
+      "newTitle": "New song",
+      "description": "Ceremony moment, song, artist and link.",
+      "delete": "Delete song",
+      "fields": {
+        "moment": "Moment",
+        "song": "Song",
+        "artist": "Artist",
+        "url": "Link (optional)"
+      },
+      "urlHint": "Spotify, YouTube, Apple Music…"
+    }
+  },
+  "witnesses": {
+    "title": "Witnesses",
+    "description": "Who signs as a witness, how to reach them and whether they've handed in their ID.",
+    "add": "Add witness",
+    "empty": "There are no witnesses yet. Add the people who will sign with you.",
+    "editAria": "Edit {{name}}",
+    "forWhomShort": "Witness {{name}}",
+    "dniDelivered": "ID handed in",
+    "dniSummary": "ID handed in: {{done}} of {{total}}",
+    "deleted": "Witness deleted",
+    "errors": {
+      "name": "Enter the witness's name.",
+      "save": "The witness couldn't be saved.",
+      "delete": "The witness couldn't be deleted."
+    },
+    "form": {
+      "editTitle": "Edit witness",
+      "newTitle": "New witness",
+      "description": "Name, phone, whose witness they are and whether they've handed in their ID.",
+      "delete": "Delete witness",
+      "fields": {
+        "name": "Name",
+        "phone": "Phone",
+        "forWhom": "Whose witness"
+      },
+      "placeholders": {
+        "forWhom": "Ana's, Luis's, both…"
+      },
+      "dniHint": "We only record whether it has been handed in: we never store the ID number."
+    }
   }
 }

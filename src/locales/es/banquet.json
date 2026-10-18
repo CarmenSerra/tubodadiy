@@ -1,0 +1,183 @@
+{
+  "page": {
+    "title": "Banquete",
+    "description": "Prepara el menú de la comida y decide dónde se sienta cada persona. Todo se guarda solo y lo ven quienes planifican contigo.",
+    "tabsLabel": "Secciones del banquete",
+    "tabs": {
+      "seating": "Mesas",
+      "menu": "Menú"
+    },
+    "loading": "Cargando el banquete",
+    "loadError": {
+      "title": "No hemos podido cargar el banquete",
+      "text": "Comprueba tu conexión e inténtalo de nuevo en unos momentos."
+    }
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  },
+  "courses": {
+    "appetizer": {
+      "name": "Aperitivo",
+      "hint": "Para picar mientras llegan todos"
+    },
+    "starter": {
+      "name": "Entrante",
+      "hint": "El primer plato de la comida"
+    },
+    "main": {
+      "name": "Principal",
+      "hint": "Carne, pescado o la opción vegetariana"
+    },
+    "dessert": {
+      "name": "Postre",
+      "hint": "El dulce antes de la tarta"
+    },
+    "cake": {
+      "name": "Tarta",
+      "hint": "La tarta nupcial y su sabor"
+    },
+    "drink": {
+      "name": "Bebida",
+      "hint": "Vinos, refrescos, barra libre…"
+    },
+    "special": {
+      "name": "Infantil / especial",
+      "hint": "Menú infantil u opciones para quien lo necesite"
+    }
+  },
+  "menu": {
+    "add": "Añadir plato",
+    "addTo": "Añadir plato a {{course}}",
+    "addFirst": "Añadir el primer plato",
+    "emptyCourse": "Todavía no hay nada aquí.",
+    "needs": {
+      "title": "Lo que tu menú debe tener en cuenta",
+      "description": "Alergias y dietas anotadas en tus invitados que vienen."
+    },
+    "notes": {
+      "title": "Para tener en cuenta",
+      "description": "Según lo que has marcado en el menú, quizá merezca la pena revisar esto con el catering.",
+      "item_one": "{{count}} invitado con «{{diet}}»: ningún plato lo cubre en {{courses}}.",
+      "item_other": "{{count}} invitados con «{{diet}}»: ningún plato los cubre en {{courses}}."
+    }
+  },
+  "dish": {
+    "newTitle": "Nuevo plato",
+    "editTitle": "Editar plato",
+    "course": "Tipo de plato",
+    "name": "Nombre del plato",
+    "namePlaceholder": "Solomillo con salsa de oporto",
+    "notes": "Detalle (opcional)",
+    "notesPlaceholder": "Con puré de patata y verduras",
+    "contains": "Contiene",
+    "containsHint": "Marca los alérgenos que lleva el plato.",
+    "suitableFor": "Apto para",
+    "suitableForHint": "Marca las dietas para las que está pensado.",
+    "containsShort": "Contiene",
+    "suitableShort": "Apto para",
+    "added": "Plato añadido",
+    "updated": "Plato actualizado",
+    "saveError": "No hemos podido guardar el plato. Inténtalo de nuevo.",
+    "editNamed": "Editar {{name}}",
+    "deleteNamed": "Eliminar {{name}}",
+    "deleted": "{{name}} eliminado",
+    "deleteError": "No hemos podido eliminar el plato."
+  },
+  "seating": {
+    "title": "Plan de mesas",
+    "summary_one": "{{tables}} mesa · {{seated}} de {{capacity}} plazas ocupadas · {{waiting}} sin mesa",
+    "summary_other": "{{tables}} mesas · {{seated}} de {{capacity}} plazas ocupadas · {{waiting}} sin mesa",
+    "summaryEmpty": "Aún no has creado ninguna mesa.",
+    "howTo": "Arrastra a cada persona hasta su mesa o elígela en el selector de cada ficha (también con el teclado o en el móvil). Quien lleva acompañante ocupa dos plazas.",
+    "addTable": "Nueva mesa",
+    "print": "Imprimir mesas",
+    "empty": {
+      "title": "Empieza creando tus mesas",
+      "text": "Puedes crear varias a la vez, con forma redonda o rectangular, y luego sentar a los invitados.",
+      "action": "Crear mesas"
+    },
+    "noRoom_one": "{{guest}} no cabe en {{table}}: queda {{count}} plaza libre.",
+    "noRoom_other": "{{guest}} no cabe en {{table}}: quedan {{count}} plazas libres.",
+    "assigned": "{{guest}} sentado en {{table}}",
+    "unassigned": "{{guest}} vuelve a la lista sin mesa",
+    "assignError": "No hemos podido cambiar la mesa. Inténtalo de nuevo."
+  },
+  "pool": {
+    "title": "Sin mesa",
+    "scopeLabel": "Qué invitados mostrar",
+    "scope": {
+      "confirmed": "Confirmados",
+      "all": "Confirmados y pendientes"
+    },
+    "search": "Buscar invitado",
+    "noGuests": "Aún no hay invitados. Añádelos en la pestaña Invitados.",
+    "allSeated": "Todos tienen ya su mesa.",
+    "noMatch": "Ningún invitado coincide con la búsqueda.",
+    "noneInScope": "No hay invitados sin mesa en este filtro.",
+    "pending": "Pendiente",
+    "withCompanion": "con {{name}}",
+    "withUnnamedCompanion": "con acompañante",
+    "seats_one": "{{count}} plaza",
+    "seats_other": "{{count}} plazas",
+    "tableOf": "Mesa de {{name}}",
+    "noTable": "Sin mesa",
+    "tableOption": "{{name}} · {{free}} libres"
+  },
+  "table": {
+    "defaultName": "Mesa",
+    "newTitle": "Nueva mesa",
+    "editTitle": "Editar mesa",
+    "name": "Nombre o número",
+    "shape": "Forma",
+    "shapes": {
+      "round": "Redonda",
+      "rect": "Rectangular"
+    },
+    "capacity": "Plazas",
+    "capacityHint": "Entre 1 y {{max}} plazas.",
+    "capacityHintUsed_one": "Entre {{count}} y {{max}} plazas: ya hay {{count}} plaza ocupada.",
+    "capacityHintUsed_other": "Entre {{count}} y {{max}} plazas: ya hay {{count}} plazas ocupadas.",
+    "quantity": "Cuántas mesas crear",
+    "quantityHint": "Si quieres varias iguales, súbelo y se numerarán solas.",
+    "quantityMany": "Se llamarán de {{first}} a {{last}}.",
+    "delete": "Eliminar mesa",
+    "added_one": "Mesa creada",
+    "added_other": "{{count}} mesas creadas",
+    "updated": "Mesa actualizada",
+    "saveError": "No hemos podido guardar la mesa. Inténtalo de nuevo.",
+    "deleted": "{{name}} eliminada",
+    "deleteError": "No hemos podido eliminar la mesa.",
+    "editNamed": "Editar {{name}}",
+    "seats": "{{used}} de {{capacity}} plazas",
+    "free_one": "Queda {{count}} plaza libre",
+    "free_other": "Quedan {{count}} plazas libres",
+    "full": "Mesa completa",
+    "over_one": "Sobra {{count}} plaza: revisa la capacidad",
+    "over_other": "Sobran {{count}} plazas: revisa la capacidad",
+    "empty": "Aún no hay nadie sentado aquí.",
+    "dropHere": "Suelta aquí para sentar",
+    "diets": "Dietas y alergias en esta mesa"
+  },
+  "print": {
+    "meta": {
+      "title": "Plan de mesas"
+    },
+    "title": "Plan de mesas",
+    "summary_one": "{{tables}} mesa · {{seated}} personas sentadas",
+    "summary_other": "{{tables}} mesas · {{seated}} personas sentadas",
+    "back": "Volver al banquete",
+    "button": "Imprimir",
+    "pdfHint": "En el diálogo de impresión puedes guardarlo como PDF para compartirlo.",
+    "preparing": "Preparando el plan de mesas",
+    "noAccess": "No tienes acceso a este plan de boda.",
+    "loadError": "No hemos podido cargar las mesas.",
+    "empty": "Aún no hay mesas. Crea alguna en la pestaña Banquete.",
+    "emptyTable": "Sin comensales por ahora.",
+    "withCompanion": "+ {{name}}",
+    "withUnnamedCompanion": "+ acompañante",
+    "unseated_one": "Sin mesa ({{count}} plaza)",
+    "unseated_other": "Sin mesa ({{count}} plazas)"
+  }
+}

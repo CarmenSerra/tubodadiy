@@ -37,7 +37,9 @@
     "shownOf_other": "<hl>{{shown}}</hl> of {{count}} guests",
     "total_one": "{{count}} guest",
     "total_other": "{{count}} guests",
-    "clear": "Clear filters"
+    "clear": "Clear filters",
+    "dietLabel": "Filter by allergy or diet",
+    "allDiets": "All diets"
   },
   "summary": {
     "title": "Guest summary",
@@ -88,7 +90,17 @@
     "dietaryPlaceholder": "Vegetarian, allergies...",
     "notes": "Notes",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "household": "Family or household",
+    "householdPlaceholder": "The Smith family",
+    "householdHint": "People who share a family or household can be viewed together and thanked at once.",
+    "diets": "Allergies, intolerances and diets",
+    "needsLodging": "Needs accommodation",
+    "lodgingPlace": "Where they will stay",
+    "lodgingPlaceholder": "Hotel, a relative's home… (optional)",
+    "needsTransport": "Needs transport",
+    "transportFrom": "Travelling from, or which bus",
+    "transportPlaceholder": "Leaves from Madrid, bus 2… (optional)"
   },
   "list": {
     "title": "Guest list",
@@ -118,7 +130,12 @@
       "companion": "Companion",
       "dietary": "Dietary notes",
       "actions": "Actions"
-    }
+    },
+    "noHousehold": "No family",
+    "lodging": "Accommodation",
+    "transport": "Transport",
+    "giftThanked": "Gift thanked",
+    "giftPending": "Gift to thank"
   },
   "ideas": {
     "groups": {
@@ -147,5 +164,95 @@
     "groupsHint": "Tap one to add someone straight into that group.",
     "addInGroup": "Add a guest to “{{group}}”",
     "addInGroupExists": "Add a guest to “{{group}}” (you already have this group)"
+  },
+  "groupBy": {
+    "label": "Group",
+    "none": "Ungrouped",
+    "group": "By group",
+    "household": "By family"
+  },
+  "views": {
+    "label": "Guest views",
+    "list": "List",
+    "needs": "Needs",
+    "gifts": "Gifts",
+    "pendingThanks_one": "{{count}} thank-you pending",
+    "pendingThanks_other": "{{count}} thank-yous pending"
+  },
+  "needs": {
+    "diets": {
+      "title": "Allergies and diets",
+      "empty": "No allergies or diets noted yet. Mark them when editing a guest and you will see how many there are of each here.",
+      "summary_one": "{{count}} guest with an allergy or diet. Tap one to see who.",
+      "summary_other": "{{count}} guests with an allergy or diet. Tap one to see who.",
+      "hint": "Counts guests who have not declined, without their companions."
+    },
+    "lodging": {
+      "title": "Accommodation",
+      "empty": "Nobody needs accommodation for now.",
+      "unspecified": "Place not specified"
+    },
+    "transport": {
+      "title": "Transport",
+      "empty": "Nobody needs transport for now.",
+      "unspecified": "Origin not specified"
+    },
+    "guestsCount_one": "{{count}} guest",
+    "guestsCount_other": "{{count}} guests",
+    "peopleCount_one": "{{count}} person including companions",
+    "peopleCount_other": "{{count}} people including companions"
+  },
+  "gifts": {
+    "title": "Gifts and thank-yous",
+    "description": "Note what you were given so no thank-you slips through.",
+    "add": "Add gift",
+    "empty": {
+      "title": "No gifts noted yet",
+      "text": "When someone gives you a gift, note it here with what it was and, if you like, the amount. Then you can tick off the thank-yous."
+    },
+    "summary": {
+      "received": "Gifts",
+      "receivedDetail_one": "from {{count}} guest or family",
+      "receivedDetail_other": "from {{count}} guests or families",
+      "pending": "To thank",
+      "pendingDetail_one": "thank-you pending",
+      "pendingDetail_other": "thank-yous pending",
+      "sent": "Thanked",
+      "sentDetail": "you have already thanked them",
+      "money": "In money",
+      "moneyDetail": "sum of the amounts noted"
+    },
+    "pending": {
+      "title": "Pending thank-yous",
+      "allDone": "You are all caught up: every gift has been thanked."
+    },
+    "sentList": {
+      "title": "Already thanked"
+    },
+    "noDescription": "Gift with no description",
+    "editFor": "Edit {{name}}'s gift",
+    "sentOn": "Thanked on {{date}}",
+    "sentNoDate": "Thanked",
+    "markSent": "Mark as thanked",
+    "markPending": "Back to pending",
+    "markedSent": "{{name}}: thank-you sent",
+    "markedPending": "{{name}}: back to pending",
+    "saved": "Gift saved",
+    "removed": "Gift removed",
+    "saveError": "The gift could not be saved.",
+    "dialog": {
+      "newTitle": "Add gift",
+      "editTitle": "{{name}}'s gift",
+      "from": "Who gave it?",
+      "fromPlaceholder": "Choose a guest",
+      "what": "What you were given",
+      "whatPlaceholder": "Dinner set, envelope, trip…",
+      "amount": "Amount (optional)",
+      "amountPlaceholder": "150",
+      "amountError": "Enter a valid amount, for example 150.",
+      "thankYouSent": "I have already thanked them",
+      "thankYouDate": "Thank-you date",
+      "remove": "Remove gift"
+    }
   }
 }

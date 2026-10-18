@@ -5,13 +5,18 @@ import { Trans, useTranslation } from "react-i18next";
 
 import { CARD, LINK } from "@/components/dashboard/ui";
 import { FIELD, ROW_FOCUS, SELECT_CONTENT, SELECT_ITEM, SELECT_TRIGGER } from "@/components/guests/brand-dialog";
+import { DietIcon } from "@/components/diet-icons";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { GROUP_ALL, GROUP_NONE, isFiltering, type GuestFilters, type StatusFilter } from "./guest-filters";
+import { DIET_IDS, type DietId } from "@/lib/diets";
+import { DIET_ALL, GROUP_ALL, GROUP_NONE, isFiltering, type GuestFilters, type StatusFilter } from "./guest-filters";
+import type { GroupBy } from "./guest-model";
 
 // El texto sale de guests:filters.status.<valor>.
 const STATUS_CHIPS: StatusFilter[] = ["all", "confirmed", "pending", "declined"];
+// El texto sale de guests:groupBy.<valor>.
+const GROUP_BY_OPTIONS: GroupBy[] = ["none", "group", "household"];
 
 export function GuestFilterBar({
   filters,
@@ -19,6 +24,9 @@ export function GuestFilterBar({
   onClear,
   groups,
   hasUngrouped,
+  hasDiets,
+  groupBy,
+  onGroupByChange,
   shown,
   total,
 }: {
@@ -27,12 +35,17 @@ export function GuestFilterBar({
   onClear: () => void;
   groups: string[];
   hasUngrouped: boolean;
+  /** Si algún invitado tiene alergias o dietas (activa el filtro por dieta). */
+  hasDiets: boolean;
+  groupBy: GroupBy;
+  onGroupByChange: (next: GroupBy) => void;
   shown: number;
   total: number;
 }) {
-  const { t } = useTranslation("guests");
+  const { t } = useTranslation(["guests", "diets"]);
   const filtering = isFiltering(filters);
   const showGroupSelect = groups.length > 0;
+  const showDietSelect = hasDiets || filters.diet !== DIET_ALL;
 
   return (
     <section aria-label={t("filters.section")} className={cn(CARD, "flex flex-col gap-4 p-4 sm:p-5")}>
@@ -87,6 +100,29 @@ export function GuestFilterBar({
             </SelectContent>
           </Select>
         )}
+        {showDietSelect && (
+          <Select
+            value={filters.diet}
+            onValueChange={(diet) => onChange({ ...filters, diet: diet as DietId | typeof DIET_ALL })}
+          >
+            <SelectTrigger aria-label={t("filters.dietLabel")} className={cn(SELECT_TRIGGER, "sm:w-60")}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className={SELECT_CONTENT}>
+              <SelectItem value={DIET_ALL} className={SELECT_ITEM}>
+                {t("filters.allDiets")}
+              </SelectItem>
+              {DIET_IDS.map((id) => (
+                <SelectItem key={id} value={id} className={SELECT_ITEM}>
+                  <span className="inline-flex items-center gap-2">
+                    <DietIcon id={id} size={16} decorative />
+                    {t(`diets:items.${id}.label`)}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
@@ -133,6 +169,33 @@ export function GuestFilterBar({
             </button>
           )}
         </p>
+      </div>
+
+      <div role="group" aria-label={t("groupBy.label")} className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-ink-muted" aria-hidden="true">
+          {t("groupBy.label")}
+        </span>
+        {GROUP_BY_OPTIONS.map((value) => {
+          const active = groupBy === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={active}
+              onClick={() => onGroupByChange(value)}
+              className={cn(
+                "inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-sm transition-colors sm:h-9",
+                ROW_FOCUS,
+                active
+                  ? "border-lilac bg-lilac-mid font-semibold text-ink"
+                  : "border-line-strong bg-raised font-medium text-ink-muted hover:bg-lilac-soft"
+              )}
+            >
+              {active && <CheckIcon className="size-3.5" aria-hidden="true" />}
+              {t(`groupBy.${value}`)}
+            </button>
+          );
+        })}
       </div>
     </section>
   );

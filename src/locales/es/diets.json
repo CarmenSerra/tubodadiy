@@ -1,0 +1,98 @@
+{
+  "items": {
+    "gluten": {
+      "label": "Gluten",
+      "hint": "Cereales con gluten: trigo, centeno, cebada, avena"
+    },
+    "crustaceans": {
+      "label": "Crustáceos",
+      "hint": "Gambas, langostinos, cangrejo, langosta"
+    },
+    "egg": {
+      "label": "Huevo",
+      "hint": "Huevo y productos con huevo"
+    },
+    "fish": {
+      "label": "Pescado",
+      "hint": "Pescado y productos a base de pescado"
+    },
+    "peanut": {
+      "label": "Cacahuete",
+      "hint": "Cacahuetes y derivados"
+    },
+    "soy": {
+      "label": "Soja",
+      "hint": "Soja y derivados"
+    },
+    "dairy": {
+      "label": "Lácteos",
+      "hint": "Leche y derivados, incluida la lactosa"
+    },
+    "treeNuts": {
+      "label": "Frutos de cáscara",
+      "hint": "Almendras, avellanas, nueces, anacardos, pistachos…"
+    },
+    "celery": {
+      "label": "Apio",
+      "hint": "Apio y derivados"
+    },
+    "mustard": {
+      "label": "Mostaza",
+      "hint": "Mostaza y derivados"
+    },
+    "sesame": {
+      "label": "Sésamo",
+      "hint": "Granos de sésamo y derivados"
+    },
+    "sulfites": {
+      "label": "Sulfitos",
+      "hint": "Dióxido de azufre y sulfitos (vino, conservas)"
+    },
+    "lupin": {
+      "label": "Altramuces",
+      "hint": "Altramuces y derivados"
+    },
+    "molluscs": {
+      "label": "Moluscos",
+      "hint": "Mejillones, almejas, calamar, pulpo, caracoles"
+    },
+    "vegetarian": {
+      "label": "Vegetariana",
+      "hint": "Sin carne ni pescado"
+    },
+    "vegan": {
+      "label": "Vegana",
+      "hint": "Sin ningún producto de origen animal"
+    },
+    "lactoseFree": {
+      "label": "Sin lactosa",
+      "hint": "Intolerancia a la lactosa"
+    },
+    "diabetes": {
+      "label": "Diabetes",
+      "hint": "Menú bajo en azúcares"
+    },
+    "pregnancy": {
+      "label": "Embarazo",
+      "hint": "Sin crudos ni alimentos de riesgo"
+    },
+    "halal": {
+      "label": "Halal",
+      "hint": "Menú halal"
+    },
+    "kosher": {
+      "label": "Kosher",
+      "hint": "Menú kosher"
+    },
+    "kids": {
+      "label": "Menú infantil",
+      "hint": "Menú para niños"
+    }
+  },
+  "groups": {
+    "allergen": "Alergias e intolerancias",
+    "diet": "Dietas y otros"
+  },
+  "badgesAria": "Alergias y dietas",
+  "more": "+{{count}}"
+}

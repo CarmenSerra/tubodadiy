@@ -54,7 +54,7 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
     case "budget":
       return { kind: "edit-plan", labelKey: "taskLinks.editPlan" };
     case "budget-split":
-      return { kind: "href", href: `/plan/${planId}/budget`, labelKey: "taskLinks.budget" };
+      return { kind: "href", href: `/plan/${planId}?${PLAN_TOOL_PARAM}=reparto`, labelKey: "taskLinks.budget" };
     case "guests-draft":
       return { kind: "href", href: `/plan/${planId}/guests`, labelKey: "taskLinks.guests" };
     case "guests-final":

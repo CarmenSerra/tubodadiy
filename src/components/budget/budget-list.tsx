@@ -1,86 +1,234 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, WalletIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, PieChartIcon, WalletIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { CARD, FOCUS, IconCircle, SECTION_TITLE } from "@/components/dashboard/ui";
+import { CARD, CTA_SECONDARY, FOCUS, IconCircle, SECTION_TITLE } from "@/components/dashboard/ui";
 import { DeleteIconButton } from "@/components/guests/brand-dialog";
 import {
   BudgetItemFormDialog,
   EditBudgetItemTrigger,
 } from "@/components/budget/budget-item-form-dialog";
+import { BudgetAllocationDialog, useOpenAllocationFromLink } from "@/components/budget/budget-allocation-dialog";
 import { BudgetBreakdown } from "@/components/budget/budget-breakdown";
 import {
   categoryLabel,
   formatDue,
   formatMoney,
+  installmentsPatch,
   isOverdue,
+  itemActual,
+  itemInstallments,
+  itemPayments,
   listCategories,
+  listCustomPayers,
+  normalize,
+  payerLabel,
+  todayISO,
 } from "@/components/budget/budget-math";
+import { BudgetPayers } from "@/components/budget/budget-payers";
 import { BudgetSummary, BudgetSummarySkeleton } from "@/components/budget/budget-summary";
 import { BudgetIdeas } from "@/components/ideas/budget-ideas";
 import { Bone } from "@/components/plan/plan-shell";
 import { useCollection } from "@/lib/hooks/use-collection";
-import { budgetItemsQuery, mapBudgetItem } from "@/lib/firebase/plans";
+import { useBudgetPlan } from "@/lib/firebase/budget-plan";
+import { budgetItemsQuery, mapBudgetItem, mapVendor, vendorsQuery } from "@/lib/firebase/plans";
 import { useLanguage } from "@/lib/i18n/provider";
 import { deleteBudgetItem, restoreBudgetItem, updateBudgetItem } from "@/lib/firebase/mutations";
-import type { BudgetItem, BudgetItemState, WeddingPlan } from "@/lib/types";
+import type { BudgetInstallment, BudgetItem, WeddingPlan } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
 
-/** Estado de un gasto: «Pagado», o «Pendiente» con su fecha límite y el botón de marcarlo como pagado. */
-function StateCell({
+const PAY_BUTTON = cn(
+  "inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-full border border-lilac bg-field px-4 text-sm font-medium text-ink transition-colors hover:bg-lilac-soft",
+  FOCUS
+);
+
+/**
+ * Estado de pago de una partida: «Pagado», «Pendiente» o «Pagado X de Y», con su próxima fecha límite.
+ * Con un solo plazo, el botón lo marca como pagado; con varios, abre la lista de plazos.
+ */
+function PaymentCell({
   item,
   onMarkPaid,
+  expanded,
+  onToggle,
+  panelId,
   className,
 }: {
   item: BudgetItem;
   onMarkPaid: (item: BudgetItem) => void;
+  expanded: boolean;
+  onToggle: (item: BudgetItem) => void;
+  panelId: string;
   className?: string;
 }) {
   const { t } = useTranslation("budget");
   const { lang } = useLanguage();
-  if (item.state === "paid") {
+  const payments = itemPayments(item);
+  const multi = payments.installments.length > 1;
+  const overdue = payments.nextDue ? isOverdue(payments.nextDue) : false;
+
+  const toggle = multi && (
+    <button
+      type="button"
+      onClick={() => onToggle(item)}
+      aria-expanded={expanded}
+      aria-controls={panelId}
+      aria-label={t("list.installmentsToggleAria", { name: item.concept })}
+      className={PAY_BUTTON}
+    >
+      {t("list.installmentsToggle", { paid: payments.paidCount, total: payments.installments.length })}
+      <ChevronDownIcon
+        aria-hidden="true"
+        className={cn("size-4 transition-transform motion-reduce:transition-none", expanded && "rotate-180")}
+      />
+    </button>
+  );
+
+  if (payments.status === "paid") {
     return (
-      <span
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded-full bg-sage-pale px-3 py-1 text-sm font-medium text-ink",
-          className
-        )}
-      >
-        <CheckIcon aria-hidden="true" className="size-4 text-green" />
-        {t("list.state.paid")}
-      </span>
+      <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1.5", className)}>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-sage-pale px-3 py-1 text-sm font-medium text-ink">
+          <CheckIcon aria-hidden="true" className="size-4 text-green" />
+          {t("list.state.paid")}
+        </span>
+        {toggle}
+      </div>
     );
   }
-  const overdue = item.dueDate ? isOverdue(item.dueDate) : false;
   return (
     <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1.5", className)}>
       <div className="flex flex-col">
-        <span className="text-sm font-medium text-ink">{t("list.state.pending")}</span>
-        {item.dueDate && (
+        <span className="text-sm font-medium text-ink">
+          {payments.status === "partial"
+            ? t("list.state.partial", { paid: formatMoney(payments.paid, lang), cost: formatMoney(payments.cost, lang) })
+            : t("list.state.pending")}
+        </span>
+        {payments.nextDue && (
           <span className={cn("text-xs", overdue ? "font-medium text-danger" : "text-ink-muted")}>
             {overdue
-              ? t("list.state.overdue", { date: formatDue(item.dueDate, lang) })
-              : t("list.state.due", { date: formatDue(item.dueDate, lang) })}
+              ? t("list.state.overdue", { date: formatDue(payments.nextDue, lang) })
+              : t("list.state.due", { date: formatDue(payments.nextDue, lang) })}
           </span>
         )}
       </div>
-      <button
-        type="button"
-        onClick={() => onMarkPaid(item)}
-        aria-label={t("list.markPaidAria", { name: item.concept })}
-        className={cn(
-          "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full border border-lilac bg-field px-3.5 text-sm font-medium text-ink transition-colors hover:bg-lilac-soft",
-          FOCUS
-        )}
-      >
-        <CheckIcon aria-hidden="true" className="size-4" />
-        {t("list.markPaid")}
-      </button>
+      {multi ? (
+        toggle
+      ) : (
+        <button
+          type="button"
+          onClick={() => onMarkPaid(item)}
+          aria-label={t("list.markPaidAria", { name: item.concept })}
+          className={PAY_BUTTON}
+        >
+          <CheckIcon aria-hidden="true" className="size-4" />
+          {t("list.markPaid")}
+        </button>
+      )}
     </div>
+  );
+}
+
+/** Lista de plazos de una partida, cada uno con su botón para marcarlo (o desmarcarlo) como pagado. */
+function InstallmentsPanel({
+  item,
+  id,
+  onToggle,
+}: {
+  item: BudgetItem;
+  id: string;
+  onToggle: (item: BudgetItem, installment: BudgetInstallment) => void;
+}) {
+  const { t } = useTranslation("budget");
+  const { lang } = useLanguage();
+  const installments = itemInstallments(item);
+  const payments = itemPayments(item);
+  return (
+    <div id={id} className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-2" aria-label={t("list.installmentsLabel", { name: item.concept })}>
+        {installments.map((p, index) => (
+          <li
+            key={p.id}
+            className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-line bg-raised px-3.5 py-2"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-ink">
+                {t("list.installmentLine", { n: index + 1, amount: formatMoney(p.amount, lang) })}
+              </p>
+              <p className="text-xs text-ink-muted">
+                {p.paid
+                  ? p.paidDate
+                    ? t("list.paidOn", { date: formatDue(p.paidDate, lang) })
+                    : t("list.state.paid")
+                  : p.dueDate
+                    ? isOverdue(p.dueDate)
+                      ? t("list.state.overdue", { date: formatDue(p.dueDate, lang) })
+                      : t("list.state.due", { date: formatDue(p.dueDate, lang) })
+                    : t("list.noDueDate")}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onToggle(item, p)}
+              aria-label={
+                p.paid
+                  ? t("list.unmarkInstallmentAria", { n: index + 1, name: item.concept })
+                  : t("list.markInstallmentAria", { n: index + 1, name: item.concept })
+              }
+              className={PAY_BUTTON}
+            >
+              <CheckIcon aria-hidden="true" className={cn("size-4", !p.paid && "opacity-0")} />
+              {p.paid ? t("list.unmarkInstallment") : t("list.markPaid")}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {payments.pending > 0 && payments.installments.every((p) => p.paid) && (
+        <p className="text-xs text-ink-muted">{t("list.remainingNoInstallment", { amount: formatMoney(payments.pending, lang) })}</p>
+      )}
+    </div>
+  );
+}
+
+/** Importes de una partida: lo que cuesta (real o previsto) y, si hay real, lo previsto debajo. */
+function AmountCell({ item, align = "left" }: { item: BudgetItem; align?: "left" | "right" }) {
+  const { t } = useTranslation("budget");
+  const { lang } = useLanguage();
+  const real = itemActual(item);
+  return (
+    <div className={cn("flex flex-col", align === "right" && "items-end")}>
+      <span className="font-display text-xl font-semibold leading-tight text-ink md:text-base md:font-medium md:text-ink-strong">
+        {formatMoney(real ?? item.amount, lang)}
+      </span>
+      {real !== null && (
+        <span className="text-xs text-ink-muted">
+          {t("list.plannedLine", { amount: formatMoney(item.amount, lang) })}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Proveedor y pagador de una partida, como pequeñas etiquetas. */
+function TagsLine({ vendorName, payer }: { vendorName: string | null; payer: string | null }) {
+  const { t } = useTranslation("budget");
+  if (!vendorName && !payer) return null;
+  return (
+    <p className="mt-1 flex flex-wrap gap-1.5">
+      {vendorName && (
+        <span className="rounded-full bg-lilac-soft px-2.5 py-0.5 text-xs text-ink">
+          {t("list.vendorTag", { name: vendorName })}
+        </span>
+      )}
+      {payer && (
+        <span className="rounded-full bg-sage-pale px-2.5 py-0.5 text-xs text-ink">
+          {t("list.payerTag", { name: payer })}
+        </span>
+      )}
+    </p>
   );
 }
 
@@ -115,30 +263,47 @@ function BudgetSkeleton() {
 
 export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan | null }) {
   const { t } = useTranslation("budget");
-  const { lang } = useLanguage();
   const budgetTotal = plan?.budgetTotal ?? 0;
   const { data: stored, loading } = useCollection(budgetItemsQuery(planId), mapBudgetItem);
-  // Cambios de estado aún sin confirmar por Firestore: se ven al instante.
-  const [pendingState, setPendingState] = React.useState<Record<string, BudgetItemState>>({});
+  const { data: vendorList } = useCollection(vendorsQuery(planId), mapVendor);
+  const { settings } = useBudgetPlan(planId);
+  // Cambios aún sin confirmar por Firestore: se ven al instante.
+  const [pendingPatch, setPendingPatch] = React.useState<Record<string, Partial<BudgetItem>>>({});
   const [announcement, setAnnouncement] = React.useState("");
+  const [expanded, setExpanded] = React.useState<Set<string>>(() => new Set());
+  const [allocationOpen, setAllocationOpen] = React.useState(false);
+  useOpenAllocationFromLink(() => setAllocationOpen(true));
 
   const items = React.useMemo(
-    () => stored.map((i) => (i.id in pendingState ? { ...i, state: pendingState[i.id] } : i)),
-    [stored, pendingState]
+    () => stored.map((i) => (i.id in pendingPatch ? { ...i, ...pendingPatch[i.id] } : i)),
+    [stored, pendingPatch]
   );
-  const categories = React.useMemo(() => listCategories(items), [items]);
+  // Las categorías usadas y las del reparto (sin repetir), para sugerirlas en el formulario.
+  const categories = React.useMemo(() => {
+    const seen = new Set<string>();
+    return [...listCategories(items), ...settings.allocations.map((a) => a.category)].filter((c) => {
+      const key = normalize(c);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [items, settings.allocations]);
+  const payers = React.useMemo(() => listCustomPayers(items), [items]);
+  const vendorNames = React.useMemo(() => new Map(vendorList.map((v) => [v.id, v.name])), [vendorList]);
+  const vendorOf = (item: BudgetItem) => (item.vendorId ? (vendorNames.get(item.vendorId) ?? null) : null);
+  const payerOf = (item: BudgetItem) => {
+    const payer = (item.payer ?? "").trim();
+    return payer ? payerLabel(payer, t, settings.payerLabels) : null;
+  };
 
-  /** Cambia el estado de un gasto. Siempre escribe también el importe: así un gasto antiguo pasa al modelo actual. */
-  async function setItemState(item: BudgetItem, state: BudgetItemState) {
-    setPendingState((prev) => ({ ...prev, [item.id]: state }));
+  /** Guarda los plazos de una partida (y su resumen). Siempre escribe también el importe: así una partida antigua pasa al modelo actual. */
+  async function saveInstallments(item: BudgetItem, installments: BudgetInstallment[]) {
+    const patch = installmentsPatch(item, installments);
+    setPendingPatch((prev) => ({ ...prev, [item.id]: patch }));
     try {
-      await updateBudgetItem(planId, item.id, {
-        amount: item.amount,
-        state,
-        dueDate: item.dueDate,
-      });
+      await updateBudgetItem(planId, item.id, patch);
     } finally {
-      setPendingState((prev) => {
+      setPendingPatch((prev) => {
         const next = { ...prev };
         delete next[item.id];
         return next;
@@ -146,21 +311,59 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
     }
   }
 
+  const original = (item: BudgetItem) => stored.find((i) => i.id === item.id) ?? item;
+
   async function handleMarkPaid(item: BudgetItem) {
-    // El gasto tal como está guardado (sin otro cambio de estado aún por confirmar).
-    const original = stored.find((i) => i.id === item.id) ?? item;
+    // La partida tal como está guardada (sin otro cambio aún por confirmar).
+    const base = original(item);
+    const before = itemInstallments(base);
+    const cost = itemPayments(base).cost;
+    const today = todayISO();
+    const after = before.map((p) =>
+      p.paid ? p : { ...p, paid: true, paidDate: today, amount: before.length === 1 ? cost : p.amount }
+    );
     try {
-      await setItemState(original, "paid");
+      await saveInstallments(base, after);
     } catch {
       toast.error(t("list.markPaidError"));
       return;
     }
     setAnnouncement(t("list.paidAnnouncement", { name: item.concept }));
-    toastWithUndo(t("list.markedPaid", { name: item.concept }), () => setItemState(original, "pending"));
+    toastWithUndo(t("list.markedPaid", { name: item.concept }), () => saveInstallments(base, before));
+  }
+
+  async function handleToggleInstallment(item: BudgetItem, installment: BudgetInstallment) {
+    const base = original(item);
+    const before = itemInstallments(base);
+    const nowPaid = !installment.paid;
+    const after = before.map((p) =>
+      p.id === installment.id ? { ...p, paid: nowPaid, paidDate: nowPaid ? todayISO() : null } : p
+    );
+    try {
+      await saveInstallments(base, after);
+    } catch {
+      toast.error(t("list.markPaidError"));
+      return;
+    }
+    const n = before.findIndex((p) => p.id === installment.id) + 1;
+    if (nowPaid) {
+      setAnnouncement(t("list.installmentPaidAnnouncement", { n, name: item.concept }));
+      toastWithUndo(t("list.installmentMarkedPaid", { n, name: item.concept }), () => saveInstallments(base, before));
+    } else {
+      setAnnouncement(t("list.installmentUnmarkedAnnouncement", { n, name: item.concept }));
+    }
+  }
+
+  function toggleExpanded(item: BudgetItem) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(item.id)) next.add(item.id);
+      return next;
+    });
   }
 
   async function handleDelete(id: string) {
-    // El gasto tal como está guardado (sin el cambio de «pagado» aún pendiente).
+    // La partida tal como está guardada (sin el cambio de «pagado» aún pendiente).
     const item = stored.find((i) => i.id === id);
     try {
       await deleteBudgetItem(planId, id);
@@ -171,26 +374,41 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
     }
   }
 
+  const allocationButton = (
+    <button type="button" onClick={() => setAllocationOpen(true)} className={cn(CTA_SECONDARY, "h-11")}>
+      <PieChartIcon aria-hidden="true" className="size-4" />
+      {t("list.allocate")}
+    </button>
+  );
+
   const header = (
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <div>
         <h2 className={SECTION_TITLE}>{t("list.title")}</h2>
         <p className="mt-1 text-sm text-ink-muted">{t("list.description")}</p>
       </div>
-      {!loading && items.length > 0 && (
+      {!loading && (
         <div className="flex flex-wrap items-center gap-2">
-          <BudgetItemFormDialog planId={planId} categories={categories} />
-          <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="end" />
+          {allocationButton}
+          {items.length > 0 && (
+            <>
+              <BudgetItemFormDialog planId={planId} categories={categories} payers={payers} />
+              <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="end" />
+            </>
+          )}
         </div>
       )}
     </div>
   );
+
+  const allocationDialog = <BudgetAllocationDialog open={allocationOpen} onOpenChange={setAllocationOpen} />;
 
   if (loading) {
     return (
       <div className="flex flex-col gap-5">
         {header}
         <BudgetSkeleton />
+        {allocationDialog}
       </div>
     );
   }
@@ -212,13 +430,18 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
             {t("list.empty.text")}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            <BudgetItemFormDialog planId={planId} />
+            <BudgetItemFormDialog planId={planId} categories={categories} payers={payers} />
             <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="center" />
           </div>
         </div>
       ) : (
         <>
-          <BudgetBreakdown items={items} />
+          <BudgetBreakdown
+            items={items}
+            allocations={settings.allocations}
+            onOpenAllocation={() => setAllocationOpen(true)}
+          />
+          <BudgetPayers planId={planId} items={items} settings={settings} />
 
           <section aria-labelledby="budget-items-title" className="flex flex-col gap-3">
             <h2 id="budget-items-title" className="font-display text-lg font-semibold text-ink sm:text-xl">
@@ -232,34 +455,47 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
 
             {/* Móvil: tarjetas */}
             <ul className="flex flex-col gap-3 md:hidden" aria-label={t("list.itemsLabel")}>
-              {items.map((item) => (
-                <li key={item.id} className={cn(CARD, "flex flex-col gap-3 p-4")}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="break-words font-display text-lg font-semibold leading-snug text-ink-strong">
-                        {item.concept}
-                      </p>
-                      <p className="mt-0.5 text-sm text-ink-muted">{item.category ? categoryLabel(item.category, t) : t("uncategorised")}</p>
+              {items.map((item) => {
+                const panelId = `installments-m-${item.id}`;
+                return (
+                  <li key={item.id} className={cn(CARD, "flex flex-col gap-3 p-4")}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="break-words font-display text-lg font-semibold leading-snug text-ink-strong">
+                          {item.concept}
+                        </p>
+                        <p className="mt-0.5 text-sm text-ink-muted">{item.category ? categoryLabel(item.category, t) : t("uncategorised")}</p>
+                        <TagsLine vendorName={vendorOf(item)} payer={payerOf(item)} />
+                      </div>
+                      <div className="-mr-2 -mt-1 flex shrink-0">
+                        <BudgetItemFormDialog
+                          planId={planId}
+                          item={item}
+                          categories={categories}
+                          payers={payers}
+                          trigger={<EditBudgetItemTrigger concept={item.concept} />}
+                        />
+                        <DeleteIconButton
+                          ariaLabel={t("list.deleteAria", { name: item.concept })}
+                          onDelete={() => handleDelete(item.id)}
+                        />
+                      </div>
                     </div>
-                    <div className="-mr-2 -mt-1 flex shrink-0">
-                      <BudgetItemFormDialog
-                        planId={planId}
-                        item={item}
-                        categories={categories}
-                        trigger={<EditBudgetItemTrigger concept={item.concept} />}
-                      />
-                      <DeleteIconButton
-                        ariaLabel={t("list.deleteAria", { name: item.concept })}
-                        onDelete={() => handleDelete(item.id)}
-                      />
-                    </div>
-                  </div>
-                  <p className="font-display text-2xl font-semibold leading-tight text-ink">
-                    {formatMoney(item.amount, lang)}
-                  </p>
-                  <StateCell item={item} onMarkPaid={handleMarkPaid} className="min-h-10" />
-                </li>
-              ))}
+                    <AmountCell item={item} />
+                    <PaymentCell
+                      item={item}
+                      onMarkPaid={handleMarkPaid}
+                      expanded={expanded.has(item.id)}
+                      onToggle={toggleExpanded}
+                      panelId={panelId}
+                      className="min-h-10"
+                    />
+                    {expanded.has(item.id) && (
+                      <InstallmentsPanel item={item} id={panelId} onToggle={handleToggleInstallment} />
+                    )}
+                  </li>
+                );
+              })}
             </ul>
 
             {/* Escritorio: tabla */}
@@ -286,40 +522,62 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item) => (
-                    <tr key={item.id} className="border-t border-line transition-colors hover:bg-page/60">
-                      <td className="max-w-72 px-5 py-3 align-middle font-medium text-ink-strong">
-                        <span className="break-words">{item.concept}</span>
-                      </td>
-                      <td className="px-3 py-3 align-middle text-ink-muted">{item.category ? categoryLabel(item.category, t) : t("uncategorised")}</td>
-                      <td className="px-3 py-3 text-right align-middle tabular-nums text-ink-strong">
-                        {formatMoney(item.amount, lang)}
-                      </td>
-                      <td className="px-3 py-3 align-middle">
-                        <StateCell item={item} onMarkPaid={handleMarkPaid} />
-                      </td>
-                      <td className="px-3 py-3 align-middle">
-                        <div className="flex justify-end">
-                          <BudgetItemFormDialog
-                            planId={planId}
-                            item={item}
-                            categories={categories}
-                            trigger={<EditBudgetItemTrigger concept={item.concept} />}
-                          />
-                          <DeleteIconButton
-                            ariaLabel={t("list.deleteAria", { name: item.concept })}
-                            onDelete={() => handleDelete(item.id)}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {items.map((item) => {
+                    const panelId = `installments-d-${item.id}`;
+                    const open = expanded.has(item.id);
+                    return (
+                      <React.Fragment key={item.id}>
+                        <tr className="border-t border-line transition-colors hover:bg-page/60">
+                          <td className="max-w-72 px-5 py-3 align-middle font-medium text-ink-strong">
+                            <span className="break-words">{item.concept}</span>
+                            <TagsLine vendorName={vendorOf(item)} payer={payerOf(item)} />
+                          </td>
+                          <td className="px-3 py-3 align-middle text-ink-muted">{item.category ? categoryLabel(item.category, t) : t("uncategorised")}</td>
+                          <td className="px-3 py-3 text-right align-middle tabular-nums text-ink-strong">
+                            <AmountCell item={item} align="right" />
+                          </td>
+                          <td className="px-3 py-3 align-middle">
+                            <PaymentCell
+                              item={item}
+                              onMarkPaid={handleMarkPaid}
+                              expanded={open}
+                              onToggle={toggleExpanded}
+                              panelId={panelId}
+                            />
+                          </td>
+                          <td className="px-3 py-3 align-middle">
+                            <div className="flex justify-end">
+                              <BudgetItemFormDialog
+                                planId={planId}
+                                item={item}
+                                categories={categories}
+                                payers={payers}
+                                trigger={<EditBudgetItemTrigger concept={item.concept} />}
+                              />
+                              <DeleteIconButton
+                                ariaLabel={t("list.deleteAria", { name: item.concept })}
+                                onDelete={() => handleDelete(item.id)}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                        {open && (
+                          <tr className="bg-page/40">
+                            <td colSpan={5} className="px-5 pb-4 pt-1">
+                              <InstallmentsPanel item={item} id={panelId} onToggle={handleToggleInstallment} />
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </section>
         </>
       )}
+      {allocationDialog}
     </div>
   );
 }

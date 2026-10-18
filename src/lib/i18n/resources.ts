@@ -2,12 +2,16 @@
 // backend ni carga diferida. Al añadir un idioma, copia el bloque de "en" y
 // cambia la carpeta (y añade el código a LANGUAGES en config.ts).
 
+import esAccount from "@/locales/es/account.json";
 import esAuth from "@/locales/es/auth.json";
+import esBanquet from "@/locales/es/banquet.json";
 import esBudget from "@/locales/es/budget.json";
 import esCeremony from "@/locales/es/ceremony.json";
 import esCommon from "@/locales/es/common.json";
 import esDashboard from "@/locales/es/dashboard.json";
+import esDayof from "@/locales/es/dayof.json";
 import esCustomCard from "@/locales/es/customCard.json";
+import esDiets from "@/locales/es/diets.json";
 import esEnvelope from "@/locales/es/envelope.json";
 import esErrors from "@/locales/es/errors.json";
 import esGuests from "@/locales/es/guests.json";
@@ -22,12 +26,16 @@ import esTimeline from "@/locales/es/timeline.json";
 import esTools from "@/locales/es/tools.json";
 import esVendors from "@/locales/es/vendors.json";
 
+import enAccount from "@/locales/en/account.json";
 import enAuth from "@/locales/en/auth.json";
+import enBanquet from "@/locales/en/banquet.json";
 import enBudget from "@/locales/en/budget.json";
 import enCeremony from "@/locales/en/ceremony.json";
 import enCommon from "@/locales/en/common.json";
 import enDashboard from "@/locales/en/dashboard.json";
+import enDayof from "@/locales/en/dayof.json";
 import enCustomCard from "@/locales/en/customCard.json";
+import enDiets from "@/locales/en/diets.json";
 import enEnvelope from "@/locales/en/envelope.json";
 import enErrors from "@/locales/en/errors.json";
 import enGuests from "@/locales/en/guests.json";
@@ -52,6 +60,7 @@ export const RESOURCES = {
     common: esCommon,
     landing: esLanding,
     auth: esAuth,
+    account: esAccount,
     dashboard: esDashboard,
     onboarding: esOnboarding,
     plan: esPlan,
@@ -61,18 +70,22 @@ export const RESOURCES = {
     budget: esBudget,
     timeline: esTimeline,
     ceremony: esCeremony,
+    dayof: esDayof,
     tools: esTools,
     honeymoon: esHoneymoon,
+    banquet: esBanquet,
     invitation: esInvitation,
     invitationPage: esInvitationPage,
     envelope: esEnvelope,
     customCard: esCustomCard,
+    diets: esDiets,
     errors: esErrors,
   },
   en: {
     common: enCommon,
     landing: enLanding,
     auth: enAuth,
+    account: enAccount,
     dashboard: enDashboard,
     onboarding: enOnboarding,
     plan: enPlan,
@@ -82,12 +95,15 @@ export const RESOURCES = {
     budget: enBudget,
     timeline: enTimeline,
     ceremony: enCeremony,
+    dayof: enDayof,
     tools: enTools,
     honeymoon: enHoneymoon,
+    banquet: enBanquet,
     invitation: enInvitation,
     invitationPage: enInvitationPage,
     envelope: enEnvelope,
     customCard: enCustomCard,
+    diets: enDiets,
     errors: enErrors,
   },
 } as const satisfies Record<Lang, Record<Namespace, Bundle>>;

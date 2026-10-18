@@ -16,6 +16,7 @@ export function PlanNav({ planId }: { planId: string }) {
     { href: `${base}/ceremonia`, label: t("nav.ceremony") },
     { href: `${base}/guests`, label: t("nav.guests") },
     { href: `${base}/invitation`, label: t("nav.invitation") },
+    { href: `${base}/banquete`, label: t("nav.banquet") },
     { href: `${base}/vendors`, label: t("nav.vendors") },
     { href: `${base}/budget`, label: t("nav.budget") },
     { href: `${base}/honeymoon`, label: t("nav.honeymoon") },

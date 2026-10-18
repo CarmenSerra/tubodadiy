@@ -30,6 +30,36 @@
       }
     }
   },
+  "taskReminders": {
+    "upcoming": {
+      "title": "Upcoming tasks",
+      "hint": "What is due in the next 14 days."
+    },
+    "overdue": {
+      "title": "Overdue",
+      "hint": "No rush: change the date or mark them done whenever you can."
+    },
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDays_one": "In {{count}} day",
+    "inDays_other": "In {{count}} days",
+    "ago_one": "{{count}} day ago",
+    "ago_other": "{{count}} days ago",
+    "assignee": "Owner",
+    "you": "You",
+    "more": "and {{count}} more",
+    "viewPlan": "View the plan",
+    "notify": {
+      "enable": "Notify me in this browser",
+      "disable": "Turn off notifications",
+      "help": "We'll let you know when you open the app if something is due today or tomorrow. This browser only.",
+      "onHelp": "Notifications are on in this browser.",
+      "blocked": "Notifications are blocked in this browser; you can allow them in its settings.",
+      "title_one": "A task is due soon",
+      "title_other": "{{count}} tasks are due soon",
+      "line": "{{title}} ({{when}})"
+    }
+  },
   "appointments": {
     "title": "Upcoming appointments",
     "emptyTitle": "Schedule your first visit or fitting",

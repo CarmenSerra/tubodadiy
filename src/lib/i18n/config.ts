@@ -38,6 +38,7 @@ export const NAMESPACES = [
   "common",
   "landing",
   "auth",
+  "account",
   "dashboard",
   "onboarding",
   "plan",
@@ -47,12 +48,15 @@ export const NAMESPACES = [
   "budget",
   "timeline",
   "ceremony",
+  "dayof",
   "tools",
   "honeymoon",
+  "banquet",
   "invitation",
   "invitationPage",
   "envelope",
   "customCard",
+  "diets",
   "errors",
 ] as const;
 

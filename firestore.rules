@@ -77,12 +77,27 @@ service cloud.firestore {
         allow read, write: if isPlanMember(planId);
       }
 
+      // Día B y ceremonia: contactos, fotos clave, playlist, lecturas, música y testigos
+      // (weddingPlans/{id}/dayof/data/<colección>/{id}; subcolecciones libres).
+      match /dayof/{document=**} {
+        allow read, write: if isPlanMember(planId);
+      }
+
       match /appointments/{appointmentId} {
         allow read, write: if isPlanMember(planId);
       }
 
       // Lista de regalos físicos (se muestra, solo lectura, en la invitación pública).
       match /giftItems/{itemId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      // Banquete: plan de mesas (`tables`) y platos del menú (`menu`).
+      match /tables/{tableId} {
+        allow read, write: if isPlanMember(planId);
+      }
+
+      match /menu/{dishId} {
         allow read, write: if isPlanMember(planId);
       }
 

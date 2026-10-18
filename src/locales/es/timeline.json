@@ -23,7 +23,8 @@
   "text": {
     "heading": "Cronograma",
     "responsible": "Responsable: {{name}}",
-    "notes": "Notas: {{notes}}"
+    "notes": "Notas: {{notes}}",
+    "contacts": "Contactos del día"
   },
   "undo": {
     "action": "Deshacer",
@@ -72,7 +73,8 @@
       "duration": "Duración",
       "location": "Lugar",
       "responsible": "Responsable",
-      "notes": "Notas"
+      "notes": "Notas",
+      "contact": "Contacto del Día B"
     },
     "placeholders": {
       "title": "Ceremonia, cóctel, primer baile…",
@@ -98,6 +100,13 @@
       "duration": "Escribe una duración en minutos, entre 0 y 1440.",
       "save": "No se ha podido guardar el momento.",
       "delete": "No se ha podido eliminar el momento."
+    },
+    "contact": {
+      "none": "Sin contacto",
+      "help": "Elige a alguien de tus contactos del Día B; el responsable en texto libre sigue valiendo.",
+      "loading": "Cargando contactos…",
+      "empty": "Aún no hay contactos del Día B para elegir.",
+      "add": "Añadir contactos"
     }
   },
   "dialog": {
@@ -145,6 +154,10 @@
     "button": "Imprimir / PDF",
     "loadError": "No se ha podido cargar el cronograma.",
     "empty": "Todavía no hay momentos en el cronograma. Vuelve al plan para añadirlos.",
-    "nextDayNote": "+1: ya de madrugada, del día siguiente."
+    "nextDayNote": "+1: ya de madrugada, del día siguiente.",
+    "contacts": {
+      "title": "Contactos de emergencia y clave del día",
+      "noPhone": "Sin teléfono"
+    }
   }
 }

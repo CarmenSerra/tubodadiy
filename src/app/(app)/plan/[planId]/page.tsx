@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { AgendaProviders } from "@/components/appointments/agenda-providers";
+import { BudgetAllocationFromLink } from "@/components/budget/budget-allocation-dialog";
+import { TaskReminders } from "@/components/dashboard/task-reminders";
 import { CARD } from "@/components/dashboard/ui";
 import { EditPlanDialog } from "@/components/plan/edit-plan-dialog";
 import { EditPlanLauncherProvider } from "@/components/plan/edit-plan-launcher";
@@ -293,6 +295,15 @@ function PlanOverview() {
     revealStep(stepId);
   }, [loading, steps, phases]);
 
+  // Salto a la tarjeta de una tarea desde «Próximas tareas» / «Atrasadas»: abre su pestaña y su paso.
+  function goToStep(stepId: string) {
+    const tabId = phases.find((p) => p.steps.some((s) => s.id === stepId))?.id ?? GENERAL_TAB;
+    setPicked(tabId);
+    setOpenIds((prev) => (prev.includes(stepId) ? prev : [...prev, stepId]));
+    writeFaseToUrl(tabId, `#step-${stepId}`);
+    revealStep(stepId);
+  }
+
   // Desbloquear una fase posterior (se guarda en el plan y lo ven todos).
   async function unlock(phaseId: string) {
     try {
@@ -362,6 +373,8 @@ function PlanOverview() {
           <EditPlanDialog plan={plan} />
         </section>
       )}
+
+      {!loading && <TaskReminders planId={planId} steps={steps} onReveal={goToStep} />}
 
       {loading ? (
         <div className="flex flex-col gap-3" role="status" aria-label={t("overview.loading")}>
@@ -439,6 +452,7 @@ export default function PlanOverviewPage() {
           <PlanToolsProvider>
             <AgendaProviders>
               <ToolFromLink />
+              <BudgetAllocationFromLink />
               <PlanOverview />
             </AgendaProviders>
           </PlanToolsProvider>

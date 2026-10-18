@@ -10,12 +10,30 @@ import {
   Timestamp,
   updateDoc,
   writeBatch,
+  type DocumentData,
+  type FieldValue,
 } from "firebase/firestore";
 
 import { getFirebaseDb } from "@/lib/firebase/client";
+import { mapTimelineItem } from "@/lib/firebase/plans";
 import type { TimelineItem } from "@/lib/types";
 
-export type TimelineItemInput = Omit<TimelineItem, "id" | "createdAt">;
+/**
+ * Momento de la escaleta con, además del responsable en texto libre, el contacto del Día B
+ * elegido (`responsibleContactId`, solo si hay uno).
+ */
+export type TimelineMoment = TimelineItem & { responsibleContactId?: string };
+
+export function mapTimelineMoment(id: string, data: DocumentData): TimelineMoment {
+  const base = mapTimelineItem(id, data);
+  const contactId = typeof data.responsibleContactId === "string" ? data.responsibleContactId : "";
+  return contactId ? { ...base, responsibleContactId: contactId } : base;
+}
+
+export type TimelineItemInput = Omit<TimelineItem, "id" | "createdAt"> & {
+  /** Contacto del Día B; `deleteField()` lo quita. */
+  responsibleContactId?: string | FieldValue;
+};
 
 function itemsCollection(planId: string) {
   return collection(getFirebaseDb(), "weddingPlans", planId, "timelineItems");
@@ -87,7 +105,7 @@ export async function deleteTimelineItems(planId: string, itemIds: string[]) {
  * Vuelve a crear un momento borrado con su mismo id y su fecha de creación
  * original (así conserva su sitio en el orden de los empates).
  */
-export async function restoreTimelineItem(planId: string, item: TimelineItem) {
+export async function restoreTimelineItem(planId: string, item: TimelineMoment) {
   const { id, createdAt, ...data } = item;
   await setDoc(itemDoc(planId, id), {
     ...data,

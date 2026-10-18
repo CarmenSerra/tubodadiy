@@ -120,5 +120,108 @@
     "empty": "Todavía no hay momentos. Podéis partir de una plantilla (preparativos, ceremonia, cóctel, banquete, baile…) y ajustar las horas con calma, o empezar desde cero.",
     "create": "Crear el cronograma",
     "until": "hasta las"
+  },
+  "readings": {
+    "title": "Lecturas",
+    "description": "Los textos que se leen en la ceremonia, quién los lee y en qué orden.",
+    "add": "Añadir lectura",
+    "empty": "Todavía no hay lecturas. Añade un poema, un texto o un pasaje, con quién lo leerá.",
+    "editAria": "Editar la lectura «{{title}}»",
+    "readBy": "Lee {{name}}",
+    "openLink": "Abrir enlace",
+    "moveUp": "Subir «{{title}}» una posición",
+    "moveDown": "Bajar «{{title}}» una posición",
+    "moved": "«{{title}}» pasa a la posición {{position}} de {{total}}",
+    "deleted": "Lectura eliminada",
+    "errors": {
+      "move": "No se ha podido cambiar el orden.",
+      "title": "Ponle un título a la lectura.",
+      "url": "Pega un enlace válido, por ejemplo https://…",
+      "save": "No se ha podido guardar la lectura.",
+      "delete": "No se ha podido eliminar la lectura."
+    },
+    "form": {
+      "editTitle": "Editar lectura",
+      "newTitle": "Nueva lectura",
+      "description": "Título, texto o enlace y quién la lee.",
+      "delete": "Eliminar lectura",
+      "fields": {
+        "title": "Título",
+        "reader": "Quién la lee",
+        "text": "Texto (opcional)",
+        "url": "Enlace (opcional)"
+      },
+      "placeholders": {
+        "title": "Poema de Neruda, Corintios 13…",
+        "reader": "La hermana de Ana, un amigo…"
+      },
+      "urlHint": "Si el texto está en una web, pega aquí el enlace."
+    }
+  },
+  "music": {
+    "title": "Música de la ceremonia",
+    "description": "Qué suena en la entrada, en las firmas, en la salida…",
+    "add": "Añadir canción",
+    "empty": "Todavía no hay música elegida. Añade una canción por momento: entrada, firmas, salida…",
+    "editAria": "Editar «{{song}}»",
+    "listen": "Escuchar",
+    "moments": {
+      "entrance": "Entrada",
+      "rings": "Anillos",
+      "signing": "Firmas",
+      "exit": "Salida",
+      "other": "Otro momento"
+    },
+    "deleted": "Canción eliminada",
+    "errors": {
+      "song": "Escribe el título de la canción.",
+      "url": "Pega un enlace válido, por ejemplo https://open.spotify.com/…",
+      "save": "No se ha podido guardar la canción.",
+      "delete": "No se ha podido eliminar la canción."
+    },
+    "form": {
+      "editTitle": "Editar canción",
+      "newTitle": "Nueva canción",
+      "description": "Momento de la ceremonia, canción, artista y enlace.",
+      "delete": "Eliminar canción",
+      "fields": {
+        "moment": "Momento",
+        "song": "Canción",
+        "artist": "Artista",
+        "url": "Enlace (opcional)"
+      },
+      "urlHint": "Spotify, YouTube, Apple Music…"
+    }
+  },
+  "witnesses": {
+    "title": "Testigos",
+    "description": "Quién firma como testigo, cómo localizarle y si ya ha entregado el DNI.",
+    "add": "Añadir testigo",
+    "empty": "Todavía no hay testigos. Añade a las personas que firmarán con vosotros.",
+    "editAria": "Editar a {{name}}",
+    "forWhomShort": "Testigo {{name}}",
+    "dniDelivered": "DNI entregado",
+    "dniSummary": "DNI entregado: {{done}} de {{total}}",
+    "deleted": "Testigo eliminado",
+    "errors": {
+      "name": "Escribe el nombre del testigo.",
+      "save": "No se ha podido guardar al testigo.",
+      "delete": "No se ha podido eliminar al testigo."
+    },
+    "form": {
+      "editTitle": "Editar testigo",
+      "newTitle": "Nuevo testigo",
+      "description": "Nombre, teléfono, de quién es testigo y si ha entregado el DNI.",
+      "delete": "Eliminar testigo",
+      "fields": {
+        "name": "Nombre",
+        "phone": "Teléfono",
+        "forWhom": "De quién es testigo"
+      },
+      "placeholders": {
+        "forWhom": "De Ana, de Luis, de los dos…"
+      },
+      "dniHint": "Solo marcamos si ya lo ha entregado: nunca guardamos el número del DNI."
+    }
   }
 }

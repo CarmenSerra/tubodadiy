@@ -14,9 +14,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Branch, Sparkles } from "@/components/brand/hero-decorations";
 import { HomeLink } from "@/components/brand/home-link";
-import { useAuth } from "@/lib/hooks/use-auth";
-import { getFirebaseErrorMessage } from "@/lib/firebase/errors";
-import { useLanguage } from "@/lib/i18n/provider";
+import { sendResetEmail } from "@/components/auth/account-actions";
+import { useAccountError } from "@/components/auth/account-errors";
+import { GoogleLogo } from "@/components/auth/google-logo";
+import { GOOGLE_REDIRECT_KEY, useAuth } from "@/lib/hooks/use-auth";
 
 // Colores de marca fijos (misma línea visual que la landing).
 const AUTH_INPUT =
@@ -26,6 +27,8 @@ const AUTH_CTA =
   "mt-1 h-11 rounded-full bg-cta px-8 text-on-cta shadow-none hover:bg-cta hover:opacity-90 focus-visible:ring-lilac";
 // Enlaces: #927AAC sobre #F8F5F1 no llega a 4.5:1, así que el texto va en
 // verde oscuro con subrayado lila.
+const AUTH_GOOGLE =
+  "h-11 w-full rounded-full border border-line-strong bg-field px-6 text-sm font-medium text-ink shadow-none hover:bg-lilac-soft hover:text-ink focus-visible:ring-lilac focus-visible:ring-offset-0";
 const AUTH_LINK =
   "font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80";
 
@@ -72,9 +75,9 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ mode }: AuthFormProps) {
-  const { t } = useTranslation("auth");
-  const { lang } = useLanguage();
-  const { signIn, signUp, firebaseReady } = useAuth();
+  const { t } = useTranslation(["auth", "account"]);
+  const accountError = useAccountError();
+  const { signIn, signUp, signInWithGoogle, completeGoogleRedirect, firebaseReady } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
@@ -84,6 +87,85 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [password, setPassword] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [googleBusy, setGoogleBusy] = React.useState(false);
+  // "reset" = pantalla «¿Olvidaste tu contraseña?» (solo en el login).
+  const [view, setView] = React.useState<"form" | "reset">("form");
+  const [resetSent, setResetSent] = React.useState(false);
+
+  // Al volver de Google por redirección (móvil / ventanas bloqueadas) se
+  // recoge el resultado y se abre el destino guardado antes de salir.
+  React.useEffect(() => {
+    if (!firebaseReady) return;
+    let target: string | null = null;
+    try {
+      target = window.sessionStorage.getItem(GOOGLE_REDIRECT_KEY);
+    } catch {
+      return;
+    }
+    if (!target) return;
+    const destination = target;
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setGoogleBusy(true);
+    completeGoogleRedirect()
+      .then((ok) => {
+        if (cancelled) return;
+        try {
+          window.sessionStorage.removeItem(GOOGLE_REDIRECT_KEY);
+        } catch {}
+        if (ok) router.push(destination);
+        else setGoogleBusy(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        try {
+          window.sessionStorage.removeItem(GOOGLE_REDIRECT_KEY);
+        } catch {}
+        setError(accountError(err));
+        setGoogleBusy(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [firebaseReady, completeGoogleRedirect, router, accountError]);
+
+  async function handleGoogle() {
+    setError(null);
+    setGoogleBusy(true);
+    try {
+      const result = await signInWithGoogle(redirectTo);
+      if (result === "done") router.push(redirectTo);
+      else return; // la página se recarga en Google: se deja el botón ocupado
+    } catch (err) {
+      setError(accountError(err));
+    }
+    setGoogleBusy(false);
+  }
+
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await sendResetEmail(email.trim());
+      setResetSent(true);
+    } catch (err) {
+      setError(accountError(err));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function openReset() {
+    setError(null);
+    setResetSent(false);
+    setView("reset");
+  }
+
+  function closeReset() {
+    setError(null);
+    setView("form");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -97,11 +179,13 @@ export function AuthForm({ mode }: AuthFormProps) {
       }
       router.push(redirectTo);
     } catch (err) {
-      setError(getFirebaseErrorMessage(err, lang));
+      setError(accountError(err));
     } finally {
       setSubmitting(false);
     }
   }
+
+  const resetting = mode === "login" && view === "reset";
 
   return (
     <Card className="w-full max-w-sm gap-5 rounded-2xl border-line bg-surface py-8 text-ink-strong shadow-none">
@@ -116,9 +200,11 @@ export function AuthForm({ mode }: AuthFormProps) {
             <span className="font-display text-xl font-semibold">tubodadiy</span>
           </HomeLink>
         </div>
-        <CardTitle className="text-2xl font-semibold text-ink">{t(`${mode}.title`)}</CardTitle>
+        <CardTitle className="text-2xl font-semibold text-ink">
+          {resetting ? t("account:forgot.title") : t(`${mode}.title`)}
+        </CardTitle>
         <CardDescription className="text-ink-muted">
-          {t(`${mode}.subtitle`)}
+          {resetting ? t("account:forgot.subtitle") : t(`${mode}.subtitle`)}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -127,7 +213,60 @@ export function AuthForm({ mode }: AuthFormProps) {
             <Trans i18nKey="firebaseNotConfigured.form" ns="auth" components={{ code: <code className="mx-1" /> }} />
           </p>
         )}
+        {resetting ? (
+          <form onSubmit={handleReset} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="reset-email" className={AUTH_LABEL}>{t("form.email")}</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t("form.emailPlaceholder")}
+                className={AUTH_INPUT}
+                autoComplete="email"
+              />
+            </div>
+            {resetSent && (
+              <p role="status" className="rounded-xl bg-lilac-soft px-3 py-2 text-sm text-ink ring-1 ring-lilac-edge">
+                {t("account:forgot.sent")}
+              </p>
+            )}
+            {error && (
+              <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+              </p>
+            )}
+            <Button type="submit" disabled={submitting || !firebaseReady} className={AUTH_CTA}>
+              {submitting && <Loader2 className="animate-spin" />}
+              {t("account:forgot.submit")}
+            </Button>
+            <button
+              type="button"
+              onClick={closeReset}
+              className={`${AUTH_LINK} inline-flex min-h-11 items-center justify-center text-sm outline-none focus-visible:ring-2 focus-visible:ring-lilac`}
+            >
+              {t("account:forgot.back")}
+            </button>
+          </form>
+        ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGoogle}
+            disabled={googleBusy || submitting || !firebaseReady}
+            className={AUTH_GOOGLE}
+          >
+            {googleBusy ? <Loader2 className="animate-spin" /> : <GoogleLogo />}
+            {t("account:google.continue")}
+          </Button>
+          <div className="flex items-center gap-3 text-xs text-ink-muted" role="separator" aria-label={t("account:google.or")}>
+            <span className="h-px flex-1 bg-line" aria-hidden="true" />
+            <span aria-hidden="true">{t("account:google.or")}</span>
+            <span className="h-px flex-1 bg-line" aria-hidden="true" />
+          </div>
           {mode === "signup" && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name" className={AUTH_LABEL}>{t("form.name")}</Label>
@@ -167,6 +306,15 @@ export function AuthForm({ mode }: AuthFormProps) {
               className={AUTH_INPUT}
               autoComplete={mode === "login" ? "current-password" : "new-password"}
             />
+            {mode === "login" && (
+              <button
+                type="button"
+                onClick={openReset}
+                className={`${AUTH_LINK} -my-1 inline-flex min-h-11 items-center self-start text-sm outline-none focus-visible:ring-2 focus-visible:ring-lilac`}
+              >
+                {t("account:forgot.link")}
+              </button>
+            )}
           </div>
           {error && (
             <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -178,6 +326,8 @@ export function AuthForm({ mode }: AuthFormProps) {
             {t(`${mode}.submit`)}
           </Button>
         </form>
+        )}
+        {!resetting && (
         <p className="mt-5 text-center text-sm text-ink-muted">
           {mode === "login" ? (
             <>
@@ -195,6 +345,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             </>
           )}
         </p>
+        )}
       </CardContent>
     </Card>
   );

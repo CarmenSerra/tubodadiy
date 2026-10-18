@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { HeartIcon, LogOutIcon } from "lucide-react";
+import { HeartIcon, LogOutIcon, UserRoundIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar, useMyAvatarUrl } from "@/components/auth/user-avatar";
+import { VerifyEmailNotice } from "@/components/auth/verify-email-notice";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,28 +18,28 @@ import {
 import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { initials } from "@/lib/utils";
 
 /** Menú de usuario de la cabecera (presentacional: no depende de Firebase). */
 export function UserMenu({
   label,
+  avatarUrl,
   onSignOut,
 }: {
   /** Nombre o email del usuario. */
   label: string;
+  /** Foto de perfil (data URL); sin ella se muestran las iniciales. */
+  avatarUrl?: string;
   onSignOut: () => void;
 }) {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["common", "account"]);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label={t("header.userMenu", { name: label })}
-        className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface-alt"
+        className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface-alt"
       >
         <span className="hidden max-w-[12rem] truncate text-sm text-ink sm:block">{label}</span>
-        <Avatar>
-          <AvatarFallback className="bg-lilac-mid text-ink-on-tint">{initials(label)}</AvatarFallback>
-        </Avatar>
+        <UserAvatar name={label} src={avatarUrl} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -46,9 +47,15 @@ export function UserMenu({
       >
         <DropdownMenuLabel className="truncate text-sm font-medium">{label}</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-track" />
+        <DropdownMenuItem asChild className="min-h-11 rounded-lg focus:bg-lilac-soft focus:text-ink">
+          <Link href="/perfil">
+            <UserRoundIcon className="size-4" />
+            {t("account:menu.profile")}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={onSignOut}
-          className="rounded-lg focus:bg-lilac-soft focus:text-ink"
+          className="min-h-11 rounded-lg focus:bg-lilac-soft focus:text-ink"
         >
           <LogOutIcon className="size-4" />
           {t("header.signOut")}
@@ -84,6 +91,7 @@ export function AppHeader() {
   const { t } = useTranslation("common");
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const avatarUrl = useMyAvatarUrl();
 
   async function handleSignOut() {
     await signOut();
@@ -91,8 +99,17 @@ export function AppHeader() {
   }
 
   return (
-    <AppHeaderView>
-      {user && <UserMenu label={user.displayName || user.email || t("header.account")} onSignOut={handleSignOut} />}
-    </AppHeaderView>
+    <>
+      <AppHeaderView>
+        {user && (
+          <UserMenu
+            label={user.displayName || user.email || t("header.account")}
+            avatarUrl={avatarUrl}
+            onSignOut={handleSignOut}
+          />
+        )}
+      </AppHeaderView>
+      <VerifyEmailNotice />
+    </>
   );
 }

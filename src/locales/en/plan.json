@@ -15,7 +15,8 @@
     "invitation": "Invitation",
     "vendors": "Vendors",
     "budget": "Budget",
-    "honeymoon": "Honeymoon"
+    "honeymoon": "Honeymoon",
+    "banquet": "Banquet"
   },
   "progress": {
     "label": "Plan progress",
@@ -140,6 +141,45 @@
     "errors": {
       "unlock": "Couldn't unlock the phase.",
       "lock": "Couldn't lock the phase."
+    }
+  },
+  "task": {
+    "details": "Details",
+    "detailsAria": "Task details: {{title}}",
+    "dialog": {
+      "title": "Task details"
+    },
+    "status": {
+      "label": "Status",
+      "pending": "To do",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "assignee": {
+      "label": "Owner",
+      "members": "People in the plan",
+      "me": "Me",
+      "you": "You",
+      "placeholder": "Mum, Planner, a name…",
+      "help": "Pick someone from the plan or type who is taking care of it."
+    },
+    "dueDate": {
+      "label": "Due date",
+      "placeholder": "No date"
+    },
+    "notes": {
+      "label": "Task notes",
+      "placeholder": "Contacts, links, anything you want to remember…"
+    },
+    "meta": {
+      "notes": "Has notes"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "save": "Couldn't save the task details."
     }
   },
   "step": {

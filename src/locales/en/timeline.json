@@ -23,7 +23,8 @@
   "text": {
     "heading": "Timeline",
     "responsible": "In charge: {{name}}",
-    "notes": "Notes: {{notes}}"
+    "notes": "Notes: {{notes}}",
+    "contacts": "Contacts for the day"
   },
   "undo": {
     "action": "Undo",
@@ -72,7 +73,8 @@
       "duration": "Duration",
       "location": "Place",
       "responsible": "In charge",
-      "notes": "Notes"
+      "notes": "Notes",
+      "contact": "Day-of contact"
     },
     "placeholders": {
       "title": "Ceremony, cocktails, first dance…",
@@ -98,6 +100,13 @@
       "duration": "Enter a duration in minutes, between 0 and 1440.",
       "save": "Couldn't save the moment.",
       "delete": "Couldn't delete the moment."
+    },
+    "contact": {
+      "none": "No contact",
+      "help": "Pick someone from your day-of contacts; the free-text person in charge still works.",
+      "loading": "Loading contacts…",
+      "empty": "There are no day-of contacts to choose from yet.",
+      "add": "Add contacts"
     }
   },
   "dialog": {
@@ -145,6 +154,10 @@
     "button": "Print / PDF",
     "loadError": "Couldn't load the timeline.",
     "empty": "There are no moments in the timeline yet. Go back to the plan to add some.",
-    "nextDayNote": "+1: already in the early hours, the next day."
+    "nextDayNote": "+1: already in the early hours, the next day.",
+    "contacts": {
+      "title": "Emergency and key contacts for the day",
+      "noPhone": "No phone"
+    }
   }
 }

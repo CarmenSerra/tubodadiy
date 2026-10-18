@@ -36,6 +36,7 @@ import { TIMELINE_CATEGORY } from "@/lib/steps";
 import type {
   BudgetItem,
   Guest,
+  GuestInput,
   PlanStep,
   StepStatus,
   StepTask,
@@ -237,7 +238,7 @@ const restoredCreatedAt = (createdAt: number | null) =>
 
 // ---- Guests ----
 
-export async function addGuest(planId: string, data: Omit<Guest, "id" | "createdAt">) {
+export async function addGuest(planId: string, data: GuestInput) {
   await addDoc(collection(getFirebaseDb(), "weddingPlans", planId, "guests"), {
     ...data,
     createdAt: serverTimestamp(),
@@ -369,7 +370,7 @@ export async function deleteBudgetItem(planId: string, itemId: string) {
 export async function restoreBudgetItem(planId: string, item: BudgetItem) {
   const { id, createdAt, ...data } = item;
   await setDoc(doc(getFirebaseDb(), "weddingPlans", planId, "budgetItems", id), {
-    ...data,
+    ...Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined)),
     createdAt: restoredCreatedAt(createdAt),
   });
   void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);

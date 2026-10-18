@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { ArrowLeftIcon, Loader2, Trash2Icon } from "lucide-react";
+import { deleteField } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -47,18 +49,25 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
-import { createTimelineItem, deleteTimelineItem, updateTimelineItem } from "@/lib/firebase/timeline";
+import { useDayContacts } from "@/components/dayof/use-dayof";
+import { contactLabel, dayOfHref } from "@/lib/dayof-model";
+import {
+  createTimelineItem,
+  deleteTimelineItem,
+  updateTimelineItem,
+  type TimelineMoment,
+} from "@/lib/firebase/timeline";
 import { useLanguage } from "@/lib/i18n/provider";
-import type { TimelineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Lo que el formulario ha cambiado en Firestore; el cronograma lo apunta para poder deshacerlo. */
 export type TimelineChange =
   | { type: "created"; id: string; title: string }
-  | { type: "updated"; before: TimelineItem; title: string }
-  | { type: "deleted"; item: TimelineItem };
+  | { type: "updated"; before: TimelineMoment; title: string }
+  | { type: "deleted"; item: TimelineMoment };
 
 const CUSTOM = "custom";
+const NO_CONTACT = "none";
 const MAX_DURATION_MIN = 24 * 60;
 
 /** Texto de error de campo (sin rojo: el rojo es solo para confirmar borrados). */
@@ -69,7 +78,7 @@ interface TimelineFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Momento a editar; sin él, se crea uno nuevo. */
-  item?: TimelineItem;
+  item?: TimelineMoment;
   /** Hora de inicio sugerida al crear (minutos desde las 00:00). */
   defaultStartMin?: number;
   /** Se llama tras crear con éxito (para el progreso del paso). */
@@ -129,7 +138,7 @@ function MomentForm({
   onChange,
 }: {
   planId: string;
-  item?: TimelineItem;
+  item?: TimelineMoment;
   defaultStartMin: number;
   onDone: () => void;
   onCreated?: () => void;
@@ -153,6 +162,8 @@ function MomentForm({
   const [customMin, setCustomMin] = React.useState(isCommon ? "" : String(initialDuration));
   const [location, setLocation] = React.useState(item?.location ?? "");
   const [responsible, setResponsible] = React.useState(item?.responsible ?? "");
+  const contacts = useDayContacts(planId);
+  const [contactId, setContactId] = React.useState(item?.responsibleContactId ?? NO_CONTACT);
   const [notes, setNotes] = React.useState(item?.notes ?? "");
   const [highlight, setHighlight] = React.useState(item?.highlight ?? false);
   const [error, setError] = React.useState<FormError | null>(null);
@@ -164,6 +175,7 @@ function MomentForm({
   const customId = React.useId();
   const locationId = React.useId();
   const responsibleId = React.useId();
+  const contactFieldId = React.useId();
   const notesId = React.useId();
 
   // Si la duración guardada no es de las habituales, se muestra también en la lista.
@@ -211,13 +223,19 @@ function MomentForm({
       notes: notes.trim(),
       highlight,
     };
+    // Solo vale un contacto que siga existiendo (o el ya guardado mientras cargan).
+    const keepContact =
+      contactId !== NO_CONTACT && (contacts.loading || contacts.data.some((c) => c.id === contactId));
     setSubmitting(true);
     try {
       if (item) {
-        await updateTimelineItem(planId, item.id, data);
+        await updateTimelineItem(planId, item.id, {
+          ...data,
+          responsibleContactId: keepContact ? contactId : deleteField(),
+        });
         onChange?.({ type: "updated", before: item, title: data.title });
       } else {
-        const id = await createTimelineItem(planId, data);
+        const id = await createTimelineItem(planId, keepContact ? { ...data, responsibleContactId: contactId } : data);
         onCreated?.();
         onChange?.({ type: "created", id, title: data.title });
       }
@@ -406,6 +424,47 @@ function MomentForm({
               className={FIELD}
             />
           </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor={contactFieldId} className={FIELD_LABEL}>
+            {t("form.fields.contact")}
+          </Label>
+          {contacts.data.length > 0 ? (
+            <>
+              <Select
+                value={contacts.data.some((c) => c.id === contactId) ? contactId : NO_CONTACT}
+                onValueChange={setContactId}
+              >
+                <SelectTrigger id={contactFieldId} className={cn(SELECT_TRIGGER, "w-full")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={SELECT_CONTENT}>
+                  <SelectItem value={NO_CONTACT} className={SELECT_ITEM}>
+                    {t("form.contact.none")}
+                  </SelectItem>
+                  {contacts.data.map((c) => (
+                    <SelectItem key={c.id} value={c.id} className={SELECT_ITEM}>
+                      {contactLabel(c)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-ink-muted">{t("form.contact.help")}</p>
+            </>
+          ) : (
+            <p id={contactFieldId} className="text-sm text-ink-muted">
+              {contacts.loading ? t("form.contact.loading") : t("form.contact.empty")}{" "}
+              {!contacts.loading && (
+                <Link
+                  href={dayOfHref(planId, "contactos")}
+                  className="font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4"
+                >
+                  {t("form.contact.add")}
+                </Link>
+              )}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">

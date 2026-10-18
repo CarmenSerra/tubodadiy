@@ -1,3 +1,5 @@
+import type { DietId } from "@/lib/diets";
+
 export type PlanRole = "owner" | "partner" | "planner";
 export type MemberStatus = "pending" | "accepted";
 
@@ -142,6 +144,12 @@ export interface StepTask {
   auto?: StepTaskAuto;
   dueDate?: string | null;
   notes?: string;
+  /** Responsable: texto a mostrar (nombre del miembro en el momento de asignar, o texto libre). */
+  assignee?: string;
+  /** `userId` del miembro responsable; ausente si es texto libre. */
+  assigneeId?: string;
+  /** «En curso» (intermedio): solo cuenta mientras `done` es falso. */
+  inProgress?: boolean;
 }
 
 export interface PlanStep {
@@ -157,7 +165,31 @@ export interface PlanStep {
 
 export type RsvpStatus = "pending" | "confirmed" | "declined";
 
-export interface Guest {
+/**
+ * Campos añadidos después de la primera versión de Invitados. Los invitados
+ * guardados antes no los tienen: `mapGuest` los lee con estos valores vacíos.
+ */
+export interface GuestExtras {
+  /** Alergias, intolerancias y dietas (catálogo en `@/lib/diets`), además de `dietaryNotes`. */
+  dietIds: DietId[];
+  /** Familia o unidad (texto libre; se agrupa sin distinguir mayúsculas ni tildes). "" = sin familia. */
+  householdName: string;
+  needsLodging: boolean;
+  /** Dónde se alojará (solo tiene sentido si `needsLodging`). */
+  lodgingPlace: string;
+  needsTransport: boolean;
+  /** Desde dónde sale o qué autobús coge (solo tiene sentido si `needsTransport`). */
+  transportFrom: string;
+  /** Qué ha regalado ("" = sin regalo registrado). */
+  giftReceived: string;
+  /** Importe del regalo en euros, si se conoce. */
+  giftAmount: number | null;
+  thankYouSent: boolean;
+  /** Fecha `yyyy-MM-dd` en que se envió el agradecimiento. */
+  thankYouDate: string | null;
+}
+
+export interface Guest extends GuestExtras {
   id: string;
   name: string;
   groupName: string;
@@ -169,6 +201,9 @@ export interface Guest {
   notes: string;
   createdAt: number | null;
 }
+
+/** Datos para crear un invitado: los campos de `GuestExtras` son opcionales. */
+export type GuestInput = Omit<Guest, "id" | "createdAt" | keyof GuestExtras> & Partial<GuestExtras>;
 
 /** Flujo de decisión de una opción: explorando → visitada → favorita → elegida. */
 export type VendorStatus = "exploring" | "visited" | "favorite" | "chosen";
@@ -208,18 +243,45 @@ export interface Vendor {
 /** «Pagado»: ya gastado. «Pendiente»: previsto, aún sin pagar. */
 export type BudgetItemState = "paid" | "pending";
 
+/** Un plazo de pago de una partida (señal, mitad, resto…). */
+export interface BudgetInstallment {
+  id: string;
+  amount: number;
+  /** Fecha límite (yyyy-MM-dd). */
+  dueDate: string | null;
+  paid: boolean;
+  /** Fecha en que se pagó (yyyy-MM-dd), solo si `paid`. */
+  paidDate: string | null;
+}
+
 /**
- * Un gasto: un único importe y un estado. Los documentos antiguos guardaban
- * `estimatedCost` / `actualCost` / `paid`; `mapBudgetItem` los traduce al leer.
+ * Una partida del presupuesto.
+ *  - `amount` es el importe previsto; `actual`, el real (opcional, cuando ya se sabe).
+ *  - Lo pagado y lo pendiente salen de `installments`. Las partidas antiguas no los tienen:
+ *    se leen como un único plazo hecho de `amount` + `state` + `dueDate` (ver `itemInstallments`).
+ *    Al guardar con el formulario actual se escriben siempre los plazos, y `state` / `dueDate`
+ *    se mantienen como resumen («pagado» si no queda nada; próxima fecha límite) para quien los lea.
+ *  - `vendorId` enlaza con un proveedor; `payer` dice quién paga («couple», «familyA», «familyB»
+ *    o texto libre).
+ * Los documentos más antiguos aún guardaban `estimatedCost` / `actualCost` / `paid`;
+ * `mapBudgetItem` los traduce al leer.
  */
 export interface BudgetItem {
   id: string;
   category: string;
   concept: string;
   amount: number;
+  /** Importe real (opcional); si existe, manda sobre `amount` para el total esperado. */
+  actual?: number | null;
   state: BudgetItemState;
   /** Fecha límite de pago (yyyy-MM-dd), solo útil mientras esté pendiente. */
   dueDate: string | null;
+  /** Plazos de pago; ausente en las partidas antiguas. */
+  installments?: BudgetInstallment[];
+  /** Id del proveedor enlazado (Proveedores), si lo hay. */
+  vendorId?: string | null;
+  /** Quién paga: «couple» | «familyA» | «familyB» | texto libre; vacío = sin asignar. */
+  payer?: string | null;
   createdAt: number | null;
 }
 

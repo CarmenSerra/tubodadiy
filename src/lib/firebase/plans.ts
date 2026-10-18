@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 
 import { mapGift } from "@/components/plan-tools/gift-model";
+import { normalizeDietIds } from "@/lib/diets";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { initialAutoDone, statusAfterTasksChange } from "@/lib/auto-tasks";
 import { STEP_DEFINITIONS, baseTaskAuto, currentAuto, legacyTaskTitle } from "@/lib/steps";
@@ -26,6 +27,7 @@ import type {
   Guest,
   Vendor,
   VendorStatus,
+  BudgetInstallment,
   BudgetItem,
   TimelineItem,
 } from "@/lib/types";
@@ -121,8 +123,22 @@ export function mapGuest(id: string, data: DocumentData): Guest {
     plusOneName: typeof data.plusOneName === "string" ? data.plusOneName : "",
     dietaryNotes: data.dietaryNotes ?? "",
     notes: data.notes ?? "",
+    dietIds: normalizeDietIds(data.dietIds),
+    householdName: str(data.householdName),
+    needsLodging: Boolean(data.needsLodging),
+    lodgingPlace: str(data.lodgingPlace),
+    needsTransport: Boolean(data.needsTransport),
+    transportFrom: str(data.transportFrom),
+    giftReceived: str(data.giftReceived),
+    giftAmount: typeof data.giftAmount === "number" && Number.isFinite(data.giftAmount) ? data.giftAmount : null,
+    thankYouSent: Boolean(data.thankYouSent),
+    thankYouDate: typeof data.thankYouDate === "string" && data.thankYouDate ? data.thankYouDate : null,
     createdAt: toMillis(data.createdAt),
   };
+}
+
+function str(value: unknown): string {
+  return typeof value === "string" ? value : "";
 }
 
 // Estados antiguos (valorando/contactado/contratado/descartado) → flujo actual,
@@ -181,31 +197,63 @@ export function mapVendor(id: string, data: DocumentData): Vendor {
   };
 }
 
+/** Fecha yyyy-MM-dd guardada, o null. */
+function dateOrNull(value: unknown): string | null {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
+}
+
+/** Plazos guardados → modelo actual (descarta lo que no tenga forma de plazo). */
+function mapInstallments(raw: unknown): BudgetInstallment[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const list = raw
+    .filter((r): r is Record<string, unknown> => Boolean(r) && typeof r === "object")
+    .map((r, i) => {
+      const paid = r.paid === true;
+      return {
+        id: typeof r.id === "string" && r.id ? r.id : `p${i}`,
+        amount: typeof r.amount === "number" && Number.isFinite(r.amount) && r.amount > 0 ? r.amount : 0,
+        dueDate: dateOrNull(r.dueDate),
+        paid,
+        paidDate: paid ? dateOrNull(r.paidDate) : null,
+      };
+    });
+  return list.length > 0 ? list : undefined;
+}
+
 /**
  * Gasto guardado → modelo actual. Los documentos antiguos tenían coste
- * estimado, coste real y «pagado»: con coste real es un gasto pagado por ese
- * importe; si no, es el estimado, pendiente (o pagado si estaba marcado así).
+ * estimado, coste real y «pagado»: el estimado es el importe previsto y el real
+ * (si lo hay) es el real, con el gasto pagado; si no, queda pendiente (o pagado
+ * si estaba marcado así). Las partidas sin plazos se leen con un único plazo
+ * implícito (ver `itemInstallments`).
  */
 export function mapBudgetItem(id: string, data: DocumentData): BudgetItem {
   const common = {
     id,
     category: typeof data.category === "string" ? data.category : "",
     concept: typeof data.concept === "string" ? data.concept : "",
+    vendorId: typeof data.vendorId === "string" && data.vendorId ? data.vendorId : null,
+    payer: typeof data.payer === "string" && data.payer.trim() ? data.payer.trim() : null,
     createdAt: toMillis(data.createdAt),
   };
   if (typeof data.amount === "number" && Number.isFinite(data.amount)) {
+    const installments = mapInstallments(data.installments);
     return {
       ...common,
       amount: data.amount,
+      actual: typeof data.actual === "number" && Number.isFinite(data.actual) && data.actual >= 0 ? data.actual : null,
       state: data.state === "paid" ? "paid" : "pending",
-      dueDate: typeof data.dueDate === "string" && data.dueDate ? data.dueDate : null,
+      dueDate: dateOrNull(data.dueDate),
+      // Sin la clave (no `undefined`) cuando no hay plazos: Firestore no admite `undefined`.
+      ...(installments ? { installments } : {}),
     };
   }
   const actual = typeof data.actualCost === "number" ? data.actualCost : 0;
   const estimated = typeof data.estimatedCost === "number" ? data.estimatedCost : 0;
   return {
     ...common,
-    amount: actual > 0 ? actual : estimated,
+    amount: estimated > 0 ? estimated : actual,
+    actual: actual > 0 ? actual : null,
     state: actual > 0 || data.paid === true ? "paid" : "pending",
     dueDate: null,
   };

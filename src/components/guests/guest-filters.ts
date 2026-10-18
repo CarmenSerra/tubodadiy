@@ -1,3 +1,4 @@
+import type { DietId } from "@/lib/diets";
 import type { Guest, RsvpStatus } from "@/lib/types";
 
 export type StatusFilter = "all" | RsvpStatus;
@@ -31,16 +32,21 @@ export function hasUngrouped(guests: Guest[]): boolean {
   return guests.some((g) => !g.groupName.trim());
 }
 
+/** Valor «cualquier dieta» del filtro por alergia/dieta. */
+export const DIET_ALL = "all";
+
 export interface GuestFilters {
   query: string;
   status: StatusFilter;
   group: string;
+  /** Alergia o dieta que debe tener el invitado («all» = sin filtrar). */
+  diet: DietId | typeof DIET_ALL;
 }
 
-export const NO_FILTERS: GuestFilters = { query: "", status: "all", group: GROUP_ALL };
+export const NO_FILTERS: GuestFilters = { query: "", status: "all", group: GROUP_ALL, diet: DIET_ALL };
 
 export function isFiltering(f: GuestFilters): boolean {
-  return f.query.trim() !== "" || f.status !== "all" || f.group !== GROUP_ALL;
+  return f.query.trim() !== "" || f.status !== "all" || f.group !== GROUP_ALL || f.diet !== DIET_ALL;
 }
 
 export function filterGuests(guests: Guest[], f: GuestFilters): Guest[] {
@@ -53,8 +59,11 @@ export function filterGuests(guests: Guest[], f: GuestFilters): Guest[] {
     } else if (group !== GROUP_ALL && normalizeText(g.groupName) !== group) {
       return false;
     }
+    if (f.diet !== DIET_ALL && !g.dietIds.includes(f.diet)) return false;
     if (!q) return true;
-    return normalizeText([g.name, g.plusOneName, g.groupName, g.notes, g.dietaryNotes].join(" ")).includes(q);
+    return normalizeText(
+      [g.name, g.plusOneName, g.groupName, g.householdName, g.notes, g.dietaryNotes, g.lodgingPlace, g.transportFrom].join(" ")
+    ).includes(q);
   });
 }
 

@@ -15,7 +15,8 @@
     "invitation": "Invitación",
     "vendors": "Proveedores",
     "budget": "Presupuesto",
-    "honeymoon": "Luna de miel"
+    "honeymoon": "Luna de miel",
+    "banquet": "Banquete"
   },
   "progress": {
     "label": "Progreso del plan",
@@ -140,6 +141,45 @@
     "errors": {
       "unlock": "No se ha podido desbloquear la fase.",
       "lock": "No se ha podido bloquear la fase."
+    }
+  },
+  "task": {
+    "details": "Detalles",
+    "detailsAria": "Detalles de la tarea: {{title}}",
+    "dialog": {
+      "title": "Detalles de la tarea"
+    },
+    "status": {
+      "label": "Estado",
+      "pending": "Pendiente",
+      "in_progress": "En curso",
+      "done": "Hecha"
+    },
+    "assignee": {
+      "label": "Responsable",
+      "members": "Personas del plan",
+      "me": "Yo",
+      "you": "Tú",
+      "placeholder": "Mamá, Planner, un nombre…",
+      "help": "Elige a alguien del plan o escribe quién se encarga."
+    },
+    "dueDate": {
+      "label": "Fecha límite",
+      "placeholder": "Sin fecha"
+    },
+    "notes": {
+      "label": "Notas de la tarea",
+      "placeholder": "Contactos, enlaces, lo que quieras recordar…"
+    },
+    "meta": {
+      "notes": "Con notas"
+    },
+    "actions": {
+      "save": "Guardar",
+      "cancel": "Cancelar"
+    },
+    "errors": {
+      "save": "No se han podido guardar los detalles de la tarea."
     }
   },
   "step": {

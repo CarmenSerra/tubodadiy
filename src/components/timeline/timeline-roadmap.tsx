@@ -17,7 +17,8 @@ import {
 } from "@/components/timeline/timeline-model";
 import { ROW_FOCUS } from "@/components/guests/brand-dialog";
 import { useLanguage } from "@/lib/i18n/provider";
-import type { TimelineItem } from "@/lib/types";
+import { responsibleText, type DayContact } from "@/lib/dayof-model";
+import type { TimelineMoment } from "@/lib/firebase/timeline";
 import { cn } from "@/lib/utils";
 
 // Altura (desde el borde superior de la fila) a la que se alinean la hora, el
@@ -47,13 +48,16 @@ const NUDGE_BUTTON = cn(
 
 function MomentCard({
   item,
+  owner,
   coincidences,
   canEarlier,
   canLater,
   onEdit,
   onNudge,
 }: {
-  item: TimelineItem;
+  item: TimelineMoment;
+  /** Responsable a mostrar: contacto del Día B y/o texto libre. */
+  owner: string;
   coincidences: string[];
   canEarlier: boolean;
   canLater: boolean;
@@ -98,11 +102,11 @@ function MomentCard({
               <span className="min-w-0 break-words">{item.location}</span>
             </span>
           )}
-          {item.responsible.trim() && (
+          {owner && (
             <span className="inline-flex min-w-0 items-center gap-1">
               <UserIcon aria-hidden="true" className="size-3.5 shrink-0" />
               <span className="sr-only">{t("roadmap.responsibleSr")} </span>
-              <span className="min-w-0 break-words">{item.responsible}</span>
+              <span className="min-w-0 break-words">{owner}</span>
             </span>
           )}
         </span>
@@ -207,16 +211,19 @@ const ROW_GRID = "grid grid-cols-[5.25rem_1.25rem_minmax(0,1fr)] sm:grid-cols-[6
 
 export function TimelineRoadmap({
   items,
+  contactsById,
   cascade,
   onEdit,
   onNudge,
   onAdd,
 }: {
   /** Ya ordenados por hora. */
-  items: TimelineItem[];
+  items: TimelineMoment[];
+  /** Contactos del Día B, para mostrar el responsable elegido. */
+  contactsById: Map<string, DayContact>;
   cascade: boolean;
-  onEdit: (item: TimelineItem) => void;
-  onNudge: (item: TimelineItem, delta: number) => void;
+  onEdit: (item: TimelineMoment) => void;
+  onNudge: (item: TimelineMoment, delta: number) => void;
   onAdd: () => void;
 }) {
   const { t } = useTranslation("timeline");
@@ -285,6 +292,7 @@ export function TimelineRoadmap({
                 <div className="pb-3">
                   <MomentCard
                     item={item}
+                    owner={responsibleText(item, contactsById)}
                     coincidences={coincidences[item.id] ?? []}
                     canEarlier={bounds[item.id].earlier}
                     canLater={bounds[item.id].later}

@@ -1,0 +1,98 @@
+{
+  "items": {
+    "gluten": {
+      "label": "Gluten",
+      "hint": "Cereals containing gluten: wheat, rye, barley, oats"
+    },
+    "crustaceans": {
+      "label": "Crustaceans",
+      "hint": "Prawns, shrimp, crab, lobster"
+    },
+    "egg": {
+      "label": "Egg",
+      "hint": "Eggs and egg products"
+    },
+    "fish": {
+      "label": "Fish",
+      "hint": "Fish and fish products"
+    },
+    "peanut": {
+      "label": "Peanut",
+      "hint": "Peanuts and derivatives"
+    },
+    "soy": {
+      "label": "Soy",
+      "hint": "Soy and derivatives"
+    },
+    "dairy": {
+      "label": "Dairy",
+      "hint": "Milk and derivatives, including lactose"
+    },
+    "treeNuts": {
+      "label": "Tree nuts",
+      "hint": "Almonds, hazelnuts, walnuts, cashews, pistachios…"
+    },
+    "celery": {
+      "label": "Celery",
+      "hint": "Celery and derivatives"
+    },
+    "mustard": {
+      "label": "Mustard",
+      "hint": "Mustard and derivatives"
+    },
+    "sesame": {
+      "label": "Sesame",
+      "hint": "Sesame seeds and derivatives"
+    },
+    "sulfites": {
+      "label": "Sulphites",
+      "hint": "Sulphur dioxide and sulphites (wine, preserves)"
+    },
+    "lupin": {
+      "label": "Lupin",
+      "hint": "Lupin and derivatives"
+    },
+    "molluscs": {
+      "label": "Molluscs",
+      "hint": "Mussels, clams, squid, octopus, snails"
+    },
+    "vegetarian": {
+      "label": "Vegetarian",
+      "hint": "No meat or fish"
+    },
+    "vegan": {
+      "label": "Vegan",
+      "hint": "No animal products at all"
+    },
+    "lactoseFree": {
+      "label": "Lactose-free",
+      "hint": "Lactose intolerance"
+    },
+    "diabetes": {
+      "label": "Diabetes",
+      "hint": "Low-sugar menu"
+    },
+    "pregnancy": {
+      "label": "Pregnancy",
+      "hint": "No raw or risky foods"
+    },
+    "halal": {
+      "label": "Halal",
+      "hint": "Halal menu"
+    },
+    "kosher": {
+      "label": "Kosher",
+      "hint": "Kosher menu"
+    },
+    "kids": {
+      "label": "Kids' menu",
+      "hint": "Menu for children"
+    }
+  },
+  "groups": {
+    "allergen": "Allergies and intolerances",
+    "diet": "Diets and other"
+  },
+  "badgesAria": "Allergies and diets",
+  "more": "+{{count}}"
+}

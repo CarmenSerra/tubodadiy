@@ -11,6 +11,7 @@ import { GlanceRow } from "./glance-row";
 import { firstName, type FeaturedPlanData } from "./helpers";
 import { HomeHeader } from "./home-header";
 import { NowCard } from "./now-card";
+import { TaskReminders } from "./task-reminders";
 import { UpcomingAppointments } from "./upcoming-appointments";
 import { FOCUS, LINK, NEW_PLAN_HREF } from "./ui";
 
@@ -35,8 +36,9 @@ export interface DashboardHomeProps {
  * no toca Firebase, de modo que se puede pintar con datos de ejemplo (salvo la
  * tarjeta «Próximas citas», que se suscribe sola a la agenda del plan).
  *
- * Cuatro bloques, en este orden: cabecera (saludo + cuenta atrás), "Ahora toca"
- * (la única acción principal), "Próximas citas" y "De un vistazo" (tres datos con enlace).
+ * Bloques, en este orden: cabecera (saludo + cuenta atrás), "Ahora toca"
+ * (la única acción principal), "Próximas tareas" / "Atrasadas" (solo si hay tareas con
+ * fecha), "Próximas citas" y "De un vistazo" (tres datos con enlace).
  */
 export function DashboardHome({
   userName,
@@ -88,6 +90,8 @@ export function DashboardHome({
       />
 
       <NowCard plan={featured} data={data} />
+
+      <TaskReminders planId={featured.id} steps={data.steps} />
 
       <UpcomingAppointments planId={featured.id} />
 

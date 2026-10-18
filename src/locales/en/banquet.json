@@ -1,0 +1,183 @@
+{
+  "page": {
+    "title": "Banquet",
+    "description": "Plan the meal's menu and decide where everyone sits. Everything saves on its own and is visible to the people planning with you.",
+    "tabsLabel": "Banquet sections",
+    "tabs": {
+      "seating": "Tables",
+      "menu": "Menu"
+    },
+    "loading": "Loading the banquet",
+    "loadError": {
+      "title": "We couldn't load the banquet",
+      "text": "Check your connection and try again in a moment."
+    }
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "courses": {
+    "appetizer": {
+      "name": "Appetizer",
+      "hint": "Nibbles while everyone arrives"
+    },
+    "starter": {
+      "name": "Starter",
+      "hint": "The first course of the meal"
+    },
+    "main": {
+      "name": "Main course",
+      "hint": "Meat, fish or the vegetarian option"
+    },
+    "dessert": {
+      "name": "Dessert",
+      "hint": "Something sweet before the cake"
+    },
+    "cake": {
+      "name": "Cake",
+      "hint": "The wedding cake and its flavour"
+    },
+    "drink": {
+      "name": "Drinks",
+      "hint": "Wines, soft drinks, open bar…"
+    },
+    "special": {
+      "name": "Kids / special",
+      "hint": "Kids' menu or options for anyone who needs them"
+    }
+  },
+  "menu": {
+    "add": "Add dish",
+    "addTo": "Add dish to {{course}}",
+    "addFirst": "Add the first dish",
+    "emptyCourse": "Nothing here yet.",
+    "needs": {
+      "title": "What your menu should cover",
+      "description": "Allergies and diets noted for the guests who are coming."
+    },
+    "notes": {
+      "title": "Worth a look",
+      "description": "Based on what you've marked on the menu, it may be worth going over this with the caterer.",
+      "item_one": "{{count}} guest with “{{diet}}”: no dish covers them in {{courses}}.",
+      "item_other": "{{count}} guests with “{{diet}}”: no dish covers them in {{courses}}."
+    }
+  },
+  "dish": {
+    "newTitle": "New dish",
+    "editTitle": "Edit dish",
+    "course": "Type of dish",
+    "name": "Dish name",
+    "namePlaceholder": "Beef fillet with port sauce",
+    "notes": "Details (optional)",
+    "notesPlaceholder": "With mashed potato and vegetables",
+    "contains": "Contains",
+    "containsHint": "Mark the allergens in the dish.",
+    "suitableFor": "Suitable for",
+    "suitableForHint": "Mark the diets it is meant for.",
+    "containsShort": "Contains",
+    "suitableShort": "Suitable for",
+    "added": "Dish added",
+    "updated": "Dish updated",
+    "saveError": "We couldn't save the dish. Please try again.",
+    "editNamed": "Edit {{name}}",
+    "deleteNamed": "Delete {{name}}",
+    "deleted": "{{name}} deleted",
+    "deleteError": "We couldn't delete the dish."
+  },
+  "seating": {
+    "title": "Seating plan",
+    "summary_one": "{{tables}} table · {{seated}} of {{capacity}} seats taken · {{waiting}} without a table",
+    "summary_other": "{{tables}} tables · {{seated}} of {{capacity}} seats taken · {{waiting}} without a table",
+    "summaryEmpty": "You haven't created any tables yet.",
+    "howTo": "Drag each person to their table, or pick it from the selector on each card (it also works with the keyboard and on a phone). A guest with a plus-one takes two seats.",
+    "addTable": "New table",
+    "print": "Print tables",
+    "empty": {
+      "title": "Start by creating your tables",
+      "text": "You can create several at once, round or rectangular, and then seat your guests.",
+      "action": "Create tables"
+    },
+    "noRoom_one": "{{guest}} doesn't fit at {{table}}: {{count}} seat left.",
+    "noRoom_other": "{{guest}} doesn't fit at {{table}}: {{count}} seats left.",
+    "assigned": "{{guest}} seated at {{table}}",
+    "unassigned": "{{guest}} is back in the list without a table",
+    "assignError": "We couldn't change the table. Please try again."
+  },
+  "pool": {
+    "title": "No table yet",
+    "scopeLabel": "Which guests to show",
+    "scope": {
+      "confirmed": "Confirmed",
+      "all": "Confirmed and pending"
+    },
+    "search": "Search guests",
+    "noGuests": "There are no guests yet. Add them in the Guests tab.",
+    "allSeated": "Everyone has a table.",
+    "noMatch": "No guests match your search.",
+    "noneInScope": "No guests without a table in this filter.",
+    "pending": "Pending",
+    "withCompanion": "with {{name}}",
+    "withUnnamedCompanion": "with a plus-one",
+    "seats_one": "{{count}} seat",
+    "seats_other": "{{count}} seats",
+    "tableOf": "{{name}}'s table",
+    "noTable": "No table",
+    "tableOption": "{{name}} · {{free}} free"
+  },
+  "table": {
+    "defaultName": "Table",
+    "newTitle": "New table",
+    "editTitle": "Edit table",
+    "name": "Name or number",
+    "shape": "Shape",
+    "shapes": {
+      "round": "Round",
+      "rect": "Rectangular"
+    },
+    "capacity": "Seats",
+    "capacityHint": "Between 1 and {{max}} seats.",
+    "capacityHintUsed_one": "Between {{count}} and {{max}} seats: {{count}} seat is already taken.",
+    "capacityHintUsed_other": "Between {{count}} and {{max}} seats: {{count}} seats are already taken.",
+    "quantity": "How many tables to create",
+    "quantityHint": "For several identical tables, raise it and they'll number themselves.",
+    "quantityMany": "They'll be named {{first}} to {{last}}.",
+    "delete": "Delete table",
+    "added_one": "Table created",
+    "added_other": "{{count}} tables created",
+    "updated": "Table updated",
+    "saveError": "We couldn't save the table. Please try again.",
+    "deleted": "{{name}} deleted",
+    "deleteError": "We couldn't delete the table.",
+    "editNamed": "Edit {{name}}",
+    "seats": "{{used}} of {{capacity}} seats",
+    "free_one": "{{count}} seat left",
+    "free_other": "{{count}} seats left",
+    "full": "Table is full",
+    "over_one": "{{count}} seat too many: check the capacity",
+    "over_other": "{{count}} seats too many: check the capacity",
+    "empty": "Nobody is seated here yet.",
+    "dropHere": "Drop here to seat",
+    "diets": "Diets and allergies at this table"
+  },
+  "print": {
+    "meta": {
+      "title": "Seating plan"
+    },
+    "title": "Seating plan",
+    "summary_one": "{{tables}} table · {{seated}} people seated",
+    "summary_other": "{{tables}} tables · {{seated}} people seated",
+    "back": "Back to the banquet",
+    "button": "Print",
+    "pdfHint": "In the print dialog you can save it as a PDF to share.",
+    "preparing": "Preparing the seating plan",
+    "noAccess": "You don't have access to this wedding plan.",
+    "loadError": "We couldn't load the tables.",
+    "empty": "There are no tables yet. Create some in the Banquet tab.",
+    "emptyTable": "No guests yet.",
+    "withCompanion": "+ {{name}}",
+    "withUnnamedCompanion": "+ plus-one",
+    "unseated_one": "No table ({{count}} seat)",
+    "unseated_other": "No table ({{count}} seats)"
+  }
+}

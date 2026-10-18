@@ -2,7 +2,17 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRightIcon, ChevronDownIcon, ClockIcon, PlusIcon, XIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  CalendarIcon,
+  ChevronDownIcon,
+  ClockIcon,
+  PlusIcon,
+  SlidersHorizontalIcon,
+  StickyNoteIcon,
+  UserIcon,
+  XIcon,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -18,6 +28,8 @@ import { usePlanToolsLauncher } from "@/components/plan-tools/plan-tools-launche
 import { useEditPlanLauncher } from "@/components/plan/edit-plan-launcher";
 import { STATUS_LABEL_KEY, StepStatusControl } from "@/components/plan/step-status";
 import { taskTarget } from "@/components/plan/task-links";
+import { TaskDetailsDialog } from "@/components/plan/task-details-dialog";
+import { assigneeLabel, hasTaskDetails, taskDateOrNull, taskStatus } from "@/components/plan/task-model";
 import { useSaveTheDateLauncher } from "@/components/stationery/stationery-launcher";
 import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import {
@@ -34,6 +46,9 @@ import {
   displayStepTitle,
   displayTaskTitle,
 } from "@/lib/steps";
+import { formatDateValue } from "@/lib/i18n/format";
+import { useLanguage } from "@/lib/i18n/provider";
+import { useAuth } from "@/lib/hooks/use-auth";
 import type { PlanStep } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
@@ -67,7 +82,11 @@ export function StepCard({
   onOpenChange: (open: boolean) => void;
 }) {
   const { t } = useTranslation("plan");
+  const { lang } = useLanguage();
+  const { user } = useAuth();
   const [notes, setNotes] = React.useState(step.notes);
+  // Tarea cuyo panel de detalles está abierto (por id, para seguirla si cambia en vivo).
+  const [detailsId, setDetailsId] = React.useState<string | null>(null);
   const [newTask, setNewTask] = React.useState("");
   const doneCount = step.tasks.filter((task) => task.done).length;
   // Secciones y tareas base: se muestran traducidas; lo que la persona escribió o editó, tal cual.
@@ -142,6 +161,43 @@ export function StepCard({
       >
         {icon}
       </Button>
+    );
+  }
+
+  const detailsTask = step.tasks.find((task) => task.id === detailsId);
+
+  // Responsable, fecha, «en curso» y notas de una tarea, en una línea discreta bajo el título.
+  function taskMeta(task: PlanStep["tasks"][number]) {
+    if (!hasTaskDetails(task)) return null;
+    const who = assigneeLabel(task, user?.uid, t("task.assignee.you"));
+    const date = taskDateOrNull(task.dueDate);
+    const dateText = date ? formatDateValue(date, lang, { day: "numeric", month: "short" }) : null;
+    const inProgress = taskStatus(task) === "in_progress";
+    const hasNotes = Boolean(task.notes?.trim());
+    return (
+      <span className={cn("mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs", soft)}>
+        {inProgress && <span className="font-medium">{t("task.status.in_progress")}</span>}
+        {who && (
+          <span className="inline-flex min-w-0 items-center gap-1">
+            <UserIcon aria-hidden="true" className="size-3 shrink-0" />
+            <span className="sr-only">{t("task.assignee.label")}: </span>
+            <span className="truncate">{who}</span>
+          </span>
+        )}
+        {dateText && (
+          <span className="inline-flex items-center gap-1">
+            <CalendarIcon aria-hidden="true" className="size-3 shrink-0" />
+            <span className="sr-only">{t("task.dueDate.label")}: </span>
+            {dateText}
+          </span>
+        )}
+        {hasNotes && (
+          <span className="inline-flex items-center gap-1">
+            <StickyNoteIcon aria-hidden="true" className="size-3 shrink-0" />
+            <span className="sr-only">{t("task.meta.notes")}</span>
+          </span>
+        )}
+      </span>
     );
   }
 
@@ -351,16 +407,39 @@ export function StepCard({
                           "border-on-done focus-visible:ring-on-done focus-visible:ring-offset-done data-[state=checked]:border-on-done data-[state=checked]:bg-on-done data-[state=checked]:text-done"
                       )}
                     />
-                    <span
-                      className={cn(
-                        "flex-1 text-sm",
-                        completed ? "text-on-done" : "text-ink-strong",
-                        task.done && cn(soft, "line-through")
-                      )}
-                    >
-                      {taskTitle(task)}
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          "block text-sm",
+                          completed ? "text-on-done" : "text-ink-strong",
+                          task.done && cn(soft, "line-through")
+                        )}
+                      >
+                        {taskTitle(task)}
+                      </span>
+                      {taskMeta(task)}
                     </span>
                     {taskArrow(task)}
+                    <button
+                      type="button"
+                      onClick={() => setDetailsId(task.id)}
+                      aria-haspopup="dialog"
+                      aria-label={t("task.detailsAria", { title: taskTitle(task) })}
+                      title={t("task.details")}
+                      className={cn(
+                        "-my-1.5 inline-flex size-11 shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-medium transition-colors motion-reduce:transition-none sm:my-0 sm:h-8 sm:w-auto sm:px-3",
+                        completed
+                          ? "text-on-done-muted hover:bg-on-done/15 hover:text-on-done"
+                          : "text-ink-muted hover:bg-lilac-soft hover:text-ink",
+                        FOCUS,
+                        ring
+                      )}
+                    >
+                      <SlidersHorizontalIcon aria-hidden="true" className="size-4" />
+                      <span aria-hidden="true" className="hidden sm:inline">
+                        {t("task.details")}
+                      </span>
+                    </button>
                     <Button
                       type="button"
                       variant="ghost"
@@ -430,6 +509,14 @@ export function StepCard({
           </div>
         </Collapse>
       </div>
+      {/* Detalles de la tarea: un solo diálogo por tarjeta (se pinta en un portal). */}
+      <TaskDetailsDialog
+        planId={planId}
+        step={step}
+        task={step.tasks.find((task) => task.id === detailsId) ?? null}
+        title={detailsTask ? taskTitle(detailsTask) : ""}
+        onClose={() => setDetailsId(null)}
+      />
     </li>
   );
 }

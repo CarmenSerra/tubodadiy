@@ -30,6 +30,36 @@
       }
     }
   },
+  "taskReminders": {
+    "upcoming": {
+      "title": "Próximas tareas",
+      "hint": "Lo que vence en los próximos 14 días."
+    },
+    "overdue": {
+      "title": "Atrasadas",
+      "hint": "Sin prisa: cambia la fecha o márcalas como hechas cuando puedas."
+    },
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "inDays_one": "En {{count}} día",
+    "inDays_other": "En {{count}} días",
+    "ago_one": "Hace {{count}} día",
+    "ago_other": "Hace {{count}} días",
+    "assignee": "Responsable",
+    "you": "Tú",
+    "more": "y {{count}} más",
+    "viewPlan": "Ver el plan",
+    "notify": {
+      "enable": "Avisarme en este navegador",
+      "disable": "Desactivar los avisos",
+      "help": "Te avisaremos al abrir la app si algo vence hoy o mañana. Solo en este navegador.",
+      "onHelp": "Avisos activados en este navegador.",
+      "blocked": "Las notificaciones están bloqueadas en este navegador; puedes permitirlas desde sus ajustes.",
+      "title_one": "Una tarea vence pronto",
+      "title_other": "{{count}} tareas vencen pronto",
+      "line": "{{title}} ({{when}})"
+    }
+  },
   "appointments": {
     "title": "Próximas citas",
     "emptyTitle": "Agenda tu primera visita o prueba",

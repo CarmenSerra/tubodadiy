@@ -1,0 +1,72 @@
+{
+  "menu": { "profile": "Mi perfil" },
+  "google": {
+    "continue": "Continuar con Google",
+    "or": "o con tu correo",
+    "redirecting": "Redirigiendo a Google…"
+  },
+  "forgot": {
+    "link": "¿Olvidaste tu contraseña?",
+    "title": "Recupera tu contraseña",
+    "subtitle": "Te enviamos un enlace al correo para elegir una nueva.",
+    "submit": "Enviar enlace",
+    "back": "Volver a iniciar sesión",
+    "sent": "Si hay una cuenta con ese correo, te hemos enviado un enlace para restablecer la contraseña. Revisa también la carpeta de spam."
+  },
+  "verify": {
+    "title": "Verifica tu correo",
+    "body": "Te enviamos un enlace a {{email}}. Puedes seguir usando la app mientras tanto.",
+    "resend": "Reenviar correo",
+    "resendIn": "Reenviar en {{seconds}} s",
+    "sent": "Correo de verificación enviado.",
+    "check": "Ya lo he verificado",
+    "stillPending": "Aún no vemos la verificación. Abre el enlace del correo y vuelve a probar."
+  },
+  "profile": {
+    "meta": { "title": "Mi perfil — tubodadiy" },
+    "title": "Mi perfil",
+    "subtitle": "Tu foto, tu nombre y tu contraseña.",
+    "emailLabel": "Correo electrónico",
+    "emailVerified": "Correo verificado",
+    "emailUnverified": "Correo sin verificar",
+    "photo": {
+      "title": "Foto de perfil",
+      "hint": "Se recorta en cuadrado y se guarda muy ligera.",
+      "change": "Cambiar foto",
+      "add": "Añadir foto",
+      "remove": "Quitar foto",
+      "working": "Procesando…",
+      "saved": "Foto actualizada.",
+      "removed": "Foto quitada.",
+      "notImage": "Elige un archivo de imagen (JPG, PNG, WebP…).",
+      "failed": "No hemos podido procesar la imagen. Prueba con otra."
+    },
+    "name": {
+      "title": "Nombre visible",
+      "label": "Nombre",
+      "placeholder": "Tu nombre",
+      "save": "Guardar nombre",
+      "saved": "Nombre actualizado."
+    },
+    "password": {
+      "title": "Contraseña",
+      "current": "Contraseña actual",
+      "new": "Nueva contraseña",
+      "confirm": "Repite la nueva contraseña",
+      "hint": "Mínimo 6 caracteres.",
+      "submit": "Cambiar contraseña",
+      "saved": "Contraseña actualizada.",
+      "mismatch": "Las contraseñas nuevas no coinciden.",
+      "same": "La nueva contraseña debe ser distinta de la actual.",
+      "wrongCurrent": "La contraseña actual no es correcta.",
+      "googleOnly": "Entras con tu cuenta de Google, así que tubodadiy no guarda ninguna contraseña tuya. Para cambiar tu contraseña o reforzar la seguridad, hazlo desde los ajustes de tu cuenta de Google."
+    }
+  },
+  "errors": {
+    "auth/unauthorized-domain": "Este dominio aún no está autorizado para entrar con Google.",
+    "auth/operation-not-allowed": "Entrar con Google no está activado todavía en este proyecto.",
+    "auth/account-exists-with-different-credential": "Ya existe una cuenta con ese correo. Inicia sesión con tu correo y contraseña.",
+    "auth/popup-blocked": "El navegador ha bloqueado la ventana de Google. Permite las ventanas emergentes e inténtalo de nuevo.",
+    "auth/network-request-failed": "Sin conexión. Revisa tu internet e inténtalo de nuevo."
+  }
+}

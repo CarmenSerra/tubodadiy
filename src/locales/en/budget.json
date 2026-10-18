@@ -32,8 +32,8 @@
     "paid": "Paid",
     "pending": "Pending",
     "overNote": "What you've planned goes over the total: a good moment to calmly rebalance a few items.",
-    "noExpenses": "No expenses recorded yet.",
-    "withinNote": "What you've planned is {{percent}}% of the total. You're within budget.",
+    "noExpenses": "No expenses added yet.",
+    "withinNote": "Between actual and planned amounts you are at {{percent}}% of the total. You are within your budget.",
     "noTotal": "You haven't set a total budget yet.",
     "tiles": {
       "total": "Total budget",
@@ -48,18 +48,38 @@
       "expenseCount_one": "{{count}} expense",
       "expenseCount_other": "{{count}} expenses",
       "nextOn": "next one on {{date}}",
-      "planned": "Total planned",
-      "plannedDetail": "paid + pending"
+      "planned": "Planned",
+      "plannedDetail": "sum of the planned amounts",
+      "actual": "Actual",
+      "noActual": "no actual amounts yet",
+      "actualDetail_one": "actual amount on {{count}} of {{total}} items",
+      "actualDetail_other": "actual amounts on {{count}} of {{total}} items",
+      "deviation": "Deviation",
+      "noDeviation": "actual versus planned",
+      "deviationMore": "above plan on items with an actual amount",
+      "deviationLess": "below plan on items with an actual amount",
+      "deviationSame": "exactly as planned on items with an actual amount"
     }
   },
   "breakdown": {
     "title": "By category",
-    "total": "Total planned:",
-    "note": "Amount = paid + pending. The percentage is of the total planned.",
+    "total": "Total expected:",
+    "note": "Expected = the actual amount where you know it and the planned one for the rest. Deviation is actual minus planned. The percentage is of the total expected.",
     "items_one": "{{count}} item",
     "items_other": "{{count}} items",
     "paid": "Paid",
-    "pending": "Pending"
+    "pending": "Pending",
+    "allocatedTotal": "Allocated:",
+    "allocate": "Split by category",
+    "editAllocation": "Edit the split",
+    "noteWithAllocation": "Expected = the actual amount where you know it and the planned one for the rest. It is compared with what you allocated to each category.",
+    "planned": "Planned",
+    "actual": "Actual",
+    "deviation": "Deviation",
+    "allocated": "Allocated",
+    "withinAllocation": "Within the allocation: {{amount}} left.",
+    "aboveAllocation": "Above the allocation by {{amount}}; you can adjust the split at your own pace.",
+    "noItemsYet": "No items in this category yet."
   },
   "form": {
     "addExpense": "Add expense",
@@ -78,9 +98,10 @@
     "customPlaceholder": "Mariachi band, fireworks, surprise cake…",
     "errors": {
       "customCategory": "Enter your category name or choose one from the list.",
-      "category": "Choose a category or create your own."
+      "category": "Choose a category or create your own.",
+      "installments": "Check the instalment amounts."
     },
-    "amount": "Amount (€)",
+    "amount": "Planned amount (€)",
     "status": "Status",
     "state": {
       "pending": {
@@ -96,7 +117,44 @@
     "optional": "(optional)",
     "duePlaceholder": "When does it need to be paid?",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "actual": "Actual amount (€)",
+    "actualHint": "Once you know the real cost (signed quote, invoice), add it: it will count instead of the planned amount.",
+    "vendor": "Vendor",
+    "vendorNone": "No vendor",
+    "vendorHint": "Link it to a vendor to see what is paid and pending on their page.",
+    "payer": "Who pays",
+    "payerNone": "Unassigned",
+    "payerCustomOption": "✨ Someone else…",
+    "payerCustomName": "Payer's name",
+    "payerCustomPlaceholder": "The godparents, Aunt Carmen…",
+    "payMode": {
+      "legend": "How it is paid",
+      "single": {
+        "title": "One payment",
+        "hint": "All at once"
+      },
+      "multi": {
+        "title": "In instalments",
+        "hint": "Deposit, half, the rest…"
+      }
+    },
+    "paidDate": "Payment date",
+    "paidDatePlaceholder": "When did you pay it?",
+    "installments": {
+      "number": "Instalment {{n}}",
+      "remove": "Remove instalment {{n}}",
+      "amount": "Amount (€)",
+      "due": "Due date",
+      "duePlaceholder": "Due when?",
+      "paid": "Paid",
+      "paidDate": "Payment date",
+      "paidDatePlaceholder": "When did you pay it?",
+      "add": "Add instalment",
+      "sumOk": "The instalments add up to the amount.",
+      "sumHint": "The instalments add up to {{sum}} of {{cost}}.",
+      "adjust": "Adjust the last instalment"
+    }
   },
   "list": {
     "title": "Budget",
@@ -106,7 +164,8 @@
       "paid": "Paid",
       "pending": "Pending",
       "overdue": "Was due {{date}}",
-      "due": "Due {{date}}"
+      "due": "Due {{date}}",
+      "partial": "Paid {{paid}} of {{cost}}"
     },
     "markPaid": "Mark as paid",
     "markPaidAria": "Mark “{{name}}” as paid",
@@ -128,7 +187,24 @@
       "amount": "Amount",
       "status": "Status",
       "actions": "Actions"
-    }
+    },
+    "allocate": "Split by category",
+    "installmentsToggle": "{{paid}} of {{total}} instalments",
+    "installmentsToggleAria": "Show the instalments of \"{{name}}\"",
+    "installmentsLabel": "Instalments of \"{{name}}\"",
+    "installmentLine": "Instalment {{n}} · {{amount}}",
+    "paidOn": "Paid on {{date}}",
+    "noDueDate": "No due date",
+    "unmarkInstallment": "Undo",
+    "markInstallmentAria": "Mark instalment {{n}} of \"{{name}}\" as paid",
+    "unmarkInstallmentAria": "Undo the payment of instalment {{n}} of \"{{name}}\"",
+    "remainingNoInstallment": "{{amount}} still has no instalment: edit the item to add another one.",
+    "plannedLine": "Planned {{amount}}",
+    "vendorTag": "Vendor: {{name}}",
+    "payerTag": "Paid by: {{name}}",
+    "installmentMarkedPaid": "Instalment {{n}} of \"{{name}}\" marked as paid",
+    "installmentPaidAnnouncement": "\"{{name}}\", instalment {{n}}: paid",
+    "installmentUnmarkedAnnouncement": "\"{{name}}\", instalment {{n}}: payment undone"
   },
   "ideas": {
     "items": {
@@ -291,5 +367,62 @@
       "done": "{{number}} items added",
       "error": "We couldn't add the items."
     }
+  },
+  "payers": {
+    "title": "Who pays",
+    "couple": "Couple",
+    "familyA": "A's family",
+    "familyB": "B's family",
+    "note": "How much falls to each payer, based on the items that have someone assigned.",
+    "noneAssigned": "You have not said who pays each item yet. Edit an item and choose the payer: the summary will appear here.",
+    "unassigned": "Unassigned",
+    "editNames": "Rename payers",
+    "editHint": "Give each payer the name you like (for example \"Marta's family\"). Leave it empty to use the default name.",
+    "saved": "Names saved",
+    "saveError": "The names could not be saved."
+  },
+  "allocation": {
+    "title": "Split the budget by category",
+    "description": "Decide how much you want to spend on each thing. We start from a typical split for weddings in Spain; adjust it to your needs.",
+    "total": "Total budget (€)",
+    "totalPlaceholder": "For example, 25000",
+    "modeLegend": "Split by",
+    "mode": {
+      "percent": "Percentage",
+      "amount": "Amount"
+    },
+    "assigned": "Allocated: {{assigned}} of {{total}} ({{percent}}%)",
+    "unassigned": "{{amount}} left to allocate.",
+    "above": "You have allocated {{amount}} more than the total; adjust whatever you like.",
+    "assignedNoTotal": "Allocated: {{assigned}}. Enter the total budget to see how much is left.",
+    "rowsLabel": "Categories of the split",
+    "categoryName": "Category name",
+    "categoryPlaceholder": "Mariachi, fireworks…",
+    "amountLabel": "Amount",
+    "percentLabel": "Percentage",
+    "remove": "Remove \"{{name}}\" from the split",
+    "thisCategory": "this category",
+    "addCategory": "Add category",
+    "useTypical": "Use the typical split",
+    "typicalNote": "The typical split is a guide for an average wedding in Spain. On the Budget tab you will see each category compared with the planned and actual amounts.",
+    "save": "Save split",
+    "saved": "Split saved",
+    "saveError": "The split could not be saved.",
+    "errors": {
+      "needTotal": "Enter the total budget to split by percentage."
+    }
+  },
+  "vendorSummary": {
+    "title": "Budget and payments",
+    "add": "Add a payment",
+    "empty": "No budget expenses are linked to this vendor yet.",
+    "emptyWithCost": "No expenses linked yet. Price on the vendor page: {{amount}}.",
+    "expected": "Total",
+    "paid": "Paid",
+    "pending": "Pending",
+    "nextDue": "Next payment: {{date}}",
+    "itemPaid": "Paid · {{amount}}",
+    "itemPending": "{{paid}} of {{cost}}",
+    "seeBudget": "See in Budget"
   }
 }
