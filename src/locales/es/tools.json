@@ -450,7 +450,8 @@
       "title": "Aún no hay citas apuntadas",
       "text": "Apunta las visitas a lugares, las pruebas de vestuario, las degustaciones y las reuniones con proveedores para no perderte ninguna.",
       "action": "Apuntar una cita",
-      "startWith": "O empieza por:"
+      "startWith": "O empieza por:",
+      "readOnly": "Todavía no hay citas apuntadas."
     },
     "toasts": {
       "added": "Cita añadida",

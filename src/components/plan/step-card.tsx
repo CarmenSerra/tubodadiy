@@ -28,6 +28,7 @@ import { usePlanToolsLauncher } from "@/components/plan-tools/plan-tools-launche
 import { useEditPlanLauncher } from "@/components/plan/edit-plan-launcher";
 import { STATUS_LABEL_KEY, StepStatusControl } from "@/components/plan/step-status";
 import { manualTaskTarget, taskTarget } from "@/components/plan/task-links";
+import { canUseTaskTarget } from "@/components/plan/task-target-access";
 import { TaskDetailsDialog } from "@/components/plan/task-details-dialog";
 import { assigneeLabel, hasTaskDetails, taskDateOrNull, taskStatus } from "@/components/plan/task-model";
 import { useSaveTheDateLauncher } from "@/components/stationery/stationery-launcher";
@@ -49,6 +50,7 @@ import {
 import { formatDateValue } from "@/lib/i18n/format";
 import { useLanguage } from "@/lib/i18n/provider";
 import { useAuth } from "@/lib/hooks/use-auth";
+import { usePlanAccess } from "@/lib/hooks/use-plan-permission";
 import type { PlanStep } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
@@ -84,6 +86,8 @@ export function StepCard({
   const { t } = useTranslation("plan");
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const { levels } = usePlanAccess();
+  const canEdit = levels.tasks === "edit";
   const [notes, setNotes] = React.useState(step.notes);
   // Tarea cuyo panel de detalles está abierto (por id, para seguirla si cambia en vivo).
   const [detailsId, setDetailsId] = React.useState<string | null>(null);
@@ -103,7 +107,8 @@ export function StepCard({
     : "focus-visible:ring-offset-surface";
   // El paso del cronograma tiene su propia herramienta (un diálogo).
   const timeline = useTimelineLauncher();
-  const openTimeline = step.category === TIMELINE_CATEGORY ? timeline?.open : undefined;
+  const openTimeline =
+    step.category === TIMELINE_CATEGORY && levels.dayof !== "none" ? timeline?.open : undefined;
   const editPlan = useEditPlanLauncher();
   const tools = usePlanToolsLauncher();
   const appointments = useAppointmentsLauncher();
@@ -112,7 +117,7 @@ export function StepCard({
   // Flecha de una tarea base hacia su herramienta; `null` si no tiene o no se puede abrir aquí.
   function taskArrow(task: PlanStep["tasks"][number]) {
     const target = taskTarget(task.auto, planId) ?? manualTaskTarget(step.category, task.title, planId);
-    if (!target) return null;
+    if (!target || !canUseTaskTarget(levels, target)) return null;
     const targetLabel = t(target.labelKey);
     const label = `${targetLabel}: ${taskTitle(task)}`;
     const className = cn(
@@ -290,6 +295,7 @@ export function StepCard({
             title={stepTitle}
             status={step.status}
             onDone={completed}
+            readOnly={!canEdit}
           />
           <button
             type="button"
@@ -400,6 +406,7 @@ export function StepCard({
                     <Checkbox
                       checked={task.done}
                       onCheckedChange={() => handleToggleTask(task.id)}
+                      disabled={!canEdit}
                       aria-label={taskTitle(task)}
                       className={cn(
                         "size-5 rounded-md border-lilac bg-field shadow-none focus-visible:ring-lilac data-[state=checked]:border-lilac data-[state=checked]:bg-cta data-[state=checked]:text-on-cta",
@@ -420,6 +427,7 @@ export function StepCard({
                       {taskMeta(task)}
                     </span>
                     {taskArrow(task)}
+                    {canEdit && (
                     <button
                       type="button"
                       onClick={() => setDetailsId(task.id)}
@@ -440,6 +448,8 @@ export function StepCard({
                         {t("task.details")}
                       </span>
                     </button>
+                    )}
+                    {canEdit && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -455,10 +465,12 @@ export function StepCard({
                     >
                       <XIcon className="size-4" />
                     </Button>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
+            {canEdit && (
             <form onSubmit={handleAddTask} className="flex gap-2">
               <Input
                 value={newTask}
@@ -481,6 +493,8 @@ export function StepCard({
                 <PlusIcon className="size-4" />
               </Button>
             </form>
+            )}
+            {canEdit && (
             <StepIdeas
               planId={planId}
               step={step}
@@ -491,6 +505,7 @@ export function StepCard({
                   : "focus-visible:ring-offset-surface"
               )}
             />
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -502,6 +517,7 @@ export function StepCard({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onBlur={handleNotesBlur}
+              readOnly={!canEdit}
               placeholder={t("step.notesPlaceholder")}
               rows={2}
               className={cn(FIELD, "h-auto min-h-16 py-2.5")}

@@ -15,6 +15,7 @@ import { exportBanquet } from "@/lib/export/banquet";
 import { exportBudget } from "@/lib/export/budget";
 import { exportGuests } from "@/lib/export/guests";
 import { exportVendors } from "@/lib/export/vendors";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useLanguage } from "@/lib/i18n/provider";
 import type { BudgetItem, Guest, Vendor } from "@/lib/types";
 
@@ -22,6 +23,8 @@ import type { BudgetItem, Guest, Vendor } from "@/lib/types";
 export function GuestsExportButton({ planId, guests }: { planId: string; guests: readonly Guest[] }) {
   const { t } = useTranslation("export");
   const { lang } = useLanguage();
+  // Las mesas son de «Banquete»: sin poder verlo, la columna de mesa se queda vacía (no se lee).
+  const { canView: canViewTables } = usePlanPermission("banquet");
   return (
     <ExportMenu
       what={t("guests.what")}
@@ -30,7 +33,7 @@ export function GuestsExportButton({ planId, guests }: { planId: string; guests:
         // La mesa de cada invitado vive en el Banquete: se lee ahora, sin escucha permanente.
         let tables: BanquetTable[] = [];
         try {
-          tables = (await getDocs(tablesQuery(planId))).docs.map((d) => mapTable(d.id, d.data()));
+          if (canViewTables) tables = (await getDocs(tablesQuery(planId))).docs.map((d) => mapTable(d.id, d.data()));
         } catch {
           // Sin permiso o sin conexión: se exporta sin la columna de mesa rellena.
         }

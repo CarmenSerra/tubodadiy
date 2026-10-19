@@ -91,7 +91,8 @@
       "willCreate": "Creates a pending expense in the “{{category}}” category.",
       "category": "Ceremony",
       "inBudget": "It's already in the budget.",
-      "viewBudget": "View budget"
+      "viewBudget": "View budget",
+      "noBudgetAccess": "Your Budget access doesn’t allow adding expenses. The fee is saved on the card and whoever manages the Budget can add it."
     },
     "errors": {
       "name": "Enter the officiant's name: it's required to save the details.",
@@ -101,7 +102,8 @@
     "toast": {
       "saved": "Officiant details saved",
       "cleared": "Officiant details removed",
-      "error": "Couldn't save the officiant details."
+      "error": "Couldn't save the officiant details.",
+      "budgetSkipped": "The fee was not added to the Budget because your access to that section is view-only. Whoever manages it can add it."
     },
     "clear": "Remove details",
     "save": "Save",

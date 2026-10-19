@@ -56,12 +56,16 @@ export function RsvpMenu({
   name,
   value,
   onChange,
+  readOnly = false,
 }: {
   name: string;
   value: RsvpStatus;
   onChange: (status: RsvpStatus) => void;
+  /** Solo ver: la respuesta se muestra sin menú. */
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation("guests");
+  if (readOnly) return <RsvpBadge status={value} />;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -105,12 +109,16 @@ export function RsvpSegmented({
   name,
   value,
   onChange,
+  readOnly = false,
 }: {
   name: string;
   value: RsvpStatus;
   onChange: (status: RsvpStatus) => void;
+  /** Solo ver: la respuesta se muestra sin controles. */
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation("guests");
+  if (readOnly) return <RsvpBadge status={value} className="w-fit" />;
   return (
     <div
       role="group"

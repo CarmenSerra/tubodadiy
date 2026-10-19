@@ -33,6 +33,7 @@ import { useLanguage } from "@/lib/i18n/provider";
 import type { Vendor } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 interface DialogState {
   item?: DecorItem;
@@ -45,6 +46,7 @@ const TEXTAREA =
 /** Lista de elementos de decoración y flores (centros, ramo, prendidos, ceremonia, photocall…). */
 export function DecorSection({ planId, items, vendors }: { planId: string; items: DecorItem[]; vendors: Vendor[] }) {
   const { t } = useTranslation("look");
+  const { canEdit } = usePlanPermission("style");
   const [dialog, setDialog] = React.useState<DialogState | null>(null);
   const [shown, setShown] = React.useState<DialogState>({ kind: "centerpieces" });
 
@@ -69,10 +71,12 @@ export function DecorSection({ planId, items, vendors }: { planId: string; items
       <SectionHeader
         title={t("decor.title")}
         description={t("decor.description")}
-        action={<AddButton primary label={t("decor.add")} onClick={() => openDialog({ kind: missing[0] ?? "other" })} />}
+        action={
+          canEdit ? <AddButton primary label={t("decor.add")} onClick={() => openDialog({ kind: missing[0] ?? "other" })} /> : undefined
+        }
       />
 
-      {missing.length > 0 && (
+      {canEdit && missing.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-sm font-medium text-ink">{t("decor.suggestions")}</p>
           <ul className="flex flex-wrap gap-2">
@@ -112,13 +116,15 @@ export function DecorSection({ planId, items, vendors }: { planId: string; items
         </ul>
       )}
 
-      <LookDialog
-        open={dialog !== null}
-        onOpenChange={(open) => !open && setDialog(null)}
-        title={shown.item ? t("decor.form.editTitle") : t("decor.form.newTitle")}
-      >
-        {(close) => <DecorForm planId={planId} item={shown.item} defaultKind={shown.kind} vendors={vendors} onDone={close} />}
-      </LookDialog>
+      {canEdit && (
+        <LookDialog
+          open={dialog !== null}
+          onOpenChange={(open) => !open && setDialog(null)}
+          title={shown.item ? t("decor.form.editTitle") : t("decor.form.newTitle")}
+        >
+          {(close) => <DecorForm planId={planId} item={shown.item} defaultKind={shown.kind} vendors={vendors} onDone={close} />}
+        </LookDialog>
+      )}
     </div>
   );
 }
@@ -138,6 +144,7 @@ function DecorCard({
 }) {
   const { t } = useTranslation("look");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("style");
   const kind = t(`decor.kinds.${item.kind}`);
   const name = item.title || kind;
 
@@ -148,10 +155,12 @@ function DecorCard({
           {item.title && <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">{kind}</p>}
           <h4 className="mt-0.5 break-words font-display text-lg font-semibold leading-snug text-ink">{name}</h4>
         </div>
-        <div className="flex shrink-0 items-center">
-          <EditIconButton label={t("decor.card.edit", { name })} onClick={onEdit} />
-          <DeleteIconButton ariaLabel={t("decor.card.delete", { name })} onDelete={onDelete} />
-        </div>
+        {canEdit && (
+          <div className="flex shrink-0 items-center">
+            <EditIconButton label={t("decor.card.edit", { name })} onClick={onEdit} />
+            <DeleteIconButton ariaLabel={t("decor.card.delete", { name })} onDelete={onDelete} />
+          </div>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={item.status} />

@@ -30,11 +30,13 @@ import {
 } from "@/lib/firebase/dayof";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /** «Testigos»: quién firma, su teléfono y si ya ha entregado el DNI (nunca se guarda el número). */
 export function WitnessesSection() {
   const { t } = useTranslation("ceremony");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("ceremony");
   const { data, loading, error } = useWitnesses(planId);
   const editor = useEditor<Witness>();
   const delivered = data.filter((w) => w.dniDelivered).length;
@@ -60,14 +62,14 @@ export function WitnessesSection() {
       icon={<UsersRoundIcon />}
       title={t("witnesses.title")}
       description={t("witnesses.description")}
-      action={data.length > 0 ? addButton : undefined}
+      action={canEdit && data.length > 0 ? addButton : undefined}
     >
       <ListBody
         loading={loading}
         error={error}
         empty={data.length === 0}
         emptyText={t("witnesses.empty")}
-        emptyAction={addButton}
+        emptyAction={canEdit ? addButton : undefined}
       >
         <p className="text-sm text-ink-muted" aria-live="polite">
           {t("witnesses.dniSummary", { done: delivered, total: data.length })}
@@ -94,13 +96,15 @@ export function WitnessesSection() {
               <PhoneLink phone={witness.phone} />
               <label
                 className={cn(
-                  "flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl px-2 text-sm text-ink-strong hover:bg-lilac-soft",
+                  "flex min-h-11 items-center gap-2.5 rounded-xl px-2 text-sm text-ink-strong",
+                  canEdit && "cursor-pointer hover:bg-lilac-soft",
                   ROW_FOCUS
                 )}
               >
                 <Checkbox
                   checked={witness.dniDelivered}
                   onCheckedChange={(v) => void toggle(witness, v === true)}
+                  disabled={!canEdit}
                   className={CHECKBOX}
                 />
                 {t("witnesses.dniDelivered")}
@@ -109,7 +113,7 @@ export function WitnessesSection() {
           ))}
         </ul>
       </ListBody>
-      <DayDialog open={editor.open} onOpenChange={editor.setOpen}>
+      <DayDialog open={editor.open} onOpenChange={editor.setOpen} readOnly={!canEdit}>
         <WitnessForm
           key={editor.item?.id ?? "new"}
           planId={planId}

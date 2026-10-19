@@ -9,7 +9,8 @@
     "cancel": "Cancelar",
     "save": "Guardar",
     "delete": "Eliminar",
-    "required": "obligatorio"
+    "required": "obligatorio",
+    "close": "Cerrar"
   },
   "summary": {
     "title": "El día B",

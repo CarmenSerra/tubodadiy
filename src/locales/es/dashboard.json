@@ -192,6 +192,16 @@
     "ownerOnly": "Solo la pareja (dueño/a y pareja) puede enviar invitaciones y ajustar el acceso. Si quieres sumar a alguien, coméntaselo y lo invitará encantada.",
     "access": {
       "adjust": "Ajustar acceso"
+    },
+    "remove": {
+      "action": "Quitar del plan",
+      "aria": "Quitar a {{name}} del plan",
+      "title": "¿Quitar a {{name}} del plan?",
+      "text": "Dejará de ver y de editar esta boda. Lo que haya añadido se queda en el plan. Si más adelante quieres que vuelva, puedes invitar de nuevo a esa persona con un enlace.",
+      "cancel": "Mejor no",
+      "confirm": "Quitar del plan",
+      "done": "{{name}} ya no está en el plan.",
+      "error": "No se ha podido quitar del plan. Inténtalo de nuevo."
     }
   },
   "invite": {

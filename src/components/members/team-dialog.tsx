@@ -1,15 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, ChevronDownIcon, CopyIcon, Loader2, LockIcon, UserPlusIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, CopyIcon, Loader2, LockIcon, UserMinusIcon, UserPlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Trans, useTranslation } from "react-i18next";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { CTA_PRIMARY, CTA_SECONDARY, FOCUS, Skeleton } from "@/components/dashboard/ui";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { createInvite, mapInvite, pendingInvitesQuery } from "@/lib/firebase/invites";
+import { removeMember } from "@/lib/firebase/members";
 import { cn, initials } from "@/lib/utils";
 import type { PlanInvite, PlanMember, PlanRole } from "@/lib/types";
 import { hasAdjustableAccess } from "@/lib/permissions";
@@ -309,7 +320,11 @@ function TeamBody({
   // Invitan y ajustan permisos el dueño y la pareja (reglas de Firestore).
   const myRole = members.find((m) => m.userId === currentUserId)?.role;
   const canManage = Boolean(currentUserId) && (ownerId === currentUserId || myRole === "partner");
+  // Quitar a alguien del plan es solo del dueño/a (reglas de Firestore).
+  const isOwner = Boolean(currentUserId) && ownerId === currentUserId;
   const [adjusting, setAdjusting] = React.useState<string | null>(null);
+  const [removing, setRemoving] = React.useState<{ member: PlanMember; name: string } | null>(null);
+  const [removeBusy, setRemoveBusy] = React.useState(false);
   const invitesQuery = React.useMemo(() => pendingInvitesQuery(planId), [planId]);
   const { data: invites, loading: invitesLoading } = useCollection(invitesQuery, mapInvite);
   const [created, setCreated] = React.useState<{ token: string; email: string } | null>(null);
@@ -328,6 +343,22 @@ function TeamBody({
     }
     if (m.invitedEmail) return { name: m.invitedEmail, email: null };
     return { name: m.role === "owner" ? t("team.planOwner") : t("team.guestFallback"), email: null };
+  }
+
+  async function confirmRemove() {
+    if (!removing) return;
+    const { member, name } = removing;
+    setRemoveBusy(true);
+    try {
+      await removeMember(planId, member.userId);
+      if (adjusting === member.userId) setAdjusting(null);
+      toast.success(t("team.remove.done", { name }));
+      setRemoving(null);
+    } catch {
+      toast.error(t("team.remove.error"));
+    } finally {
+      setRemoveBusy(false);
+    }
   }
 
   return (
@@ -375,6 +406,20 @@ function TeamBody({
                         className={cn("size-4 transition-transform motion-reduce:transition-none", adjusting === m.userId && "rotate-180")}
                         aria-hidden="true"
                       />
+                    </button>
+                  )}
+                  {isOwner && m.role !== "owner" && m.userId !== currentUserId && (
+                    <button
+                      type="button"
+                      aria-label={t("team.remove.aria", { name })}
+                      title={t("team.remove.action")}
+                      onClick={() => setRemoving({ member: m, name })}
+                      className={cn(
+                        FOCUS,
+                        "inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-lilac-soft hover:text-ink motion-reduce:transition-none"
+                      )}
+                    >
+                      <UserMinusIcon className="size-4" aria-hidden="true" />
                     </button>
                   )}
                 </div>
@@ -429,6 +474,28 @@ function TeamBody({
           </p>
         )}
       </section>
+
+      <AlertDialog open={removing !== null} onOpenChange={(open) => !open && !removeBusy && setRemoving(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("team.remove.title", { name: removing?.name ?? "" })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("team.remove.text")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={removeBusy}>{t("team.remove.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={removeBusy}
+              onClick={(e) => {
+                e.preventDefault();
+                void confirmRemove();
+              }}
+            >
+              {removeBusy && <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
+              {t("team.remove.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

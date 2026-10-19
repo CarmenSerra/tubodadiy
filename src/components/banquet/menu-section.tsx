@@ -15,6 +15,7 @@ import {
   type Dish,
 } from "@/components/banquet/banquet-model";
 import { DishFormDialog } from "@/components/banquet/dish-form-dialog";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { BQ_CARD, BQ_FOCUS, DietChip } from "@/components/banquet/ui";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import { DeleteIconButton, EditIconButton } from "@/components/guests/brand-dialog";
@@ -30,6 +31,7 @@ interface DialogState {
 
 /** Pestaña «Menú»: platos por tipo con sus alérgenos y dietas, y avisos amables frente a los invitados. */
 export function MenuSection({ planId, dishes, guests }: { planId: string; dishes: Dish[]; guests: Guest[] }) {
+  const { canEdit } = usePlanPermission("banquet");
   const { t } = useTranslation("banquet");
   const dietLabel = useDietLabel();
   const [dialog, setDialog] = React.useState<DialogState | null>(null);
@@ -108,6 +110,7 @@ export function MenuSection({ planId, dishes, guests }: { planId: string; dishes
                 </h3>
                 <p className="text-sm text-ink-muted">{t(`courses.${course}.hint`)}</p>
               </div>
+              {canEdit && (
               <button
                 type="button"
                 onClick={() => openDialog({ course })}
@@ -117,6 +120,7 @@ export function MenuSection({ planId, dishes, guests }: { planId: string; dishes
                 <PlusIcon aria-hidden="true" className="size-4" />
                 {t("menu.add")}
               </button>
+              )}
             </div>
             {items.length === 0 ? (
               <p className="mt-3 text-sm text-ink-muted">{t("menu.emptyCourse")}</p>
@@ -126,6 +130,7 @@ export function MenuSection({ planId, dishes, guests }: { planId: string; dishes
                   <DishRow
                     key={dish.id}
                     dish={dish}
+                    canEdit={canEdit}
                     onEdit={() => openDialog({ dish, course: dish.course })}
                     onDelete={() => handleDelete(dish)}
                   />
@@ -136,13 +141,14 @@ export function MenuSection({ planId, dishes, guests }: { planId: string; dishes
         );
       })}
 
-      {dishes.length === 0 && (
+      {canEdit && dishes.length === 0 && (
         <button type="button" onClick={() => openDialog({ course: "main" })} className={cn(CTA_PRIMARY, "self-start", BQ_FOCUS)}>
           <PlusIcon aria-hidden="true" className="size-4" />
           {t("menu.addFirst")}
         </button>
       )}
 
+      {canEdit && (
       <DishFormDialog
         planId={planId}
         open={dialog !== null}
@@ -150,11 +156,22 @@ export function MenuSection({ planId, dishes, guests }: { planId: string; dishes
         dish={shown.dish}
         defaultCourse={shown.course}
       />
+      )}
     </div>
   );
 }
 
-function DishRow({ dish, onEdit, onDelete }: { dish: Dish; onEdit: () => void; onDelete: () => void }) {
+function DishRow({
+  dish,
+  canEdit,
+  onEdit,
+  onDelete,
+}: {
+  dish: Dish;
+  canEdit: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const { t } = useTranslation("banquet");
   return (
     <li className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
@@ -178,10 +195,12 @@ function DishRow({ dish, onEdit, onDelete }: { dish: Dish; onEdit: () => void; o
           </div>
         )}
       </div>
-      <div className="flex shrink-0 items-center">
-        <EditIconButton label={t("dish.editNamed", { name: dish.name })} onClick={onEdit} />
-        <DeleteIconButton ariaLabel={t("dish.deleteNamed", { name: dish.name })} onDelete={onDelete} />
-      </div>
+      {canEdit && (
+        <div className="flex shrink-0 items-center">
+          <EditIconButton label={t("dish.editNamed", { name: dish.name })} onClick={onEdit} />
+          <DeleteIconButton ariaLabel={t("dish.deleteNamed", { name: dish.name })} onDelete={onDelete} />
+        </div>
+      )}
     </li>
   );
 }

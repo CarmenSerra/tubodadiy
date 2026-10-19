@@ -32,6 +32,7 @@ import { getFirebaseDb } from "@/lib/firebase/client";
 import { syncPublishedGift } from "@/lib/firebase/gift-list";
 import { syncToolTasks } from "@/lib/firebase/mutations";
 import { mapPlan, planDocRef } from "@/lib/firebase/plans";
+import { canSyncTasks, canWriteSection } from "@/lib/firebase/sync-access";
 import type {
   CeremonyType,
   GiftMode,
@@ -59,6 +60,7 @@ async function syncFromPlan(
   category: string,
   toInput: (plan: WeddingPlan) => AutoTaskInput
 ) {
+  if (!canSyncTasks(planId)) return;
   try {
     const db = getFirebaseDb();
     const found = await getDocs(
@@ -110,6 +112,8 @@ const syncLegalDocs = (planId: string) =>
  * la reevalúe al añadir o quitar cosas.
  */
 export async function syncGift(planId: string) {
+  // Lee la lista de regalos (Invitación) y escribe los pasos (Tareas).
+  if (!canSyncTasks(planId, "invitation")) return;
   let hasItems = false;
   try {
     const items = await getDocs(
@@ -178,15 +182,21 @@ export const OFFICIANT_BUDGET_CONCEPT = "Honorarios de oficiante";
  *  - sin honorarios, sin el interruptor o sin ficha: borra el gasto enlazado.
  * El nombre es obligatorio: sin él no se guarda (lanza). Después reevalúa
  * «Confirmar oficiante» según `confirmed` (en los dos sentidos).
+ *
+ * Sin permiso para editar «Presupuesto» se guarda solo la ficha: no se lee ni
+ * se toca el gasto (se conserva el enlace que hubiera) y se devuelve
+ * `budgetSkipped: true` si la persona había pedido algo que habría tocado el
+ * presupuesto, para que la pantalla lo cuente con amabilidad.
  */
 export async function saveOfficiant(
   planId: string,
   officiant: Omit<PlanOfficiant, "budgetItemId"> | null
-) {
+): Promise<{ budgetSkipped: boolean }> {
   if (officiant && !officiant.name.trim()) throw new Error("officiant-name-required");
   const db = getFirebaseDb();
   const planSnap = await getDoc(planDocRef(planId));
-  const linkedId = planSnap.exists() ? mapPlan(planSnap.id, planSnap.data()).officiant?.budgetItemId ?? null : null;
+  const savedOfficiant = planSnap.exists() ? mapPlan(planSnap.id, planSnap.data()).officiant : null;
+  const linkedId = savedOfficiant?.budgetItemId ?? null;
   const itemsPath = collection(db, "weddingPlans", planId, "budgetItems");
 
   const wantsItem = Boolean(
@@ -195,8 +205,15 @@ export async function saveOfficiant(
   const batch = writeBatch(db);
   let budgetItemId: string | null = null;
   let budgetTouched = false;
+  let budgetSkipped = false;
 
-  if (wantsItem && officiant && officiant.fee !== null) {
+  if (!canWriteSection(planId, "budget")) {
+    // Sin permiso sobre el presupuesto: ni se lee ni se escribe; el enlace existente se conserva.
+    budgetItemId = officiant ? linkedId : null;
+    budgetSkipped = wantsItem
+      ? linkedId === null || savedOfficiant?.fee !== officiant?.fee
+      : linkedId !== null;
+  } else if (wantsItem && officiant && officiant.fee !== null) {
     const existing = linkedId ? await getDoc(doc(itemsPath, linkedId)) : null;
     if (linkedId && existing?.exists()) {
       budgetItemId = linkedId;
@@ -229,4 +246,5 @@ export async function saveOfficiant(
 
   if (budgetTouched) void syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]);
   await syncOfficiant(planId);
+  return { budgetSkipped };
 }

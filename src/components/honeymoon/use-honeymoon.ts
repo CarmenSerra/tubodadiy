@@ -27,6 +27,7 @@ import {
 } from "@/lib/honeymoon-model";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useDoc } from "@/lib/hooks/use-doc";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 export interface HoneymoonData {
   loading: boolean;
@@ -42,6 +43,7 @@ export interface HoneymoonData {
 /** Suscripción a todo lo de la luna de miel de un plan, ya ordenado, y siembra de la maleta. */
 export function useHoneymoon(planId: string): HoneymoonData {
   const { t } = useTranslation("honeymoon");
+  const { canEdit } = usePlanPermission("honeymoon");
   const dest = useCollection(destinationsQuery(planId), mapDestination);
   const days = useCollection(daysQuery(planId), mapDay);
   const bookings = useCollection(bookingsQuery(planId), mapBooking);
@@ -53,7 +55,8 @@ export function useHoneymoon(planId: string): HoneymoonData {
 
   // Primera visita: deja lista la maleta con lo típico (una sola vez por plan).
   const seedAttempted = React.useRef(false);
-  const needsSeed = !loading && !failed && !settingsDoc.data?.packingSeeded;
+  // Dejar la maleta lista es escribir: solo si se puede editar la sección.
+  const needsSeed = canEdit && !loading && !failed && !settingsDoc.data?.packingSeeded;
   React.useEffect(() => {
     if (!needsSeed || seedAttempted.current) return;
     seedAttempted.current = true;

@@ -37,6 +37,7 @@ import {
   recommendedStep,
 } from "@/lib/phases";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanAccess, usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { stepsQuery, mapStep } from "@/lib/firebase/plans";
 import { lockPhase, unlockPhase } from "@/lib/firebase/mutations";
 import { useReconcileStepProgress } from "@/lib/firebase/reconcile";
@@ -120,14 +121,16 @@ function ToolFromLink() {
   const launcher = usePlanToolsLauncher();
   const searchParams = useSearchParams();
   const param = searchParams.get(PLAN_TOOL_PARAM);
+  // Los datos del regalo son de «Invitación»: solo se abren si se pueden editar.
+  const canEditGift = usePlanPermission("invitation").canEdit;
 
   React.useEffect(() => {
     if (!param) return;
-    if (param === GIFT_TOOL_VALUE) launcher?.open("gift");
+    if (param === GIFT_TOOL_VALUE && canEditGift) launcher?.open("gift");
     const url = new URL(window.location.href);
     url.searchParams.delete(PLAN_TOOL_PARAM);
     window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [param, launcher]);
+  }, [param, launcher, canEditGift]);
 
   return null;
 }
@@ -136,12 +139,13 @@ function PlanOverview() {
   const { t } = useTranslation("plan");
   const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
+  const { levels } = usePlanAccess();
   const searchParams = useSearchParams();
   const { data: steps, loading } = useCollection(stepsQuery(planId), mapStep);
   // Al abrir el plan se ponen al día tareas y estados que se hubieran quedado atrás.
   const settled = useReconcileStepProgress(planId, plan, steps, loading);
 
-  const progress = planProgress(steps);
+  const progress = planProgress(steps, plan?.weddingDate);
   const days = plan ? daysUntil(plan.weddingDate) : null;
 
   const unlockedPhaseIds = plan?.unlockedPhaseIds;
@@ -155,7 +159,8 @@ function PlanOverview() {
     total: p.total,
     complete: p.complete,
     recommended: p.current,
-    locked: p.locked,
+    // Bloquear fases es de quien edita las tareas: a quien solo ve, se le enseñan abiertas (ver PhasePanel).
+    locked: p.locked && levels.tasks === "edit",
   }));
   if (general.length > 0) {
     const done = general.filter(isStepDone).length;
@@ -358,14 +363,22 @@ function PlanOverview() {
           aria-label={t("overview.summaryAria")}
           className={`${CARD} flex flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-5`}
         >
-          <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+          <dl
+            className={cn(
+              "grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-3",
+              levels.budget !== "none" ? "sm:grid-cols-4" : "sm:grid-cols-3"
+            )}
+          >
             <SummaryItem label={t("overview.date")}>{formatDate(plan.weddingDate, lang)}</SummaryItem>
             <SummaryItem label={t("overview.daysLeft")}>
               {days !== null && days >= 0 ? t("overview.days", { count: days }) : "—"}
             </SummaryItem>
-            <SummaryItem label={t("overview.budget")}>
-              {plan.budgetTotal > 0 ? formatCurrency(plan.budgetTotal, lang) : t("overview.budgetUndefined")}
-            </SummaryItem>
+            {/* El presupuesto total es de la sección «Presupuesto»: sin poder verla, se oculta. */}
+            {levels.budget !== "none" && (
+              <SummaryItem label={t("overview.budget")}>
+                {plan.budgetTotal > 0 ? formatCurrency(plan.budgetTotal, lang) : t("overview.budgetUndefined")}
+              </SummaryItem>
+            )}
             {/* En móvil ocupa todo el ancho: así la barra tiene sitio para llenarse. */}
             <SummaryItem label={t("overview.progress")} className="col-span-2 sm:col-span-1">
               <PlanProgressBar value={progress} />
@@ -375,7 +388,7 @@ function PlanOverview() {
         </section>
       )}
 
-      {!loading && <TaskReminders planId={planId} steps={steps} onReveal={goToStep} />}
+      {!loading && <TaskReminders planId={planId} steps={steps} levels={levels} onReveal={goToStep} />}
 
       {loading ? (
         <div className="flex flex-col gap-3" role="status" aria-label={t("overview.loading")}>

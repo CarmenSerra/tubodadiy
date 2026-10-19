@@ -34,6 +34,7 @@ import { BudgetSummary, BudgetSummarySkeleton } from "@/components/budget/budget
 import { BudgetIdeas } from "@/components/ideas/budget-ideas";
 import { Bone } from "@/components/plan/plan-shell";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useBudgetPlan } from "@/lib/firebase/budget-plan";
 import { budgetItemsQuery, mapBudgetItem, mapVendor, vendorsQuery } from "@/lib/firebase/plans";
 import { useLanguage } from "@/lib/i18n/provider";
@@ -57,6 +58,7 @@ function PaymentCell({
   expanded,
   onToggle,
   panelId,
+  canEdit,
   className,
 }: {
   item: BudgetItem;
@@ -64,6 +66,7 @@ function PaymentCell({
   expanded: boolean;
   onToggle: (item: BudgetItem) => void;
   panelId: string;
+  canEdit: boolean;
   className?: string;
 }) {
   const { t } = useTranslation("budget");
@@ -118,7 +121,7 @@ function PaymentCell({
       </div>
       {multi ? (
         toggle
-      ) : (
+      ) : !canEdit ? null : (
         <button
           type="button"
           onClick={() => onMarkPaid(item)}
@@ -137,10 +140,12 @@ function PaymentCell({
 function InstallmentsPanel({
   item,
   id,
+  canEdit,
   onToggle,
 }: {
   item: BudgetItem;
   id: string;
+  canEdit: boolean;
   onToggle: (item: BudgetItem, installment: BudgetInstallment) => void;
 }) {
   const { t } = useTranslation("budget");
@@ -171,6 +176,7 @@ function InstallmentsPanel({
                     : t("list.noDueDate")}
               </p>
             </div>
+            {canEdit && (
             <button
               type="button"
               onClick={() => onToggle(item, p)}
@@ -184,6 +190,7 @@ function InstallmentsPanel({
               <CheckIcon aria-hidden="true" className={cn("size-4", !p.paid && "opacity-0")} />
               {p.paid ? t("list.unmarkInstallment") : t("list.markPaid")}
             </button>
+            )}
           </li>
         ))}
       </ul>
@@ -266,14 +273,19 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
   const { t } = useTranslation("budget");
   const budgetTotal = plan?.budgetTotal ?? 0;
   const { data: stored, loading } = useCollection(budgetItemsQuery(planId), mapBudgetItem);
-  const { data: vendorList } = useCollection(vendorsQuery(planId), mapVendor);
+  const { canEdit } = usePlanPermission("budget");
+  // Los nombres de proveedor se leen solo si se puede ver esa sección.
+  const { canView: canViewVendors } = usePlanPermission("vendors");
+  const { data: vendorList } = useCollection(canViewVendors ? vendorsQuery(planId) : null, mapVendor);
   const { settings } = useBudgetPlan(planId);
   // Cambios aún sin confirmar por Firestore: se ven al instante.
   const [pendingPatch, setPendingPatch] = React.useState<Record<string, Partial<BudgetItem>>>({});
   const [announcement, setAnnouncement] = React.useState("");
   const [expanded, setExpanded] = React.useState<Set<string>>(() => new Set());
   const [allocationOpen, setAllocationOpen] = React.useState(false);
-  useOpenAllocationFromLink(() => setAllocationOpen(true));
+  useOpenAllocationFromLink(() => {
+    if (canEdit) setAllocationOpen(true);
+  });
 
   const items = React.useMemo(
     () => stored.map((i) => (i.id in pendingPatch ? { ...i, ...pendingPatch[i.id] } : i)),
@@ -390,7 +402,7 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
       </div>
       {!loading && (
         <div className="flex flex-wrap items-center gap-2">
-          {allocationButton}
+          {canEdit && allocationButton}
           {items.length > 0 && (
             <>
               <BudgetExportButton
@@ -400,8 +412,12 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                 payerLabels={settings.payerLabels}
                 budgetTotal={budgetTotal}
               />
-              <BudgetItemFormDialog planId={planId} categories={categories} payers={payers} />
-              <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="end" />
+              {canEdit && (
+                <>
+                  <BudgetItemFormDialog planId={planId} categories={categories} payers={payers} />
+                  <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="end" />
+                </>
+              )}
             </>
           )}
         </div>
@@ -409,7 +425,9 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
     </div>
   );
 
-  const allocationDialog = <BudgetAllocationDialog open={allocationOpen} onOpenChange={setAllocationOpen} />;
+  const allocationDialog = canEdit ? (
+    <BudgetAllocationDialog open={allocationOpen} onOpenChange={setAllocationOpen} />
+  ) : null;
 
   if (loading) {
     return (
@@ -437,19 +455,21 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
           <p className="mt-2 max-w-sm text-sm text-ink-muted">
             {t("list.empty.text")}
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            <BudgetItemFormDialog planId={planId} categories={categories} payers={payers} />
-            <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="center" />
-          </div>
+          {canEdit && (
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              <BudgetItemFormDialog planId={planId} categories={categories} payers={payers} />
+              <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="center" />
+            </div>
+          )}
         </div>
       ) : (
         <>
           <BudgetBreakdown
             items={items}
             allocations={settings.allocations}
-            onOpenAllocation={() => setAllocationOpen(true)}
+            onOpenAllocation={canEdit ? () => setAllocationOpen(true) : undefined}
           />
-          <BudgetPayers planId={planId} items={items} settings={settings} />
+          <BudgetPayers planId={planId} items={items} settings={settings} canEdit={canEdit} />
 
           <section aria-labelledby="budget-items-title" className="flex flex-col gap-3">
             <h2 id="budget-items-title" className="font-display text-lg font-semibold text-ink sm:text-xl">
@@ -475,19 +495,21 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                         <p className="mt-0.5 text-sm text-ink-muted">{item.category ? categoryLabel(item.category, t) : t("uncategorised")}</p>
                         <TagsLine vendorName={vendorOf(item)} payer={payerOf(item)} />
                       </div>
-                      <div className="-mr-2 -mt-1 flex shrink-0">
-                        <BudgetItemFormDialog
-                          planId={planId}
-                          item={item}
-                          categories={categories}
-                          payers={payers}
-                          trigger={<EditBudgetItemTrigger concept={item.concept} />}
-                        />
-                        <DeleteIconButton
-                          ariaLabel={t("list.deleteAria", { name: item.concept })}
-                          onDelete={() => handleDelete(item.id)}
-                        />
-                      </div>
+                      {canEdit && (
+                        <div className="-mr-2 -mt-1 flex shrink-0">
+                          <BudgetItemFormDialog
+                            planId={planId}
+                            item={item}
+                            categories={categories}
+                            payers={payers}
+                            trigger={<EditBudgetItemTrigger concept={item.concept} />}
+                          />
+                          <DeleteIconButton
+                            ariaLabel={t("list.deleteAria", { name: item.concept })}
+                            onDelete={() => handleDelete(item.id)}
+                          />
+                        </div>
+                      )}
                     </div>
                     <AmountCell item={item} />
                     <PaymentCell
@@ -496,10 +518,11 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                       expanded={expanded.has(item.id)}
                       onToggle={toggleExpanded}
                       panelId={panelId}
+                      canEdit={canEdit}
                       className="min-h-10"
                     />
                     {expanded.has(item.id) && (
-                      <InstallmentsPanel item={item} id={panelId} onToggle={handleToggleInstallment} />
+                      <InstallmentsPanel item={item} id={panelId} canEdit={canEdit} onToggle={handleToggleInstallment} />
                     )}
                   </li>
                 );
@@ -551,28 +574,31 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
                               expanded={open}
                               onToggle={toggleExpanded}
                               panelId={panelId}
+                              canEdit={canEdit}
                             />
                           </td>
                           <td className="px-3 py-3 align-middle">
-                            <div className="flex justify-end">
-                              <BudgetItemFormDialog
-                                planId={planId}
-                                item={item}
-                                categories={categories}
-                                payers={payers}
-                                trigger={<EditBudgetItemTrigger concept={item.concept} />}
-                              />
-                              <DeleteIconButton
-                                ariaLabel={t("list.deleteAria", { name: item.concept })}
-                                onDelete={() => handleDelete(item.id)}
-                              />
-                            </div>
+                            {canEdit && (
+                              <div className="flex justify-end">
+                                <BudgetItemFormDialog
+                                  planId={planId}
+                                  item={item}
+                                  categories={categories}
+                                  payers={payers}
+                                  trigger={<EditBudgetItemTrigger concept={item.concept} />}
+                                />
+                                <DeleteIconButton
+                                  ariaLabel={t("list.deleteAria", { name: item.concept })}
+                                  onDelete={() => handleDelete(item.id)}
+                                />
+                              </div>
+                            )}
                           </td>
                         </tr>
                         {open && (
                           <tr className="bg-page/40">
                             <td colSpan={5} className="px-5 pb-4 pt-1">
-                              <InstallmentsPanel item={item} id={panelId} onToggle={handleToggleInstallment} />
+                              <InstallmentsPanel item={item} id={panelId} canEdit={canEdit} onToggle={handleToggleInstallment} />
                             </td>
                           </tr>
                         )}

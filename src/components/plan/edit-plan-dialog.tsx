@@ -27,6 +27,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updatePlanDetails } from "@/lib/firebase/mutations";
+import { usePlanAccess, usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { WeddingPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +48,9 @@ export function EditPlanDialog({
   const setOpen = controlled ? (onOpenChange ?? (() => {})) : setOpenState;
   // Sin DialogTrigger, Radix no sabe a dónde devolver el foco: se recuerda quién lo tenía.
   const restoreFocus = useRestoreFocus();
+  // Título y fecha: pareja o planner. Sin ese permiso no hay nada que editar aquí.
+  const { isCore } = usePlanAccess();
+  if (!isCore) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -80,6 +84,8 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
   const [weddingDate, setWeddingDate] = React.useState(plan.weddingDate ?? "");
   const [budgetTotal, setBudgetTotal] = React.useState(String(plan.budgetTotal ?? 0));
   const [submitting, setSubmitting] = React.useState(false);
+  // El presupuesto total es de la sección «Presupuesto»: sin permiso de editarla no se toca.
+  const { canEdit: canEditBudget } = usePlanPermission("budget");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -88,7 +94,7 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
       await updatePlanDetails(plan.id, {
         title: title.trim() || t("edit.defaultTitle"),
         weddingDate: weddingDate || null,
-        budgetTotal: budgetTotal ? Number(budgetTotal) : 0,
+        ...(canEditBudget ? { budgetTotal: budgetTotal ? Number(budgetTotal) : 0 } : {}),
       });
       toast.success(t("edit.success"));
       onDone();
@@ -131,6 +137,7 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
             {t("edit.fields.dateHelp")}
           </p>
         </div>
+        {canEditBudget && (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="edit-plan-budget" className={PLAN_LABEL}>
             {t("edit.fields.budget")}
@@ -145,6 +152,7 @@ function EditPlanForm({ plan, onDone }: { plan: WeddingPlan; onDone: () => void 
             className={PLAN_FIELD}
           />
         </div>
+        )}
       </div>
       <DialogFooter className="mt-7 gap-2 sm:gap-3">
         <DialogClose asChild>

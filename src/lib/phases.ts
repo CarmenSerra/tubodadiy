@@ -105,14 +105,26 @@ export function isStepDone(step: PlanStep): boolean {
   return step.status === "completed" || step.status === "skipped";
 }
 
+/** ¿Ya pasó el día de la boda? (sin fecha, no). Fechas `yyyy-MM-dd`, hora local. */
+function weddingPassed(weddingDate: string | null | undefined): boolean {
+  if (!weddingDate) return false;
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return weddingDate < `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 /**
  * Progreso global del plan (0-100), calculado en cliente con los pasos en vivo.
  * Cada paso aplicable (no omitido) pesa lo mismo: uno completado vale 1 y el
  * resto, la fracción de sus tareas hechas. Así sube al marcar cada tarea y
  * llega a 100 solo cuando todos los pasos están completados.
+ * «Después de la boda» no cuenta mientras la boda no haya pasado (`weddingDate`).
  */
-export function planProgress(steps: PlanStep[]): number {
-  const applicable = steps.filter((s) => s.status !== "skipped");
+export function planProgress(steps: PlanStep[], weddingDate?: string | null): number {
+  const afterCounts = weddingPassed(weddingDate);
+  const applicable = steps.filter(
+    (s) => s.status !== "skipped" && (afterCounts || s.category !== "despues_boda")
+  );
   if (applicable.length === 0) return 0;
   const sum = applicable.reduce((acc, s) => {
     if (s.status === "completed") return acc + 1;

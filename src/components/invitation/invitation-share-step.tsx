@@ -33,6 +33,7 @@ export function InvitationShareStep({
   onCopy,
   missingBlocks = [],
   onGoDesign,
+  readOnly = false,
 }: {
   published: boolean;
   slug: string;
@@ -55,6 +56,8 @@ export function InvitationShareStep({
   /** Modo «Desde cero»: bloques importantes (nombres, fecha) que aún no están colocados en la tarjeta. */
   missingBlocks?: readonly ("names" | "date")[];
   onGoDesign?: () => void;
+  /** Solo ver: sin cambiar el enlace ni publicar o despublicar (copiar y compartir sí). */
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation("invitationPage");
   const [confirming, setConfirming] = React.useState(false);
@@ -73,6 +76,7 @@ export function InvitationShareStep({
         </span>
       }
     >
+      {!readOnly && (
       <div className="flex flex-col gap-2">
         <label htmlFor="inv-slug" className={FIELD_LABEL}>
           {t("slug.label")}
@@ -138,8 +142,9 @@ export function InvitationShareStep({
           )}
         </div>
       </div>
+      )}
 
-      {missingBlocks.length > 0 && (
+      {!readOnly && missingBlocks.length > 0 && (
         <div role="status" className="flex flex-col items-start gap-1 rounded-xl bg-lilac-soft px-4 py-3 text-sm text-ink">
           <p>
             {t("share.missingBlocks", {
@@ -158,7 +163,9 @@ export function InvitationShareStep({
         </div>
       )}
 
-      {!published ? (
+      {!published && readOnly ? (
+        <p className="text-sm text-ink-muted">{t("share.draftNote")}</p>
+      ) : !published ? (
         <div className="flex flex-col items-start gap-3">
           <button
             type="button"
@@ -216,6 +223,7 @@ export function InvitationShareStep({
             </a>
           </div>
 
+          {!readOnly && (
           <div className="border-t border-line pt-3">
             {confirming ? (
               <div role="alert" className="flex flex-col gap-2 text-sm text-ink">
@@ -253,6 +261,7 @@ export function InvitationShareStep({
               </button>
             )}
           </div>
+          )}
         </div>
       )}
     </StepCard>

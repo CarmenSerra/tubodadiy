@@ -13,6 +13,8 @@ import { RequireAuth } from "@/components/auth/require-auth";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import { formatWeekdayDate, weddingName } from "@/components/timeline/timeline-model";
 import { PlanProvider, usePlanContext } from "@/lib/context/plan-context";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
+import type { PlanSection } from "@/lib/permissions";
 import { useLanguage } from "@/lib/i18n/provider";
 import type { WeddingPlan } from "@/lib/types";
 
@@ -20,6 +22,26 @@ import type { WeddingPlan } from "@/lib/types";
 export interface PrintDocumentProps {
   planId: string;
   plan: WeddingPlan;
+}
+
+/**
+ * Deja pasar solo a quien puede ver la sección del documento (y a nadie más): así no se
+ * lanzan lecturas que Firestore denegaría. Va dentro de `PlanProvider`.
+ */
+export function PrintSectionGate({ section, children }: { section: PlanSection; children: React.ReactNode }) {
+  const { t } = useTranslation("export");
+  const { canView, loading } = usePlanPermission(section);
+  if (loading) {
+    return (
+      <div role="status" aria-label={t("print.preparing")} className="flex justify-center py-24">
+        <Loader2 className="size-6 animate-spin text-ink-muted" />
+      </div>
+    );
+  }
+  if (!canView) {
+    return <p className="mx-auto max-w-md px-4 py-24 text-center text-sm text-ink">{t("print.noAccess")}</p>;
+  }
+  return <>{children}</>;
 }
 
 function Gate({ planId, Document }: { planId: string; Document: React.ComponentType<PrintDocumentProps> }) {
@@ -41,15 +63,20 @@ function Gate({ planId, Document }: { planId: string; Document: React.ComponentT
 /** Pide sesión, carga el plan y comprueba que la persona es miembro antes de pintar el documento. */
 export function PrintPage({
   planId,
+  section,
   Document,
 }: {
   planId: string;
+  /** Sección cuyos datos imprime el documento: hace falta poder verla. */
+  section: PlanSection;
   Document: React.ComponentType<PrintDocumentProps>;
 }) {
   return (
     <RequireAuth>
       <PlanProvider planId={planId}>
-        <Gate planId={planId} Document={Document} />
+        <PrintSectionGate section={section}>
+          <Gate planId={planId} Document={Document} />
+        </PrintSectionGate>
       </PlanProvider>
     </RequireAuth>
   );

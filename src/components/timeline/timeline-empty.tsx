@@ -25,7 +25,9 @@ export function TimelineEmpty({
   creating,
   onTemplate,
   onBlank,
+  readOnly = false,
 }: {
+  readOnly?: boolean;
   creating: boolean;
   onTemplate: (ceremonyStartMin: number) => void;
   onBlank: () => void;
@@ -58,7 +60,7 @@ export function TimelineEmpty({
       </h3>
       <p className="mt-2 max-w-md text-sm text-ink-muted">{t("empty.description")}</p>
 
-      {choosing ? (
+      {readOnly ? null : choosing ? (
         <form onSubmit={handleSubmit} noValidate className="mt-6 flex w-full max-w-xs flex-col gap-4">
           <div className="flex flex-col gap-2 text-left">
             <Label htmlFor={timeId} className={FIELD_LABEL}>

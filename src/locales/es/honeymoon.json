@@ -126,7 +126,9 @@
         "added": "Destino añadido",
         "error": "No se ha podido guardar el destino."
       }
-    }
+    },
+    "votesAria_one": "«{{name}}»: {{count}} voto",
+    "votesAria_other": "«{{name}}»: {{count}} votos"
   },
   "itinerary": {
     "title": "Itinerario por días",

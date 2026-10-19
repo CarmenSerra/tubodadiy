@@ -123,7 +123,8 @@
     "seats_other": "{{count}} plazas",
     "tableOf": "Mesa de {{name}}",
     "noTable": "Sin mesa",
-    "tableOption": "{{name}} · {{free}} libres"
+    "tableOption": "{{name}} · {{free}} libres",
+    "noAccess": "Para ver y sentar a los invitados hace falta acceso a la sección Invitados."
   },
   "table": {
     "defaultName": "Mesa",

@@ -46,6 +46,28 @@ const NUDGE_BUTTON = cn(
   ROW_FOCUS
 );
 
+/** Zona principal de la tarjeta: botón que abre la edición, o texto sin más si solo se puede ver. */
+function MainTag({
+  readOnly,
+  onEdit,
+  label,
+  className,
+  children,
+}: {
+  readOnly: boolean;
+  onEdit: () => void;
+  label: string;
+  className: string;
+  children: React.ReactNode;
+}) {
+  if (readOnly) return <div className={className}>{children}</div>;
+  return (
+    <button type="button" onClick={onEdit} aria-label={label} className={className}>
+      {children}
+    </button>
+  );
+}
+
 function MomentCard({
   item,
   owner,
@@ -54,6 +76,7 @@ function MomentCard({
   canLater,
   onEdit,
   onNudge,
+  readOnly,
 }: {
   item: TimelineMoment;
   /** Responsable a mostrar: contacto del Día B y/o texto libre. */
@@ -63,6 +86,8 @@ function MomentCard({
   canLater: boolean;
   onEdit: () => void;
   onNudge: (delta: number) => void;
+  /** Solo ver: el título no abre el formulario y no hay ajuste fino. */
+  readOnly: boolean;
 }) {
   const { t } = useTranslation("timeline");
   const { lang } = useLanguage();
@@ -78,20 +103,22 @@ function MomentCard({
         item.highlight ? "border-line-strong" : "border-line hover:border-line-strong"
       )}
     >
-      <button
-        type="button"
-        onClick={onEdit}
-        aria-label={t("roadmap.editAria", { title: item.title })}
-        className={cn("col-span-2 -m-1 min-w-0 rounded-xl p-1 text-left sm:col-span-1 sm:col-start-1 sm:row-start-1", ROW_FOCUS)}
+      <MainTag
+        readOnly={readOnly}
+        onEdit={onEdit}
+        label={t("roadmap.editAria", { title: item.title })}
+        className={cn("col-span-2 -m-1 min-w-0 rounded-xl p-1 text-left sm:col-span-1 sm:col-start-1 sm:row-start-1", !readOnly && ROW_FOCUS)}
       >
         <span className="flex items-start gap-2">
           <span className="min-w-0 break-words font-display text-lg font-semibold leading-7 text-ink">
             {item.title}
           </span>
-          <PencilIcon
-            aria-hidden="true"
-            className="mt-2 size-3.5 shrink-0 text-lilac transition-opacity motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100 pointer-fine:group-focus-within/card:opacity-100"
-          />
+          {!readOnly && (
+            <PencilIcon
+              aria-hidden="true"
+              className="mt-2 size-3.5 shrink-0 text-lilac transition-opacity motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100 pointer-fine:group-focus-within/card:opacity-100"
+            />
+          )}
         </span>
         <span className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-sm text-ink-muted">
           <span>{formatDuration(item.durationMin, lang)}</span>
@@ -110,7 +137,7 @@ function MomentCard({
             </span>
           )}
         </span>
-      </button>
+      </MainTag>
 
       {notes && (
         <div className="col-span-2 text-sm text-ink-muted">
@@ -144,6 +171,7 @@ function MomentCard({
         </p>
       )}
       {/* Ajuste fino: en móvil va debajo; en escritorio, arriba a la derecha y solo al pasar el ratón o con foco. */}
+      {!readOnly && (
       <div
         role="group"
         aria-label={t("roadmap.adjustAria", { title: item.title })}
@@ -175,6 +203,7 @@ function MomentCard({
           <span aria-hidden="true">+{NUDGE_MIN}</span>
         </button>
       </div>
+      )}
 
     </article>
   );
@@ -216,6 +245,7 @@ export function TimelineRoadmap({
   onEdit,
   onNudge,
   onAdd,
+  readOnly = false,
 }: {
   /** Ya ordenados por hora. */
   items: TimelineMoment[];
@@ -225,6 +255,7 @@ export function TimelineRoadmap({
   onEdit: (item: TimelineMoment) => void;
   onNudge: (item: TimelineMoment, delta: number) => void;
   onAdd: () => void;
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation("timeline");
   const { lang } = useLanguage();
@@ -298,6 +329,7 @@ export function TimelineRoadmap({
                     canLater={bounds[item.id].later}
                     onEdit={() => onEdit(item)}
                     onNudge={(delta) => onNudge(item, delta)}
+                    readOnly={readOnly}
                   />
                 </div>
               </div>
@@ -306,6 +338,7 @@ export function TimelineRoadmap({
         })}
       </ol>
 
+      {!readOnly && (
       <div className={ROW_GRID}>
         <div />
         <div />
@@ -321,6 +354,7 @@ export function TimelineRoadmap({
           {t("roadmap.add")}
         </button>
       </div>
+      )}
     </div>
   );
 }

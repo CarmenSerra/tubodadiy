@@ -37,6 +37,7 @@ import {
 import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 const TYPE_ICON: Record<BookingType, LucideIcon> = {
   vuelo: PlaneIcon,
@@ -115,6 +116,7 @@ function BookingTicket({
 }) {
   const { t } = useTranslation("honeymoon");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("honeymoon");
   const Icon = TYPE_ICON[booking.type];
 
   async function handlePaid(paid: boolean) {
@@ -164,27 +166,31 @@ function BookingTicket({
           <p className="font-display text-2xl font-semibold leading-none text-ink">{formatCurrency(booking.price, lang)}</p>
           <label
             className={cn(
-              "mt-2 inline-flex min-h-8 cursor-pointer items-center gap-2.5 text-sm",
+              "mt-2 inline-flex min-h-8 items-center gap-2.5 text-sm",
+              canEdit && "cursor-pointer",
               booking.paid ? "font-medium text-ink" : "text-ink-muted"
             )}
           >
             <Checkbox
               checked={booking.paid}
               onCheckedChange={(v) => handlePaid(v === true)}
+              disabled={!canEdit}
               aria-label={t("bookings.markPaidAria", { name: booking.name })}
               className={CHECKBOX}
             />
             {booking.paid ? t("bookings.paid") : t("bookings.pending")}
           </label>
         </div>
-        <div className="-mr-2 flex sm:justify-end">
-          <BookingFormDialog
-            planId={planId}
-            booking={booking}
-            trigger={<EditBookingTrigger name={booking.name} />}
-          />
-          <DeleteIconButton ariaLabel={t("bookings.deleteAria", { name: booking.name })} onDelete={handleDelete} />
-        </div>
+        {canEdit && (
+          <div className="-mr-2 flex sm:justify-end">
+            <BookingFormDialog
+              planId={planId}
+              booking={booking}
+              trigger={<EditBookingTrigger name={booking.name} />}
+            />
+            <DeleteIconButton ariaLabel={t("bookings.deleteAria", { name: booking.name })} onDelete={handleDelete} />
+          </div>
+        )}
       </div>
     </li>
   );
@@ -203,6 +209,7 @@ export function Bookings({
 }) {
   const { t } = useTranslation("honeymoon");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("honeymoon");
   const totals = computeBookingTotals(budget, bookings);
   return (
     <section aria-labelledby="hm-reservas-title" className="flex flex-col gap-4">
@@ -212,10 +219,12 @@ export function Bookings({
         title={t("bookings.title")}
         description={t("bookings.description")}
         actions={
-          <>
-            <BudgetDialog planId={planId} budgetTotal={budget} />
-            {bookings.length > 0 && <BookingFormDialog planId={planId} />}
-          </>
+          canEdit ? (
+            <>
+              <BudgetDialog planId={planId} budgetTotal={budget} />
+              {bookings.length > 0 && <BookingFormDialog planId={planId} />}
+            </>
+          ) : undefined
         }
       />
 
@@ -250,14 +259,16 @@ export function Bookings({
           scene="selva"
           title={t("bookings.empty.title")}
           action={
-            <BookingFormDialog
-              planId={planId}
-              trigger={
-                <button type="button" className={CTA_PRIMARY}>
-                  {t("bookings.empty.action")}
-                </button>
-              }
-            />
+            canEdit ? (
+              <BookingFormDialog
+                planId={planId}
+                trigger={
+                  <button type="button" className={CTA_PRIMARY}>
+                    {t("bookings.empty.action")}
+                  </button>
+                }
+              />
+            ) : undefined
           }
         >
           {t("bookings.empty.text")}

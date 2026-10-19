@@ -20,6 +20,7 @@ import {
 } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { syncStepQuietly } from "@/lib/firebase/mutations";
+import { canSyncTasks } from "@/lib/firebase/sync-access";
 
 /** Tipo de cita. El id es el que se guarda y el que usan los enlaces a la agenda. */
 export type AppointmentCategory = "lugar" | "vestuario" | "proveedor" | "degustacion" | "otro";
@@ -90,6 +91,7 @@ function appointmentDoc(planId: string, id: string) {
  * lugares» (Lugar) cuando se cumplen. Solo marca, nunca desmarca. Nunca lanza.
  */
 export async function syncAppointmentTasks(planId: string): Promise<void> {
+  if (!canSyncTasks(planId)) return;
   try {
     const snap = await getDocs(appointmentsCollection(planId));
     const reached = appointmentsReached(snap.docs.map((d) => mapAppointment(d.id, d.data())));

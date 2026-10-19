@@ -22,6 +22,7 @@ import { addBudgetItem } from "@/lib/firebase/mutations";
 import type { Lang } from "@/lib/i18n/config";
 import type { Vendor } from "@/lib/types";
 import { cn, parseAmount } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /** Tarjeta de Estilo. */
 export const LK_CARD = "rounded-2xl border border-line bg-surface text-ink-strong";
@@ -288,6 +289,9 @@ export function BudgetLink({
   onMarked: () => Promise<void>;
 }) {
   const { t } = useTranslation("look");
+  // El gasto vive en «Presupuesto»: ver su enlace pide poder verlo; crear la partida, poder editarlo.
+  const { canView: canViewBudget, canEdit: canEditBudget } = usePlanPermission("budget");
+  const { canEdit: canEditStyle } = usePlanPermission("style");
   const [busy, setBusy] = React.useState(false);
   if (price === null || price <= 0) return null;
 
@@ -296,12 +300,15 @@ export function BudgetLink({
       <p className="flex min-h-11 flex-wrap items-center gap-x-2 text-sm text-ink-muted">
         <CheckIcon aria-hidden="true" className="size-4 shrink-0 text-green" />
         {t("budget.inBudget")}
-        <Link href={`/plan/${planId}/budget`} className="font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4">
-          {t("budget.view")}
-        </Link>
+        {canViewBudget && (
+          <Link href={`/plan/${planId}/budget`} className="font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4">
+            {t("budget.view")}
+          </Link>
+        )}
       </p>
     );
   }
+  if (!canEditBudget || !canEditStyle) return null;
 
   async function add() {
     setBusy(true);

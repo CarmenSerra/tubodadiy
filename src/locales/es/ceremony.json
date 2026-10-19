@@ -91,7 +91,8 @@
       "willCreate": "Crea un gasto pendiente en la categoría «{{category}}».",
       "category": "Ceremonia",
       "inBudget": "Ya está en el presupuesto.",
-      "viewBudget": "Ver presupuesto"
+      "viewBudget": "Ver presupuesto",
+      "noBudgetAccess": "Tu acceso al Presupuesto no permite añadir gastos. Los honorarios se guardan en la ficha y quien gestione el Presupuesto puede añadirlos."
     },
     "errors": {
       "name": "Escribe el nombre del oficiante: es obligatorio para guardar la ficha.",
@@ -101,7 +102,8 @@
     "toast": {
       "saved": "Ficha del oficiante guardada",
       "cleared": "Ficha del oficiante quitada",
-      "error": "No se ha podido guardar la ficha del oficiante."
+      "error": "No se ha podido guardar la ficha del oficiante.",
+      "budgetSkipped": "Los honorarios no se han añadido al Presupuesto porque tu acceso a esa sección es de solo ver. Quien lo gestione puede añadirlos."
     },
     "clear": "Quitar ficha",
     "save": "Guardar",

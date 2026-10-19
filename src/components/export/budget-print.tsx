@@ -199,5 +199,5 @@ function BudgetDocument({ planId, plan }: PrintDocumentProps) {
 }
 
 export function BudgetPrintView({ planId }: { planId: string }) {
-  return <PrintPage planId={planId} Document={BudgetDocument} />;
+  return <PrintPage planId={planId} section="budget" Document={BudgetDocument} />;
 }

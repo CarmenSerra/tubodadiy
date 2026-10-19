@@ -18,6 +18,7 @@ import { ToolDialog } from "@/components/plan-tools/tool-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { setLegalDocChecked } from "@/lib/firebase/plan-tools";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { cn } from "@/lib/utils";
 
 export function LegalDocsDialog({
@@ -65,9 +66,12 @@ export function Disclaimer() {
   );
 }
 
-export function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony: () => void }) {
+/** Con `onChooseCeremony` ausente (o sin poder editar «Ceremonia») la guía es de solo lectura. */
+export function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony?: () => void }) {
   const { t } = useTranslation("tools");
   const { planId, plan } = usePlanContext();
+  const { canEdit } = usePlanPermission("ceremony");
+  const chooseCeremony = canEdit ? onChooseCeremony : undefined;
   const type = plan?.ceremonyType ?? null;
   const done = React.useMemo(() => plan?.legalDocsDone ?? [], [plan?.legalDocsDone]);
 
@@ -82,10 +86,12 @@ export function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony: () => vo
             {t("planTools.legal.noType.title")}
           </h3>
           <p className="text-sm text-ink-muted">{t("planTools.legal.noType.text")}</p>
-          <button type="button" onClick={onChooseCeremony} className={CTA_PRIMARY}>
-            <LandmarkIcon aria-hidden="true" className="size-4" />
-            {t("planTools.legal.noType.action")}
-          </button>
+          {chooseCeremony && (
+            <button type="button" onClick={chooseCeremony} className={CTA_PRIMARY}>
+              <LandmarkIcon aria-hidden="true" className="size-4" />
+              {t("planTools.legal.noType.action")}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -113,13 +119,15 @@ export function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony: () => vo
           <p className="text-sm text-ink-muted">
             {t("planTools.legal.ceremony")} <span className="font-medium text-ink">{t(`planTools.ceremony.options.${type}.label`)}</span>
           </p>
+          {chooseCeremony && (
           <button
             type="button"
-            onClick={onChooseCeremony}
+            onClick={chooseCeremony}
             className="text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 hover:opacity-80 focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             {t("planTools.legal.changeCeremony")}
           </button>
+          )}
         </div>
         <p className="text-sm text-ink-strong">{t(`planTools.legal.intro.${legalIntroKey(type)}`)}</p>
         <div className="flex flex-col gap-1.5" role="group" aria-label={t("planTools.legal.progressLabel")}>
@@ -139,9 +147,10 @@ export function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony: () => vo
           const id = situationId(s.id);
           const checked = done.includes(id);
           return (
-            <label key={s.id} className="flex cursor-pointer items-start gap-3">
+            <label key={s.id} className={cn("flex items-start gap-3", canEdit && "cursor-pointer")}>
               <Checkbox
                 checked={checked}
+                disabled={!canEdit}
                 onCheckedChange={(v) => void toggle(id, Boolean(v))}
                 className={cn(CHECKBOX, "mt-0.5")}
               />
@@ -164,9 +173,10 @@ export function LegalDocsBody({ onChooseCeremony }: { onChooseCeremony: () => vo
               const checked = done.includes(doc.id);
               return (
                 <li key={doc.id}>
-                  <label className="flex cursor-pointer items-start gap-3 py-3">
+                  <label className={cn("flex items-start gap-3 py-3", canEdit && "cursor-pointer")}>
                     <Checkbox
                       checked={checked}
+                      disabled={!canEdit}
                       onCheckedChange={(v) => void toggle(doc.id, Boolean(v))}
                       className={cn(CHECKBOX, "mt-0.5")}
                     />

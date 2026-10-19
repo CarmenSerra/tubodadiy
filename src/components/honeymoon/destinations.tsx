@@ -23,6 +23,7 @@ import { isHttpUrl, sceneFor, urlHost, type Destination } from "@/lib/honeymoon-
 import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn, formatCurrency } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /** Miniatura: la imagen si hay URL (y carga) o un dibujo estable por nombre. */
 function Thumb({ dest }: { dest: Destination }) {
@@ -68,6 +69,8 @@ function DestinationCard({
 }) {
   const { t } = useTranslation("honeymoon");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("honeymoon");
+
   const voted = dest.votes.includes(uid);
   const votes = dest.votes.length;
 
@@ -172,6 +175,7 @@ function DestinationCard({
         )}
 
         <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-dashed border-line pt-3">
+          {canEdit ? (
           <button
             type="button"
             aria-pressed={voted}
@@ -186,6 +190,18 @@ function DestinationCard({
             <HeartIcon aria-hidden="true" className={cn("size-4", voted && "fill-current")} />
             <span aria-hidden="true">{votes}</span>
           </button>
+          ) : (
+            <span
+              role="img"
+              aria-label={t("destinations.votesAria", { name: dest.name, count: votes })}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full bg-lilac-soft px-3.5 text-sm font-medium text-ink"
+            >
+              <HeartIcon aria-hidden="true" className="size-4" />
+              <span aria-hidden="true">{votes}</span>
+            </span>
+          )}
+          {canEdit && (
+          <>
           <button
             type="button"
             onClick={handleChoose}
@@ -208,6 +224,8 @@ function DestinationCard({
             />
             <DeleteIconButton ariaLabel={t("destinations.actions.deleteAria", { name: dest.name })} onDelete={handleDelete} />
           </div>
+          </>
+          )}
         </div>
       </div>
     </li>
@@ -226,6 +244,7 @@ export function Destinations({
   announce: (message: string) => void;
 }) {
   const { t } = useTranslation("honeymoon");
+  const { canEdit } = usePlanPermission("honeymoon");
   const chosenIds = React.useMemo(() => destinations.filter((d) => d.chosen).map((d) => d.id), [destinations]);
   const maxVotes = Math.max(0, ...destinations.map((d) => d.votes.length));
 
@@ -236,14 +255,18 @@ export function Destinations({
         icon={<CompassIcon />}
         title={t("destinations.title")}
         description={t("destinations.description")}
-        actions={destinations.length > 0 ? <DestinationFormDialog planId={planId} /> : undefined}
+        actions={canEdit && destinations.length > 0 ? <DestinationFormDialog planId={planId} /> : undefined}
       />
 
       {destinations.length === 0 ? (
         <EmptyState
           scene="playa"
           title={t("destinations.empty.title")}
-          action={<DestinationFormDialog planId={planId} trigger={<button type="button" className={CTA_PRIMARY}>{t("destinations.empty.action")}</button>} />}
+          action={
+            canEdit ? (
+              <DestinationFormDialog planId={planId} trigger={<button type="button" className={CTA_PRIMARY}>{t("destinations.empty.action")}</button>} />
+            ) : undefined
+          }
         >
           {t("destinations.empty.text")}
         </EmptyState>

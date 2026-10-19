@@ -30,6 +30,7 @@ import type { Vendor, VendorDocument, VendorDocumentType } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { VENDOR_DOCUMENT_TYPES, newExtraId } from "@/lib/vendor-extras";
 import { cn, formatDate } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 type Draft = Omit<VendorDocument, "id">;
 const EMPTY: Draft = { type: "contract", title: "", url: "", date: "", signed: false, notes: "" };
@@ -55,6 +56,7 @@ function normalizeUrl(value: string): string {
 export function VendorDocuments({ planId, vendor }: { planId: string; vendor: Vendor }) {
   const { t } = useTranslation("vendors");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("vendors");
   const documents = vendor.documents ?? [];
   const [editing, setEditing] = React.useState<string | null>(null);
 
@@ -141,6 +143,7 @@ export function VendorDocuments({ planId, vendor }: { planId: string; vendor: Ve
                   </div>
                   {doc.notes && <p className="mt-1.5 whitespace-pre-line break-words text-sm text-ink">{doc.notes}</p>}
                 </div>
+                {canEdit && (
                 <div className="-mr-1 flex shrink-0">
                   <button
                     type="button"
@@ -159,13 +162,14 @@ export function VendorDocuments({ planId, vendor }: { planId: string; vendor: Ve
                     <Trash2Icon aria-hidden="true" />
                   </button>
                 </div>
+                )}
               </li>
             );
           })}
         </ul>
       )}
 
-      {editing === "new" ? (
+      {!canEdit ? null : editing === "new" ? (
         <DocumentForm
           initial={EMPTY}
           onCancel={() => setEditing(null)}

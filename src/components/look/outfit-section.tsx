@@ -36,6 +36,7 @@ import { formatMoney } from "@/lib/i18n/format";
 import type { Vendor } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 interface DialogState {
   outfit?: Outfit;
@@ -58,6 +59,9 @@ export function OutfitSection({
   vendors: Vendor[];
 }) {
   const { t } = useTranslation("look");
+  const { canEdit } = usePlanPermission("style");
+  // La agenda de pruebas es de «Tareas»: sin poder verla, el panel no se muestra.
+  const canViewAgenda = usePlanPermission("tasks").canView;
   const [dialog, setDialog] = React.useState<DialogState | null>(null);
   // Se recuerda el último estado para que el diálogo no cambie de contenido mientras se cierra.
   const [shown, setShown] = React.useState<DialogState>({ who: "partnerA" });
@@ -83,7 +87,11 @@ export function OutfitSection({
       <SectionHeader
         title={t("outfit.title")}
         description={t("outfit.description")}
-        action={<AddButton primary label={t("outfit.add")} onClick={() => openDialog({ who: missingPartners[0] ?? "bridesmaid" })} />}
+        action={
+          canEdit ? (
+            <AddButton primary label={t("outfit.add")} onClick={() => openDialog({ who: missingPartners[0] ?? "bridesmaid" })} />
+          ) : undefined
+        }
       />
 
       {outfits.length === 0 ? (
@@ -91,13 +99,15 @@ export function OutfitSection({
           title={t("outfit.empty.title")}
           text={t("outfit.empty.text")}
           action={
-            <div className="flex flex-wrap gap-2">
-              {(["partnerA", "partnerB"] as const).map((p) => (
-                <button key={p} type="button" onClick={() => openDialog({ who: p })} className={cn(CTA_SECONDARY, "h-11")}>
-                  {t(`people.${p}`)}
-                </button>
-              ))}
-            </div>
+            canEdit ? (
+              <div className="flex flex-wrap gap-2">
+                {(["partnerA", "partnerB"] as const).map((p) => (
+                  <button key={p} type="button" onClick={() => openDialog({ who: p })} className={cn(CTA_SECONDARY, "h-11")}>
+                    {t(`people.${p}`)}
+                  </button>
+                ))}
+              </div>
+            ) : undefined
           }
         />
       ) : (
@@ -115,15 +125,17 @@ export function OutfitSection({
         </ul>
       )}
 
-      <FittingsPanel fittings={fittings} />
+      {canViewAgenda && <FittingsPanel fittings={fittings} />}
 
-      <LookDialog
-        open={dialog !== null}
-        onOpenChange={(open) => !open && setDialog(null)}
-        title={shown.outfit ? t("outfit.form.editTitle") : t("outfit.form.newTitle")}
-      >
-        {(close) => <OutfitForm planId={planId} outfit={shown.outfit} defaultWho={shown.who} vendors={vendors} onDone={close} />}
-      </LookDialog>
+      {canEdit && (
+        <LookDialog
+          open={dialog !== null}
+          onOpenChange={(open) => !open && setDialog(null)}
+          title={shown.outfit ? t("outfit.form.editTitle") : t("outfit.form.newTitle")}
+        >
+          {(close) => <OutfitForm planId={planId} outfit={shown.outfit} defaultWho={shown.who} vendors={vendors} onDone={close} />}
+        </LookDialog>
+      )}
     </div>
   );
 }
@@ -143,6 +155,7 @@ function OutfitCard({
 }) {
   const { t } = useTranslation("look");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("style");
   const label = t(`people.${outfit.who}`);
   const name = outfit.personName || label;
   const title = outfit.outfit || t("outfit.card.noOutfit");
@@ -156,10 +169,12 @@ function OutfitCard({
           </p>
           <h4 className="mt-0.5 break-words font-display text-lg font-semibold leading-snug text-ink">{title}</h4>
         </div>
-        <div className="flex shrink-0 items-center">
-          <EditIconButton label={t("outfit.card.edit", { name })} onClick={onEdit} />
-          <DeleteIconButton ariaLabel={t("outfit.card.delete", { name })} onDelete={onDelete} />
-        </div>
+        {canEdit && (
+          <div className="flex shrink-0 items-center">
+            <EditIconButton label={t("outfit.card.edit", { name })} onClick={onEdit} />
+            <DeleteIconButton ariaLabel={t("outfit.card.delete", { name })} onDelete={onDelete} />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -199,6 +214,8 @@ function FittingsPanel({ fittings }: { fittings: Appointment[] }) {
   const { t } = useTranslation("look");
   const { lang } = useLanguage();
   const launcher = useAppointmentsLauncher();
+  // Apuntar una prueba nueva es editar la agenda («Tareas»); verlas, solo verla.
+  const canEditAgenda = usePlanPermission("tasks").canEdit;
   const today = todayKey();
   const upcoming = fittings.filter((f) => !f.done && f.date >= today);
   const rest = fittings.filter((f) => !upcoming.includes(f));
@@ -215,10 +232,12 @@ function FittingsPanel({ fittings }: { fittings: Appointment[] }) {
         </div>
         {launcher && (
           <div className="flex flex-wrap gap-2">
+            {canEditAgenda && (
             <button type="button" onClick={() => launcher.open({ category: "vestuario" })} className={cn(CTA_SECONDARY, "h-11")}>
               <CalendarPlusIcon aria-hidden="true" className="size-4" />
               {t("outfit.fittings.add")}
             </button>
+            )}
             {fittings.length > 0 && (
               <button type="button" onClick={() => launcher.open({ add: false })} className={cn(CTA_SECONDARY, "h-11")}>
                 {t("outfit.fittings.viewAll")}

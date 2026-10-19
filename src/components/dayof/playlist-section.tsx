@@ -28,6 +28,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePlanContext } from "@/lib/context/plan-context";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import {
   PLAYLIST_MOMENTS,
   SONG_FLAGS,
@@ -65,6 +66,7 @@ export function PlaylistSection({
 }) {
   const { t } = useTranslation("dayof");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("dayof");
   const editor = useEditor<Song>();
   const [presetMoment, setPresetMoment] = React.useState<PlaylistMoment>("cocktail");
 
@@ -134,6 +136,7 @@ export function PlaylistSection({
                     ))}
                   </ul>
                 )}
+                {canEdit && (
                 <div className="border-t border-line p-3">
                   <button
                     type="button"
@@ -145,12 +148,13 @@ export function PlaylistSection({
                     {t("playlist.add")}
                   </button>
                 </div>
+                )}
               </section>
             );
           })}
         </div>
       </ListBody>
-      <DayDialog open={editor.open} onOpenChange={editor.setOpen}>
+      <DayDialog open={editor.open} onOpenChange={editor.setOpen} readOnly={!canEdit}>
         <SongForm
           key={editor.item?.id ?? `new-${presetMoment}`}
           planId={planId}

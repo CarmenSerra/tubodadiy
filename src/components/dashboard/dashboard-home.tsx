@@ -89,11 +89,16 @@ export function DashboardHome({
         onSelectPlan={onSelectPlan}
       />
 
-      <NowCard plan={featured} data={data} />
+      {/* Cada bloque lee una sección: sin permiso para verla, no se muestra. */}
+      {data.levels.tasks !== "none" && (
+        <>
+          <NowCard plan={featured} data={data} />
 
-      <TaskReminders planId={featured.id} steps={data.steps} />
+          <TaskReminders planId={featured.id} steps={data.steps} levels={data.levels} />
 
-      <UpcomingAppointments planId={featured.id} />
+          <UpcomingAppointments planId={featured.id} />
+        </>
+      )}
 
       <GlanceRow plan={featured} data={data} />
 

@@ -6,6 +6,7 @@ import { dishesQuery, mapDish, mapTable, tablesQuery } from "@/components/banque
 import { COURSES, type BanquetTable, type Dish } from "@/components/banquet/banquet-model";
 import { guestsQuery, mapGuest } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { Guest } from "@/lib/types";
 
 export interface BanquetData {
@@ -19,7 +20,9 @@ export interface BanquetData {
 
 /** Suscripción a invitados, mesas y platos de un plan, ya ordenados. */
 export function useBanquet(planId: string): BanquetData {
-  const guests = useCollection(guestsQuery(planId), mapGuest);
+  // Los invitados son de otra sección: sin poder verla no se leen (el plan de mesas se ve sin nombres).
+  const { canView: canViewGuests } = usePlanPermission("guests");
+  const guests = useCollection(canViewGuests ? guestsQuery(planId) : null, mapGuest);
   const tables = useCollection(tablesQuery(planId), mapTable);
   const dishes = useCollection(dishesQuery(planId), mapDish);
 

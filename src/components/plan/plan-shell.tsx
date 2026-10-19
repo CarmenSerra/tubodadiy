@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 
 import { CARD, CTA_SECONDARY, FOCUS, IconCircle } from "@/components/dashboard/ui";
 import { PlanProvider, usePlanContext } from "@/lib/context/plan-context";
+import { SyncAccessBridge } from "@/components/members/sync-access-bridge";
 import { PlanNav } from "@/components/plan/plan-nav";
 import { cn } from "@/lib/utils";
 
@@ -108,6 +109,7 @@ function PlanShellInner({ children }: { children: React.ReactNode }) {
         </h1>
       </div>
       <PlanNav planId={plan.id} />
+      <SyncAccessBridge />
       {children}
     </div>
   );

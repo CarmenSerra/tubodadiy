@@ -79,7 +79,8 @@
     },
     "toast": "Estado: {{status}}",
     "error": "No se ha podido actualizar el estado.",
-    "controlAria": "Estado de «{{title}}»: {{status}}. Cambiar"
+    "controlAria": "Estado de «{{title}}»: {{status}}. Cambiar",
+    "readOnlyAria": "Estado de «{{title}}»: {{status}}"
   },
   "edit": {
     "trigger": "Editar",

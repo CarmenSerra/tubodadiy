@@ -8,9 +8,18 @@
   "guestsLink": "Invitación",
   "steps": {
     "label": "Pasos de la invitación",
-    "data": { "title": "Datos", "hint": "Nombres, fecha y lugar" },
-    "design": { "title": "Diseño", "hint": "Estilo y colores" },
-    "share": { "title": "Compartir", "hint": "Publicar y enviar" },
+    "data": {
+      "title": "Datos",
+      "hint": "Nombres, fecha y lugar"
+    },
+    "design": {
+      "title": "Diseño",
+      "hint": "Estilo y colores"
+    },
+    "share": {
+      "title": "Compartir",
+      "hint": "Publicar y enviar"
+    },
     "done": "Completado"
   },
   "nav": {
@@ -108,7 +117,11 @@
     "free": "Está libre",
     "mine": "Es el enlace actual de tu invitación",
     "moves": "Si lo cambias, el enlace anterior dejará de funcionar: comparte el nuevo. Las respuestas que ya has recibido se conservan.",
-    "words": { "one": "boda", "two": "amor", "three": "juntos" }
+    "words": {
+      "one": "boda",
+      "two": "amor",
+      "three": "juntos"
+    }
   },
   "preview": {
     "caption": "Vista previa en directo",
@@ -205,5 +218,6 @@
       "tapSlot": "Toca un hueco de la tarjeta para colocar el elemento.",
       "finalNote": "Así la verá quien abra tu enlace."
     }
-  }
+  },
+  "readOnlyEmpty": "Todavía no hay invitación. Cuando la pareja la cree, podrás verla aquí."
 }

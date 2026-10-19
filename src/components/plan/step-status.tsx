@@ -94,6 +94,7 @@ export function StepStatusControl({
   title,
   status,
   onDone = false,
+  readOnly = false,
 }: {
   planId: string;
   stepId: string;
@@ -101,6 +102,8 @@ export function StepStatusControl({
   status: StepStatus;
   /** El paso está en la tarjeta violeta de «completado». */
   onDone?: boolean;
+  /** Solo ver: el estado se muestra pero no se puede cambiar. */
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation("plan");
 
@@ -115,6 +118,18 @@ export function StepStatusControl({
     } catch {
       toast.error(t("status.error"));
     }
+  }
+
+  if (readOnly) {
+    return (
+      <span
+        role="img"
+        aria-label={t("status.readOnlyAria", { title, status: t(STATUS_LABEL_KEY[status]) })}
+        className="flex size-11 shrink-0 items-center justify-center sm:size-10"
+      >
+        <StatusGlyph status={status} onDone={onDone} />
+      </span>
+    );
   }
 
   return (

@@ -159,20 +159,29 @@ export function TextField({
   );
 }
 
-/** Diálogo de marca para los formularios del Día B y de la ceremonia. */
+/** Dentro de un `DayDialog` de solo lectura, `FormFrame` inhabilita los campos y quita guardar y borrar. */
+const ReadOnlyContext = React.createContext(false);
+
+/**
+ * Diálogo de marca para los formularios del Día B y de la ceremonia. Con
+ * `readOnly` (quien solo puede ver la sección) se abre para consultar el
+ * detalle, sin poder cambiar nada.
+ */
 export function DayDialog({
   open,
   onOpenChange,
+  readOnly = false,
   children,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  readOnly?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined} className={DIALOG_CONTENT}>
-        {open && children}
+        <ReadOnlyContext.Provider value={readOnly}>{open && children}</ReadOnlyContext.Provider>
       </DialogContent>
     </Dialog>
   );
@@ -203,21 +212,24 @@ export function FormFrame({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation("dayof");
+  const readOnly = React.useContext(ReadOnlyContext);
   return (
     <form
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit();
+        if (!readOnly) onSubmit();
       }}
     >
       <DialogHeader>
         <DialogTitle className={DIALOG_TITLE}>{title}</DialogTitle>
         <DialogDescription className="sr-only">{description}</DialogDescription>
       </DialogHeader>
-      <div className="mt-5 flex flex-col gap-4">{children}</div>
+      <fieldset disabled={readOnly} className="contents">
+        <div className="mt-5 flex flex-col gap-4">{children}</div>
+      </fieldset>
       <DialogFooter className="mt-6 gap-2 sm:items-center sm:gap-3">
-        {onDelete && (
+        {onDelete && !readOnly && (
           <button
             type="button"
             onClick={onDelete}
@@ -231,12 +243,14 @@ export function FormFrame({
           </button>
         )}
         <button type="button" onClick={onCancel} className={cn(CTA_SECONDARY, "h-11")}>
-          {t("form.cancel")}
+          {readOnly ? t("form.close") : t("form.cancel")}
         </button>
-        <button type="submit" disabled={busy || submitDisabled} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
-          {busy && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-          {submitLabel ?? t("form.save")}
-        </button>
+        {!readOnly && (
+          <button type="submit" disabled={busy || submitDisabled} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
+            {busy && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+            {submitLabel ?? t("form.save")}
+          </button>
+        )}
       </DialogFooter>
     </form>
   );

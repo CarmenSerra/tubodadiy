@@ -16,6 +16,7 @@ import {
 import { CTA_SECONDARY, LINK } from "@/components/dashboard/ui";
 import { budgetItemsQuery, mapBudgetItem } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useLanguage } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -38,13 +39,15 @@ export function VendorBudgetSummary({
 }) {
   const { t } = useTranslation("budget");
   const { lang } = useLanguage();
-  const { data: items, loading } = useCollection(budgetItemsQuery(planId), mapBudgetItem);
+  // Lee las partidas del presupuesto: sin poder ver esa sección no hay resumen; para apuntar un pago hay que poder editarla.
+  const { canView, canEdit } = usePlanPermission("budget");
+  const { data: items, loading } = useCollection(canView ? budgetItemsQuery(planId) : null, mapBudgetItem);
   const money = (value: number) => formatMoney(value, lang);
 
-  if (loading) return null;
+  if (!canView || loading) return null;
 
   const summary = vendorBudget(items, vendorId);
-  const addButton = (
+  const addButton = !canEdit ? null : (
     <BudgetItemFormDialog
       planId={planId}
       defaultVendorId={vendorId}
@@ -72,7 +75,7 @@ export function VendorBudgetSummary({
               ? t("vendorSummary.emptyWithCost", { amount: money(vendorCost) })
               : t("vendorSummary.empty")}
           </p>
-          <div>{addButton}</div>
+          {addButton && <div>{addButton}</div>}
         </>
       ) : (
         <>

@@ -33,11 +33,13 @@ import {
 } from "@/lib/firebase/dayof";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /** «Lecturas»: título, texto o enlace, quién la lee y el orden en que suenan. */
 export function ReadingsSection() {
   const { t } = useTranslation("ceremony");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("ceremony");
   const { data, loading, error } = useReadings(planId);
   const editor = useEditor<Reading>();
   const [announcement, setAnnouncement] = React.useState("");
@@ -68,14 +70,14 @@ export function ReadingsSection() {
       icon={<BookOpenIcon />}
       title={t("readings.title")}
       description={t("readings.description")}
-      action={data.length > 0 ? addButton : undefined}
+      action={canEdit && data.length > 0 ? addButton : undefined}
     >
       <ListBody
         loading={loading}
         error={error}
         empty={data.length === 0}
         emptyText={t("readings.empty")}
-        emptyAction={addButton}
+        emptyAction={canEdit ? addButton : undefined}
       >
         <ol>
           {data.map((reading, index) => (
@@ -105,6 +107,7 @@ export function ReadingsSection() {
                 </button>
                 {reading.url && <ExternalLink href={reading.url} label={t("readings.openLink")} className="self-start" />}
               </div>
+              {canEdit && (
               <div className="flex shrink-0 flex-col sm:flex-row">
                 <button
                   type="button"
@@ -125,6 +128,7 @@ export function ReadingsSection() {
                   <ChevronDownIcon aria-hidden="true" />
                 </button>
               </div>
+              )}
             </li>
           ))}
         </ol>
@@ -132,7 +136,7 @@ export function ReadingsSection() {
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
       </p>
-      <DayDialog open={editor.open} onOpenChange={editor.setOpen}>
+      <DayDialog open={editor.open} onOpenChange={editor.setOpen} readOnly={!canEdit}>
         <ReadingForm
           key={editor.item?.id ?? "new"}
           planId={planId}

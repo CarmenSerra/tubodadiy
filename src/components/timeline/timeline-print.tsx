@@ -6,6 +6,7 @@ import { ArrowLeftIcon, Loader2, PrinterIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { RequireAuth } from "@/components/auth/require-auth";
+import { PrintSectionGate } from "@/components/export/print-frame";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import {
   dayIndex,
@@ -214,7 +215,9 @@ export function TimelinePrintView({ planId }: { planId: string }) {
   return (
     <RequireAuth>
       <PlanProvider planId={planId}>
-        <PrintDocument />
+        <PrintSectionGate section="dayof">
+          <PrintDocument />
+        </PrintSectionGate>
       </PlanProvider>
     </RequireAuth>
   );

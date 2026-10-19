@@ -6,6 +6,7 @@ import { DashboardHome } from "@/components/dashboard/dashboard-home";
 import { SELECTED_PLAN_KEY, rankPlans, type FeaturedPlanData } from "@/components/dashboard/helpers";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { useAccessForPlan } from "@/lib/hooks/use-plan-permission";
 import type { WeddingPlan } from "@/lib/types";
 import {
   budgetItemsQuery,
@@ -68,10 +69,14 @@ function PlanHome({
         : null,
     [featuredId]
   );
-  const steps = useCollection(q?.steps ?? null, mapStep);
-  const guests = useCollection(q?.guests ?? null, mapGuest);
-  const vendors = useCollection(q?.vendors ?? null, mapVendor);
-  const budget = useCollection(q?.budget ?? null, mapBudgetItem);
+  // Solo se leen las secciones que esta persona puede ver (el resto, ni se suscribe).
+  const access = useAccessForPlan(featuredId ?? "", featured, false);
+  const { levels } = access;
+  const waitAccess = (query: typeof q, ok: boolean) => (query && !access.loading && ok ? query : null);
+  const steps = useCollection(waitAccess(q, levels.tasks !== "none")?.steps ?? null, mapStep);
+  const guests = useCollection(waitAccess(q, levels.guests !== "none")?.guests ?? null, mapGuest);
+  const vendors = useCollection(waitAccess(q, levels.vendors !== "none")?.vendors ?? null, mapVendor);
+  const budget = useCollection(waitAccess(q, levels.budget !== "none")?.budget ?? null, mapBudgetItem);
   const members = useCollection(q?.members ?? null, mapMember);
 
   const data: FeaturedPlanData = {
@@ -80,7 +85,8 @@ function PlanHome({
     vendors: vendors.data,
     budgetItems: budget.data,
     members: members.data,
-    loading: steps.loading || guests.loading || vendors.loading || budget.loading || members.loading,
+    levels,
+    loading: access.loading || steps.loading || guests.loading || vendors.loading || budget.loading || members.loading,
     error: Boolean(steps.error || guests.error || vendors.error || budget.error || members.error),
   };
 

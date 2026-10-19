@@ -12,6 +12,7 @@ import { guestsQuery, mapGuest } from "@/lib/firebase/plans";
 import { tableNameByGuest } from "@/lib/export/guests";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useLanguage } from "@/lib/i18n/provider";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { Guest } from "@/lib/types";
 
 function GuestsDocument({ planId, plan }: PrintDocumentProps) {
@@ -20,7 +21,9 @@ function GuestsDocument({ planId, plan }: PrintDocumentProps) {
   const { lang } = useLanguage();
   const dietLabel = useDietLabel();
   const guestsState = useCollection(guestsQuery(planId), mapGuest);
-  const tablesState = useCollection(tablesQuery(planId), mapTable);
+  // La mesa de cada invitado es de «Banquete»: sin poder verlo no se lee y la columna queda vacía.
+  const { canView: canViewTables } = usePlanPermission("banquet");
+  const tablesState = useCollection(canViewTables ? tablesQuery(planId) : null, mapTable);
 
   const guests = React.useMemo(
     () => [...guestsState.data].sort((a, b) => a.name.localeCompare(b.name, lang)),
@@ -141,5 +144,5 @@ function GuestsDocument({ planId, plan }: PrintDocumentProps) {
 }
 
 export function GuestsPrintView({ planId }: { planId: string }) {
-  return <PrintPage planId={planId} Document={GuestsDocument} />;
+  return <PrintPage planId={planId} section="guests" Document={GuestsDocument} />;
 }

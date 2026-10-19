@@ -38,6 +38,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { usePlanContext } from "@/lib/context/plan-context";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { markTimelineProgress } from "@/lib/firebase/mutations";
 import { timelineItemsQuery } from "@/lib/firebase/plans";
 import {
@@ -223,6 +224,7 @@ function TimelineSkeleton() {
 
 function TimelineBody({ undo }: { undo: TimelineUndo }) {
   const { planId, plan } = usePlanContext();
+  const { canEdit } = usePlanPermission("dayof");
   const { t } = useTranslation("timeline");
   const { lang } = useLanguage();
   const { data, loading, error } = useCollection(timelineItemsQuery(planId), mapTimelineMoment);
@@ -351,11 +353,15 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={openNew} className={cn(CTA_PRIMARY, "h-10 px-5")}>
-          <PlusIcon aria-hidden="true" className="size-4" />
-          {t("dialog.add")}
-        </button>
-        <TimelineIdeas planId={planId} items={items} />
+        {canEdit && (
+          <>
+            <button type="button" onClick={openNew} className={cn(CTA_PRIMARY, "h-10 px-5")}>
+              <PlusIcon aria-hidden="true" className="size-4" />
+              {t("dialog.add")}
+            </button>
+            <TimelineIdeas planId={planId} items={items} />
+          </>
+        )}
         <button type="button" onClick={handleCopy} className={CTA_SECONDARY}>
           <CopyIcon aria-hidden="true" className="size-4" />
           {t("dialog.copy")}
@@ -372,15 +378,17 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
           <span className="sr-only"> {t("dialog.newTab")}</span>
         </Link>
       </div>
-      <label className="flex cursor-pointer flex-wrap items-center gap-x-2.5 gap-y-0.5 text-sm text-ink-strong">
-        <Checkbox
-          checked={cascade}
-          onCheckedChange={(v) => handleCascadeChange(Boolean(v))}
-          className={CHECKBOX}
-        />
-        <span>{t("dialog.cascade.label")}</span>
-        <span className="hidden text-ink-muted sm:inline">{t("dialog.cascade.hint")}</span>
-      </label>
+      {canEdit && (
+        <label className="flex cursor-pointer flex-wrap items-center gap-x-2.5 gap-y-0.5 text-sm text-ink-strong">
+          <Checkbox
+            checked={cascade}
+            onCheckedChange={(v) => handleCascadeChange(Boolean(v))}
+            className={CHECKBOX}
+          />
+          <span>{t("dialog.cascade.label")}</span>
+          <span className="hidden text-ink-muted sm:inline">{t("dialog.cascade.hint")}</span>
+        </label>
+      )}
     </div>
   ) : null;
 
@@ -405,9 +413,10 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
             onEdit={(item) => setForm({ open: true, item })}
             onNudge={handleNudge}
             onAdd={openNew}
+            readOnly={!canEdit}
           />
         ) : (
-          <TimelineEmpty creating={creating} onTemplate={handleTemplate} onBlank={openNew} />
+          <TimelineEmpty creating={creating} onTemplate={handleTemplate} onBlank={openNew} readOnly={!canEdit} />
         )}
       </div>
 
@@ -415,6 +424,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
         {announcement}
       </div>
 
+      {canEdit && (
       <TimelineFormDialog
         planId={planId}
         open={form.open}
@@ -429,6 +439,7 @@ function TimelineBody({ undo }: { undo: TimelineUndo }) {
           if (items.length === 0) void markTimelineProgress(planId, "draft");
         }}
       />
+      )}
     </div>
   );
 }

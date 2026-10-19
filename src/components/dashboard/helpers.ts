@@ -1,3 +1,4 @@
+import type { PlanSection, SectionLevel } from "@/lib/permissions";
 import { daysUntil } from "@/lib/utils";
 import type {
   BudgetItem,
@@ -21,6 +22,8 @@ export interface FeaturedPlanData {
   vendors: Vendor[];
   budgetItems: BudgetItem[];
   members: PlanMember[];
+  /** Qué puede ver la persona en cada sección: lo que no puede ver ni se lee ni se muestra. */
+  levels: Record<PlanSection, SectionLevel>;
   /** Alguna de las suscripciones sigue esperando su primer snapshot. */
   loading: boolean;
   /** Alguna de las suscripciones ha fallado. */

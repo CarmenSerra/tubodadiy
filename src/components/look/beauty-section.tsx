@@ -45,6 +45,7 @@ import { useLanguage } from "@/lib/i18n/provider";
 import type { Vendor } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 const TEXTAREA =
   "min-h-20 rounded-xl border-line-strong bg-field text-base text-ink-strong shadow-none placeholder:text-ink-placeholder focus-visible:ring-lilac focus-visible:ring-offset-0 sm:text-sm";
@@ -64,6 +65,7 @@ export function BeautySection({
   vendors: Vendor[];
 }) {
   const { t } = useTranslation("look");
+  const { canEdit } = usePlanPermission("style");
   const [dialog, setDialog] = React.useState<{ item?: BeautyItem; service: BeautyService } | null>(null);
   const [shown, setShown] = React.useState<{ item?: BeautyItem; service: BeautyService }>({ service: "hair" });
 
@@ -86,7 +88,7 @@ export function BeautySection({
       <SectionHeader
         title={t("beauty.title")}
         description={t("beauty.description")}
-        action={<AddButton primary label={t("beauty.add")} onClick={() => openDialog({ service: "hair" })} />}
+        action={canEdit ? <AddButton primary label={t("beauty.add")} onClick={() => openDialog({ service: "hair" })} /> : undefined}
       />
 
       {items.length === 0 ? (
@@ -94,13 +96,15 @@ export function BeautySection({
           title={t("beauty.empty.title")}
           text={t("beauty.empty.text")}
           action={
-            <div className="flex flex-wrap gap-2">
-              {(["hair", "makeup"] as const).map((s) => (
-                <button key={s} type="button" onClick={() => openDialog({ service: s })} className={cn(CTA_SECONDARY, "h-11")}>
-                  {t(`beauty.services.${s}`)}
-                </button>
-              ))}
-            </div>
+            canEdit ? (
+              <div className="flex flex-wrap gap-2">
+                {(["hair", "makeup"] as const).map((s) => (
+                  <button key={s} type="button" onClick={() => openDialog({ service: s })} className={cn(CTA_SECONDARY, "h-11")}>
+                    {t(`beauty.services.${s}`)}
+                  </button>
+                ))}
+              </div>
+            ) : undefined
           }
         />
       ) : (
@@ -120,13 +124,15 @@ export function BeautySection({
 
       <Routine planId={planId} routine={routine} />
 
-      <LookDialog
-        open={dialog !== null}
-        onOpenChange={(open) => !open && setDialog(null)}
-        title={shown.item ? t("beauty.form.editTitle") : t("beauty.form.newTitle")}
-      >
-        {(close) => <BeautyForm planId={planId} item={shown.item} defaultService={shown.service} vendors={vendors} onDone={close} />}
-      </LookDialog>
+      {canEdit && (
+        <LookDialog
+          open={dialog !== null}
+          onOpenChange={(open) => !open && setDialog(null)}
+          title={shown.item ? t("beauty.form.editTitle") : t("beauty.form.newTitle")}
+        >
+          {(close) => <BeautyForm planId={planId} item={shown.item} defaultService={shown.service} vendors={vendors} onDone={close} />}
+        </LookDialog>
+      )}
     </div>
   );
 }
@@ -146,6 +152,7 @@ function BeautyCard({
 }) {
   const { t } = useTranslation("look");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("style");
   const service = t(`beauty.services.${item.service}`);
   const name = item.forWho ? `${service} · ${item.forWho}` : service;
   const trialDate = item.trialDate ? formatDateValue(item.trialDate, lang, { weekday: "short", day: "numeric", month: "short", year: "numeric" }) : null;
@@ -160,10 +167,12 @@ function BeautyCard({
             {item.forWho || t("beauty.card.noOne")}
           </h4>
         </div>
-        <div className="flex shrink-0 items-center">
-          <EditIconButton label={t("beauty.card.edit", { name })} onClick={onEdit} />
-          <DeleteIconButton ariaLabel={t("beauty.card.delete", { name })} onDelete={onDelete} />
-        </div>
+        {canEdit && (
+          <div className="flex shrink-0 items-center">
+            <EditIconButton label={t("beauty.card.edit", { name })} onClick={onEdit} />
+            <DeleteIconButton ariaLabel={t("beauty.card.delete", { name })} onDelete={onDelete} />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -419,6 +428,7 @@ function newId(): string {
 /** Rutina previa opcional: una checklist sencilla guardada en los ajustes de Estilo. */
 function Routine({ planId, routine }: { planId: string; routine: RoutineItem[] }) {
   const { t } = useTranslation("look");
+  const { canEdit } = usePlanPermission("style");
   const [text, setText] = React.useState("");
   const inputId = React.useId();
 
@@ -454,7 +464,7 @@ function Routine({ planId, routine }: { planId: string; routine: RoutineItem[] }
           </h4>
           <p className="mt-1 text-sm text-ink-muted">{t("beauty.routine.description")}</p>
         </div>
-        {routine.length === 0 && (
+        {canEdit && routine.length === 0 && (
           <button
             type="button"
             onClick={() =>
@@ -478,14 +488,16 @@ function Routine({ planId, routine }: { planId: string; routine: RoutineItem[] }
         <ul className="flex flex-col">
           {routine.map((r) => (
             <li key={r.id} className="flex items-center justify-between gap-2">
-              <label className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-3 text-sm text-ink-strong">
+              <label className={cn("flex min-h-11 min-w-0 flex-1 items-center gap-3 text-sm text-ink-strong", canEdit && "cursor-pointer")}>
                 <Checkbox
                   checked={r.done}
+                  disabled={!canEdit}
                   onCheckedChange={(v) => persist(routine.map((x) => (x.id === r.id ? { ...x, done: Boolean(v) } : x)))}
                   className={CHECKBOX}
                 />
                 <span className={cn("[overflow-wrap:anywhere]", r.done && "text-ink-muted line-through decoration-1")}>{r.label}</span>
               </label>
+              {canEdit && (
               <button
                 type="button"
                 aria-label={t("beauty.routine.remove", { label: r.label })}
@@ -495,11 +507,13 @@ function Routine({ planId, routine }: { planId: string; routine: RoutineItem[] }
               >
                 <Trash2Icon aria-hidden="true" />
               </button>
+              )}
             </li>
           ))}
         </ul>
       )}
 
+      {canEdit && (
       <form onSubmit={handleAdd} className="flex flex-wrap items-center gap-2">
         <label htmlFor={inputId} className="sr-only">
           {t("beauty.routine.newLabel")}
@@ -518,6 +532,7 @@ function Routine({ planId, routine }: { planId: string; routine: RoutineItem[] }
           {t("beauty.routine.add")}
         </button>
       </form>
+      )}
     </section>
   );
 }

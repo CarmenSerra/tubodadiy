@@ -21,10 +21,13 @@ export function BudgetPayers({
   planId,
   items,
   settings,
+  canEdit = true,
 }: {
   planId: string;
   items: BudgetItem[];
   settings: BudgetPlanSettings;
+  /** Solo ver: sin cambiar los nombres de los pagadores. */
+  canEdit?: boolean;
 }) {
   const { t } = useTranslation("budget");
   const { lang } = useLanguage();
@@ -41,7 +44,7 @@ export function BudgetPayers({
         <h2 id="budget-payers-title" className="font-display text-lg font-semibold text-ink sm:text-xl">
           {t("payers.title")}
         </h2>
-        {!editing && (
+        {!editing && canEdit && (
           <button type="button" onClick={() => setEditing(true)} className={cn(CTA_SECONDARY, "h-11")}>
             <PencilIcon aria-hidden="true" className="size-4" />
             {t("payers.editNames")}
@@ -50,7 +53,7 @@ export function BudgetPayers({
       </div>
       <p className="mt-1 text-sm text-ink-muted">{anyAssigned ? t("payers.note") : t("payers.noneAssigned")}</p>
 
-      {editing && (
+      {editing && canEdit && (
         <PayerNamesForm planId={planId} settings={settings} onDone={() => setEditing(false)} />
       )}
 

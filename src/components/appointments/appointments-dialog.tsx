@@ -42,6 +42,7 @@ import {
 } from "@/lib/firebase/appointments";
 import { mapVendor, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
@@ -87,7 +88,9 @@ export function AppointmentsDialog({
     if (open) setView(initialView(intent));
   }
 
-  const showList = view.kind === "list";
+  const { canEdit } = usePlanPermission("tasks");
+  // Sin poder editar la agenda solo se ve la lista (aunque se pida abrir una cita nueva).
+  const showList = view.kind === "list" || !canEdit;
   // Volver a la lista desde el formulario: el foco pasa al diálogo (el botón que lo tenía ya no existe).
   const backToList = React.useCallback(() => {
     setView({ kind: "list" });
@@ -128,8 +131,11 @@ function AppointmentsBody({
 }) {
   const { t } = useTranslation("tools");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("tasks");
+  // Los proveedores solo se leen si se pueden ver (se usan para enlazar y mostrar el nombre).
+  const { canView: canViewVendors } = usePlanPermission("vendors");
   const appts = useCollection(appointmentsCollection(planId), mapAppointment);
-  const vendors = useCollection(vendorsQuery(planId), mapVendor);
+  const vendors = useCollection(canViewVendors ? vendorsQuery(planId) : null, mapVendor);
   const { upcoming, past } = React.useMemo(() => groupAppointments(appts.data), [appts.data]);
 
   function openNew(category?: AppointmentCategory) {
@@ -169,7 +175,7 @@ function AppointmentsBody({
     }
   }
 
-  if (view.kind === "form") {
+  if (view.kind === "form" && canEdit) {
     return (
       <AppointmentForm
         // Una instancia nueva por cita: el formulario siempre arranca con sus datos.
@@ -211,7 +217,7 @@ function AppointmentsBody({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {header}
-      {hasItems && (
+      {hasItems && canEdit && (
         <div className="shrink-0 border-y border-line px-5 py-3 sm:px-8">
           <button type="button" onClick={() => openNew()} className={cn(CTA_PRIMARY, "h-10 px-5")}>
             <PlusIcon aria-hidden="true" className="size-4" />
@@ -228,7 +234,13 @@ function AppointmentsBody({
             ))}
           </div>
         ) : !hasItems ? (
-          <EmptyAgenda onStart={openNew} />
+          canEdit ? (
+            <EmptyAgenda onStart={openNew} />
+          ) : (
+            <p className="rounded-2xl bg-lilac-soft px-4 py-4 text-sm text-ink-strong ring-1 ring-lilac-edge">
+              {t("appointments.empty.readOnly")}
+            </p>
+          )
         ) : (
           <div className="flex flex-col gap-7">
             <Group
@@ -236,6 +248,7 @@ function AppointmentsBody({
               items={upcoming}
               emptyText={t("appointments.groups.upcomingEmpty")}
               vendorNames={vendors.data}
+              canEdit={canEdit}
               onEdit={(item) => onView({ kind: "form", item })}
               onDelete={handleDelete}
               onToggle={handleToggle}
@@ -246,6 +259,7 @@ function AppointmentsBody({
                 items={past}
                 muted
                 vendorNames={vendors.data}
+                canEdit={canEdit}
                 onEdit={(item) => onView({ kind: "form", item })}
                 onDelete={handleDelete}
                 onToggle={handleToggle}
@@ -296,6 +310,7 @@ function Group({
   emptyText,
   muted,
   vendorNames,
+  canEdit,
   onEdit,
   onDelete,
   onToggle,
@@ -305,6 +320,7 @@ function Group({
   emptyText?: string;
   muted?: boolean;
   vendorNames: { id: string; name: string }[];
+  canEdit: boolean;
   onEdit: (item: Appointment) => void;
   onDelete: (item: Appointment) => void;
   onToggle: (item: Appointment, done: boolean) => void;
@@ -328,6 +344,7 @@ function Group({
               item={item}
               muted={muted}
               vendorName={vendorNames.find((v) => v.id === item.vendorId)?.name || item.vendorName}
+              canEdit={canEdit}
               onEdit={onEdit}
               onDelete={onDelete}
               onToggle={onToggle}
@@ -343,6 +360,7 @@ function AppointmentRow({
   item,
   muted,
   vendorName,
+  canEdit,
   onEdit,
   onDelete,
   onToggle,
@@ -350,6 +368,7 @@ function AppointmentRow({
   item: Appointment;
   muted?: boolean;
   vendorName: string;
+  canEdit: boolean;
   onEdit: (item: Appointment) => void;
   onDelete: (item: Appointment) => void;
   onToggle: (item: Appointment, done: boolean) => void;
@@ -378,6 +397,7 @@ function AppointmentRow({
           <Checkbox
             checked={item.done}
             onCheckedChange={(v) => onToggle(item, Boolean(v))}
+            disabled={!canEdit}
             aria-label={t("appointments.markDoneAria", { title: item.title })}
             className={cn(CHECKBOX, "mt-0.5")}
           />
@@ -426,10 +446,12 @@ function AppointmentRow({
         )}
       </div>
 
-      <div className="-mr-1 flex shrink-0 flex-col sm:flex-row">
-        <EditIconButton label={t("appointments.editAria", { title: item.title })} onClick={() => onEdit(item)} />
-        <DeleteIconButton ariaLabel={t("appointments.deleteAria", { title: item.title })} onDelete={() => onDelete(item)} />
-      </div>
+      {canEdit && (
+        <div className="-mr-1 flex shrink-0 flex-col sm:flex-row">
+          <EditIconButton label={t("appointments.editAria", { title: item.title })} onClick={() => onEdit(item)} />
+          <DeleteIconButton ariaLabel={t("appointments.deleteAria", { title: item.title })} onDelete={() => onDelete(item)} />
+        </div>
+      )}
     </li>
   );
 }

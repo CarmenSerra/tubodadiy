@@ -8,9 +8,18 @@
   "guestsLink": "Invitation",
   "steps": {
     "label": "Invitation steps",
-    "data": { "title": "Details", "hint": "Names, date and venue" },
-    "design": { "title": "Design", "hint": "Style and colours" },
-    "share": { "title": "Share", "hint": "Publish and send" },
+    "data": {
+      "title": "Details",
+      "hint": "Names, date and venue"
+    },
+    "design": {
+      "title": "Design",
+      "hint": "Style and colours"
+    },
+    "share": {
+      "title": "Share",
+      "hint": "Publish and send"
+    },
     "done": "Completed"
   },
   "nav": {
@@ -108,7 +117,11 @@
     "free": "It is free",
     "mine": "This is your invitation's current link",
     "moves": "If you change it, the previous link will stop working: share the new one. The replies you have already received are kept.",
-    "words": { "one": "wedding", "two": "love", "three": "together" }
+    "words": {
+      "one": "wedding",
+      "two": "love",
+      "three": "together"
+    }
   },
   "preview": {
     "caption": "Live preview",
@@ -205,5 +218,6 @@
       "tapSlot": "Tap a slot on the card to place the element.",
       "finalNote": "This is how it looks to whoever opens your link."
     }
-  }
+  },
+  "readOnlyEmpty": "There’s no invitation yet. Once the couple creates it, you’ll be able to see it here."
 }

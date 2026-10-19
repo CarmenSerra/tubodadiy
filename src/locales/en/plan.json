@@ -79,7 +79,8 @@
     },
     "toast": "Status: {{status}}",
     "error": "Couldn't update the status.",
-    "controlAria": "Status of “{{title}}”: {{status}}. Change"
+    "controlAria": "Status of “{{title}}”: {{status}}. Change",
+    "readOnlyAria": "Status of “{{title}}”: {{status}}"
   },
   "edit": {
     "trigger": "Edit",

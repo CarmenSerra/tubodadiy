@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 
 import { SaveTheDateDialog } from "@/components/stationery/save-the-date-dialog";
 import { STATIONERY_PARAM } from "@/components/stationery/save-the-date-model";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 interface SaveTheDateLauncher {
   open: () => void;
@@ -21,12 +22,14 @@ export function SaveTheDateLauncherProvider({ children }: { children: React.Reac
   const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(false);
   const requested = searchParams.get(STATIONERY_PARAM) === "1";
+  // El diseño de las tarjetas es de «Invitación»: sin poder editarla, el diseñador no se monta.
+  const { canEdit } = usePlanPermission("invitation");
 
   React.useEffect(() => {
     if (!requested) return;
     // Abrir por enlace: sincroniza el diálogo con la URL y consume el parámetro.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOpen(true);
+    if (canEdit) setOpen(true);
     const url = new URL(window.location.href);
     url.searchParams.delete(STATIONERY_PARAM);
     window.history.replaceState(
@@ -34,14 +37,14 @@ export function SaveTheDateLauncherProvider({ children }: { children: React.Reac
       "",
       `${url.pathname}${url.search}${url.hash}`
     );
-  }, [requested]);
+  }, [requested, canEdit]);
 
   const launcher = React.useMemo<SaveTheDateLauncher>(() => ({ open: () => setOpen(true) }), []);
 
   return (
     <SaveTheDateLauncherContext.Provider value={launcher}>
       {children}
-      <SaveTheDateDialog open={open} onOpenChange={setOpen} />
+      {canEdit && <SaveTheDateDialog open={open} onOpenChange={setOpen} />}
     </SaveTheDateLauncherContext.Provider>
   );
 }

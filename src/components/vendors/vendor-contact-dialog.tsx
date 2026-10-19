@@ -30,6 +30,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { appointmentsCollection, mapAppointment } from "@/lib/firebase/appointments";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { Vendor } from "@/lib/types";
 import { splitLines } from "@/lib/vendor-extras";
 import { cn } from "@/lib/utils";
@@ -78,8 +79,10 @@ function LinesBlock({ title, text }: { title: string; text: string | undefined }
 /** Citas de la agenda enlazadas a este proveedor: «2 de 3 hechas». */
 function VendorAppointments({ planId, vendorId }: { planId: string; vendorId: string }) {
   const { t } = useTranslation("vendors");
-  const { data: appointments, loading } = useCollection(appointmentsCollection(planId), mapAppointment);
-  if (loading) return null;
+  // La agenda es de «Tareas»: sin poder verla, esta línea no se muestra (y no se lee).
+  const { canView } = usePlanPermission("tasks");
+  const { data: appointments, loading } = useCollection(canView ? appointmentsCollection(planId) : null, mapAppointment);
+  if (!canView || loading) return null;
   const mine = appointments.filter((a) => a.vendorId === vendorId);
   const done = mine.filter((a) => a.done).length;
   return (

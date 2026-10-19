@@ -126,7 +126,9 @@
         "added": "Destination added",
         "error": "We couldn't save the destination."
       }
-    }
+    },
+    "votesAria_one": "“{{name}}”: {{count}} vote",
+    "votesAria_other": "“{{name}}”: {{count}} votes"
   },
   "itinerary": {
     "title": "Day-by-day itinerary",

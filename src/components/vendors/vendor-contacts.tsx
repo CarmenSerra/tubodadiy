@@ -15,6 +15,7 @@ import type { Vendor, VendorContact } from "@/lib/types";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { newExtraId } from "@/lib/vendor-extras";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 type Draft = Omit<VendorContact, "id">;
 const EMPTY: Draft = { name: "", role: "", phone: "", email: "" };
@@ -22,6 +23,7 @@ const EMPTY: Draft = { name: "", role: "", phone: "", email: "" };
 /** Personas de contacto de un proveedor (además de los datos principales de su ficha). */
 export function VendorContacts({ planId, vendor }: { planId: string; vendor: Vendor }) {
   const { t } = useTranslation("vendors");
+  const { canEdit } = usePlanPermission("vendors");
   const contacts = vendor.contacts ?? [];
   // `null` = cerrado; "new" = añadiendo; un id = editando esa persona.
   const [editing, setEditing] = React.useState<string | null>(null);
@@ -94,6 +96,7 @@ export function VendorContacts({ planId, vendor }: { planId: string; vendor: Ven
                     )}
                   </div>
                 </div>
+                {canEdit && (
                 <div className="-mr-1 flex shrink-0">
                   <button
                     type="button"
@@ -112,13 +115,14 @@ export function VendorContacts({ planId, vendor }: { planId: string; vendor: Ven
                     <Trash2Icon aria-hidden="true" />
                   </button>
                 </div>
+                )}
               </li>
             )
           )}
         </ul>
       )}
 
-      {editing === "new" ? (
+      {!canEdit ? null : editing === "new" ? (
         <ContactForm
           initial={EMPTY}
           onCancel={() => setEditing(null)}

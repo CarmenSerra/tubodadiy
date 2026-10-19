@@ -37,6 +37,7 @@ export function InvitationDataStep({
   filledFromPlan,
   onRefresh,
   gift,
+  readOnly = false,
 }: {
   planId: string;
   form: InvitationContent;
@@ -49,6 +50,8 @@ export function InvitationDataStep({
   filledFromPlan: boolean;
   onRefresh: () => void;
   gift: GiftState;
+  /** Solo ver: sin enlace para configurar el regalo (se hace en el Resumen, editando). */
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation("invitationPage");
   const giftIsList = gift.planGift?.mode === "list";
@@ -149,7 +152,7 @@ export function InvitationDataStep({
                     ? t("gift.notShown")
                     : t("gift.notChosen")}
             </p>
-            {!gift.available && (
+            {!gift.available && !readOnly && (
               <Link
                 href={giftToolHref(planId)}
                 className="mt-2 inline-flex min-h-11 items-center rounded-md text-sm font-medium text-ink underline decoration-lilac decoration-2 underline-offset-4 outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-lilac"

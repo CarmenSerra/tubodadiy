@@ -9,6 +9,7 @@ import { CTA_SECONDARY, FOCUS } from "@/components/dashboard/ui";
 import { PANEL_IN_MS, PANEL_OUT_MS } from "@/components/plan/phase-celebration";
 import { PhaseLock } from "@/components/plan/phase-lock";
 import { StepCard } from "@/components/plan/step-card";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { PlanStep } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -29,8 +30,8 @@ export function PhasePanel({
   onGoToNext,
   softNote,
   onDismissNote,
-  locked = false,
-  lockable = false,
+  locked: lockedProp = false,
+  lockable: lockableProp = false,
   onUnlock,
   onLock,
   recommendedId,
@@ -66,6 +67,10 @@ export function PhasePanel({
   animateOut?: boolean;
 }) {
   const { t } = useTranslation("plan");
+  // Bloquear y desbloquear fases se guarda en el plan: quien solo puede ver las ve abiertas, sin candado.
+  const { canEdit } = usePlanPermission("tasks");
+  const locked = lockedProp && canEdit;
+  const lockable = lockableProp && canEdit;
   // Al desbloquear desaparece el candado que tenía el foco: llévalo al panel.
   const panelRef = React.useRef<HTMLDivElement>(null);
   const wasLocked = React.useRef(locked);

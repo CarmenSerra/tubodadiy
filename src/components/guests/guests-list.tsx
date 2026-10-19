@@ -32,6 +32,7 @@ import { InvitationLink } from "@/components/invitation/invitation-link";
 import { InvitationResponses } from "@/components/invitation/invitation-responses";
 import { GuestsExportButton } from "@/components/export/export-buttons";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { guestsQuery, mapGuest } from "@/lib/firebase/plans";
 import { deleteGuest, restoreGuest, updateGuest } from "@/lib/firebase/mutations";
 import type { DietId } from "@/lib/diets";
@@ -88,6 +89,9 @@ export function GuestsList({
   initialStatus?: RsvpStatus;
 }) {
   const { t } = useTranslation("guests");
+  const { canEdit } = usePlanPermission("guests");
+  // El botón «Invitación» lleva a otra pestaña: solo si se puede ver.
+  const { canView: canViewInvitation } = usePlanPermission("invitation");
   const { data: stored, loading } = useCollection(guestsQuery(planId), mapGuest);
   const [filters, setFilters] = React.useState<GuestFilters>(() =>
     initialStatus ? { ...NO_FILTERS, status: initialStatus } : NO_FILTERS
@@ -162,12 +166,16 @@ export function GuestsList({
         <p className="mt-1 text-sm text-ink-muted">{t("list.description")}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <InvitationLink planId={planId} />
+        {canViewInvitation && <InvitationLink planId={planId} />}
         {!loading && guests.length > 0 && (
           <>
             <GuestsExportButton planId={planId} guests={guests} />
-            <GuestFormDialog planId={planId} groups={groups} households={households} />
-            <GuestIdeas planId={planId} groups={groups} align="end" />
+            {canEdit && (
+              <>
+                <GuestFormDialog planId={planId} groups={groups} households={households} />
+                <GuestIdeas planId={planId} groups={groups} align="end" />
+              </>
+            )}
           </>
         )}
       </div>
@@ -198,10 +206,12 @@ export function GuestsList({
           <p className="mt-2 max-w-sm text-sm text-ink-muted">
             {t("list.empty.text")}
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            <GuestFormDialog planId={planId} households={households} />
-            <GuestIdeas planId={planId} groups={groups} align="center" />
-          </div>
+          {canEdit && (
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              <GuestFormDialog planId={planId} households={households} />
+              <GuestIdeas planId={planId} groups={groups} align="center" />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -290,6 +300,7 @@ export function GuestsList({
                           planId={planId}
                           groups={groups}
                           households={households}
+                          canEdit={canEdit}
                           onRsvp={handleRsvpChange}
                           onDelete={handleDelete}
                         />
@@ -341,6 +352,7 @@ export function GuestsList({
                           planId={planId}
                           groups={groups}
                           households={households}
+                          canEdit={canEdit}
                           onRsvp={handleRsvpChange}
                           onDelete={handleDelete}
                         />
@@ -358,7 +370,7 @@ export function GuestsList({
         </TabsContent>
 
         <TabsContent value="gifts">
-          <GuestThanks planId={planId} guests={guests} />
+          <GuestThanks planId={planId} guests={guests} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
 
@@ -393,11 +405,13 @@ interface RowProps {
   planId: string;
   groups: string[];
   households: string[];
+  /** Solo ver: sin editar, borrar ni cambiar la respuesta. */
+  canEdit: boolean;
   onRsvp: (guest: Guest, status: RsvpStatus) => void;
   onDelete: (id: string) => void;
 }
 
-function MobileCard({ guest, planId, groups, households, onRsvp, onDelete }: RowProps) {
+function MobileCard({ guest, planId, groups, households, canEdit, onRsvp, onDelete }: RowProps) {
   const { t } = useTranslation("guests");
   const meta = [guest.groupName.trim() || t("list.noGroup"), guest.householdName.trim()].filter(Boolean).join(" · ");
   const hasExtras =
@@ -411,19 +425,21 @@ function MobileCard({ guest, planId, groups, households, onRsvp, onDelete }: Row
           </p>
           <p className="mt-0.5 break-words text-sm text-ink-muted">{meta}</p>
         </div>
-        <div className="-mr-2 -mt-1 flex shrink-0">
-          <GuestFormDialog
-            planId={planId}
-            guest={guest}
-            groups={groups}
-            households={households}
-            trigger={<EditGuestTrigger guestName={guest.name} />}
-          />
-          <DeleteIconButton
-            ariaLabel={t("list.deleteGuest", { name: guest.name })}
-            onDelete={() => onDelete(guest.id)}
-          />
-        </div>
+        {canEdit && (
+          <div className="-mr-2 -mt-1 flex shrink-0">
+            <GuestFormDialog
+              planId={planId}
+              guest={guest}
+              groups={groups}
+              households={households}
+              trigger={<EditGuestTrigger guestName={guest.name} />}
+            />
+            <DeleteIconButton
+              ariaLabel={t("list.deleteGuest", { name: guest.name })}
+              onDelete={() => onDelete(guest.id)}
+            />
+          </div>
+        )}
       </div>
       {hasExtras && (
         <div className="flex flex-col gap-1.5 text-sm text-ink-muted">
@@ -460,12 +476,13 @@ function MobileCard({ guest, planId, groups, households, onRsvp, onDelete }: Row
         name={guest.name}
         value={guest.rsvpStatus}
         onChange={(status) => onRsvp(guest, status)}
+        readOnly={!canEdit}
       />
     </li>
   );
 }
 
-function TableRow({ guest, planId, groups, households, onRsvp, onDelete }: RowProps) {
+function TableRow({ guest, planId, groups, households, canEdit, onRsvp, onDelete }: RowProps) {
   const { t } = useTranslation("guests");
   return (
     <tr className="border-t border-line transition-colors hover:bg-page/60">
@@ -493,6 +510,7 @@ function TableRow({ guest, planId, groups, households, onRsvp, onDelete }: RowPr
           name={guest.name}
           value={guest.rsvpStatus}
           onChange={(status) => onRsvp(guest, status)}
+          readOnly={!canEdit}
         />
       </td>
       <td className="max-w-48 px-3 py-3 align-middle text-ink-muted">
@@ -516,19 +534,21 @@ function TableRow({ guest, planId, groups, households, onRsvp, onDelete }: RowPr
         )}
       </td>
       <td className="px-3 py-3 align-middle">
-        <div className="flex justify-end">
-          <GuestFormDialog
-            planId={planId}
-            guest={guest}
-            groups={groups}
-            households={households}
-            trigger={<EditGuestTrigger guestName={guest.name} />}
-          />
-          <DeleteIconButton
-            ariaLabel={t("list.deleteGuest", { name: guest.name })}
-            onDelete={() => onDelete(guest.id)}
-          />
-        </div>
+        {canEdit && (
+          <div className="flex justify-end">
+            <GuestFormDialog
+              planId={planId}
+              guest={guest}
+              groups={groups}
+              households={households}
+              trigger={<EditGuestTrigger guestName={guest.name} />}
+            />
+            <DeleteIconButton
+              ariaLabel={t("list.deleteGuest", { name: guest.name })}
+              onDelete={() => onDelete(guest.id)}
+            />
+          </div>
+        )}
       </td>
     </tr>
   );

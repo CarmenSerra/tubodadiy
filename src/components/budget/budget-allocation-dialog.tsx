@@ -23,6 +23,7 @@ import { saveBudgetAllocations, useBudgetPlan } from "@/lib/firebase/budget-plan
 import { mapBudgetItem, budgetItemsQuery } from "@/lib/firebase/plans";
 import { updatePlanDetails } from "@/lib/firebase/mutations";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useLanguage } from "@/lib/i18n/provider";
 import { BUDGET_CATEGORY_IDEAS } from "@/lib/ideas";
 import { cn } from "@/lib/utils";
@@ -412,6 +413,8 @@ export function useOpenAllocationFromLink(onOpen: () => void) {
  */
 export function BudgetAllocationFromLink() {
   const [open, setOpen] = React.useState(false);
+  const { canEdit } = usePlanPermission("budget");
   useOpenAllocationFromLink(() => setOpen(true));
-  return <BudgetAllocationDialog open={open} onOpenChange={setOpen} />;
+  // El diálogo lee las partidas del presupuesto: sin poder editarlo, ni se monta.
+  return canEdit ? <BudgetAllocationDialog open={open} onOpenChange={setOpen} /> : null;
 }

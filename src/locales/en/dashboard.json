@@ -192,6 +192,16 @@
     "ownerOnly": "Only the couple (owner and partner) can send invitations and adjust access. If you'd like to add someone, let them know and they'll gladly invite them.",
     "access": {
       "adjust": "Adjust access"
+    },
+    "remove": {
+      "action": "Remove from plan",
+      "aria": "Remove {{name}} from the plan",
+      "title": "Remove {{name}} from the plan?",
+      "text": "They will no longer see or edit this wedding. Whatever they added stays in the plan. If you want them back later, you can invite them again with a new link.",
+      "cancel": "Keep them",
+      "confirm": "Remove from plan",
+      "done": "{{name}} is no longer in the plan.",
+      "error": "Could not remove from the plan. Please try again."
     }
   },
   "invite": {

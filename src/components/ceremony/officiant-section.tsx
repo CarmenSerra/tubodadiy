@@ -31,6 +31,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlanContext } from "@/lib/context/plan-context";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { formatMoney } from "@/lib/i18n/format";
 import { useLanguage } from "@/lib/i18n/provider";
 import type { OfficiantKind, PlanOfficiant } from "@/lib/types";
@@ -112,6 +113,9 @@ export function OfficiantSection() {
 function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant | null }) {
   const { t } = useTranslation("ceremony");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("ceremony");
+  // Los honorarios se pueden apuntar en la ficha sin más; añadirlos al presupuesto pide poder editarlo.
+  const { canEdit: canEditBudget } = usePlanPermission("budget");
   const initial = React.useMemo(() => toDraft(saved), [saved]);
   const [draft, setDraft] = React.useState<OfficiantDraft>(initial);
   const [feeText, setFeeText] = React.useState(initial.fee !== null ? String(initial.fee) : "");
@@ -124,7 +128,12 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
   const feeNumber = feeText.trim() ? Number(feeText.replace(",", ".")) : null;
   const feeValid = feeNumber === null || (Number.isFinite(feeNumber) && feeNumber >= 0);
   const fee = feeNumber !== null && feeValid && feeNumber > 0 ? feeNumber : null;
-  const next: OfficiantDraft = { ...draft, fee, feeInBudget: fee !== null && draft.feeInBudget };
+  const next: OfficiantDraft = {
+    ...draft,
+    fee,
+    // Sin permiso sobre el presupuesto, esta casilla se queda como estaba guardada.
+    feeInBudget: canEditBudget ? fee !== null && draft.feeInBudget : initial.feeInBudget,
+  };
   const dirty = JSON.stringify(next) !== JSON.stringify(initial) || !feeValid;
   // El nombre es obligatorio: sin él no se guarda. El error sale en cuanto hay algo más
   // escrito (o tras intentarlo); el botón explica por qué está desactivado.
@@ -139,8 +148,10 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
   async function commit(value: OfficiantDraft | null, mode: "save" | "clear") {
     setSaving(mode);
     try {
-      await saveOfficiant(planId, value && !isOfficiantEmpty(value) ? value : null);
+      const { budgetSkipped } = await saveOfficiant(planId, value && !isOfficiantEmpty(value) ? value : null);
       toast.success(mode === "clear" ? t("officiant.toast.cleared") : t("officiant.toast.saved"));
+      // Guardado igualmente; lo único que no se ha hecho es tocar el presupuesto.
+      if (budgetSkipped) toast(t("officiant.toast.budgetSkipped"));
       // El formulario se reinicia solo al llegar lo guardado; al quitarla, se vacía.
       if (mode === "clear") {
         setDraft(EMPTY_OFFICIANT);
@@ -186,7 +197,8 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-      <p className="text-sm text-ink-muted">{t("officiant.required.hint")}</p>
+      <fieldset disabled={!canEdit} className="contents">
+      {canEdit && <p className="text-sm text-ink-muted">{t("officiant.required.hint")}</p>}
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id={id("name")} label={t("officiant.fields.name")} error={shownErrors.name} required>
           <Input
@@ -291,7 +303,9 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
           >
             <span className="text-sm font-medium text-ink">{t("officiant.fee.addToBudget")}</span>
             <span className="text-sm font-normal leading-snug text-ink-muted">
-              {fee === null
+              {!canEditBudget
+                ? t("officiant.fee.noBudgetAccess")
+                : fee === null
                 ? t("officiant.fee.needFee")
                 : next.feeInBudget
                   ? t("officiant.fee.linked", {
@@ -304,7 +318,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
           <Switch
             id={id("budget")}
             checked={next.feeInBudget}
-            disabled={fee === null}
+            disabled={fee === null || !canEditBudget}
             onCheckedChange={(v) => patch({ feeInBudget: v })}
             className={SWITCH}
           />
@@ -329,6 +343,9 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
         />
       </Field>
 
+      </fieldset>
+
+      {canEdit && (
       <div className="flex flex-col gap-3 border-t border-line pt-4">
         {!nameOk && (
           <p id={saveHintId} className="text-sm text-ink-muted sm:text-right">
@@ -358,6 +375,7 @@ function OfficiantForm({ planId, saved }: { planId: string; saved: PlanOfficiant
           </button>
         </div>
       </div>
+      )}
     </form>
   );
 }

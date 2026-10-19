@@ -20,6 +20,7 @@ import {
 import { HONEYMOON_CATEGORY, honeymoonBookReached } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { syncStepQuietly } from "@/lib/firebase/mutations";
+import { canSyncTasks } from "@/lib/firebase/sync-access";
 import {
   DEFAULT_SETTINGS,
   SUGGESTED_PACKING,
@@ -149,6 +150,7 @@ export function mapPackingItem(id: string, data: DocumentData): PackingItem {
  * abrir el plan) solo marca, para no quitar un tick puesto a mano. Nunca lanza.
  */
 export async function syncHoneymoonDestinationTask(planId: string, markOnly = false): Promise<void> {
+  if (!canSyncTasks(planId, "honeymoon")) return;
   try {
     const snap = await getDocs(destinationsQuery(planId));
     const chosen = snap.docs.some((d) => mapDestination(d.id, d.data()).chosen);
@@ -161,6 +163,7 @@ export async function syncHoneymoonDestinationTask(planId: string, markOnly = fa
 
 /** «Reservar vuelos y alojamiento»: se marca con una reserva de vuelo u hotel (no se desmarca sola). Nunca lanza. */
 export async function syncHoneymoonBookTask(planId: string): Promise<void> {
+  if (!canSyncTasks(planId, "honeymoon")) return;
   try {
     const snap = await getDocs(bookingsQuery(planId));
     const reached = honeymoonBookReached(snap.docs.map((d) => mapBooking(d.id, d.data())));

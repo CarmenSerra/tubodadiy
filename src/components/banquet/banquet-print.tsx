@@ -6,6 +6,7 @@ import { ArrowLeftIcon, Loader2, PrinterIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { RequireAuth } from "@/components/auth/require-auth";
+import { PrintSectionGate } from "@/components/export/print-frame";
 import { buildTableViews, guestDietIds, isComing, seatsOf, unseatedGuests } from "@/components/banquet/banquet-model";
 import { useBanquet } from "@/components/banquet/use-banquet";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
@@ -145,7 +146,9 @@ export function BanquetPrintView({ planId }: { planId: string }) {
   return (
     <RequireAuth>
       <PlanProvider planId={planId}>
-        <PrintDocument planId={planId} />
+        <PrintSectionGate section="banquet">
+          <PrintDocument planId={planId} />
+        </PrintSectionGate>
       </PlanProvider>
     </RequireAuth>
   );

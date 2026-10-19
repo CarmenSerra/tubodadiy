@@ -37,11 +37,13 @@ import {
 import { createDayOfItem, deleteDayOfItem, restoreDayOfItem, updateDayOfItem } from "@/lib/firebase/dayof";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /** «Música de la ceremonia»: qué suena en la entrada, las firmas, la salida… */
 export function MusicSection() {
   const { t } = useTranslation("ceremony");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("ceremony");
   const { data, loading, error } = useCeremonyMusic(planId);
   const editor = useEditor<CeremonyTrack>();
 
@@ -58,14 +60,14 @@ export function MusicSection() {
       icon={<Music2Icon />}
       title={t("music.title")}
       description={t("music.description")}
-      action={data.length > 0 ? addButton : undefined}
+      action={canEdit && data.length > 0 ? addButton : undefined}
     >
       <ListBody
         loading={loading}
         error={error}
         empty={data.length === 0}
         emptyText={t("music.empty")}
-        emptyAction={addButton}
+        emptyAction={canEdit ? addButton : undefined}
       >
         <ul>
           {data.map((track) => (
@@ -87,7 +89,7 @@ export function MusicSection() {
           ))}
         </ul>
       </ListBody>
-      <DayDialog open={editor.open} onOpenChange={editor.setOpen}>
+      <DayDialog open={editor.open} onOpenChange={editor.setOpen} readOnly={!canEdit}>
         <TrackForm
           key={editor.item?.id ?? "new"}
           planId={planId}

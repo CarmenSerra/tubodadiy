@@ -23,6 +23,7 @@ import {
 import { VenueDiscovery } from "@/components/vendors/venue-discovery";
 import { vendorsQuery, mapVendor } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { cn } from "@/lib/utils";
 
 const SECTION_ACTION =
@@ -51,6 +52,7 @@ function SectionSkeleton() {
 
 export function VendorsList({ planId }: { planId: string }) {
   const { t } = useTranslation("vendors");
+  const { canEdit } = usePlanPermission("vendors");
   const { data: vendors, loading } = useCollection(vendorsQuery(planId), mapVendor);
   const [locationFilter, setLocationFilter] = React.useState<LocationFilter>(null);
   const [discoverOpen, setDiscoverOpen] = React.useState(false);
@@ -116,13 +118,13 @@ export function VendorsList({ planId }: { planId: string }) {
                   }
                 />
               )}
-              {isVenueCategory(category) && options.length > 0 && (
+              {canEdit && isVenueCategory(category) && options.length > 0 && (
                 <button type="button" onClick={() => setDiscoverOpen(true)} className={SECTION_ACTION}>
                   <CompassIcon className="size-4" aria-hidden="true" />
                   {t("list.discover")}
                 </button>
               )}
-              {options.length > 0 && (
+              {canEdit && options.length > 0 && (
                 <VendorFormDialog
                   planId={planId}
                   defaultCategory={category}
@@ -138,8 +140,8 @@ export function VendorsList({ planId }: { planId: string }) {
           </div>
           {options.length === 0 ? (
             <>
-              <EmptyVendorCard planId={planId} category={category} />
-              {isVenueCategory(category) && <VenueInvitation onOpen={() => setDiscoverOpen(true)} />}
+              <EmptyVendorCard planId={planId} category={category} canEdit={canEdit} />
+              {canEdit && isVenueCategory(category) && <VenueInvitation onOpen={() => setDiscoverOpen(true)} />}
             </>
           ) : (
             <VendorCarousel
@@ -147,18 +149,20 @@ export function VendorsList({ planId }: { planId: string }) {
               slides={options.map((vendor) => ({
                 key: vendor.id,
                 name: vendor.name,
-                render: (active) => <VendorCard planId={planId} vendor={vendor} active={active} />,
+                render: (active) => <VendorCard planId={planId} vendor={vendor} active={active} canEdit={canEdit} />,
               }))}
             />
           )}
         </section>
       ))}
-      <VenueDiscovery
-        planId={planId}
-        existingPlaceIds={existingPlaceIds}
-        open={discoverOpen}
-        onOpenChange={setDiscoverOpen}
-      />
+      {canEdit && (
+        <VenueDiscovery
+          planId={planId}
+          existingPlaceIds={existingPlaceIds}
+          open={discoverOpen}
+          onOpenChange={setDiscoverOpen}
+        />
+      )}
     </div>
   );
 }

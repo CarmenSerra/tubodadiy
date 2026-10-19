@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { appointmentsCollection, mapAppointment } from "@/lib/firebase/appointments";
 import { updateVendor } from "@/lib/firebase/mutations";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useLanguage } from "@/lib/i18n/provider";
 import type { Vendor } from "@/lib/types";
@@ -84,7 +85,10 @@ function CompareBody({ planId, vendors }: { planId: string; vendors: Vendor[] })
   const { lang } = useLanguage();
   const [picked, setPicked] = React.useState<string[]>(() => initialPick(vendors));
   const [choosing, setChoosing] = React.useState<string | null>(null);
-  const { data: appointments } = useCollection(appointmentsCollection(planId), mapAppointment);
+  const { canEdit } = usePlanPermission("vendors");
+  // La fila de citas lee la agenda («Tareas»): sin poder verla, no se pide ni se muestra.
+  const { canView: canViewAgenda } = usePlanPermission("tasks");
+  const { data: appointments } = useCollection(canViewAgenda ? appointmentsCollection(planId) : null, mapAppointment);
 
   // Solo cuentan los elegidos que siguen existiendo (por si se borra uno con el comparador abierto).
   const selected = picked.map((id) => vendors.find((v) => v.id === id)).filter((v): v is Vendor => Boolean(v));
@@ -171,19 +175,19 @@ function CompareBody({ planId, vendors }: { planId: string; vendors: Vendor[] })
         );
       },
     },
-    {
+    ...(!canViewAgenda ? [] : [{
       id: "appointments",
       label: t("compare.rows.appointments"),
-      cell: (v) => {
+      cell: (v: Vendor) => {
         const mine = appointments.filter((a) => a.vendorId === v.id);
         if (mine.length === 0) return <span className="text-ink-muted">{t("compare.noAppointments")}</span>;
         return t("compare.appointmentsDone", { done: mine.filter((a) => a.done).length, count: mine.length });
       },
-    },
+    }]),
   ];
 
   const chooseButton = (v: Vendor) =>
-    v.status === "chosen" ? (
+    v.status !== "chosen" && !canEdit ? null : v.status === "chosen" ? (
       <span className="inline-flex h-11 items-center gap-2 rounded-full bg-deep px-5 text-sm font-medium text-on-solid">
         <CheckIcon className="size-4" aria-hidden="true" />
         {t("compare.chosen")}

@@ -14,10 +14,14 @@ import { CeremonySection } from "@/components/ceremony/section";
 import { TimelineSection } from "@/components/ceremony/timeline-section";
 import { CeremonyDialog } from "@/components/plan-tools/ceremony-dialog";
 import { LegalDocsBody } from "@/components/plan-tools/legal-docs-dialog";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /** Pestaña «Ceremonia»: tipo, oficiante, documentos, lecturas, música, testigos y resumen del cronograma. */
 export function CeremonyPage() {
   const { t } = useTranslation("ceremony");
+  const { canEdit } = usePlanPermission("ceremony");
+  // El resumen del cronograma lee la escaleta, que es de «Día B»: sin poder verla, no se muestra.
+  const { canView: canViewTimeline } = usePlanPermission("dayof");
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const openPicker = React.useCallback(() => setPickerOpen(true), []);
 
@@ -35,7 +39,7 @@ export function CeremonyPage() {
     <div className="flex flex-col gap-5">
       <CeremonySummary />
       <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
-        <CeremonyTypeSection onPick={openPicker} />
+        <CeremonyTypeSection onPick={canEdit ? openPicker : undefined} />
         <OfficiantSection />
       </div>
       <CeremonySection
@@ -44,15 +48,15 @@ export function CeremonyPage() {
         title={t("legal.title")}
         description={t("legal.description")}
       >
-        <LegalDocsBody onChooseCeremony={openPicker} />
+        <LegalDocsBody onChooseCeremony={canEdit ? openPicker : undefined} />
       </CeremonySection>
       <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
         <ReadingsSection />
         <MusicSection />
       </div>
       <WitnessesSection />
-      <TimelineSection />
-      <CeremonyDialog open={pickerOpen} onOpenChange={setPickerOpen} />
+      {canViewTimeline && <TimelineSection />}
+      {canEdit && <CeremonyDialog open={pickerOpen} onOpenChange={setPickerOpen} />}
     </div>
   );
 }

@@ -28,6 +28,7 @@ import { formatDateValue, formatMoney } from "@/lib/i18n/format";
 import { useLanguage } from "@/lib/i18n/provider";
 import type { Vendor } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 const TEXTAREA =
   "min-h-20 rounded-xl border-line-strong bg-field text-base text-ink-strong shadow-none placeholder:text-ink-placeholder focus-visible:ring-lilac focus-visible:ring-offset-0 sm:text-sm";
@@ -38,6 +39,7 @@ const PICKER =
 export function RingsSection({ planId, rings, vendors }: { planId: string; rings: Rings; vendors: Vendor[] }) {
   const { t } = useTranslation("look");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("style");
   const uid = React.useId();
   const id = (name: string) => `${uid}-${name}`;
 
@@ -135,6 +137,7 @@ export function RingsSection({ planId, rings, vendors }: { planId: string; rings
       )}
 
       <form onSubmit={handleSubmit} noValidate className={cn(LK_CARD, "flex flex-col gap-5 p-4 sm:p-6")}>
+        <fieldset disabled={!canEdit} className="contents">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field id={id("model")} label={t("rings.fields.model")} optional>
             <Input
@@ -234,13 +237,17 @@ export function RingsSection({ planId, rings, vendors }: { planId: string; rings
           <Textarea id={id("notes")} value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} maxLength={600} className={TEXTAREA} />
         </Field>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button type="submit" disabled={submitting || !dirty} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
-            {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-            {t("form.save")}
-          </button>
-          {dirty && !submitting && <p className="text-sm text-ink-muted">{t("rings.unsaved")}</p>}
-        </div>
+        </fieldset>
+
+        {canEdit && (
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="submit" disabled={submitting || !dirty} className={cn(CTA_PRIMARY, "disabled:opacity-60")}>
+              {submitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+              {t("form.save")}
+            </button>
+            {dirty && !submitting && <p className="text-sm text-ink-muted">{t("rings.unsaved")}</p>}
+          </div>
+        )}
       </form>
     </div>
   );

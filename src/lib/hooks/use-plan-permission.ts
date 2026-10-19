@@ -8,7 +8,7 @@ import { mapMember } from "@/lib/firebase/plans";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useDoc } from "@/lib/hooks/use-doc";
 import { resolveLevels, type PlanSection, type SectionLevel } from "@/lib/permissions";
-import type { PlanRole } from "@/lib/types";
+import type { PlanRole, WeddingPlan } from "@/lib/types";
 
 export interface PlanAccess {
   /** Rol de la persona en este plan; null mientras carga o si no es miembro. */
@@ -17,6 +17,8 @@ export interface PlanAccess {
   levels: Record<PlanSection, SectionLevel>;
   /** Dueño/a o pareja: gestionan el equipo y los permisos. */
   isCouple: boolean;
+  /** Puede tocar los datos generales del plan (título y fecha): pareja, planner o miembro antiguo. */
+  isCore: boolean;
   loading: boolean;
 }
 
@@ -30,29 +32,42 @@ const FULL_ACCESS = resolveLevels("owner", undefined);
  * rol y `permissions` de su doc en `members`.
  */
 export function usePlanAccess(): PlanAccess {
-  const { planId, plan, loading: planLoading } = usePlanContext();
+  const { planId, plan, loading } = usePlanContext();
+  return useAccessForPlan(planId, plan, loading);
+}
+
+/**
+ * Lo mismo para un plan concreto fuera de `<PlanProvider>` (p. ej. la home, que
+ * muestra el plan destacado). `plan` null = aún sin cargar o sin acceso.
+ */
+export function useAccessForPlan(
+  planId: string,
+  plan: WeddingPlan | null,
+  planLoading: boolean
+): PlanAccess {
   const { user } = useAuth();
   const uid = user?.uid ?? null;
   const isOwner = Boolean(plan && uid && plan.ownerId === uid);
   const isMember = Boolean(plan && uid && plan.memberIds.includes(uid));
 
   const ref = React.useMemo(
-    () => (uid && isMember && !isOwner ? memberDocRef(planId, uid) : null),
+    () => (planId && uid && isMember && !isOwner ? memberDocRef(planId, uid) : null),
     [planId, uid, isMember, isOwner]
   );
   const { data: member, loading: memberLoading } = useDoc(ref, mapMember);
 
   return React.useMemo<PlanAccess>(() => {
-    if (planLoading) return { role: null, levels: NO_ACCESS, isCouple: false, loading: true };
-    if (!plan || !isMember) return { role: null, levels: NO_ACCESS, isCouple: false, loading: false };
-    if (isOwner) return { role: "owner", levels: FULL_ACCESS, isCouple: true, loading: false };
-    if (memberLoading) return { role: null, levels: NO_ACCESS, isCouple: false, loading: true };
+    if (planLoading) return { role: null, levels: NO_ACCESS, isCouple: false, isCore: false, loading: true };
+    if (!plan || !isMember) return { role: null, levels: NO_ACCESS, isCouple: false, isCore: false, loading: false };
+    if (isOwner) return { role: "owner", levels: FULL_ACCESS, isCouple: true, isCore: true, loading: false };
+    if (memberLoading) return { role: null, levels: NO_ACCESS, isCouple: false, isCore: false, loading: true };
     // Miembro anterior a los roles (sin doc propio): conserva el acceso total.
-    if (!member) return { role: null, levels: FULL_ACCESS, isCouple: false, loading: false };
+    if (!member) return { role: null, levels: FULL_ACCESS, isCouple: false, isCore: true, loading: false };
     return {
       role: member.role,
       levels: resolveLevels(member.role, member.permissions),
       isCouple: member.role === "partner",
+      isCore: member.role === "partner" || member.role === "planner",
       loading: false,
     };
   }, [planLoading, plan, isMember, isOwner, memberLoading, member]);

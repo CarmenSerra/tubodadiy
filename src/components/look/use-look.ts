@@ -32,6 +32,7 @@ import { appointmentsCollection, mapAppointment, type Appointment } from "@/lib/
 import { mapVendor, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { useDoc } from "@/lib/hooks/use-doc";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { Vendor } from "@/lib/types";
 
 export interface LookData {
@@ -59,8 +60,11 @@ export function useLook(planId: string): LookData {
   const ringsDoc = useDoc(ringsRef(planId), mapRings);
   const settingsDoc = useDoc(settingsRef(planId), mapSettings);
   // Lecturas de apoyo: si fallan, la página sigue funcionando sin ellas.
-  const appts = useCollection(appointmentsCollection(planId), mapAppointment);
-  const vendors = useCollection(vendorsQuery(planId), mapVendor);
+  // Proveedores y agenda son de otras secciones: solo se leen si se pueden ver.
+  const { canView: canViewAgenda } = usePlanPermission("tasks");
+  const { canView: canViewVendors } = usePlanPermission("vendors");
+  const appts = useCollection(canViewAgenda ? appointmentsCollection(planId) : null, mapAppointment);
+  const vendors = useCollection(canViewVendors ? vendorsQuery(planId) : null, mapVendor);
 
   const outfits = React.useMemo(
     () => [...looks.data].sort((a, b) => PEOPLE.indexOf(a.who) - PEOPLE.indexOf(b.who) || byCreated(a, b)),

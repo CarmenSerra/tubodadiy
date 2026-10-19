@@ -17,6 +17,7 @@ import type { Lang } from "@/lib/i18n/config";
 import { useLanguage } from "@/lib/i18n/provider";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 function longDate(value: string, lang: Lang): string {
   if (!value) return "";
@@ -47,6 +48,7 @@ export function Itinerary({
 }) {
   const { t } = useTranslation("honeymoon");
   const { lang } = useLanguage();
+  const { canEdit } = usePlanPermission("honeymoon");
   const orderForNew = nextOrder(days.map((d) => d.order));
   const listRef = React.useRef<HTMLOListElement>(null);
   const pendingFocus = React.useRef<{ id: string; dir: "up" | "down" } | null>(null);
@@ -97,7 +99,7 @@ export function Itinerary({
         icon={<MapIcon />}
         title={t("itinerary.title")}
         description={t("itinerary.description")}
-        actions={days.length > 0 ? addDialog : undefined}
+        actions={canEdit && days.length > 0 ? addDialog : undefined}
       />
 
       {days.length === 0 ? (
@@ -105,15 +107,17 @@ export function Itinerary({
           scene="isla"
           title={t("itinerary.empty.title")}
           action={
-            <DayFormDialog
-              planId={planId}
-              nextOrder={orderForNew}
-              trigger={
-                <button type="button" className={CTA_PRIMARY}>
-                  {t("itinerary.empty.action")}
-                </button>
-              }
-            />
+            canEdit ? (
+              <DayFormDialog
+                planId={planId}
+                nextOrder={orderForNew}
+                trigger={
+                  <button type="button" className={CTA_PRIMARY}>
+                    {t("itinerary.empty.action")}
+                  </button>
+                }
+              />
+            ) : undefined
           }
         >
           {t("itinerary.empty.text")}
@@ -159,6 +163,7 @@ export function Itinerary({
                           {day.place}
                         </h3>
                       </div>
+                      {canEdit && (
                       <div className="-mr-2 -mt-1 flex shrink-0">
                         <button
                           type="button"
@@ -191,6 +196,7 @@ export function Itinerary({
                           onDelete={() => handleDelete(day, index)}
                         />
                       </div>
+                      )}
                     </div>
 
                     {day.activities.length > 0 ? (
@@ -213,6 +219,7 @@ export function Itinerary({
                     ) : (
                       <div className="mt-3 flex flex-wrap items-center gap-x-2 border-t border-dashed border-line pt-2 text-sm text-ink-muted">
                         {t("itinerary.noActivities")}
+                        {canEdit && (
                         <DayFormDialog
                           planId={planId}
                           day={day}
@@ -223,6 +230,7 @@ export function Itinerary({
                             </button>
                           }
                         />
+                        )}
                       </div>
                     )}
                   </article>

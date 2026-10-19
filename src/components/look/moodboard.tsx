@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { compressImageToDataUri } from "@/lib/image-compress";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /** Paleta de colores y tablero de inspiración (parte de «Decoración y flores»). */
 export function Moodboard({ planId, images, palette }: { planId: string; images: MoodImage[]; palette: string[] }) {
@@ -38,6 +39,7 @@ export function Moodboard({ planId, images, palette }: { planId: string; images:
 
 function Palette({ planId, palette }: { planId: string; palette: string[] }) {
   const { t } = useTranslation("look");
+  const { canEdit } = usePlanPermission("style");
   const uid = React.useId();
   const [picked, setPicked] = React.useState("#927aac");
   const [hex, setHex] = React.useState("");
@@ -88,6 +90,7 @@ function Palette({ planId, palette }: { planId: string; palette: string[] }) {
               />
               <div className="flex items-center justify-between gap-1">
                 <span className="font-mono text-xs uppercase text-ink-muted">{color}</span>
+                {canEdit && (
                 <button
                   type="button"
                   aria-label={t("palette.remove", { color: color.toUpperCase() })}
@@ -97,13 +100,14 @@ function Palette({ planId, palette }: { planId: string; palette: string[] }) {
                 >
                   <XIcon aria-hidden="true" />
                 </button>
+                )}
               </div>
             </li>
           ))}
         </ul>
       )}
 
-      {!full ? (
+      {!canEdit ? null : !full ? (
         <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3" noValidate>
           <div className="flex flex-col gap-2">
             <label htmlFor={`${uid}-picker`} className="text-sm font-medium text-ink">
@@ -146,6 +150,7 @@ function Palette({ planId, palette }: { planId: string; palette: string[] }) {
         <p className="text-sm text-ink-muted">{t("palette.full", { max: PALETTE_MAX })}</p>
       )}
 
+      {canEdit && (
       <div className="flex flex-col gap-2">
         <p className="text-sm font-medium text-ink">{t("palette.presetsTitle")}</p>
         <ul className="flex flex-wrap gap-2">
@@ -170,6 +175,7 @@ function Palette({ planId, palette }: { planId: string; palette: string[] }) {
           ))}
         </ul>
       </div>
+      )}
     </section>
   );
 }
@@ -178,6 +184,7 @@ function Palette({ planId, palette }: { planId: string; palette: string[] }) {
 
 function Board({ planId, images }: { planId: string; images: MoodImage[] }) {
   const { t } = useTranslation("look");
+  const { canEdit } = usePlanPermission("style");
   const [adding, setAdding] = React.useState(false);
   const [viewing, setViewing] = React.useState<MoodImage | null>(null);
   const [shown, setShown] = React.useState<MoodImage | null>(null);
@@ -198,6 +205,7 @@ function Board({ planId, images }: { planId: string; images: MoodImage[] }) {
           <p className="mt-1 text-sm text-ink-muted">{t("mood.description")}</p>
         </div>
         <div className="flex flex-col items-start gap-1 sm:items-end">
+          {canEdit && (
           <button
             type="button"
             onClick={() => setAdding(true)}
@@ -207,6 +215,7 @@ function Board({ planId, images }: { planId: string; images: MoodImage[] }) {
             <ImagePlusIcon aria-hidden="true" className="size-4" />
             {t("mood.add")}
           </button>
+          )}
           <p className="text-xs tabular-nums text-ink-muted">
             {full ? t("mood.full", { max: MOODBOARD_MAX }) : t("mood.count", { current: images.length, max: MOODBOARD_MAX })}
           </p>
@@ -222,30 +231,34 @@ function Board({ planId, images }: { planId: string; images: MoodImage[] }) {
         <ul className="columns-2 gap-3 sm:columns-3 lg:columns-4">
           {images.map((image) => (
             <li key={image.id} className="mb-3 break-inside-avoid">
-              <Tile image={image} onOpen={() => view(image)} />
+              <Tile image={image} onOpen={() => view(image)} readOnly={!canEdit} />
             </li>
           ))}
         </ul>
       )}
 
-      <AddDialog planId={planId} open={adding} onOpenChange={setAdding} count={images.length} />
-      <ImageDialog planId={planId} open={viewing !== null} onOpenChange={(o) => !o && setViewing(null)} image={shown} />
+      {canEdit && (
+        <>
+          <AddDialog planId={planId} open={adding} onOpenChange={setAdding} count={images.length} />
+          <ImageDialog planId={planId} open={viewing !== null} onOpenChange={(o) => !o && setViewing(null)} image={shown} />
+        </>
+      )}
     </section>
   );
 }
 
-function Tile({ image, onOpen }: { image: MoodImage; onOpen: () => void }) {
+function Tile({ image, onOpen, readOnly }: { image: MoodImage; onOpen: () => void; readOnly: boolean }) {
   const { t } = useTranslation("look");
   const [failed, setFailed] = React.useState(false);
   const name = image.label || t("mood.untitled");
+  const Tag = readOnly ? "div" : "button";
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label={t("mood.open", { name })}
+    <Tag
+      {...(readOnly ? {} : { type: "button" as const, onClick: onOpen, "aria-label": t("mood.open", { name }) })}
       className={cn(
-        "group block w-full overflow-hidden rounded-2xl border border-line bg-surface text-left transition-shadow hover:shadow-pop",
-        LK_FOCUS
+        "group block w-full overflow-hidden rounded-2xl border border-line bg-surface text-left transition-shadow",
+        !readOnly && "hover:shadow-pop",
+        !readOnly && LK_FOCUS
       )}
     >
       {failed ? (
@@ -266,7 +279,7 @@ function Tile({ image, onOpen }: { image: MoodImage; onOpen: () => void }) {
         />
       )}
       {image.label && <span className="block px-3 py-2 text-sm text-ink-strong [overflow-wrap:anywhere]">{image.label}</span>}
-    </button>
+    </Tag>
   );
 }
 

@@ -17,6 +17,7 @@ import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
 import { mapTimelineItem, timelineItemsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useLanguage } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -26,10 +27,12 @@ export function TimelineSection() {
   const { lang } = useLanguage();
   const { planId, plan } = usePlanContext();
   const launcher = useTimelineLauncher();
+  // Editar la escaleta es de «Día B»; con solo ver se lee el resumen.
+  const { canEdit } = usePlanPermission("dayof");
   const { data, loading, error } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
   const items = React.useMemo(() => sortItems(data), [data]);
   const dateText = formatWeekdayDate(plan?.weddingDate, lang);
-  const open = launcher?.open;
+  const open = canEdit ? launcher?.open : undefined;
 
   return (
     <CeremonySection

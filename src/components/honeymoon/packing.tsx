@@ -39,6 +39,7 @@ import {
 } from "@/lib/honeymoon-model";
 import { toastWithUndo } from "@/lib/undo-toast";
 import { cn } from "@/lib/utils";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 function AddItemForm({ planId, announce }: { planId: string; announce: (message: string) => void }) {
   const { t } = useTranslation("honeymoon");
@@ -127,6 +128,7 @@ export function Packing({
   announce: (message: string) => void;
 }) {
   const { t } = useTranslation("honeymoon");
+  const { canEdit } = usePlanPermission("honeymoon");
   const [restoring, setRestoring] = React.useState(false);
   const progress = packingProgress(items);
   const present = React.useMemo(() => new Set(items.map((i) => i.id)), [items]);
@@ -172,7 +174,7 @@ export function Packing({
   }
 
   const restoreButton =
-    missing.length > 0 ? (
+    canEdit && missing.length > 0 ? (
       <button type="button" onClick={handleRestoreSuggested} disabled={restoring} className={cn(CTA_SECONDARY, "disabled:opacity-60")}>
         {restoring ? (
           <Loader2 aria-hidden="true" className="size-4 animate-spin" />
@@ -196,10 +198,10 @@ export function Packing({
       {items.length === 0 ? (
         <EmptyState
           scene="montana"
-          title={seeded ? t("packing.empty.title") : t("packing.empty.preparingTitle")}
+          title={seeded || !canEdit ? t("packing.empty.title") : t("packing.empty.preparingTitle")}
           action={restoreButton}
         >
-          {seeded
+          {seeded || !canEdit
             ? t("packing.empty.text")
             : t("packing.empty.preparingText")}
         </EmptyState>
@@ -231,7 +233,7 @@ export function Packing({
         </div>
       )}
 
-      <AddItemForm planId={planId} announce={announce} />
+      {canEdit && <AddItemForm planId={planId} announce={announce} />}
 
       {groups.length > 0 && (
         <div className="grid items-start gap-4 lg:grid-cols-2">
@@ -252,9 +254,10 @@ export function Packing({
                     const shown = packingDisplay(item, t);
                     return (
                     <li key={item.id} className="flex items-center gap-1 border-t border-line first:border-t-0 pl-4 pr-1 sm:pl-5">
-                      <label className="flex min-h-12 min-w-0 flex-1 cursor-pointer items-start gap-3 py-3">
+                      <label className={cn("flex min-h-12 min-w-0 flex-1 items-start gap-3 py-3", canEdit && "cursor-pointer")}>
                         <Checkbox
                           checked={item.checked}
+                          disabled={!canEdit}
                           onCheckedChange={(v) => handleToggle(item, v === true)}
                           className={cn(CHECKBOX, "mt-0.5")}
                         />
@@ -270,7 +273,9 @@ export function Packing({
                           {shown.note && <span className="mt-0.5 block text-xs text-ink-muted">{shown.note}</span>}
                         </span>
                       </label>
-                      <DeleteIconButton ariaLabel={t("packing.deleteAria", { name: shown.label })} onDelete={() => handleDelete(item)} />
+                      {canEdit && (
+                        <DeleteIconButton ariaLabel={t("packing.deleteAria", { name: shown.label })} onDelete={() => handleDelete(item)} />
+                      )}
                     </li>
                     );
                   })}

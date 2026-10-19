@@ -450,7 +450,8 @@
       "title": "No appointments yet",
       "text": "Note down venue visits, outfit fittings, tastings and supplier meetings so you don't miss any.",
       "action": "Add an appointment",
-      "startWith": "Or start with:"
+      "startWith": "Or start with:",
+      "readOnly": "No appointments yet."
     },
     "toasts": {
       "added": "Appointment added",

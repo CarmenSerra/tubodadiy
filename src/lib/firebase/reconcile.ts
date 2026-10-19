@@ -31,7 +31,9 @@ import { syncHoneymoonBookTask, syncHoneymoonDestinationTask } from "@/lib/fireb
 import { mapInvitation, planInvitationQuery } from "@/lib/firebase/invitation";
 import { syncAutoTaskStep, syncStepQuietly, syncToolTasks } from "@/lib/firebase/mutations";
 import { syncGift } from "@/lib/firebase/plan-tools";
+import { canReadSection, canSyncTasks } from "@/lib/firebase/sync-access";
 import { TIMELINE_CATEGORY } from "@/lib/steps";
+import type { PlanSection } from "@/lib/permissions";
 import type { PlanStep, StepStatus, StepTask, StepTaskAuto, WeddingPlan } from "@/lib/types";
 
 /**
@@ -40,8 +42,13 @@ import type { PlanStep, StepStatus, StepTask, StepTaskAuto, WeddingPlan } from "
  * después de guardar, o falló la red) o el paso se escribió antes de que su
  * estado siguiera a las tareas. Solo MARCA lo que ya se cumple, nunca
  * desmarca. Nunca lanza: es progreso, no datos.
+ *
+ * Sin permiso para editar «Tareas» no hace nada, y cada hito que depende de
+ * otra sección solo se calcula si se puede ver (si no, se salta sin leerla).
  */
 export async function reconcileStepProgress(planId: string, plan: WeddingPlan, steps: PlanStep[]) {
+  if (!canSyncTasks(planId)) return;
+  const can = (section: PlanSection) => canReadSection(planId, section);
   // Pasos y tareas base nuevos que los planes antiguos aún no tienen (una sola vez, sin duplicar).
   const addedBase = await ensureBaseSteps(planId, steps);
 
@@ -94,7 +101,7 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
 
   // Hitos que dependen de una herramienta: solo se lee su colección si queda
   // alguna tarea pendiente que ella pueda marcar.
-  if (pendingAutos(GUESTS_CATEGORY, ["guests-draft", "guests-final"])) {
+  if (can("guests") && pendingAutos(GUESTS_CATEGORY, ["guests-draft", "guests-final"])) {
     work.push(syncToolTasks(planId, "guests", [GUESTS_CATEGORY]));
   }
   const vendorAutos: StepTaskAuto[] = [
@@ -102,20 +109,20 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
     "vendor-photo",
     "vendor-music",
   ];
-  if (pendingAutos(VENDORS_CATEGORY, vendorAutos)) {
+  if (can("vendors") && pendingAutos(VENDORS_CATEGORY, vendorAutos)) {
     work.push(syncToolTasks(planId, "vendors", [VENDORS_CATEGORY]));
   }
-  if (pendingAutos(AUTO_TASKS_CATEGORY, ["budget-split"])) {
+  if (can("budget") && pendingAutos(AUTO_TASKS_CATEGORY, ["budget-split"])) {
     work.push(syncToolTasks(planId, "budgetItems", [AUTO_TASKS_CATEGORY]));
   }
 
-  if (plan.gift?.mode === "list" && pendingAutos(GIFT_CATEGORY, ["gift-data"])) {
+  if (can("invitation") && plan.gift?.mode === "list" && pendingAutos(GIFT_CATEGORY, ["gift-data"])) {
     work.push(syncGift(planId));
   }
 
   // Papelería: «reserva la fecha» (hay diseño guardado con contenido) y «enviar
   // invitaciones» (la invitación está publicada).
-  if (pendingAutos(STATIONERY_CATEGORY, ["stationery-save-date"])) {
+  if (can("invitation") && pendingAutos(STATIONERY_CATEGORY, ["stationery-save-date"])) {
     work.push(
       getDoc(saveTheDateRef(planId))
         .then((snap) => {
@@ -125,7 +132,7 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
         .catch(() => {})
     );
   }
-  if (pendingAutos(STATIONERY_CATEGORY, ["invitations-send"])) {
+  if (can("invitation") && pendingAutos(STATIONERY_CATEGORY, ["invitations-send"])) {
     work.push(
       getDocs(planInvitationQuery(planId))
         .then((snap) => {
@@ -147,15 +154,15 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
   }
 
   // Luna de miel: destino elegido y reservas de vuelo/hotel.
-  if (pendingAutos(HONEYMOON_CATEGORY, ["honeymoon-destination"])) {
+  if (can("honeymoon") && pendingAutos(HONEYMOON_CATEGORY, ["honeymoon-destination"])) {
     work.push(syncHoneymoonDestinationTask(planId, true));
   }
-  if (pendingAutos(HONEYMOON_CATEGORY, ["honeymoon-book"])) {
+  if (can("honeymoon") && pendingAutos(HONEYMOON_CATEGORY, ["honeymoon-book"])) {
     work.push(syncHoneymoonBookTask(planId));
   }
 
   // Cronograma: ya hay algún momento (compartirlo no deja rastro en los datos).
-  if (pendingAutos(TIMELINE_CATEGORY, ["timeline-draft"])) {
+  if (can("dayof") && pendingAutos(TIMELINE_CATEGORY, ["timeline-draft"])) {
     work.push(
       getDocs(query(collection(getFirebaseDb(), "weddingPlans", planId, "timelineItems"), limit(1)))
         .then((snap) =>

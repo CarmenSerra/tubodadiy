@@ -33,6 +33,7 @@ import {
 import { contactsQuery, musicQuery, readingsQuery, shotsQuery, songsQuery, witnessesQuery } from "@/lib/firebase/dayof";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { syncAutoTaskStep } from "@/lib/firebase/mutations";
+import { canReadSection, canSyncTasks } from "@/lib/firebase/sync-access";
 import {
   budgetItemsQuery,
   guestsQuery,
@@ -43,6 +44,7 @@ import {
 } from "@/lib/firebase/plans";
 import { STEP_DEFINITIONS, baseTaskAuto, currentAuto, type StepDefinition } from "@/lib/steps";
 import { addToIndex, hasBaseTask, indexPlanTasks } from "@/lib/task-dedupe";
+import type { PlanSection } from "@/lib/permissions";
 import type { PlanStep, StepTask, StepTaskAuto, WeddingPlan } from "@/lib/types";
 
 /**
@@ -89,6 +91,8 @@ async function readRawSteps(planId: string): Promise<QueryDocumentSnapshot<Docum
  */
 export async function ensureBaseSteps(planId: string, steps: PlanStep[]): Promise<StepTaskAuto[]> {
   const added: StepTaskAuto[] = [];
+  // Crea y completa pasos: hace falta poder editar «Tareas».
+  if (!canSyncTasks(planId)) return added;
   try {
     const raw = await readRawSteps(planId);
     const byCategory = new Map<string, QueryDocumentSnapshot<DocumentData>>();
@@ -227,6 +231,9 @@ export async function syncToolMilestones(
   steps: PlanStep[],
   justAdded: StepTaskAuto[] = []
 ): Promise<void> {
+  // Escribe los pasos (Tareas: editar); cada hito solo se calcula si se puede leer su sección.
+  if (!canSyncTasks(planId)) return;
+  const can = (...sections: PlanSection[]) => sections.every((section) => canReadSection(planId, section));
   const pending = new Set<StepTaskAuto>(justAdded);
   for (const step of steps) {
     for (const task of step.tasks) {
@@ -236,8 +243,14 @@ export async function syncToolMilestones(
     }
   }
 
-  const job = async (category: string, autos: StepTaskAuto[], compute: () => Promise<StepTaskAuto[]>) => {
+  const job = async (
+    category: string,
+    autos: StepTaskAuto[],
+    compute: () => Promise<StepTaskAuto[]>,
+    reads: PlanSection[]
+  ) => {
     if (!autos.some((auto) => pending.has(auto))) return;
+    if (!can(...reads)) return;
     try {
       const reached = (await compute()).filter((auto) => autos.includes(auto) && pending.has(auto));
       if (reached.length > 0) await syncAutoTaskStep(planId, category, { reached });
@@ -254,14 +267,14 @@ export async function syncToolMilestones(
         tracks: await count(musicQuery(planId)),
         witnesses: await count(witnessesQuery(planId)),
       })
-    ),
+    , ["ceremony"]),
     job(TIMELINE_CATEGORY, ["dayof-contacts", "dayof-shots", "dayof-playlist"], async () =>
       dayOfReached({
         contacts: await count(contactsQuery(planId)),
         shots: await count(shotsQuery(planId)),
         songs: await count(songsQuery(planId)),
       })
-    ),
+    , ["dayof"]),
     job(BANQUET_CATEGORY, ["banquet-seating", "banquet-menu"], async () => {
       const [guests, tables, dishes] = await Promise.all([
         getDocs(guestsQuery(planId)),
@@ -273,7 +286,7 @@ export async function syncToolMilestones(
         tables.docs.map((d) => mapTable(d.id, d.data())),
         dishes.docs.map((d) => mapDish(d.id, d.data()))
       );
-    }),
+    }, ["banquet", "guests"]),
     job(OUTFIT_CATEGORY, ["style-beauty", "style-rings", "style-decor"], async () => {
       const [beauty, decor, rings] = await Promise.all([
         getDocs(beautyQuery(planId)),
@@ -285,7 +298,7 @@ export async function syncToolMilestones(
         decor: decor.docs.map((d) => mapDecor(d.id, d.data())),
         rings: rings.exists() ? mapRings(rings.id, rings.data()) : null,
       });
-    }),
+    }, ["style"]),
     weddingHasPassed(plan.weddingDate)
       ? job(AFTER_WEDDING_CATEGORY, ["after-thanks", "after-payments", "after-rate-vendors"], async () => {
           const [guests, items, vendors] = await Promise.all([
@@ -303,7 +316,7 @@ export async function syncToolMilestones(
               rating: typeof d.data().rating === "number" ? (d.data().rating as number) : null,
             })),
           });
-        })
+        }, ["guests", "budget", "vendors"])
       : Promise.resolve(),
   ]);
 }

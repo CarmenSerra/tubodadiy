@@ -17,6 +17,7 @@ import { showDueNotification, useTaskNotifyState } from "@/components/dashboard/
 import { appointmentsCollection, mapAppointment } from "@/lib/firebase/appointments";
 import { budgetItemsQuery, mapBudgetItem, mapPlan, planDocRef } from "@/lib/firebase/plans";
 import { useLanguage } from "@/lib/i18n/provider";
+import type { PlanSection, SectionLevel } from "@/lib/permissions";
 import type { PlanStep } from "@/lib/types";
 
 /**
@@ -45,10 +46,16 @@ export function useAgendaNotification(planId: string, events: readonly CalendarE
  * y, solo si los avisos están activados, lee una vez las citas y los pagos
  * (sin escuchas permanentes), junto con el plan, y avisa de lo de hoy o mañana.
  */
-export function useAgendaNotificationFromSteps(planId: string, steps: readonly PlanStep[]) {
+export function useAgendaNotificationFromSteps(
+  planId: string,
+  steps: readonly PlanStep[],
+  levels: Record<PlanSection, SectionLevel>
+) {
   const { lang } = useLanguage();
   const state = useTaskNotifyState();
   const startedFor = React.useRef<string | null>(null);
+  const canTasks = levels.tasks !== "none";
+  const canBudget = levels.budget !== "none";
 
   React.useEffect(() => {
     if (state !== "on") {
@@ -61,8 +68,8 @@ export function useAgendaNotificationFromSteps(planId: string, steps: readonly P
       try {
         const [planSnap, appointments, budget] = await Promise.all([
           getDoc(planDocRef(planId)),
-          getDocs(appointmentsCollection(planId)),
-          getDocs(budgetItemsQuery(planId)),
+          canTasks ? getDocs(appointmentsCollection(planId)) : null,
+          canBudget ? getDocs(budgetItemsQuery(planId)) : null,
         ]);
         const plan = planSnap.exists() ? mapPlan(planSnap.id, planSnap.data()) : null;
         const events = buildCalendarEvents({
@@ -70,8 +77,8 @@ export function useAgendaNotificationFromSteps(planId: string, steps: readonly P
           planTitle: plan?.title ?? "",
           weddingDate: plan?.weddingDate ?? null,
           steps,
-          appointments: appointments.docs.map((d) => mapAppointment(d.id, d.data())),
-          budgetItems: budget.docs.map((d) => mapBudgetItem(d.id, d.data())),
+          appointments: appointments?.docs.map((d) => mapAppointment(d.id, d.data())) ?? [],
+          budgetItems: budget?.docs.map((d) => mapBudgetItem(d.id, d.data())) ?? [],
           lang,
         });
         const due = dueSoon(events);
@@ -82,5 +89,5 @@ export function useAgendaNotificationFromSteps(planId: string, steps: readonly P
         // Sin permiso o sin conexión: hoy no se avisa.
       }
     })();
-  }, [state, planId, steps, lang]);
+  }, [state, planId, steps, lang, canTasks, canBudget]);
 }

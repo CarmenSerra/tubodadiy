@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { assignGuest, deleteTable, restoreTable } from "@/components/banquet/banquet-firebase";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import {
   buildTableViews,
   dietCounts,
@@ -51,6 +52,10 @@ export function SeatingSection({
   printHref: string;
 }) {
   const { t } = useTranslation("banquet");
+  const { canEdit } = usePlanPermission("banquet");
+  // Sentar a alguien guarda en las mesas (Banquete), pero hace falta ver la lista de Invitados para elegir a quién.
+  const { canView: canViewGuests } = usePlanPermission("guests");
+  const canSeat = canEdit && canViewGuests;
   const [scope, setScope] = React.useState<GuestScope>("confirmed");
   const [query, setQuery] = React.useState("");
   const [dialog, setDialog] = React.useState<DialogState | null>(null);
@@ -86,6 +91,7 @@ export function SeatingSection({
   }, []);
 
   async function assign(guest: Guest, tableId: string | null) {
+    if (!canSeat) return;
     const target = tableId ? views.find((v) => v.table.id === tableId) : null;
     if (tableId && !target) return;
     if (target && !target.guests.some((g) => g.id === guest.id) && seatsOf(guest) > target.free) {
@@ -126,7 +132,7 @@ export function SeatingSection({
 
   const dropProps = (targetId: string) => ({
     onDragOver: (e: React.DragEvent) => {
-      if (!dragId) return;
+      if (!canSeat || !dragId) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
       if (overId !== targetId) setOverId(targetId);
@@ -138,7 +144,7 @@ export function SeatingSection({
   });
 
   const rowProps = (guest: Guest) => ({
-    draggable: true,
+    draggable: canSeat,
     onDragStart: (e: React.DragEvent) => {
       e.dataTransfer.setData("text/plain", guest.id);
       e.dataTransfer.effectAllowed = "move";
@@ -181,14 +187,16 @@ export function SeatingSection({
               </Link>
             </>
           )}
-          <button type="button" onClick={() => openDialog({})} className={CTA_PRIMARY}>
-            <PlusIcon aria-hidden="true" className="size-4" />
-            {t("seating.addTable")}
-          </button>
+          {canEdit && (
+            <button type="button" onClick={() => openDialog({})} className={CTA_PRIMARY}>
+              <PlusIcon aria-hidden="true" className="size-4" />
+              {t("seating.addTable")}
+            </button>
+          )}
         </div>
       </section>
 
-      <p className="text-sm text-ink-muted">{t("seating.howTo")}</p>
+      {canSeat && <p className="text-sm text-ink-muted">{t("seating.howTo")}</p>}
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
         <section
@@ -228,7 +236,9 @@ export function SeatingSection({
               className={cn(FIELD, "pl-10")}
             />
           </div>
-          {guests.length === 0 ? (
+          {!canViewGuests ? (
+            <p className="mt-4 text-sm text-ink-muted">{t("pool.noAccess")}</p>
+          ) : guests.length === 0 ? (
             <p className="mt-4 text-sm text-ink-muted">{t("pool.noGuests")}</p>
           ) : pool.length === 0 ? (
             <p className="mt-4 text-sm text-ink-muted">
@@ -243,6 +253,7 @@ export function SeatingSection({
                   views={views}
                   currentTableId=""
                   dragging={dragId === g.id}
+                  readOnly={!canSeat}
                   onAssign={assign}
                   {...rowProps(g)}
                 />
@@ -257,10 +268,12 @@ export function SeatingSection({
               <TableDiagram shape="round" capacity={8} used={3} className="size-24" />
               <h3 className="font-display text-xl font-semibold text-ink">{t("seating.empty.title")}</h3>
               <p className="max-w-md text-sm text-ink-muted">{t("seating.empty.text")}</p>
-              <button type="button" onClick={() => openDialog({})} className={cn(CTA_PRIMARY, "mt-1")}>
-                <PlusIcon aria-hidden="true" className="size-4" />
-                {t("seating.empty.action")}
-              </button>
+              {canEdit && (
+                <button type="button" onClick={() => openDialog({})} className={cn(CTA_PRIMARY, "mt-1")}>
+                  <PlusIcon aria-hidden="true" className="size-4" />
+                  {t("seating.empty.action")}
+                </button>
+              )}
             </div>
           ) : (
             <ul className="grid gap-4">
@@ -271,7 +284,8 @@ export function SeatingSection({
                   views={views}
                   className={dropRing(view.table.id)}
                   dragId={dragId}
-                  onEdit={() => openDialog({ table: view.table })}
+                  onEdit={canEdit ? () => openDialog({ table: view.table }) : undefined}
+                  readOnly={!canSeat}
                   onAssign={assign}
                   rowProps={rowProps}
                   dropProps={dropProps(view.table.id)}
@@ -282,6 +296,7 @@ export function SeatingSection({
         </div>
       </div>
 
+      {canEdit && (
       <TableFormDialog
         planId={planId}
         open={dialog !== null}
@@ -291,6 +306,7 @@ export function SeatingSection({
         tables={tables}
         onDelete={handleDeleteTable}
       />
+      )}
 
       <p className="sr-only" role="status" aria-live="polite">
         {announcement}
@@ -311,6 +327,7 @@ function TableCard({
   className,
   dragId,
   onEdit,
+  readOnly,
   onAssign,
   rowProps,
   dropProps,
@@ -319,7 +336,8 @@ function TableCard({
   views: TableView[];
   className?: string;
   dragId: string | null;
-  onEdit: () => void;
+  onEdit?: () => void;
+  readOnly: boolean;
   onAssign: (guest: Guest, tableId: string | null) => void;
   rowProps: (guest: Guest) => RowDragProps;
   dropProps: React.HTMLAttributes<HTMLElement>;
@@ -353,6 +371,7 @@ function TableCard({
             </p>
             <p className="text-sm font-medium text-ink">{status}</p>
           </div>
+          {onEdit && (
           <button
             type="button"
             onClick={onEdit}
@@ -365,11 +384,12 @@ function TableCard({
           >
             <PencilIcon aria-hidden="true" className="size-4" />
           </button>
+          )}
         </div>
 
         {guests.length === 0 ? (
           <p className="rounded-xl border border-dashed border-line-strong px-3 py-4 text-center text-sm text-ink-muted">
-            {dragId ? t("table.dropHere") : t("table.empty")}
+            {dragId && !readOnly ? t("table.dropHere") : t("table.empty")}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
@@ -381,6 +401,7 @@ function TableCard({
                 currentTableId={table.id}
                 compact
                 dragging={dragId === g.id}
+                readOnly={readOnly}
                 onAssign={onAssign}
                 {...rowProps(g)}
               />
@@ -411,6 +432,7 @@ function GuestRow({
   currentTableId,
   dragging,
   compact = false,
+  readOnly,
   onAssign,
   ...drag
 }: {
@@ -420,6 +442,8 @@ function GuestRow({
   dragging: boolean;
   /** Dentro de una mesa: nombre y selector en la misma línea. */
   compact?: boolean;
+  /** Solo ver: sin arrastrar ni elegir mesa. */
+  readOnly: boolean;
   onAssign: (guest: Guest, tableId: string | null) => void;
 } & RowDragProps) {
   const { t } = useTranslation("banquet");
@@ -430,13 +454,14 @@ function GuestRow({
     <li
       {...drag}
       className={cn(
-        "flex cursor-grab gap-2 rounded-xl border border-line bg-field p-3 active:cursor-grabbing",
+        "flex gap-2 rounded-xl border border-line bg-field p-3",
+        !readOnly && "cursor-grab active:cursor-grabbing",
         compact ? "flex-col sm:flex-row sm:items-center" : "flex-col",
         dragging && "opacity-50"
       )}
     >
       <div className="flex min-w-0 flex-1 items-start gap-2">
-        <GripVerticalIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-ink-muted" />
+        {!readOnly && <GripVerticalIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-ink-muted" />}
         <div className="min-w-0 flex-1">
           <p className="break-words text-sm font-medium text-ink-strong">
             {guest.name}
@@ -459,6 +484,7 @@ function GuestRow({
           </span>
         )}
       </div>
+      {!readOnly && (
       <select
         aria-label={t("pool.tableOf", { name: guest.name })}
         value={currentTableId}
@@ -475,6 +501,7 @@ function GuestRow({
           );
         })}
       </select>
+      )}
     </li>
   );
 }

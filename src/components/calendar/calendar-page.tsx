@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
-  EVENT_TYPES,
   TYPE_META,
   countByType,
   dateKey,
@@ -152,12 +151,17 @@ export function CalendarPage({ planId }: { planId: string }) {
   const { t } = useTranslation("calendar");
   const { lang } = useLanguage();
   const { plan } = usePlanContext();
-  const { events, loading, failed } = useCalendarEvents(planId, plan);
+  const { events, types: availableTypes, loading, failed } = useCalendarEvents(planId, plan);
 
   const today = todayKey();
   const [monthStart, setMonthStart] = React.useState(() => monthStartOf(today));
   const [selected, setSelected] = React.useState(today);
-  const [types, setTypes] = React.useState<ReadonlySet<EventType>>(() => new Set(EVENT_TYPES));
+  // Filtros activos: por defecto todos los tipos que esta persona puede ver.
+  const [hiddenTypes, setHiddenTypes] = React.useState<ReadonlySet<EventType>>(() => new Set());
+  const types = React.useMemo<ReadonlySet<EventType>>(
+    () => new Set(availableTypes.filter((type) => !hiddenTypes.has(type))),
+    [availableTypes, hiddenTypes]
+  );
   // `null` = sin elegir: en pantallas estrechas se empieza por «Próximos»; después manda lo que elija la persona.
   const [chosenView, setChosenView] = React.useState<View | null>(null);
   const narrow = useIsNarrow();
@@ -173,7 +177,7 @@ export function CalendarPage({ planId }: { planId: string }) {
   const weddingDate = events.find((e) => e.type === "wedding")?.date ?? null;
 
   function toggleType(type: EventType) {
-    setTypes((prev) => {
+    setHiddenTypes((prev) => {
       const next = new Set(prev);
       if (!next.delete(type)) next.add(type);
       return next;
@@ -241,7 +245,7 @@ export function CalendarPage({ planId }: { planId: string }) {
       </header>
 
       <div role="group" aria-label={t("filters.label")} className="flex flex-wrap gap-2">
-        {EVENT_TYPES.map((type) => {
+        {availableTypes.map((type) => {
           const on = types.has(type);
           const Icon = TYPE_META[type].icon;
           return (

@@ -47,6 +47,7 @@ import { useBudgetPlan } from "@/lib/firebase/budget-plan";
 import { addBudgetItem, updateBudgetItem } from "@/lib/firebase/mutations";
 import { mapVendor, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { BudgetInstallment, BudgetItem, BudgetItemState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -157,7 +158,9 @@ function BudgetItemForm({
   });
 
   const { settings } = useBudgetPlan(planId);
-  const { data: vendorList } = useCollection(vendorsQuery(planId), mapVendor);
+  // El proveedor enlazado es opcional y de otra sección: sin poder verla, el campo no se ofrece (y no se lee).
+  const { canView: canViewVendors } = usePlanPermission("vendors");
+  const { data: vendorList } = useCollection(canViewVendors ? vendorsQuery(planId) : null, mapVendor);
   const vendors = React.useMemo(
     () => [...vendorList].sort((a, b) => a.name.localeCompare(b.name, "es")),
     [vendorList]
@@ -414,6 +417,7 @@ function BudgetItemForm({
           )}
         </div>
 
+        {canViewVendors && (
         <div className="flex flex-col gap-2">
           <Label htmlFor="budget-vendor" className={FIELD_LABEL}>
             {t("form.vendor")} <span className="font-normal text-ink-muted">{t("form.optional")}</span>
@@ -436,6 +440,7 @@ function BudgetItemForm({
           </Select>
           <p className="text-xs text-ink-muted">{t("form.vendorHint")}</p>
         </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">

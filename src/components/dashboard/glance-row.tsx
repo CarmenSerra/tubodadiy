@@ -108,36 +108,52 @@ export function GlanceRow({ plan, data }: { plan: WeddingPlan; data: FeaturedPla
         ? t("glance.vendors.booked", { count: vendors.booked })
         : t("glance.vendors.considering", { count: vendors.total });
 
+  // Solo los datos de las secciones que la persona puede ver.
+  const stats = [
+    data.levels.budget !== "none" && {
+      key: "budget",
+      href: `/plan/${plan.id}/budget`,
+      label: t("glance.budget.label"),
+      icon: WalletIcon,
+      loading: data.loading && data.budgetItems.length === 0,
+      value: budgetValue,
+      muted: !hasBudget,
+    },
+    data.levels.guests !== "none" && {
+      key: "guests",
+      href: `/plan/${plan.id}/guests`,
+      label: t("glance.guests.label"),
+      icon: UsersIcon,
+      loading: data.loading && data.guests.length === 0,
+      value: guestsValue,
+      muted: guests.total === 0,
+    },
+    data.levels.vendors !== "none" && {
+      key: "vendors",
+      href: `/plan/${plan.id}/vendors`,
+      label: t("glance.vendors.label"),
+      icon: StoreIcon,
+      loading: data.loading && data.vendors.length === 0,
+      value: vendorsValue,
+      muted: vendors.total === 0,
+    },
+  ].filter((stat) => stat !== false);
+  if (stats.length === 0) return null;
+
   return (
     <section aria-labelledby="glance-title">
       <h2 id="glance-title" className="mb-3 font-display text-lg font-semibold text-ink">
         {t("glance.title")}
       </h2>
-      <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-        <Stat
-          href={`/plan/${plan.id}/budget`}
-          label={t("glance.budget.label")}
-          icon={WalletIcon}
-          loading={data.loading && data.budgetItems.length === 0}
-          value={budgetValue}
-          muted={!hasBudget}
-        />
-        <Stat
-          href={`/plan/${plan.id}/guests`}
-          label={t("glance.guests.label")}
-          icon={UsersIcon}
-          loading={data.loading && data.guests.length === 0}
-          value={guestsValue}
-          muted={guests.total === 0}
-        />
-        <Stat
-          href={`/plan/${plan.id}/vendors`}
-          label={t("glance.vendors.label")}
-          icon={StoreIcon}
-          loading={data.loading && data.vendors.length === 0}
-          value={vendorsValue}
-          muted={vendors.total === 0}
-        />
+      <div
+        className={cn(
+          "grid gap-3 sm:gap-4",
+          stats.length >= 3 ? "sm:grid-cols-3" : stats.length === 2 ? "sm:grid-cols-2" : ""
+        )}
+      >
+        {stats.map(({ key, ...stat }) => (
+          <Stat key={key} {...stat} />
+        ))}
       </div>
     </section>
   );

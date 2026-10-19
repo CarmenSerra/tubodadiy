@@ -11,6 +11,7 @@ import { ListBody } from "@/components/dayof/ui";
 import { useTimelineLauncher } from "@/components/timeline/timeline-launcher";
 import { endMin, formatClock, sortItems } from "@/components/timeline/timeline-model";
 import { usePlanContext } from "@/lib/context/plan-context";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import type { DayContact } from "@/lib/dayof-model";
 import type { TimelineMoment } from "@/lib/firebase/timeline";
 
@@ -32,6 +33,7 @@ export function ScheduleSection({
   const { t } = useTranslation("dayof");
   const { planId } = usePlanContext();
   const launcher = useTimelineLauncher();
+  const { canEdit } = usePlanPermission("dayof");
   const sorted = React.useMemo(() => sortItems(moments), [moments]);
   const ids = React.useMemo(() => new Set(contacts.map((c) => c.id)), [contacts]);
   const withOwner = sorted.filter(
@@ -40,7 +42,7 @@ export function ScheduleSection({
 
   // Sin proveedor del diálogo (no debería pasar en esta pestaña) se llega por el enlace directo.
   const openHref = `/plan/${planId}/dia-b?cronograma=1`;
-  const openLabel = sorted.length > 0 ? t("schedule.open") : t("schedule.create");
+  const openLabel = sorted.length > 0 || !canEdit ? t("schedule.open") : t("schedule.create");
   const OpenIcon = sorted.length > 0 ? CalendarClockIcon : PlusIcon;
   const openButton = launcher ? (
     <button type="button" onClick={launcher.open} className={CTA_PRIMARY}>
@@ -66,7 +68,7 @@ export function ScheduleSection({
         error={error}
         empty={sorted.length === 0}
         emptyText={t("schedule.empty")}
-        emptyAction={openButton}
+        emptyAction={canEdit ? openButton : undefined}
       >
         <p className="text-sm text-ink-strong">
           {t("schedule.summary", {

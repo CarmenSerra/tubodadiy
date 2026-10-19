@@ -27,10 +27,13 @@ export function VendorCard({
   planId,
   vendor,
   active = true,
+  canEdit = true,
 }: {
   planId: string;
   vendor: Vendor;
   active?: boolean;
+  /** Solo ver: sin editar ni borrar la opción. */
+  canEdit?: boolean;
 }) {
   const { t } = useTranslation("vendors");
   const { lang } = useLanguage();
@@ -64,6 +67,7 @@ export function VendorCard({
           seed={vendor.placeId ?? vendor.id}
           kind={vendor.placeKind ?? vendor.category}
         />
+        {canEdit && (
         <div className="absolute top-2 right-2 flex gap-1.5">
           <VendorFormDialog
             planId={planId}
@@ -78,6 +82,7 @@ export function VendorCard({
             <Trash2Icon aria-hidden="true" />
           </IconTrigger>
         </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 bg-raised p-3">
@@ -107,7 +112,16 @@ export function VendorCard({
 }
 
 /** Hueco acogedor de una categoría vacía: abre el formulario con la categoría ya elegida. */
-export function EmptyVendorCard({ planId, category }: { planId: string; category: string }) {
+export function EmptyVendorCard({
+  planId,
+  category,
+  canEdit = true,
+}: {
+  planId: string;
+  category: string;
+  /** Solo ver: el hueco se muestra sin botón para añadir. */
+  canEdit?: boolean;
+}) {
   const { t } = useTranslation("vendors");
   const slug = categorySlug(category);
   const starter = slug === "venue" || slug === "catering" || slug === "photographer";
@@ -117,6 +131,18 @@ export function EmptyVendorCard({ planId, category }: { planId: string; category
         title: t("empty.custom.title", { category: categoryLabel(category, t).toLowerCase() }),
         cta: t("empty.custom.cta"),
       };
+  if (!canEdit) {
+    return (
+      <div className={cn("mx-auto", SLIDE_WIDTH)}>
+        <div className="flex w-full flex-col overflow-hidden rounded-2xl border border-dashed border-line-strong bg-raised">
+          <div className="aspect-[4/3] w-full">
+            <VendorPlaceholder category={category} muted />
+          </div>
+          <p className="p-3 font-display text-base leading-snug font-semibold text-ink-strong">{t("list.noOptions")}</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={cn("mx-auto", SLIDE_WIDTH)}>
       <VendorFormDialog

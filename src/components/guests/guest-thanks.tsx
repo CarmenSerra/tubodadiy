@@ -22,7 +22,16 @@ import { cn, formatCurrency } from "@/lib/utils";
  * agradecimientos pendientes. Marcar una familia como agradecida lo aplica a
  * todos sus regalos.
  */
-export function GuestThanks({ planId, guests }: { planId: string; guests: Guest[] }) {
+export function GuestThanks({
+  planId,
+  guests,
+  canEdit = true,
+}: {
+  planId: string;
+  guests: Guest[];
+  /** Solo ver: sin apuntar regalos ni marcar agradecimientos. */
+  canEdit?: boolean;
+}) {
   const { t } = useTranslation("guests");
   const { lang } = useLanguage();
   const units = React.useMemo(() => thankUnits(guests), [guests]);
@@ -58,7 +67,7 @@ export function GuestThanks({ planId, guests }: { planId: string; guests: Guest[
           <h2 className={SECTION_TITLE}>{t("gifts.title")}</h2>
           <p className="mt-1 text-sm text-ink-muted">{t("gifts.description")}</p>
         </div>
-        <GiftDialog planId={planId} guests={candidates} trigger={<AddGiftButton />} />
+        {canEdit && <GiftDialog planId={planId} guests={candidates} trigger={<AddGiftButton />} />}
       </div>
 
       {units.length === 0 ? (
@@ -113,7 +122,7 @@ export function GuestThanks({ planId, guests }: { planId: string; guests: Guest[
             ) : (
               <ul className="flex flex-col gap-3">
                 {pending.map((unit) => (
-                  <UnitRow key={unit.key} planId={planId} unit={unit} onToggle={() => setSent(unit, true)} />
+                  <UnitRow key={unit.key} planId={planId} unit={unit} canEdit={canEdit} onToggle={() => setSent(unit, true)} />
                 ))}
               </ul>
             )}
@@ -126,7 +135,7 @@ export function GuestThanks({ planId, guests }: { planId: string; guests: Guest[
               </h3>
               <ul className="flex flex-col gap-3">
                 {sent.map((unit) => (
-                  <UnitRow key={unit.key} planId={planId} unit={unit} onToggle={() => setSent(unit, false)} />
+                  <UnitRow key={unit.key} planId={planId} unit={unit} canEdit={canEdit} onToggle={() => setSent(unit, false)} />
                 ))}
               </ul>
             </section>
@@ -137,7 +146,17 @@ export function GuestThanks({ planId, guests }: { planId: string; guests: Guest[
   );
 }
 
-function UnitRow({ planId, unit, onToggle }: { planId: string; unit: ThankUnit; onToggle: () => void }) {
+function UnitRow({
+  planId,
+  unit,
+  canEdit,
+  onToggle,
+}: {
+  planId: string;
+  unit: ThankUnit;
+  canEdit: boolean;
+  onToggle: () => void;
+}) {
   const { t } = useTranslation("guests");
   const { lang } = useLanguage();
   const date = unit.sentDate ? formatDateValue(unit.sentDate, lang) : null;
@@ -155,6 +174,7 @@ function UnitRow({ planId, unit, onToggle }: { planId: string; unit: ThankUnit; 
                 {g.giftReceived.trim() || t("gifts.noDescription")}
                 {g.giftAmount !== null && <> · {formatCurrency(g.giftAmount, lang)}</>}
               </span>
+              {canEdit && (
               <GiftDialog
                 planId={planId}
                 guest={g}
@@ -169,6 +189,7 @@ function UnitRow({ planId, unit, onToggle }: { planId: string; unit: ThankUnit; 
                   </button>
                 }
               />
+              )}
             </li>
           ))}
         </ul>
@@ -178,15 +199,17 @@ function UnitRow({ planId, unit, onToggle }: { planId: string; unit: ThankUnit; 
           </p>
         )}
       </div>
-      <button
-        type="button"
-        onClick={onToggle}
-        className={cn(unit.sent ? cn(CTA_SECONDARY, "h-11") : CTA_PRIMARY, "shrink-0")}
-      >
-        {!unit.sent && <CheckIcon aria-hidden="true" className="size-4" />}
-        {unit.sent ? t("gifts.markPending") : t("gifts.markSent")}
-        <span className="sr-only"> — {unit.label}</span>
-      </button>
+      {canEdit && (
+        <button
+          type="button"
+          onClick={onToggle}
+          className={cn(unit.sent ? cn(CTA_SECONDARY, "h-11") : CTA_PRIMARY, "shrink-0")}
+        >
+          {!unit.sent && <CheckIcon aria-hidden="true" className="size-4" />}
+          {unit.sent ? t("gifts.markPending") : t("gifts.markSent")}
+          <span className="sr-only"> — {unit.label}</span>
+        </button>
+      )}
     </li>
   );
 }

@@ -351,6 +351,7 @@ export async function createWeddingPlan(
 
   STEP_DEFINITIONS.forEach((def, index) => {
     const stepRef = doc(collection(db, "weddingPlans", planRef.id, "steps"));
+    const late = def.suggestedTasks.flatMap((task) => (typeof task !== "string" && task.late ? [task.auto] : []));
     const tasks: StepTask[] = def.suggestedTasks.map((suggested) => {
       if (typeof suggested === "string") {
         return { id: crypto.randomUUID(), title: suggested, done: false };
@@ -366,6 +367,8 @@ export async function createWeddingPlan(
       sortOrder: index,
       notes: "",
       tasks,
+      // Plan nuevo: ya trae todas las tareas base, no hay que ofrecerle las «tardías» (ver base-steps.ts).
+      ...(late.length > 0 ? { seededAutos: late } : {}),
     });
   });
 

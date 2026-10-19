@@ -31,6 +31,7 @@ import {
 } from "@/lib/firebase/dayof";
 import { mapVendor, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { toastWithUndo } from "@/lib/undo-toast";
 import type { Vendor } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,9 @@ export function ContactsSection({
 }) {
   const { t } = useTranslation("dayof");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("dayof");
+  // Copiar proveedores como contactos lee su sección.
+  const { canView: canViewVendors } = usePlanPermission("vendors");
   const editor = useEditor<DayContact>();
   const [vendorsOpen, setVendorsOpen] = React.useState(false);
 
@@ -70,10 +74,12 @@ export function ContactsSection({
       title={t("contacts.title")}
       description={t("contacts.description")}
       action={
-        <div className="flex flex-wrap items-center gap-2">
-          {vendorsButton}
-          {contacts.length > 0 && addButton}
-        </div>
+        canEdit ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {canViewVendors && vendorsButton}
+            {contacts.length > 0 && addButton}
+          </div>
+        ) : undefined
       }
     >
       <ListBody
@@ -81,7 +87,7 @@ export function ContactsSection({
         error={error}
         empty={contacts.length === 0}
         emptyText={t("contacts.empty")}
-        emptyAction={addButton}
+        emptyAction={canEdit ? addButton : undefined}
       >
         <ul>
           {contacts.map((contact) => (
@@ -109,7 +115,7 @@ export function ContactsSection({
       </ListBody>
       <p className="text-sm text-ink-muted">{t("contacts.printNote")}</p>
 
-      <DayDialog open={editor.open} onOpenChange={editor.setOpen}>
+      <DayDialog open={editor.open} onOpenChange={editor.setOpen} readOnly={!canEdit}>
         <ContactForm
           key={editor.item?.id ?? "new"}
           planId={planId}
@@ -117,9 +123,11 @@ export function ContactsSection({
           onDone={() => editor.setOpen(false)}
         />
       </DayDialog>
+      {canEdit && canViewVendors && (
       <DayDialog open={vendorsOpen} onOpenChange={setVendorsOpen}>
         <VendorPicker planId={planId} contacts={contacts} onDone={() => setVendorsOpen(false)} />
       </DayDialog>
+      )}
     </CeremonySection>
   );
 }

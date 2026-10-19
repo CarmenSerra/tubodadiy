@@ -32,6 +32,7 @@ import {
 } from "@/lib/auto-tasks";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { mapBudgetItem, mapGuest, mapVendor } from "@/lib/firebase/plans";
+import { canSyncTasks } from "@/lib/firebase/sync-access";
 import { TIMELINE_CATEGORY } from "@/lib/steps";
 import type {
   BudgetItem,
@@ -95,6 +96,8 @@ export async function lockPhase(planId: string, phaseId: string) {
  * última lo completa; desmarcar una automática de un paso completo lo reabre).
  */
 export async function syncAutoTaskStep(planId: string, category: string, data: AutoTaskInput) {
+  // Sin permiso para editar «Tareas» no hay nada que sincronizar (ni se lee ni se escribe).
+  if (!canSyncTasks(planId)) return;
   const db = getFirebaseDb();
   const found = await getDocs(
     query(
@@ -165,6 +168,8 @@ export async function syncToolTasks(
   subcollection: "guests" | "vendors" | "budgetItems",
   categories: string[]
 ) {
+  // Hace falta editar «Tareas» y poder leer la sección de la que depende.
+  if (!canSyncTasks(planId, subcollection === "budgetItems" ? "budget" : subcollection)) return;
   try {
     const snap = await getDocs(collection(getFirebaseDb(), "weddingPlans", planId, subcollection));
     const reached =

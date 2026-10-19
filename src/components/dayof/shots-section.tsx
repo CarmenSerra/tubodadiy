@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePlanContext } from "@/lib/context/plan-context";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import {
   SHOT_GROUPS,
   SUGGESTED_SHOTS,
@@ -55,6 +56,7 @@ export function ShotsSection({
 }) {
   const { t } = useTranslation("dayof");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("dayof");
   const [loadingTemplate, setLoadingTemplate] = React.useState(false);
   const progress = shotProgress(shots);
   const groups = React.useMemo(() => groupShots(shots), [shots]);
@@ -92,7 +94,7 @@ export function ShotsSection({
   }
 
   const templateButton =
-    missing > 0 ? (
+    canEdit && missing > 0 ? (
       <button
         type="button"
         onClick={() => void loadTemplate()}
@@ -156,9 +158,10 @@ export function ShotsSection({
                     const label = shotLabel(shot, t);
                     return (
                       <li key={shot.id} className="flex items-center gap-1 border-t border-line pl-4 pr-1 first:border-t-0">
-                        <label className="flex min-h-12 min-w-0 flex-1 cursor-pointer items-center gap-3 py-2">
+                        <label className={cn("flex min-h-12 min-w-0 flex-1 items-center gap-3 py-2", canEdit && "cursor-pointer")}>
                           <Checkbox
                             checked={shot.checked}
+                            disabled={!canEdit}
                             onCheckedChange={(v) => void toggle(shot, v === true)}
                             className={CHECKBOX}
                           />
@@ -171,7 +174,9 @@ export function ShotsSection({
                             {label}
                           </span>
                         </label>
-                        <DeleteIconButton ariaLabel={t("shots.deleteAria", { name: label })} onDelete={() => remove(shot)} />
+                        {canEdit && (
+                          <DeleteIconButton ariaLabel={t("shots.deleteAria", { name: label })} onDelete={() => remove(shot)} />
+                        )}
                       </li>
                     );
                   })}
@@ -181,7 +186,7 @@ export function ShotsSection({
           })}
         </div>
       </ListBody>
-      {!loading && !error && <AddShotForm planId={planId} />}
+      {canEdit && !loading && !error && <AddShotForm planId={planId} />}
     </CeremonySection>
   );
 }

@@ -71,6 +71,7 @@ import { mapSaveTheDate, saveTheDateRef } from "@/lib/firebase/designs";
 import { giftItemsQuery, mapGiftItem } from "@/lib/firebase/gift-list";
 import { mapTimelineItem, mapVendor, timelineItemsQuery, vendorsQuery } from "@/lib/firebase/plans";
 import { useCollection } from "@/lib/hooks/use-collection";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 import { useDoc } from "@/lib/hooks/use-doc";
 import type { PlanGift } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -111,8 +112,15 @@ function InvitationLoader() {
 
   // Lo que la pareja ya ha escrito en el resto del plan, para rellenar la invitación.
   // Si alguna lectura falla, simplemente no hay autorrelleno de esa parte.
-  const { data: vendors, loading: vendorsLoading } = useCollection(vendorsQuery(planId), mapVendor);
-  const { data: timeline, loading: timelineLoading } = useCollection(timelineItemsQuery(planId), mapTimelineItem);
+  // Proveedores y escaleta son de otras secciones: solo se leen si se pueden ver.
+  const { canEdit } = usePlanPermission("invitation");
+  const { canView: canViewVendors } = usePlanPermission("vendors");
+  const { canView: canViewTimeline } = usePlanPermission("dayof");
+  const { data: vendors, loading: vendorsLoading } = useCollection(canViewVendors ? vendorsQuery(planId) : null, mapVendor);
+  const { data: timeline, loading: timelineLoading } = useCollection(
+    canViewTimeline ? timelineItemsQuery(planId) : null,
+    mapTimelineItem
+  );
   const { data: saveTheDate, loading: designLoading } = useDoc(saveTheDateRef(planId), mapSaveTheDate);
   // Estilo compartido con «Reserva la fecha» (plantilla, paleta y fondo).
   const { data: sharedStyle, loading: styleLoading } = useDoc(styleRef(planId), mapStyle);
@@ -166,6 +174,7 @@ function InvitationLoader() {
         stationeryTemplate: saveTheDate?.template ?? null,
       })}
       sharedStyleJson={sharedStyle ? JSON.stringify(cleanStyle(sharedStyle)) : null}
+      readOnly={!canEdit}
     />
   );
 }
@@ -187,6 +196,7 @@ function Editor({
   fallbackSlug,
   style,
   sharedStyleJson,
+  readOnly,
 }: {
   planId: string;
   planGift: PlanGift | null;
@@ -197,6 +207,8 @@ function Editor({
   fallbackSlug: string;
   style: InvitationStyle;
   sharedStyleJson: string | null;
+  /** Solo ver: sin guardar, publicar ni cambiar nada. */
+  readOnly: boolean;
 }) {
   const { t } = useTranslation("invitationPage");
   const { lang: appLang } = useLanguage();
@@ -327,12 +339,13 @@ function Editor({
   /** Todo cambio de la persona pasa por aquí: se anota y se programa el autoguardado. */
   const update = React.useCallback(
     (change: (f: InvitationContent) => InvitationContent) => {
+      if (readOnly) return;
       const next = change(formRef.current);
       formRef.current = next;
       setForm(next);
       markChanged();
     },
-    [markChanged]
+    [markChanged, readOnly]
   );
   const set = <K extends keyof InvitationContent>(key: K, value: InvitationContent[K]) =>
     update((f) => ({ ...f, [key]: value }));
@@ -425,7 +438,7 @@ function Editor({
 
   /** Confirma el enlace escrito (al salir del campo): a partir de ahí se guarda con el resto. */
   function commitSlug(value: string) {
-    if (!isValidSlug(value)) return;
+    if (readOnly || !isValidSlug(value)) return;
     if (value === slug && slugCheck.status === "taken") return;
     if (value === (committedSlug.current ?? saved?.slug ?? proposal)) return;
     committedSlug.current = value;
@@ -442,7 +455,7 @@ function Editor({
   const wantedGift = saved ? publicGift(planGift, giftList, saved.showGift) : null;
   const giftOutOfSync = Boolean(saved) && giftItems !== null && !sameGift(savedGift, wantedGift);
   React.useEffect(() => {
-    if (!saved || !giftOutOfSync) return;
+    if (readOnly || !saved || !giftOutOfSync) return;
     syncInvitationGift(saved.slug, wantedGift).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [giftOutOfSync, saved?.slug]);
@@ -570,13 +583,19 @@ function Editor({
   const prev = stepIndex > 0 ? STEPS[stepIndex - 1] : null;
   const next = stepIndex < STEPS.length - 1 ? STEPS[stepIndex + 1] : null;
 
+  // Quien solo puede ver no empieza una invitación: si aún no hay ninguna, se le dice con calma.
+  if (readOnly && !saved) {
+    return (
+      <p className="rounded-2xl bg-lilac-soft p-5 text-sm text-ink ring-1 ring-lilac-edge">{t("readOnlyEmpty")}</p>
+    );
+  }
   if (!modeChosen) return <InvitationModeChooser onChoose={chooseMode} />;
 
   return (
     <>
       <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] md:gap-4 lg:gap-6 xl:gap-8">
         <div className="flex min-w-0 flex-col gap-5">
-          <InvitationModeSwitch mode={mode} onChange={changeMode} />
+          {!readOnly && <InvitationModeSwitch mode={mode} onChange={changeMode} />}
           <div ref={stepperRef} className="scroll-mt-4">
             <nav aria-label={t("steps.label")}>
               <ol className="grid grid-cols-3 gap-2">
@@ -621,6 +640,8 @@ function Editor({
           </div>
 
           <div ref={panelRef} tabIndex={-1} className="flex min-w-0 flex-col gap-4 outline-none">
+            {/* Solo ver: los campos se muestran sin poder cambiarlos. */}
+            <fieldset disabled={readOnly} className="contents">
             {step === "data" && (
               <InvitationDataStep
                 planId={planId}
@@ -628,10 +649,11 @@ function Editor({
                 onSet={set}
                 onPlace={setPlace}
                 badUrls={[...badUrls]}
-                showFillNote={fromPlan.length > 0 || canRefresh}
+                showFillNote={!readOnly && (fromPlan.length > 0 || canRefresh)}
                 filledFromPlan={fromPlan.length > 0}
                 onRefresh={refreshFromPlan}
                 gift={{ available: giftAvailable, planGift }}
+                readOnly={readOnly}
               />
             )}
             {step === "design" && blank && (
@@ -653,6 +675,7 @@ function Editor({
                 idPrefix="inv-style"
               />
             )}
+            </fieldset>
             {step === "share" && (
               <InvitationShareStep
                 published={published}
@@ -677,12 +700,13 @@ function Editor({
                 onCopy={() => void handleCopy()}
                 missingBlocks={missingBlocks}
                 onGoDesign={() => goTo("design")}
+                readOnly={readOnly}
               />
             )}
           </div>
 
           <div className="flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <SaveIndicator status={autosave.status} onRetry={autosave.flush} onFix={() => goTo("share")} />
+            {readOnly ? <span /> : <SaveIndicator status={autosave.status} onRetry={autosave.flush} onFix={() => goTo("share")} />}
             <div className="order-first flex items-center gap-2 sm:order-none">
               {prev && (
                 <button type="button" onClick={() => goTo(prev)} className={cn(CTA_SECONDARY, "h-11")}>
@@ -730,7 +754,7 @@ function Editor({
                   design={design}
                   arrangement={finalView ? "final" : "flat"}
                   // Siempre editable: en «final» la propia tarjeta desvanece los huecos y no responde.
-                  editable
+                  editable={!readOnly}
                   selected={selected}
                   onPlace={placeItem}
                   onSpan={changeSpan}

@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/hooks/use-auth";
 import { dateFormatter, parseDateOnly } from "@/lib/i18n/format";
 import type { Lang } from "@/lib/i18n/config";
 import { useLanguage } from "@/lib/i18n/provider";
+import type { PlanSection, SectionLevel } from "@/lib/permissions";
 import type { PlanStep } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -170,10 +171,13 @@ function NotifyRow() {
 export function TaskReminders({
   planId,
   steps,
+  levels,
   onReveal,
 }: {
   planId: string;
   steps: PlanStep[];
+  /** Qué puede ver la persona: los avisos solo leen citas (Tareas) y pagos (Presupuesto) si puede verlos. */
+  levels: Record<PlanSection, SectionLevel>;
   onReveal?: (stepId: string) => void;
 }) {
   const { t } = useTranslation("dashboard");
@@ -182,7 +186,7 @@ export function TaskReminders({
     [planId, steps, t]
   );
   // Avisos del navegador (opt-in): tareas, citas, pagos y boda de hoy o mañana.
-  useAgendaNotificationFromSteps(planId, steps);
+  useAgendaNotificationFromSteps(planId, steps, levels);
 
   if (upcoming.length === 0 && overdue.length === 0) return null;
   return (

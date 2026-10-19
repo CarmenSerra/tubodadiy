@@ -9,7 +9,7 @@ import { CEREMONY_OPTIONS, type CeremonyOption } from "@/components/plan-tools/c
 import { usePlanContext } from "@/lib/context/plan-context";
 
 /** «Tipo de ceremonia»: la elección con su explicación y un botón para cambiarla. */
-export function CeremonyTypeSection({ onPick }: { onPick: () => void }) {
+export function CeremonyTypeSection({ onPick }: { onPick?: () => void }) {
   const { t } = useTranslation("ceremony");
   const { plan } = usePlanContext();
   const option = CEREMONY_OPTIONS.find((o) => o.value === plan?.ceremonyType) ?? null;
@@ -26,7 +26,7 @@ export function CeremonyTypeSection({ onPick }: { onPick: () => void }) {
       title={t("type.title")}
       description={t("type.description")}
       action={
-        option ? (
+        option && onPick ? (
           <button type="button" onClick={onPick} className={CTA_SECONDARY}>
             {t("type.change")}
           </button>
@@ -76,12 +76,14 @@ export function CeremonyTypeSection({ onPick }: { onPick: () => void }) {
               </li>
             ))}
           </ul>
-          <div>
-            <button type="button" onClick={onPick} className={CTA_PRIMARY}>
-              <LandmarkIcon aria-hidden="true" className="size-4" />
-              {t("type.choose")}
-            </button>
-          </div>
+          {onPick && (
+            <div>
+              <button type="button" onClick={onPick} className={CTA_PRIMARY}>
+                <LandmarkIcon aria-hidden="true" className="size-4" />
+                {t("type.choose")}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </CeremonySection>
