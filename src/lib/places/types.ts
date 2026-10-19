@@ -10,6 +10,8 @@ export interface PlaceDetails {
   community: string;
   country: string;
   primaryType: string;
+  /** Email extraído de la web del lugar (solo si ya se consultó antes; si no, se pide a /api/places/site). */
+  email?: string;
 }
 
 /** Resultado de la búsqueda de recintos (lista, solo lectura). */

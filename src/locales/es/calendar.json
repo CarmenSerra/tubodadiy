@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "label": "Calendario"
+  },
+  "page": {
+    "title": "Calendario",
+    "description": "Citas, tareas con fecha, plazos de pago y el día de la boda, todo en un mismo sitio.",
+    "loading": "Cargando el calendario",
+    "loadError": {
+      "title": "No hemos podido cargar el calendario",
+      "text": "Comprueba tu conexión e inténtalo de nuevo en unos momentos."
+    }
+  },
+  "types": {
+    "wedding": {
+      "label": "Boda",
+      "one": "Boda",
+      "title": "¡El día de la boda!"
+    },
+    "appointment": {
+      "label": "Citas",
+      "one": "Cita"
+    },
+    "task": {
+      "label": "Tareas",
+      "one": "Tarea",
+      "assignee": "Responsable: {{name}}"
+    },
+    "payment": {
+      "label": "Pagos",
+      "one": "Pago",
+      "title": "Pago: {{concept}}",
+      "installment": "plazo {{n}} de {{total}}"
+    }
+  },
+  "filters": {
+    "label": "Qué mostrar"
+  },
+  "views": {
+    "label": "Vista del calendario",
+    "month": "Mes",
+    "upcoming": "Próximos"
+  },
+  "month": {
+    "prev": "Mes anterior",
+    "next": "Mes siguiente",
+    "today": "Hoy",
+    "goToWedding": "Ir a la boda",
+    "gridLabel": "Calendario de {{month}}",
+    "dayAria_one": "{{date}}: {{count}} evento",
+    "dayAria_other": "{{date}}: {{count}} eventos",
+    "dayAriaNone": "{{date}}: sin eventos",
+    "more_one": "+{{count}} más",
+    "more_other": "+{{count}} más"
+  },
+  "day": {
+    "empty": "No hay nada este día."
+  },
+  "upcoming": {
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "empty": "No hay nada próximo con estos filtros.",
+    "more_one": "Y {{count}} más más adelante.",
+    "more_other": "Y {{count}} más más adelante."
+  },
+  "empty": {
+    "title": "Aún no hay fechas en tu calendario",
+    "text": "Ponle fecha a una tarea, apunta una cita o añade el plazo de un pago y aparecerán aquí."
+  },
+  "event": {
+    "done": "Hecha"
+  },
+  "ics": {
+    "button": "Añadir a mi calendario",
+    "hint": "Descarga un archivo .ics con lo que se ve (sin lo ya hecho) para abrirlo en Google Calendar, Apple Calendar u Outlook.",
+    "file": "calendario",
+    "calendarName": "Boda · {{title}}",
+    "calendarNameDefault": "Mi boda",
+    "error": "No se ha podido crear el archivo del calendario."
+  },
+  "notify": {
+    "enable": "Activar avisos",
+    "disable": "Desactivar avisos",
+    "blocked": "Los avisos están bloqueados en este navegador. Puedes permitirlos en los ajustes del sitio.",
+    "help": "Te avisamos al abrir la app si hoy o mañana hay una cita, una tarea o un pago.",
+    "onHelp": "Avisos activados en este navegador: una vez al día, si hay algo para hoy o mañana.",
+    "title_one": "Tienes {{count}} cosa para hoy o mañana",
+    "title_other": "Tienes {{count}} cosas para hoy o mañana",
+    "line": "{{title}} · {{when}}",
+    "more_one": "Y {{count}} más",
+    "more_other": "Y {{count}} más",
+    "when": {
+      "today": "hoy",
+      "tomorrow": "mañana",
+      "todayAt": "hoy a las {{time}}",
+      "tomorrowAt": "mañana a las {{time}}"
+    }
+  }
+}

@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { CompassIcon, PlusIcon } from "lucide-react";
+import { ColumnsIcon, CompassIcon, PlusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Skeleton } from "@/components/dashboard/ui";
 import { EmptyVendorCard, VendorCard } from "@/components/vendors/vendor-card";
 import { SLIDE_WIDTH, VendorCarousel } from "@/components/vendors/vendor-carousel";
+import { VendorsExportButton } from "@/components/export/export-buttons";
+import { VendorCompare } from "@/components/vendors/vendor-compare";
 import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
 import { VendorLocationFilter } from "@/components/vendors/vendor-location-filter";
 import {
@@ -24,7 +26,7 @@ import { useCollection } from "@/lib/hooks/use-collection";
 import { cn } from "@/lib/utils";
 
 const SECTION_ACTION =
-  "inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink outline-none transition-colors hover:bg-lilac-soft focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+  "inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink outline-none transition-colors hover:bg-lilac-soft focus-visible:ring-2 focus-visible:ring-lilac focus-visible:ring-offset-2 focus-visible:ring-offset-white";
 
 const PANEL = "rounded-2xl border border-line bg-panel p-5 sm:p-8";
 
@@ -76,13 +78,16 @@ export function VendorsList({ planId }: { planId: string }) {
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
-      <VendorLocationFilter
-        options={options}
-        value={filter}
-        onChange={setLocationFilter}
-        shown={visible.length}
-        total={vendors.length}
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <VendorLocationFilter
+          options={options}
+          value={filter}
+          onChange={setLocationFilter}
+          shown={visible.length}
+          total={vendors.length}
+        />
+        {vendors.length > 0 && <VendorsExportButton vendors={visible} />}
+      </div>
       {groups.map(({ category, vendors: options }, index) => (
         <section key={category} aria-labelledby={`vendors-section-${index}`} className={cn(PANEL, "flex flex-col gap-6")}>
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
@@ -98,6 +103,19 @@ export function VendorsList({ planId }: { planId: string }) {
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-x-1">
+              {options.length >= 2 && (
+                <VendorCompare
+                  planId={planId}
+                  category={category}
+                  vendors={options}
+                  trigger={
+                    <button type="button" className={SECTION_ACTION}>
+                      <ColumnsIcon className="size-4" aria-hidden="true" />
+                      {t("list.compare")}
+                    </button>
+                  }
+                />
+              )}
               {isVenueCategory(category) && options.length > 0 && (
                 <button type="button" onClick={() => setDiscoverOpen(true)} className={SECTION_ACTION}>
                   <CompassIcon className="size-4" aria-hidden="true" />

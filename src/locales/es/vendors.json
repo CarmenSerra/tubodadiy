@@ -47,9 +47,9 @@
     "hint": "Guarda aquí las opciones que estás comparando."
   },
   "contact": {
-    "button": "Contacto",
-    "ariaLabel": "Contacto de {{name}}",
-    "description": "{{category}} · datos de contacto",
+    "button": "Ficha",
+    "ariaLabel": "Ficha de {{name}}",
+    "description": "{{category}} · ficha, contactos y documentos",
     "location": "Ubicación",
     "viewOnMaps": "Ver en Google Maps",
     "newTab": "(se abre en una pestaña nueva)",
@@ -91,7 +91,8 @@
     "discover": "Descubrir fincas",
     "addAnother": "Añadir otra",
     "invitation": "¿Quieres ver fincas para bodas? Te enseñamos algunas por provincia para que guardes las que te gusten.",
-    "seeVenues": "Ver fincas para bodas"
+    "seeVenues": "Ver fincas para bodas",
+    "compare": "Comparar"
   },
   "filter": {
     "section": "Filtrar proveedores por lugar",
@@ -162,7 +163,13 @@
       "mapsLink": "Enlace de Google Maps",
       "email": "Correo de contacto",
       "phone": "Teléfono",
-      "notes": "Notas"
+      "notes": "Notas",
+      "includes": "Qué incluye",
+      "includesHint": "Una cosa por línea: por ejemplo, 8 horas de reportaje, álbum, segundo fotógrafo.",
+      "rating": "Valoración",
+      "optional": "(opcional)",
+      "pros": "A favor",
+      "cons": "En contra"
     }
   },
   "discovery": {
@@ -1298,5 +1305,107 @@
         "party": "Banquete y fiesta"
       }
     }
+  },
+  "rating": {
+    "value": "Valoración: {{count}} de 5",
+    "clear": "Quitar valoración"
+  },
+  "sheet": {
+    "tabs": {
+      "summary": "Resumen",
+      "contacts": "Contactos",
+      "documents": "Documentos"
+    },
+    "includes": "Qué incluye",
+    "pros": "A favor",
+    "cons": "En contra",
+    "appointments": "Citas",
+    "noAppointments": "Todavía no hay citas con este proveedor en la agenda.",
+    "appointmentsDone_one": "{{done}} de {{count}} cita hecha",
+    "appointmentsDone_other": "{{done}} de {{count}} citas hechas"
+  },
+  "contacts": {
+    "intro": "Además de los datos principales, apunta aquí a las personas con las que hablas en este proveedor.",
+    "empty": "Aún no has añadido más personas de contacto. Por ejemplo, la comercial que te atendió o el coordinador del día.",
+    "noName": "Sin nombre",
+    "add": "Añadir persona",
+    "edit": "Editar contacto {{name}}",
+    "delete": "Eliminar contacto {{name}}",
+    "deleted": "Contacto eliminado",
+    "saveError": "No se ha podido guardar el contacto.",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "name": "Ponle un nombre para reconocerla."
+    },
+    "fields": {
+      "name": "Nombre",
+      "role": "Cargo o rol",
+      "roleHint": "Por ejemplo: comercial, coordinadora, fotógrafo principal.",
+      "phone": "Teléfono",
+      "email": "Correo electrónico"
+    }
+  },
+  "docs": {
+    "intro": "Aquí se guarda el enlace, no el archivo: pega la dirección de Drive, de un correo o de la web donde tengas el documento. Así no ocupa espacio y lo tendrás a un clic.",
+    "empty": "Aún no hay documentos. Cuando tengas un presupuesto, un contrato o una factura, apunta su enlace aquí.",
+    "types": {
+      "contract": "Contrato",
+      "quote": "Presupuesto",
+      "invoice": "Factura",
+      "other": "Otro"
+    },
+    "signed": "Firmado",
+    "unsigned": "Pendiente de firma",
+    "add": "Añadir documento",
+    "edit": "Editar documento {{title}}",
+    "delete": "Eliminar documento {{title}}",
+    "deleted": "Documento eliminado",
+    "saveError": "No se ha podido guardar el documento.",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "title": "Ponle un título para reconocerlo."
+    },
+    "fields": {
+      "type": "Tipo",
+      "title": "Título",
+      "link": "Enlace",
+      "linkHint": "Opcional. Si lo tienes en papel, déjalo vacío y anótalo en las notas.",
+      "date": "Fecha",
+      "signedLabel": "Firma",
+      "signed": "Ya está firmado",
+      "notes": "Notas"
+    }
+  },
+  "compare": {
+    "title": "Comparar: {{category}}",
+    "description": "Elige entre 2 y 4 opciones para verlas lado a lado y quédate con la que más te convenza.",
+    "pick": "¿Qué opciones comparamos?",
+    "pickCount_one": "{{count}} de {{max}} elegida",
+    "pickCount_other": "{{count}} de {{max}} elegidas",
+    "needTwo": "Elige al menos dos opciones para compararlas.",
+    "tableCaption": "Comparación de opciones",
+    "rows": {
+      "price": "Precio",
+      "includes": "Qué incluye",
+      "status": "Estado",
+      "rating": "Valoración",
+      "pros": "A favor",
+      "cons": "En contra",
+      "location": "Ubicación",
+      "appointments": "Citas",
+      "decision": "Decisión"
+    },
+    "lowest": "Más económica",
+    "notSpecified": "Sin indicar",
+    "noAppointments": "Sin citas",
+    "appointmentsDone_one": "{{done}} de {{count}} cita hecha",
+    "appointmentsDone_other": "{{done}} de {{count}} citas hechas",
+    "choose": "Elegir esta",
+    "chooseAria": "Elegir {{name}}",
+    "chosen": "Elegida",
+    "chosenToast": "{{name}} es ahora tu opción elegida",
+    "chooseError": "No se ha podido marcar la opción elegida."
   }
 }

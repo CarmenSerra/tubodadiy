@@ -16,6 +16,7 @@ import { mapGift } from "@/components/plan-tools/gift-model";
 import { normalizeDietIds } from "@/lib/diets";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { initialAutoDone, statusAfterTasksChange } from "@/lib/auto-tasks";
+import { mapVendorExtras } from "@/lib/vendor-extras";
 import { STEP_DEFINITIONS, baseTaskAuto, currentAuto, legacyTaskTitle } from "@/lib/steps";
 import type {
   StepTask,
@@ -110,6 +111,9 @@ export function mapMember(id: string, data: DocumentData): PlanMember {
     role: data.role,
     status: data.status,
     invitedEmail: data.invitedEmail ?? "",
+    permissions: Array.isArray(data.permissions)
+      ? data.permissions.filter((p: unknown): p is string => typeof p === "string")
+      : undefined,
   };
 }
 
@@ -193,6 +197,7 @@ export function mapVendor(id: string, data: DocumentData): Vendor {
     location: data.location ?? "",
     mapsUrl: data.mapsUrl ?? "",
     ...mapVendorPlaceFields(data),
+    ...mapVendorExtras(data),
     createdAt: toMillis(data.createdAt),
   };
 }

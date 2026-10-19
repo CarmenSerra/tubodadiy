@@ -1,0 +1,181 @@
+{
+  "menu": {
+    "trigger": "Exportar",
+    "triggerAria": "Exportar {{what}}",
+    "formatLabel": "Formato",
+    "xlsx": "Excel (.xlsx)",
+    "csv": "CSV para Excel (.csv)",
+    "print": "Imprimir o guardar en PDF",
+    "error": "No se ha podido crear el archivo. Inténtalo de nuevo."
+  },
+  "yes": "Sí",
+  "no": "No",
+  "guests": {
+    "file": "invitados",
+    "sheet": "Invitados",
+    "what": "la lista de invitados",
+    "columns": {
+      "name": "Nombre",
+      "plusOne": "Con acompañante",
+      "companion": "Nombre del acompañante",
+      "rsvp": "Respuesta",
+      "seats": "Plazas",
+      "group": "Grupo",
+      "household": "Familia",
+      "diets": "Alergias y dietas",
+      "dietNotes": "Notas de dieta",
+      "table": "Mesa",
+      "lodging": "Necesita alojamiento",
+      "lodgingPlace": "Alojamiento",
+      "transport": "Necesita transporte",
+      "transportFrom": "Salida del transporte",
+      "gift": "Regalo",
+      "giftAmount": "Importe del regalo",
+      "thanks": "Agradecimiento enviado",
+      "thanksDate": "Fecha del agradecimiento",
+      "notes": "Notas"
+    }
+  },
+  "budget": {
+    "file": "presupuesto",
+    "what": "el presupuesto",
+    "sheets": {
+      "items": "Partidas",
+      "installments": "Plazos",
+      "summary": "Resumen"
+    },
+    "columns": {
+      "category": "Categoría",
+      "concept": "Concepto",
+      "vendor": "Proveedor",
+      "payer": "Quién paga",
+      "planned": "Previsto",
+      "actual": "Real",
+      "cost": "Coste",
+      "paid": "Pagado",
+      "pending": "Pendiente",
+      "status": "Estado",
+      "nextDue": "Próximo plazo",
+      "number": "Plazo n.º",
+      "amount": "Importe",
+      "dueDate": "Fecha límite",
+      "installmentPaid": "Pagado",
+      "paidDate": "Fecha de pago",
+      "field": "Concepto"
+    },
+    "status": {
+      "paid": "Pagado",
+      "partial": "Pago parcial",
+      "pending": "Pendiente"
+    },
+    "summary": {
+      "total": "Presupuesto total",
+      "planned": "Previsto",
+      "expected": "Esperado (real o previsto)",
+      "paid": "Pagado",
+      "pending": "Pendiente de pago",
+      "remaining": "Te queda"
+    }
+  },
+  "banquet": {
+    "file": "banquete",
+    "what": "las mesas y sus comensales",
+    "sheets": {
+      "tables": "Mesas",
+      "guests": "Comensales"
+    },
+    "columns": {
+      "table": "Mesa",
+      "shape": "Forma",
+      "capacity": "Plazas",
+      "used": "Ocupadas",
+      "free": "Libres",
+      "guests": "Comensales",
+      "guest": "Invitado",
+      "companion": "Acompañante",
+      "rsvp": "Respuesta",
+      "diets": "Alergias y dietas",
+      "dietNotes": "Notas de dieta"
+    },
+    "companion": "acompañante",
+    "unseated": "Sin mesa"
+  },
+  "vendors": {
+    "file": "proveedores",
+    "sheet": "Proveedores",
+    "what": "los proveedores",
+    "columns": {
+      "category": "Categoría",
+      "name": "Nombre",
+      "status": "Estado",
+      "cost": "Coste",
+      "phone": "Teléfono",
+      "email": "Correo",
+      "website": "Web",
+      "address": "Dirección",
+      "municipality": "Municipio",
+      "province": "Provincia",
+      "community": "Comunidad",
+      "maps": "Mapa",
+      "notes": "Notas"
+    }
+  },
+  "print": {
+    "back": "Volver",
+    "button": "Imprimir",
+    "pdfHint": "En el diálogo de impresión puedes guardarlo como PDF para compartirlo.",
+    "preparing": "Preparando el documento",
+    "noAccess": "No tienes acceso a este plan de boda.",
+    "loadError": "No hemos podido cargar los datos.",
+    "guests": {
+      "meta": { "title": "Lista de invitados" },
+      "title": "Lista de invitados",
+      "summary": "{{total}} en la lista · {{confirmed}} confirmados · {{pending}} pendientes · {{declined}} no asisten",
+      "seats": "{{count}} plazas confirmadas (con acompañantes)",
+      "empty": "Aún no hay invitados.",
+      "noTable": "—",
+      "columns": {
+        "name": "Invitado",
+        "rsvp": "Respuesta",
+        "groupHousehold": "Grupo y familia",
+        "diets": "Alergias y dietas",
+        "table": "Mesa",
+        "logistics": "Alojamiento y transporte"
+      },
+      "companion": "+ {{name}}",
+      "unnamedCompanion": "+ acompañante",
+      "lodging": "Alojamiento: {{place}}",
+      "lodgingNoPlace": "Necesita alojamiento",
+      "transport": "Transporte: {{place}}",
+      "transportNoPlace": "Necesita transporte"
+    },
+    "budget": {
+      "meta": { "title": "Presupuesto" },
+      "title": "Presupuesto",
+      "totals": {
+        "total": "Presupuesto total",
+        "expected": "Esperado",
+        "paid": "Pagado",
+        "pending": "Pendiente",
+        "remaining": "Te queda"
+      },
+      "empty": "Aún no hay partidas.",
+      "columns": {
+        "concept": "Concepto",
+        "cost": "Coste",
+        "paid": "Pagado",
+        "pending": "Pendiente",
+        "nextDue": "Próximo plazo"
+      },
+      "subtotal": "Subtotal",
+      "noDue": "—",
+      "dueTitle": "Plazos pendientes",
+      "dueColumns": {
+        "date": "Fecha límite",
+        "concept": "Concepto",
+        "amount": "Importe"
+      },
+      "dueEmpty": "No quedan plazos pendientes con fecha."
+    }
+  }
+}

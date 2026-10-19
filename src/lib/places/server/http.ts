@@ -21,19 +21,25 @@ export async function jsonError(status: number, code: string): Promise<Response>
 
 /**
  * Exige un ID token de Firebase válido en `Authorization: Bearer`.
- * Devuelve `null` si todo va bien o la respuesta de error lista para devolver.
+ * Devuelve `{ uid }` si todo va bien o `{ denied }` con la respuesta de error lista para devolver.
  */
-export async function requireUser(request: Request): Promise<Response | null> {
+export async function authenticate(request: Request): Promise<{ uid: string } | { denied: Response }> {
   const header = request.headers.get("authorization") ?? "";
   const match = /^Bearer\s+(\S+)$/i.exec(header);
-  if (!match) return jsonError(401, "signInRequired");
+  if (!match) return { denied: await jsonError(401, "signInRequired") };
   if (!isFirebaseAdminConfigured) {
-    return jsonError(503, "verifyUnavailable");
+    return { denied: await jsonError(503, "verifyUnavailable") };
   }
   try {
-    await getAdminAuth().verifyIdToken(match[1]);
-    return null;
+    const decoded = await getAdminAuth().verifyIdToken(match[1]);
+    return { uid: decoded.uid };
   } catch {
-    return jsonError(401, "sessionExpired");
+    return { denied: await jsonError(401, "sessionExpired") };
   }
+}
+
+/** Como `authenticate`, para las rutas que no necesitan el uid: `null` si todo va bien. */
+export async function requireUser(request: Request): Promise<Response | null> {
+  const auth = await authenticate(request);
+  return "denied" in auth ? auth.denied : null;
 }

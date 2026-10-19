@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, CopyIcon, Loader2, LockIcon, UserPlusIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, CopyIcon, Loader2, LockIcon, UserPlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Trans, useTranslation } from "react-i18next";
 
@@ -12,6 +12,8 @@ import { useCollection } from "@/lib/hooks/use-collection";
 import { createInvite, mapInvite, pendingInvitesQuery } from "@/lib/firebase/invites";
 import { cn, initials } from "@/lib/utils";
 import type { PlanInvite, PlanMember, PlanRole } from "@/lib/types";
+import { hasAdjustableAccess } from "@/lib/permissions";
+import { MemberPermissions } from "./member-permissions";
 import { INVITE_ROLES, roleDescription, roleLabel } from "./roles";
 
 // Estilos de marca propios del modal (mismos tokens que la home).
@@ -225,7 +227,7 @@ function InviteForm({
       </div>
       <fieldset className="flex flex-col gap-1.5">
         <legend className="mb-1.5 text-sm font-medium text-ink">{t("team.invite.role")}</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2">
           {INVITE_ROLES.map((value) => (
             <label key={value} className="block cursor-pointer">
               <input
@@ -304,7 +306,10 @@ function TeamBody({
 }: Omit<TeamDialogProps, "open" | "onOpenChange" | "returnFocusRef">) {
   const { t } = useTranslation("dashboard");
   const { user } = useAuth();
-  const isOwner = Boolean(currentUserId) && ownerId === currentUserId;
+  // Invitan y ajustan permisos el dueño y la pareja (reglas de Firestore).
+  const myRole = members.find((m) => m.userId === currentUserId)?.role;
+  const canManage = Boolean(currentUserId) && (ownerId === currentUserId || myRole === "partner");
+  const [adjusting, setAdjusting] = React.useState<string | null>(null);
   const invitesQuery = React.useMemo(() => pendingInvitesQuery(planId), [planId]);
   const { data: invites, loading: invitesLoading } = useCollection(invitesQuery, mapInvite);
   const [created, setCreated] = React.useState<{ token: string; email: string } | null>(null);
@@ -341,7 +346,8 @@ function TeamBody({
             {sortedMembers.map((m, i) => {
               const { name, email } = memberName(m);
               return (
-                <li key={m.userId} className={cn(ROW, "flex items-center gap-3")}>
+                <li key={m.userId} className={ROW}>
+                <div className="flex items-center gap-3">
                   <Avatar label={name} index={i} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-ink-strong">
@@ -356,6 +362,27 @@ function TeamBody({
                       <StatusChip pending={m.status === "pending"} />
                     </div>
                   </div>
+                  {canManage && hasAdjustableAccess(m.role) && m.userId !== currentUserId && (
+                    <button
+                      type="button"
+                      aria-expanded={adjusting === m.userId}
+                      aria-controls={`team-access-${m.userId}`}
+                      onClick={() => setAdjusting(adjusting === m.userId ? null : m.userId)}
+                      className={cn(CTA_SECONDARY, "h-11 shrink-0 px-4")}
+                    >
+                      {t("team.access.adjust")}
+                      <ChevronDownIcon
+                        className={cn("size-4 transition-transform motion-reduce:transition-none", adjusting === m.userId && "rotate-180")}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  )}
+                </div>
+                {adjusting === m.userId && (
+                  <div id={`team-access-${m.userId}`}>
+                    <MemberPermissions planId={planId} member={m} memberName={name} />
+                  </div>
+                )}
                 </li>
               );
             })}
@@ -384,7 +411,7 @@ function TeamBody({
         <h3 id="team-invite-title" className={H3}>
           {t("team.sections.invite")}
         </h3>
-        {isOwner ? (
+        {canManage ? (
           created ? (
             <CreatedInvite created={created} onAnother={() => setCreated(null)} />
           ) : (
@@ -422,8 +449,8 @@ export interface TeamDialogProps {
 
 /**
  * Modal "Equipo": personas del plan, invitaciones pendientes (con su enlace)
- * e invitación de nuevas personas. Solo el dueño puede invitar (reglas de
- * Firestore: `invites` create exige ser dueño del plan).
+ * e invitación de nuevas personas. Invitan y ajustan el acceso por sección el
+ * dueño y la pareja (reglas de Firestore: `invites` y `members`).
  */
 export function TeamDialog({ open, onOpenChange, returnFocusRef, ...body }: TeamDialogProps) {
   const { t } = useTranslation("dashboard");

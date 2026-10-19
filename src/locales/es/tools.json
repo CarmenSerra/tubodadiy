@@ -492,5 +492,38 @@
         "save": "No se ha podido guardar la cita."
       }
     }
+  },
+  "members": {
+    "access": {
+      "loading": "Cargando",
+      "noView": {
+        "title": "«{{section}}» no está disponible para ti",
+        "description": "La pareja decide qué secciones ve cada persona en este plan. Si necesitas verla, pídeselo con cariño.",
+        "back": "Volver al resumen"
+      },
+      "viewOnly": "Puedes ver {{section}}, pero no editarla. Si quieres cambiar algo, pídeselo a la pareja."
+    },
+    "sections": {
+      "guests": "Invitados",
+      "budget": "Presupuesto",
+      "vendors": "Proveedores",
+      "banquet": "Banquete",
+      "style": "Estilo",
+      "dayof": "Día B",
+      "ceremony": "Ceremonia",
+      "honeymoon": "Luna de miel",
+      "invitation": "Invitación",
+      "tasks": "Tareas"
+    },
+    "permissions": {
+      "groupLabel": "Acceso de {{name}}",
+      "intro": "Elige qué ve y qué edita en cada sección. Quien edita también ve.",
+      "view": "Ver",
+      "edit": "Editar",
+      "viewAria": "Ver {{section}}",
+      "editAria": "Editar {{section}}",
+      "reset": "Volver a lo habitual",
+      "saveError": "No se han podido guardar los cambios."
+    }
   }
 }

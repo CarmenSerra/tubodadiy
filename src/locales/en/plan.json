@@ -50,7 +50,19 @@
     "legalDocs": "See the legal documents guide",
     "gift": "Open the gift details",
     "style": "Go to style",
-    "guestsNeeds": "Go to guest needs"
+    "guestsNeeds": "Go to guest needs",
+    "readingsMusic": "Go to readings and music",
+    "witnesses": "Go to witnesses",
+    "dayContacts": "Go to day-of contacts",
+    "dayShots": "Go to key photos",
+    "playlist": "Go to the playlist",
+    "seating": "Go to the seating plan",
+    "menu": "Go to the banquet menu",
+    "styleBeauty": "Go to beauty",
+    "styleRings": "Go to the rings",
+    "styleDecor": "Go to decor and flowers",
+    "thanks": "Go to guests for the thank-yous",
+    "vendorsRate": "Go to vendors to rate them"
   },
   "status": {
     "options": {
@@ -111,11 +123,15 @@
     },
     "detalles": {
       "name": "The details",
-      "blurb": "Outfits, stationery, accommodation and gifts."
+      "blurb": "Attire and style, stationery, lodging and gifts."
     },
     "recta_final": {
       "name": "Final stretch",
-      "blurb": "Timeline and honeymoon, so you arrive calm and ready."
+      "blurb": "Banquet, schedule and honeymoon, so you arrive calm."
+    },
+    "despues": {
+      "name": "After the wedding",
+      "blurb": "Say thanks, close payments and paperwork, and keep the memories."
     }
   },
   "general": {
@@ -205,5 +221,34 @@
       "removeTask": "Couldn't remove the task.",
       "addTask": "Couldn't add the task."
     }
+  },
+  "templates": {
+    "title": "Task templates",
+    "description": "Add a whole package of tasks to several sections at once. Tasks you already have aren't repeated.",
+    "civil": {
+      "name": "Simple civil",
+      "description": "Civil wedding: registry paperwork, witnesses and a short ceremony."
+    },
+    "religious": {
+      "name": "Religious",
+      "description": "Religious wedding: parish paperwork, readings, choir and logistics."
+    },
+    "destination": {
+      "name": "Destination or abroad",
+      "description": "Wedding away from home: local paperwork, guest travel and local vendors."
+    },
+    "intimate": {
+      "name": "Small and intimate",
+      "description": "Few people and everything simpler: short list, personal invitation and a light plan."
+    },
+    "summary_one": "It will add {{count}} new task in {{sections}}.",
+    "summary_other": "It will add {{count}} new tasks in {{sections}}.",
+    "sections_one": "{{count}} section",
+    "sections_other": "{{count}} sections",
+    "add": "Add the tasks",
+    "added_one": "{{count}} task added",
+    "added_other": "{{count}} tasks added",
+    "none": "You already have every task in this template.",
+    "error": "Couldn't add the template."
   }
 }

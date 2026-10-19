@@ -492,5 +492,38 @@
         "save": "We couldn't save the appointment."
       }
     }
+  },
+  "members": {
+    "access": {
+      "loading": "Loading",
+      "noView": {
+        "title": "“{{section}}” isn't available to you",
+        "description": "The couple decides which sections each person sees in this plan. If you need to see it, just ask them.",
+        "back": "Back to overview"
+      },
+      "viewOnly": "You can view {{section}} but not edit it. If you'd like something changed, ask the couple."
+    },
+    "sections": {
+      "guests": "Guests",
+      "budget": "Budget",
+      "vendors": "Vendors",
+      "banquet": "Banquet",
+      "style": "Style",
+      "dayof": "Wedding day",
+      "ceremony": "Ceremony",
+      "honeymoon": "Honeymoon",
+      "invitation": "Invitation",
+      "tasks": "Tasks"
+    },
+    "permissions": {
+      "groupLabel": "{{name}}'s access",
+      "intro": "Choose what they see and edit in each section. Whoever edits also sees.",
+      "view": "View",
+      "edit": "Edit",
+      "viewAria": "View {{section}}",
+      "editAria": "Edit {{section}}",
+      "reset": "Back to the usual",
+      "saveError": "The changes couldn't be saved."
+    }
   }
 }

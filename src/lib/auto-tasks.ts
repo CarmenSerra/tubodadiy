@@ -1,4 +1,13 @@
-import { listCategories } from "@/components/budget/budget-math";
+import { listCategories, itemCost, itemPayments, todayISO } from "@/components/budget/budget-math";
+import {
+  buildTableViews,
+  menuNotes,
+  unseatedGuests,
+  type BanquetTable,
+  type Dish,
+} from "@/components/banquet/banquet-model";
+import { thankUnits } from "@/components/guests/guest-model";
+import type { BeautyItem, DecorItem, Rings } from "@/components/look/look-model";
 import { canonicalCategory, categoryKey } from "@/components/vendors/vendor-model";
 import type { Appointment } from "@/lib/firebase/appointments";
 import type { SaveTheDateDesign } from "@/lib/firebase/designs";
@@ -25,6 +34,7 @@ export const VENUE_CATEGORY = "lugar";
 export const OUTFIT_CATEGORY = "vestuario";
 export const STATIONERY_CATEGORY = "papeleria";
 export const HONEYMOON_CATEGORY = "luna_de_miel";
+export { AFTER_WEDDING_CATEGORY, BANQUET_CATEGORY, TIMELINE_CATEGORY } from "@/lib/steps";
 
 /** Qué tareas automáticas hay que (re)evaluar y con qué datos del plan. */
 export interface AutoTaskInput {
@@ -248,4 +258,106 @@ export function statusAfterTasksChange(
     return after.some((t) => t.done) ? "in_progress" : "pending";
   }
   return statusAfterTaskSync(status, after);
+}
+
+// ---------------------------------------------------------------------------
+// Hitos de las herramientas nuevas (Ceremonia, Día B, Banquete, Estilo, Después
+// de la boda). Todo son funciones puras que leen datos ya guardados, sin
+// escribir nada; `firebase/base-steps.ts` las alimenta al abrir el plan. Como
+// el resto de hitos, solo MARCAN tareas: nunca desmarcan.
+// ---------------------------------------------------------------------------
+
+/** Lecturas, música y testigos de la ceremonia (cantidades guardadas). */
+export function ceremonyExtrasReached(counts: {
+  readings: number;
+  tracks: number;
+  witnesses: number;
+}): StepTaskAuto[] {
+  const reached: StepTaskAuto[] = [];
+  // Lecturas Y música: una ceremonia sin lecturas es válida, pero entonces se marca a mano.
+  if (counts.readings > 0 && counts.tracks > 0) reached.push("ceremony-readings-music");
+  // Dos testigos: los que piden tanto el registro civil como la parroquia.
+  if (counts.witnesses >= 2) reached.push("ceremony-witnesses");
+  return reached;
+}
+
+/** Mínimo de fotos clave y de canciones para dar por hechas esas listas. */
+export const MIN_KEY_SHOTS = 3;
+export const MIN_PLAYLIST_SONGS = 5;
+
+/** Contactos, fotos clave y playlist del Día B (cantidades guardadas). */
+export function dayOfReached(counts: { contacts: number; shots: number; songs: number }): StepTaskAuto[] {
+  const reached: StepTaskAuto[] = [];
+  if (counts.contacts > 0) reached.push("dayof-contacts");
+  if (counts.shots >= MIN_KEY_SHOTS) reached.push("dayof-shots");
+  if (counts.songs >= MIN_PLAYLIST_SONGS) reached.push("dayof-playlist");
+  return reached;
+}
+
+/**
+ * Banquete: «Plan de mesas» cuando hay mesas y todos los confirmados tienen
+ * sitio; «Menú y alérgenos» cuando hay un plato principal y el menú no deja
+ * sin opción a ninguna dieta de los invitados que vienen.
+ */
+export function banquetReached(guests: Guest[], tables: BanquetTable[], dishes: Dish[]): StepTaskAuto[] {
+  const reached: StepTaskAuto[] = [];
+  const confirmed = guests.filter((g) => g.rsvpStatus === "confirmed");
+  if (tables.length > 0 && confirmed.length > 0) {
+    const views = buildTableViews(tables, confirmed);
+    if (unseatedGuests(views, confirmed).length === 0) reached.push("banquet-seating");
+  }
+  if (dishes.some((d) => d.course === "main") && menuNotes(guests, dishes).length === 0) {
+    reached.push("banquet-menu");
+  }
+  return reached;
+}
+
+/** Estilo: belleza, alianzas y decoración, cuando algo ya está elegido (más allá de «buscando»). */
+export function styleReached(data: {
+  beauty: Pick<BeautyItem, "status">[];
+  rings: Pick<Rings, "status"> | null;
+  decor: Pick<DecorItem, "status">[];
+}): StepTaskAuto[] {
+  const reached: StepTaskAuto[] = [];
+  if (data.beauty.some((b) => b.status !== "searching")) reached.push("style-beauty");
+  if (data.rings && data.rings.status !== "searching") reached.push("style-rings");
+  if (data.decor.some((d) => d.status !== "searching")) reached.push("style-decor");
+  return reached;
+}
+
+/** ¿Ya pasó el día de la boda? Sin fecha, no. */
+export function weddingHasPassed(weddingDate: string | null | undefined, today: string = todayISO()): boolean {
+  return Boolean(weddingDate) && (weddingDate as string) < today;
+}
+
+/**
+ * Después de la boda. Solo cuenta cuando el día de la boda ya pasó (así un
+ * pago adelantado o un regalo de antes no marca tareas que aún no tocan):
+ *  - «Agradecimientos»: hay regalos anotados y todos están agradecidos.
+ *  - «Pagos finales»: hay partidas con coste y todas están pagadas.
+ *  - «Valorar a los proveedores»: hay proveedores elegidos y todos tienen valoración.
+ */
+export function afterWeddingReached(data: {
+  weddingDate: string | null | undefined;
+  guests: Guest[];
+  budgetItems: BudgetItem[];
+  vendors: { status: Vendor["status"]; rating?: number | null }[];
+  today?: string;
+}): StepTaskAuto[] {
+  if (!weddingHasPassed(data.weddingDate, data.today)) return [];
+  const reached: StepTaskAuto[] = [];
+
+  const units = thankUnits(data.guests);
+  if (units.length > 0 && units.every((u) => u.sent)) reached.push("after-thanks");
+
+  const costly = data.budgetItems.filter((item) => itemCost(item) > 0);
+  if (costly.length > 0 && costly.every((item) => itemPayments(item).status === "paid")) {
+    reached.push("after-payments");
+  }
+
+  const chosen = data.vendors.filter((v) => v.status === "chosen");
+  if (chosen.length > 0 && chosen.every((v) => typeof v.rating === "number" && v.rating > 0)) {
+    reached.push("after-rate-vendors");
+  }
+  return reached;
 }

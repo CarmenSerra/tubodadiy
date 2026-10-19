@@ -127,7 +127,7 @@
     "add": "Añadir lectura",
     "empty": "Todavía no hay lecturas. Añade un poema, un texto o un pasaje, con quién lo leerá.",
     "editAria": "Editar la lectura «{{title}}»",
-    "readBy": "Lee {{name}}",
+    "readBy": "Lee: {{name}}",
     "openLink": "Abrir enlace",
     "moveUp": "Subir «{{title}}» una posición",
     "moveDown": "Bajar «{{title}}» una posición",

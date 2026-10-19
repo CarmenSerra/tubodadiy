@@ -134,11 +134,15 @@
     },
     "partner": {
       "label": "Partner",
-      "description": "Manages the plan with you, with full access."
+      "description": "Manages the plan with you, with full access, including the team."
     },
     "planner": {
       "label": "Wedding planner",
-      "description": "Collaborates with full access."
+      "description": "Collaborates on everything except deleting the plan and managing the team."
+    },
+    "family": {
+      "label": "Family",
+      "description": "Sees almost everything and edits only what you allow."
     }
   },
   "team": {
@@ -173,7 +177,7 @@
       "linkFor": "Invitation link for {{email}}"
     },
     "invite": {
-      "intro": "Create a link so your partner or your wedding planner can view and edit the plan with you.",
+      "intro": "Create a link to invite your partner, your wedding planner or your family. Afterwards you can adjust what each person sees and edits.",
       "createError": "The invitation couldn't be created.",
       "emailLabel": "Email address of the person you're inviting",
       "emailPlaceholder": "partner@example.com",
@@ -185,7 +189,10 @@
       "linkLabel": "Invitation link",
       "another": "Invite someone else"
     },
-    "ownerOnly": "Only the plan owner can send invitations. If you'd like to add someone, let them know and they'll gladly invite them."
+    "ownerOnly": "Only the couple (owner and partner) can send invitations and adjust access. If you'd like to add someone, let them know and they'll gladly invite them.",
+    "access": {
+      "adjust": "Adjust access"
+    }
   },
   "invite": {
     "title": "Invitation to a wedding plan",

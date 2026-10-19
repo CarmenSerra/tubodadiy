@@ -28,6 +28,7 @@ import {
   payerLabel,
   todayISO,
 } from "@/components/budget/budget-math";
+import { BudgetExportButton } from "@/components/export/export-buttons";
 import { BudgetPayers } from "@/components/budget/budget-payers";
 import { BudgetSummary, BudgetSummarySkeleton } from "@/components/budget/budget-summary";
 import { BudgetIdeas } from "@/components/ideas/budget-ideas";
@@ -392,6 +393,13 @@ export function BudgetList({ planId, plan }: { planId: string; plan: WeddingPlan
           {allocationButton}
           {items.length > 0 && (
             <>
+              <BudgetExportButton
+                planId={planId}
+                items={items}
+                vendors={vendorList}
+                payerLabels={settings.payerLabels}
+                budgetTotal={budgetTotal}
+              />
               <BudgetItemFormDialog planId={planId} categories={categories} payers={payers} />
               <BudgetIdeas planId={planId} budgetTotal={budgetTotal} items={items} align="end" />
             </>

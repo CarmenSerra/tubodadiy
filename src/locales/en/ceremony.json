@@ -127,7 +127,7 @@
     "add": "Add reading",
     "empty": "There are no readings yet. Add a poem, a text or a passage, and who will read it.",
     "editAria": "Edit the reading “{{title}}”",
-    "readBy": "Read by {{name}}",
+    "readBy": "Read by: {{name}}",
     "openLink": "Open link",
     "moveUp": "Move “{{title}}” up one position",
     "moveDown": "Move “{{title}}” down one position",

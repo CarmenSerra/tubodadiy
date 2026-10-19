@@ -6,6 +6,7 @@ import esAccount from "@/locales/es/account.json";
 import esAuth from "@/locales/es/auth.json";
 import esBanquet from "@/locales/es/banquet.json";
 import esBudget from "@/locales/es/budget.json";
+import esCalendar from "@/locales/es/calendar.json";
 import esCeremony from "@/locales/es/ceremony.json";
 import esCommon from "@/locales/es/common.json";
 import esDashboard from "@/locales/es/dashboard.json";
@@ -14,6 +15,7 @@ import esCustomCard from "@/locales/es/customCard.json";
 import esDiets from "@/locales/es/diets.json";
 import esEnvelope from "@/locales/es/envelope.json";
 import esErrors from "@/locales/es/errors.json";
+import esExport from "@/locales/es/export.json";
 import esGuests from "@/locales/es/guests.json";
 import esHoneymoon from "@/locales/es/honeymoon.json";
 import esInvitation from "@/locales/es/invitation.json";
@@ -31,6 +33,7 @@ import enAccount from "@/locales/en/account.json";
 import enAuth from "@/locales/en/auth.json";
 import enBanquet from "@/locales/en/banquet.json";
 import enBudget from "@/locales/en/budget.json";
+import enCalendar from "@/locales/en/calendar.json";
 import enCeremony from "@/locales/en/ceremony.json";
 import enCommon from "@/locales/en/common.json";
 import enDashboard from "@/locales/en/dashboard.json";
@@ -39,6 +42,7 @@ import enCustomCard from "@/locales/en/customCard.json";
 import enDiets from "@/locales/en/diets.json";
 import enEnvelope from "@/locales/en/envelope.json";
 import enErrors from "@/locales/en/errors.json";
+import enExport from "@/locales/en/export.json";
 import enGuests from "@/locales/en/guests.json";
 import enHoneymoon from "@/locales/en/honeymoon.json";
 import enInvitation from "@/locales/en/invitation.json";
@@ -82,6 +86,8 @@ export const RESOURCES = {
     envelope: esEnvelope,
     customCard: esCustomCard,
     diets: esDiets,
+    calendar: esCalendar,
+    export: esExport,
     errors: esErrors,
   },
   en: {
@@ -108,6 +114,8 @@ export const RESOURCES = {
     envelope: enEnvelope,
     customCard: enCustomCard,
     diets: enDiets,
+    calendar: enCalendar,
+    export: enExport,
     errors: enErrors,
   },
 } as const satisfies Record<Lang, Record<Namespace, Bundle>>;

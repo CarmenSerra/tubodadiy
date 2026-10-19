@@ -23,6 +23,7 @@ import {
   statusForTasks,
   type AutoTaskInput,
 } from "@/lib/auto-tasks";
+import { ensureBaseSteps, syncToolMilestones } from "@/lib/firebase/base-steps";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { syncAppointmentTasks } from "@/lib/firebase/appointments";
 import { mapSaveTheDate, saveTheDateRef } from "@/lib/firebase/designs";
@@ -41,6 +42,9 @@ import type { PlanStep, StepStatus, StepTask, StepTaskAuto, WeddingPlan } from "
  * desmarca. Nunca lanza: es progreso, no datos.
  */
 export async function reconcileStepProgress(planId: string, plan: WeddingPlan, steps: PlanStep[]) {
+  // Pasos y tareas base nuevos que los planes antiguos aún no tienen (una sola vez, sin duplicar).
+  const addedBase = await ensureBaseSteps(planId, steps);
+
   const byCategory = new Map(steps.map((s) => [s.category, s]));
   const pendingAutos = (category: string, autos: StepTaskAuto[]) =>
     (byCategory.get(category)?.tasks ?? []).some((t) => !t.done && t.auto && autos.includes(t.auto));
@@ -162,6 +166,9 @@ export async function reconcileStepProgress(planId: string, plan: WeddingPlan, s
         .catch(() => {})
     );
   }
+
+  // Ceremonia, Día B, Banquete, Estilo y Después de la boda: hitos según sus datos (solo lectura).
+  work.push(syncToolMilestones(planId, plan, steps, addedBase));
 
   // Pasos con todas las tareas hechas y el estado atrasado.
   for (const step of steps) {

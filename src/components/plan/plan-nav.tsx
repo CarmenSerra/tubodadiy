@@ -4,25 +4,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
+import { usePlanAccess } from "@/lib/hooks/use-plan-permission";
+import type { PlanSection } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 
 export function PlanNav({ planId }: { planId: string }) {
   const pathname = usePathname();
-  const { t } = useTranslation("plan");
+  const { t } = useTranslation(["plan", "calendar"]);
   const base = `/plan/${planId}`;
+  const access = usePlanAccess();
 
   const items = [
-    { href: base, label: t("nav.overview") },
-    { href: `${base}/ceremonia`, label: t("nav.ceremony") },
-    { href: `${base}/guests`, label: t("nav.guests") },
-    { href: `${base}/invitation`, label: t("nav.invitation") },
-    { href: `${base}/banquete`, label: t("nav.banquet") },
-    { href: `${base}/estilo`, label: t("nav.style") },
-    { href: `${base}/vendors`, label: t("nav.vendors") },
-    { href: `${base}/budget`, label: t("nav.budget") },
-    { href: `${base}/dia-b`, label: t("nav.dayof") },
-    { href: `${base}/honeymoon`, label: t("nav.honeymoon") },
-  ];
+    { href: base, label: t("nav.overview"), section: "tasks" as PlanSection },
+    { href: `${base}/calendario`, label: t("calendar:nav.label"), section: "tasks" as PlanSection },
+    { href: `${base}/ceremonia`, label: t("nav.ceremony"), section: "ceremony" as PlanSection },
+    { href: `${base}/guests`, label: t("nav.guests"), section: "guests" as PlanSection },
+    { href: `${base}/invitation`, label: t("nav.invitation"), section: "invitation" as PlanSection },
+    { href: `${base}/banquete`, label: t("nav.banquet"), section: "banquet" as PlanSection },
+    { href: `${base}/estilo`, label: t("nav.style"), section: "style" as PlanSection },
+    { href: `${base}/vendors`, label: t("nav.vendors"), section: "vendors" as PlanSection },
+    { href: `${base}/budget`, label: t("nav.budget"), section: "budget" as PlanSection },
+    { href: `${base}/dia-b`, label: t("nav.dayof"), section: "dayof" as PlanSection },
+    { href: `${base}/honeymoon`, label: t("nav.honeymoon"), section: "honeymoon" as PlanSection },
+  ].filter((item) => access.loading || access.levels[item.section] !== "none");
 
   return (
     <nav

@@ -23,6 +23,7 @@ import { Bone, StepCardSkeleton } from "@/components/plan/plan-shell";
 import { PlanProgressBar } from "@/components/plan/plan-progress";
 import { stepElementId, stepTriggerId } from "@/components/plan/step-card";
 import { GIFT_TOOL_VALUE, PLAN_TOOL_PARAM } from "@/components/plan/task-links";
+import { SectionGuard } from "@/components/members/section-guard";
 import { PlanToolsProvider, usePlanToolsLauncher } from "@/components/plan-tools/plan-tools-launcher";
 import { TimelineLauncherProvider } from "@/components/timeline/timeline-launcher";
 import { usePlanContext } from "@/lib/context/plan-context";
@@ -446,18 +447,20 @@ function PlanOverview() {
 export default function PlanOverviewPage() {
   // useSearchParams (?fase=, ?cronograma=) pide un límite de Suspense.
   return (
-    <React.Suspense fallback={null}>
-      <EditPlanLauncherProvider>
-        <TimelineLauncherProvider>
-          <PlanToolsProvider>
-            <AgendaProviders>
-              <ToolFromLink />
-              <BudgetAllocationFromLink />
-              <PlanOverview />
-            </AgendaProviders>
-          </PlanToolsProvider>
-        </TimelineLauncherProvider>
-      </EditPlanLauncherProvider>
-    </React.Suspense>
+    <SectionGuard section="tasks">
+      <React.Suspense fallback={null}>
+        <EditPlanLauncherProvider>
+          <TimelineLauncherProvider>
+            <PlanToolsProvider>
+              <AgendaProviders>
+                <ToolFromLink />
+                <BudgetAllocationFromLink />
+                <PlanOverview />
+              </AgendaProviders>
+            </PlanToolsProvider>
+          </TimelineLauncherProvider>
+        </EditPlanLauncherProvider>
+      </React.Suspense>
+    </SectionGuard>
   );
 }

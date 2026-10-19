@@ -3,6 +3,29 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ======================================================================
+    // Roles y permisos
+    //
+    //   owner / partner  la pareja: todo (ven y editan todas las secciones,
+    //                    gestionan el equipo y los permisos). Solo el owner
+    //                    borra el plan.
+    //   planner          todo salvo borrar el plan y gestionar el equipo.
+    //   family           ve casi todo (no el presupuesto) y solo edita lo que
+    //                    la pareja le permita.
+    //
+    // La pareja ajusta por miembro `members/{uid}.permissions`: lista de
+    // «<sección>:view» / «<sección>:edit». Secciones: guests, budget, vendors,
+    // banquet, style, dayof, ceremony, honeymoon, invitation, tasks.
+    // Si `permissions` falta, vale el predeterminado del rol (planner: todo;
+    // family: ver todo menos budget), igual que `src/lib/permissions.ts`.
+    // Un miembro del plan sin doc propio en `members` (anterior a los roles)
+    // conserva su acceso total.
+    //
+    // Coste: cada comprobación lee, como mucho, el doc del plan y el doc del
+    // miembro (2 documentos distintos; Firestore cuenta una vez cada doc
+    // repetido dentro de la misma petición). El dueño solo lee el del plan.
+    // ======================================================================
+
     function isSignedIn() {
       return request.auth != null;
     }
@@ -17,6 +40,81 @@ service cloud.firestore {
 
     function isPlanOwner(planId) {
       return isSignedIn() && planData(planId).ownerId == request.auth.uid;
+    }
+
+    function memberPath(planId) {
+      return /databases/$(database)/documents/weddingPlans/$(planId)/members/$(request.auth.uid);
+    }
+
+    // `m` = doc del miembro. Devuelve si su rol/permisos dan acceso a la sección
+    // (needEdit: editar; si no, basta con ver).
+    function levelAllows(m, section, needEdit) {
+      return m.get('role', '') in ['owner', 'partner']
+        || (m.get('permissions', null) is list
+            ? ((section + ':edit') in m.permissions
+               || (!needEdit && (section + ':view') in m.permissions))
+            : (m.get('role', '') == 'planner'
+               || (m.get('role', '') == 'family' && !needEdit && section != 'budget')));
+    }
+
+    function memberAllows(planId, section, needEdit) {
+      return isPlanMember(planId)
+        && (!exists(memberPath(planId))
+            || levelAllows(get(memberPath(planId)).data, section, needEdit));
+    }
+
+    function canView(planId, section) {
+      return isPlanOwner(planId) || memberAllows(planId, section, false);
+    }
+
+    function canEdit(planId, section) {
+      return isPlanOwner(planId) || memberAllows(planId, section, true);
+    }
+
+    // La pareja: el dueño y quien entró con el rol «pareja».
+    function isPlanCouple(planId) {
+      return isPlanOwner(planId)
+        || (isPlanMember(planId)
+            && exists(memberPath(planId))
+            && get(memberPath(planId)).data.get('role', '') == 'partner');
+    }
+
+    // Pareja o planner (o miembro anterior a los roles): pueden tocar los datos
+    // generales del plan (título, fecha…), que no pertenecen a ninguna sección.
+    function isPlanCore(planId) {
+      return isPlanOwner(planId)
+        || (isPlanMember(planId)
+            && (!exists(memberPath(planId))
+                || get(memberPath(planId)).data.get('role', '') in ['partner', 'planner']));
+    }
+
+    // Campos del documento del plan y a qué sección pertenecen.
+    function planFieldsAllowed(planId, changed) {
+      return (!changed.hasAny(['budgetTotal', 'budgetPlan']) || canEdit(planId, 'budget'))
+        && (!changed.hasAny(['ceremonyType', 'legalDocsDone', 'officiant']) || canEdit(planId, 'ceremony'))
+        && (!changed.hasAny(['gift']) || canEdit(planId, 'invitation'))
+        && (!changed.hasAny(['unlockedPhaseIds', 'lockedPhaseIds']) || canEdit(planId, 'tasks'))
+        && (!changed.hasAny(['title', 'weddingDate']) || isPlanCore(planId))
+        // Cualquier otro campo (incluidos los futuros): pareja o planner.
+        && (changed.hasOnly(['budgetTotal', 'budgetPlan', 'ceremonyType', 'legalDocsDone',
+                             'officiant', 'gift', 'unlockedPhaseIds', 'lockedPhaseIds',
+                             'title', 'weddingDate'])
+            || isPlanCore(planId));
+    }
+
+    // Quien está dentro del plan; ownerId y createdAt no cambian nunca, y
+    // memberIds solo lo puede reducir el dueño (quitar a alguien del plan).
+    function planMetaUnchanged(changed) {
+      return !changed.hasAny(['ownerId', 'createdAt'])
+        && (!changed.hasAny(['memberIds'])
+            || (resource.data.ownerId == request.auth.uid
+                && request.resource.data.memberIds.hasAny([request.auth.uid])
+                && request.resource.data.memberIds.toSet().difference(resource.data.memberIds.toSet()).size() == 0));
+    }
+
+    // Subcolecciones de Día B / ceremonia: weddingPlans/{id}/dayof/data/<colección>/{id}.
+    function dayofSection(coll) {
+      return coll in ['readings', 'music', 'witnesses'] ? 'ceremony' : 'dayof';
     }
 
     // ---- Users ----
@@ -37,94 +135,134 @@ service cloud.firestore {
         && request.resource.data.memberIds.size() == 1
         && request.resource.data.memberIds[0] == request.auth.uid;
 
-      // Any member (owner, partner or planner) has full edit access in the MVP.
-      allow update: if isPlanMember(planId);
+      // Cada campo del plan lo edita quien tiene la sección correspondiente
+      // (ver planFieldsAllowed). Se usa resource.data (el propio plan), así
+      // que solo cuesta leer el doc del miembro.
+      allow update: if isSignedIn()
+        && request.auth.uid in resource.data.memberIds
+        && planMetaUnchanged(request.resource.data.diff(resource.data).affectedKeys())
+        && (resource.data.ownerId == request.auth.uid
+            || planFieldsAllowed(planId, request.resource.data.diff(resource.data).affectedKeys()));
 
       allow delete: if isPlanOwner(planId);
 
       match /members/{memberId} {
         allow read: if isPlanMember(planId);
-        // Self-service creation only (used right after creating a plan, to
-        // register the owner as its first member). Adding other members is
-        // done server-side by the accept-invite flow, which uses the Admin
-        // SDK and therefore bypasses these rules.
-        allow create: if isPlanMember(planId) && memberId == request.auth.uid;
-        allow update, delete: if isPlanOwner(planId);
+        // Self-service creation only for the owner, right after creating a
+        // plan, to register them as its first member. Adding other members is
+        // done server-side by the accept-invite flow (Admin SDK, bypasses
+        // these rules).
+        allow create: if isPlanOwner(planId)
+          && memberId == request.auth.uid
+          && request.resource.data.role == 'owner';
+        // La pareja ajusta solo `permissions` de planners y familia (no del
+        // dueño ni de sí misma).
+        allow update: if isPlanCouple(planId)
+          && memberId != request.auth.uid
+          && memberId != planData(planId).ownerId
+          && resource.data.role in ['planner', 'family']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['permissions'])
+          && request.resource.data.permissions is list
+          && request.resource.data.permissions.hasOnly([
+               'guests:view', 'guests:edit', 'budget:view', 'budget:edit',
+               'vendors:view', 'vendors:edit', 'banquet:view', 'banquet:edit',
+               'style:view', 'style:edit', 'dayof:view', 'dayof:edit',
+               'ceremony:view', 'ceremony:edit', 'honeymoon:view', 'honeymoon:edit',
+               'invitation:view', 'invitation:edit', 'tasks:view', 'tasks:edit']);
+        // Solo el dueño quita a alguien del equipo (junto con su entrada en memberIds).
+        allow delete: if isPlanOwner(planId) && memberId != request.auth.uid;
       }
 
       match /steps/{stepId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'tasks');
+        allow write: if canEdit(planId, 'tasks');
       }
 
       match /guests/{guestId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'guests');
+        allow write: if canEdit(planId, 'guests');
       }
 
       match /vendors/{vendorId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'vendors');
+        allow write: if canEdit(planId, 'vendors');
       }
 
       match /budgetItems/{itemId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'budget');
+        allow write: if canEdit(planId, 'budget');
       }
 
+      // Cronograma del día (escaleta): pertenece a Día B.
       match /timelineItems/{itemId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'dayof');
+        allow write: if canEdit(planId, 'dayof');
       }
 
       // Luna de miel: destinos, itinerario, reservas, maleta… (subcolecciones libres).
       match /honeymoon/{document=**} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'honeymoon');
+        allow write: if canEdit(planId, 'honeymoon');
       }
 
       // Día B y ceremonia: contactos, fotos clave, playlist, lecturas, música y testigos
-      // (weddingPlans/{id}/dayof/data/<colección>/{id}; subcolecciones libres).
-      match /dayof/{document=**} {
-        allow read, write: if isPlanMember(planId);
+      // (weddingPlans/{id}/dayof/data/<colección>/{id}). Lecturas, música y testigos
+      // son de «Ceremonia»; el resto, de «Día B».
+      match /dayof/data/{coll}/{docId} {
+        allow read: if canView(planId, dayofSection(coll));
+        allow write: if canEdit(planId, dayofSection(coll));
       }
 
+      // Agenda de citas (se gestiona desde las tareas del Resumen).
       match /appointments/{appointmentId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'tasks');
+        allow write: if canEdit(planId, 'tasks');
       }
 
       // Lista de regalos físicos (se muestra, solo lectura, en la invitación pública).
       match /giftItems/{itemId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'invitation');
+        allow write: if canEdit(planId, 'invitation');
       }
 
       // Banquete: plan de mesas (`tables`) y platos del menú (`menu`).
       // Estilo: vestuario, belleza, anillos, decoración, moodboard y paleta.
       match /style/{document=**} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'style');
+        allow write: if canEdit(planId, 'style');
       }
 
       match /tables/{tableId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'banquet');
+        allow write: if canEdit(planId, 'banquet');
       }
 
       match /menu/{dishId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'banquet');
+        allow write: if canEdit(planId, 'banquet');
       }
 
       match /designs/{designId} {
-        allow read, write: if isPlanMember(planId);
+        allow read: if canView(planId, 'invitation');
+        allow write: if canEdit(planId, 'invitation');
       }
 
       // Respuestas a la invitación pública: las escribe el servidor (Admin SDK).
       match /rsvps/{rsvpId} {
-        allow read, update, delete: if isPlanMember(planId);
+        allow read: if canView(planId, 'guests');
+        allow update, delete: if canEdit(planId, 'guests');
         allow create: if false;
       }
     }
 
     // ---- Invitación pública de boda (enlace general para invitados) ----
-    // Cualquiera con el enlace puede leerla; solo los miembros del plan la editan.
+    // Cualquiera con el enlace puede leerla; solo quien edita «Invitación» la modifica.
     match /publicInvitations/{slug} {
       allow read: if true;
-      allow create: if isPlanMember(request.resource.data.planId);
-      allow update: if isPlanMember(resource.data.planId)
+      allow create: if isSignedIn() && canEdit(request.resource.data.planId, 'invitation');
+      allow update: if isSignedIn() && canEdit(resource.data.planId, 'invitation')
         && request.resource.data.planId == resource.data.planId;
-      allow delete: if isPlanMember(resource.data.planId);
+      allow delete: if isSignedIn() && canEdit(resource.data.planId, 'invitation');
     }
 
     // ---- Invites ----
@@ -132,12 +270,16 @@ service cloud.firestore {
     // received the link, before they are a plan member.
     match /invites/{token} {
       allow read: if true;
-      allow create: if isSignedIn() && isPlanOwner(request.resource.data.planId);
+      // Invitan el dueño y la pareja; nadie puede invitar como dueño.
+      allow create: if isSignedIn()
+        && isPlanCouple(request.resource.data.planId)
+        && request.resource.data.role in ['partner', 'planner', 'family']
+        && request.resource.data.status == 'pending';
       // Accepting an invite touches multiple documents atomically (the plan,
       // the member doc and the invite itself) so it is handled by a trusted
       // Server Action using the Admin SDK instead of a client-side write.
       allow update: if false;
-      allow delete: if isSignedIn() && isPlanOwner(resource.data.planId);
+      allow delete: if isSignedIn() && isPlanCouple(resource.data.planId);
     }
   }
 }

@@ -8,7 +8,8 @@ import {
   toPlaceDetails,
   type RawPlace,
 } from "@/lib/places/server/google";
-import { json, jsonError, requireUser } from "@/lib/places/server/http";
+import { authenticate, json, jsonError } from "@/lib/places/server/http";
+import { lookupPlace } from "@/lib/places/server/lookups";
 import type { PlaceDetails } from "@/lib/places/types";
 
 function normalize(text: string): string {
@@ -21,8 +22,8 @@ function normalize(text: string): string {
 }
 
 export async function GET(request: NextRequest) {
-  const denied = await requireUser(request);
-  if (denied) return denied;
+  const auth = await authenticate(request);
+  if ("denied" in auth) return auth.denied;
 
   const raw = (request.nextUrl.searchParams.get("url") ?? "").trim();
   let start: URL;
@@ -42,14 +43,17 @@ export async function GET(request: NextRequest) {
 
     let place: PlaceDetails | null = null;
     if (target.placeId) {
-      const raw = await googleFetch<RawPlace>(`/places/${target.placeId}?languageCode=es&regionCode=ES`, {
-        method: "GET",
-        mask: DETAILS_MASK,
-      }).catch((error) => {
-        if (error instanceof GoogleError && (error.status === 404 || error.status === 400)) return null;
-        throw error;
+      const placeId = target.placeId;
+      place = await lookupPlace(auth.uid, placeId, async () => {
+        const raw = await googleFetch<RawPlace>(`/places/${placeId}?languageCode=es&regionCode=ES`, {
+          method: "GET",
+          mask: DETAILS_MASK,
+        }).catch((error) => {
+          if (error instanceof GoogleError && (error.status === 404 || error.status === 400)) return null;
+          throw error;
+        });
+        return raw ? toPlaceDetails(raw) : null;
       });
-      place = raw ? toPlaceDetails(raw) : null;
     }
     if (!place && target.name) {
       const data = await googleFetch<{ places?: RawPlace[] }>("/places:searchText", {
@@ -73,6 +77,11 @@ export async function GET(request: NextRequest) {
           return n && (n === wanted || n.includes(wanted) || wanted.includes(n));
         }) ?? (target.lat !== undefined ? candidates[0] : undefined);
       place = best ? toPlaceDetails(best) : null;
+      // Google ya contestó: se guarda (o se conserva lo guardado, con su email) para esta persona.
+      if (place) {
+        const found = place;
+        place = await lookupPlace(auth.uid, found.placeId, async () => found);
+      }
     }
     return json({ place });
   } catch (error) {

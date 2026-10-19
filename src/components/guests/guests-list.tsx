@@ -30,6 +30,7 @@ import { RsvpMenu, RsvpSegmented } from "@/components/guests/rsvp";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InvitationLink } from "@/components/invitation/invitation-link";
 import { InvitationResponses } from "@/components/invitation/invitation-responses";
+import { GuestsExportButton } from "@/components/export/export-buttons";
 import { useCollection } from "@/lib/hooks/use-collection";
 import { guestsQuery, mapGuest } from "@/lib/firebase/plans";
 import { deleteGuest, restoreGuest, updateGuest } from "@/lib/firebase/mutations";
@@ -164,6 +165,7 @@ export function GuestsList({
         <InvitationLink planId={planId} />
         {!loading && guests.length > 0 && (
           <>
+            <GuestsExportButton planId={planId} guests={guests} />
             <GuestFormDialog planId={planId} groups={groups} households={households} />
             <GuestIdeas planId={planId} groups={groups} align="end" />
           </>

@@ -1,14 +1,15 @@
 import type { NextRequest } from "next/server";
 
 import { DETAILS_MASK, GoogleError, googleFetch, toPlaceDetails, type RawPlace } from "@/lib/places/server/google";
-import { json, jsonError, requireUser } from "@/lib/places/server/http";
+import { authenticate, json, jsonError } from "@/lib/places/server/http";
+import { lookupPlace } from "@/lib/places/server/lookups";
 
 const PLACE_ID_RE = /^[A-Za-z0-9_-]{10,300}$/;
 const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
 
 export async function GET(request: NextRequest) {
-  const denied = await requireUser(request);
-  if (denied) return denied;
+  const auth = await authenticate(request);
+  if ("denied" in auth) return auth.denied;
 
   const placeId = request.nextUrl.searchParams.get("placeId") ?? "";
   const session = request.nextUrl.searchParams.get("session") ?? "";
@@ -18,11 +19,14 @@ export async function GET(request: NextRequest) {
   const qs = new URLSearchParams({ languageCode: "es", regionCode: "ES" });
   if (session) qs.set("sessionToken", session);
   try {
-    const raw = await googleFetch<RawPlace>(`/places/${placeId}?${qs.toString()}`, {
-      method: "GET",
-      mask: DETAILS_MASK,
+    // Una consulta a Google por persona y lugar cada 30 días; el resto sale de lo guardado.
+    const place = await lookupPlace(auth.uid, placeId, async () => {
+      const raw = await googleFetch<RawPlace>(`/places/${placeId}?${qs.toString()}`, {
+        method: "GET",
+        mask: DETAILS_MASK,
+      });
+      return toPlaceDetails(raw);
     });
-    const place = toPlaceDetails(raw);
     if (!place) return jsonError(404, "placeNotFound");
     return json({ place });
   } catch (error) {

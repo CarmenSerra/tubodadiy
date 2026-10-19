@@ -27,6 +27,7 @@ import {
 import { useRestoreFocus } from "@/components/timeline/use-restore-focus";
 import { PhotoUpload } from "@/components/vendors/photo-upload";
 import { PlaceSearch } from "@/components/vendors/place-search";
+import { RatingInput } from "@/components/vendors/vendor-rating";
 import { VENDOR_STATUS_VALUES } from "@/components/vendors/vendor-status";
 import {
   Dialog,
@@ -200,6 +201,10 @@ function VendorForm({
   const [cost, setCost] = React.useState(vendor?.cost != null ? String(vendor.cost) : "");
   const [status, setStatus] = React.useState<VendorStatus>(vendor?.status ?? "exploring");
   const [notes, setNotes] = React.useState(vendor?.notes ?? "");
+  const [includes, setIncludes] = React.useState(vendor?.includes ?? "");
+  const [rating, setRating] = React.useState(vendor?.rating ?? 0);
+  const [pros, setPros] = React.useState(vendor?.pros ?? "");
+  const [cons, setCons] = React.useState(vendor?.cons ?? "");
   const [photoUrl, setPhotoUrl] = React.useState(vendor?.photoUrl ?? "");
   const [mapsUrl, setMapsUrl] = React.useState(vendor?.mapsUrl ?? "");
   const [placeId, setPlaceId] = React.useState(vendor?.placeId ?? "");
@@ -241,10 +246,13 @@ function VendorForm({
     setPlaceId(place.placeId);
     setPlaceKind(place.primaryType ?? "");
 
+    // Si ya se consultó antes, el correo viene guardado (solo si sigue vacío).
+    if (place.email) setContactEmail((cur) => (cur.trim() ? cur : (place.email ?? "")));
+
     // Segundo plano: correo y foto enlazada desde su web, solo si siguen vacíos. Si falla, silencio.
     const request = ++siteRequest.current;
     if (!place.website || !isHttpUrl(place.website)) return;
-    siteInfo(place.website)
+    siteInfo(place.website, place.placeId)
       .then((info) => {
         if (!mounted.current || request !== siteRequest.current) return;
         if (info.email) setContactEmail((cur) => (cur.trim() ? cur : (info.email ?? "")));
@@ -305,6 +313,11 @@ function VendorForm({
         cost: cost.trim() ? Number(cost) : null,
         status,
         notes,
+        // Comparador: «cosas» sueltas por línea; 0 = sin valorar (se lee como «sin valoración»).
+        includes: includes.trim(),
+        rating,
+        pros: pros.trim(),
+        cons: cons.trim(),
         photoUrl: photoUrl.trim(),
         // `location` se mantiene igual que `address` para quien aún lea el campo antiguo.
         location: finalAddress,
@@ -421,6 +434,39 @@ function VendorForm({
                 ))}
               </SelectContent>
             </Select>
+          </Field>
+        </div>
+
+        <Field id="vendor-includes" label={t("form.fields.includes")} hint={t("form.fields.includesHint")}>
+          <Textarea
+            id="vendor-includes"
+            rows={3}
+            className={cn(FIELD, "h-auto min-h-24 py-2.5")}
+            value={includes}
+            onChange={(e) => setIncludes(e.target.value)}
+          />
+        </Field>
+
+        <RatingInput value={rating} onChange={setRating} />
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field id="vendor-pros" label={t("form.fields.pros")}>
+            <Textarea
+              id="vendor-pros"
+              rows={3}
+              className={cn(FIELD, "h-auto min-h-24 py-2.5")}
+              value={pros}
+              onChange={(e) => setPros(e.target.value)}
+            />
+          </Field>
+          <Field id="vendor-cons" label={t("form.fields.cons")}>
+            <Textarea
+              id="vendor-cons"
+              rows={3}
+              className={cn(FIELD, "h-auto min-h-24 py-2.5")}
+              value={cons}
+              onChange={(e) => setCons(e.target.value)}
+            />
           </Field>
         </div>
 

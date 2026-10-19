@@ -23,6 +23,7 @@ import { TableFormDialog } from "@/components/banquet/table-form-dialog";
 import { BQ_CARD, BQ_FOCUS, BQ_NATIVE_SELECT, DietChip } from "@/components/banquet/ui";
 import { CTA_PRIMARY, CTA_SECONDARY } from "@/components/dashboard/ui";
 import { DietBadges } from "@/components/diet-icons";
+import { BanquetExportButton } from "@/components/export/export-buttons";
 import { companionName, normalizeText } from "@/components/guests/guest-filters";
 import { Input } from "@/components/ui/input";
 import { FIELD } from "@/components/guests/brand-dialog";
@@ -172,10 +173,13 @@ export function SeatingSection({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {tables.length > 0 && (
-            <Link href={printHref} className={cn(CTA_SECONDARY, "h-11")}>
-              <PrinterIcon aria-hidden="true" className="size-4" />
-              {t("seating.print")}
-            </Link>
+            <>
+              <BanquetExportButton tables={tables} guests={guests} />
+              <Link href={printHref} className={cn(CTA_SECONDARY, "h-11")}>
+                <PrinterIcon aria-hidden="true" className="size-4" />
+                {t("seating.print")}
+              </Link>
+            </>
           )}
           <button type="button" onClick={() => openDialog({})} className={CTA_PRIMARY}>
             <PlusIcon aria-hidden="true" className="size-4" />

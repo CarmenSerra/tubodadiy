@@ -1,3 +1,4 @@
+import { ceremonyExtraHref, dayOfHref } from "@/lib/dayof-model";
 import { honeymoonHref } from "@/lib/honeymoon-model";
 import type { AppointmentCategory } from "@/lib/firebase/appointments";
 import type { StepTaskAuto } from "@/lib/types";
@@ -37,6 +38,21 @@ export function giftToolHref(planId: string) {
 /** Pestaña Ceremonia; el ancla lleva a su sección. */
 export function ceremonyHref(planId: string, section?: "tipo" | "oficiante" | "documentos" | "cronograma") {
   return `/plan/${planId}/ceremonia${section ? `#${section}` : ""}`;
+}
+
+/** Pestaña Banquete (plan de mesas y menú). */
+export function banquetHref(planId: string) {
+  return `/plan/${planId}/banquete`;
+}
+
+/** Pestaña Estilo; el ancla lleva a su sección. */
+export function styleHref(planId: string, section?: "vestuario" | "belleza" | "anillos" | "decoracion") {
+  return `/plan/${planId}/estilo${section ? `#${section}` : ""}`;
+}
+
+/** Pestaña Calendario (la crea otro módulo; ninguna tarea base apunta aún a ella). */
+export function calendarHref(planId: string) {
+  return `/plan/${planId}/calendario`;
 }
 
 function vendors(planId: string, category: string, labelKey: string): TaskTarget {
@@ -97,6 +113,34 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
     case "gift-decide":
     case "gift-data":
       return { kind: "tool", tool: "gift", labelKey: "taskLinks.gift" };
+    case "ceremony-readings-music":
+      return { kind: "href", href: ceremonyExtraHref(planId, "lecturas"), labelKey: "taskLinks.readingsMusic" };
+    case "ceremony-witnesses":
+      return { kind: "href", href: ceremonyExtraHref(planId, "testigos"), labelKey: "taskLinks.witnesses" };
+    case "dayof-contacts":
+      return { kind: "href", href: dayOfHref(planId, "contactos"), labelKey: "taskLinks.dayContacts" };
+    case "dayof-shots":
+      return { kind: "href", href: dayOfHref(planId, "fotos"), labelKey: "taskLinks.dayShots" };
+    case "dayof-playlist":
+      return { kind: "href", href: dayOfHref(planId, "playlist"), labelKey: "taskLinks.playlist" };
+    case "banquet-seating":
+      return { kind: "href", href: banquetHref(planId), labelKey: "taskLinks.seating" };
+    case "banquet-menu":
+      return { kind: "href", href: banquetHref(planId), labelKey: "taskLinks.menu" };
+    case "style-beauty":
+      return { kind: "href", href: styleHref(planId, "belleza"), labelKey: "taskLinks.styleBeauty" };
+    case "style-rings":
+      return { kind: "href", href: styleHref(planId, "anillos"), labelKey: "taskLinks.styleRings" };
+    case "style-decor":
+      return { kind: "href", href: styleHref(planId, "decoracion"), labelKey: "taskLinks.styleDecor" };
+    // Después de la boda. Los agradecimientos se anotan en la pestaña «Regalos» de Invitados
+    // (aún no hay enlace directo a esa pestaña: abre Invitados).
+    case "after-thanks":
+      return { kind: "href", href: `/plan/${planId}/guests`, labelKey: "taskLinks.thanks" };
+    case "after-payments":
+      return { kind: "href", href: `/plan/${planId}/budget`, labelKey: "taskLinks.budget" };
+    case "after-rate-vendors":
+      return { kind: "href", href: `/plan/${planId}/vendors`, labelKey: "taskLinks.vendorsRate" };
     default:
       return null;
   }
@@ -104,7 +148,7 @@ export function taskTarget(auto: StepTaskAuto | undefined, planId: string): Task
 
 /** Tareas base sin `auto` (se guardan solo como texto) que también tienen herramienta. */
 const MANUAL_TASK_TARGETS: Record<string, (planId: string) => TaskTarget> = {
-  "vestuario|Elegir vestido/traje": (planId) => ({ kind: "href", href: `/plan/${planId}/estilo#vestuario`, labelKey: "taskLinks.style" }),
+  "vestuario|Elegir vestido/traje": (planId) => ({ kind: "href", href: styleHref(planId, "vestuario"), labelKey: "taskLinks.style" }),
   "alojamiento_transporte|Buscar alojamientos cercanos": (planId) => ({ kind: "href", href: `/plan/${planId}/guests`, labelKey: "taskLinks.guestsNeeds" }),
   "alojamiento_transporte|Organizar transporte": (planId) => ({ kind: "href", href: `/plan/${planId}/guests`, labelKey: "taskLinks.guestsNeeds" }),
 };

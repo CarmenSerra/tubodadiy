@@ -1,18 +1,26 @@
 import type { StepTaskAuto } from "@/lib/types";
 
-/** Tarea sugerida: un título o, si se marca sola desde el plan, título + `auto`. */
-export type SuggestedTask = string | { title: string; auto: StepTaskAuto };
+/**
+ * Tarea sugerida: un título o, si se marca sola desde el plan, título + `auto`.
+ * `late: true` = se añadió después de la primera versión del checklist: los planes
+ * ya creados la reciben una sola vez (ver `LATE_TASKS` y `firebase/base-steps.ts`).
+ */
+export type SuggestedTask = string | { title: string; auto: StepTaskAuto; late?: true };
 
 export interface StepDefinition {
   category: string;
   title: string;
   description: string;
   suggestedTasks: SuggestedTask[];
+  /** `true` = paso nuevo posterior a la primera versión: los planes ya creados lo reciben una sola vez. */
+  late?: true;
 }
 
 export const DATE_TASK_TITLE = "Elegir una fecha objetivo";
 export const BUDGET_TASK_TITLE = "Definir el presupuesto total";
 export const TIMELINE_CATEGORY = "timeline";
+export const BANQUET_CATEGORY = "banquete";
+export const AFTER_WEDDING_CATEGORY = "despues_boda";
 export const TIMELINE_DRAFT_TASK_TITLE = "Borrador del cronograma";
 export const TIMELINE_SHARE_TASK_TITLE = "Compartir cronograma con proveedores";
 
@@ -58,11 +66,14 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
   },
   {
     category: "vestuario",
-    title: "Vestuario",
-    description: "Traje/vestido de los novios, complementos y pruebas.",
+    title: "Vestuario y estilo",
+    description: "Traje/vestido, complementos, pruebas, belleza, alianzas y decoración.",
     suggestedTasks: [
       "Elegir vestido/traje",
       { title: "Reservar pruebas", auto: "outfit-fitting" },
+      { title: "Reservar peluquería y maquillaje", auto: "style-beauty", late: true },
+      { title: "Elegir las alianzas", auto: "style-rings", late: true },
+      { title: "Definir decoración y flores", auto: "style-decor", late: true },
     ],
   },
   {
@@ -81,15 +92,30 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     suggestedTasks: [
       { title: "Elegir tipo de ceremonia", auto: "ceremony-type" },
       { title: "Confirmar oficiante", auto: "officiant-confirmed" },
+      { title: "Elegir lecturas y música", auto: "ceremony-readings-music", late: true },
+      { title: "Designar testigos", auto: "ceremony-witnesses", late: true },
+    ],
+  },
+  {
+    category: BANQUET_CATEGORY,
+    title: "Banquete",
+    description: "Plan de mesas y menú con alérgenos y dietas.",
+    late: true,
+    suggestedTasks: [
+      { title: "Hacer el plan de mesas", auto: "banquet-seating", late: true },
+      { title: "Cerrar el menú y los alérgenos", auto: "banquet-menu", late: true },
     ],
   },
   {
     category: TIMELINE_CATEGORY,
     title: "Cronograma del día",
-    description: "Cronograma hora a hora del gran día.",
+    description: "Cronograma hora a hora, contactos, fotos clave y playlist del gran día.",
     suggestedTasks: [
       { title: TIMELINE_DRAFT_TASK_TITLE, auto: "timeline-draft" },
       { title: TIMELINE_SHARE_TASK_TITLE, auto: "timeline-share" },
+      { title: "Reunir los contactos del día B", auto: "dayof-contacts", late: true },
+      { title: "Hacer la lista de fotos clave", auto: "dayof-shots", late: true },
+      { title: "Preparar la playlist", auto: "dayof-playlist", late: true },
     ],
   },
   {
@@ -126,12 +152,53 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     ],
   },
   {
+    category: AFTER_WEDDING_CATEGORY,
+    title: "Después de la boda",
+    description: "Agradecimientos, pagos finales, devoluciones, trámites y recuerdos.",
+    late: true,
+    suggestedTasks: [
+      { title: "Enviar los agradecimientos", auto: "after-thanks", late: true },
+      { title: "Hacer los pagos finales a proveedores", auto: "after-payments", late: true },
+      { title: "Devolver los alquileres (trajes, decoración)", auto: "after-returns", late: true },
+      { title: "Inscribir el matrimonio y pedir el libro de familia", auto: "after-register", late: true },
+      { title: "Actualizar empadronamiento, seguros, banco y Seguridad Social", auto: "after-paperwork", late: true },
+      { title: "Conservar el vestido y el ramo", auto: "after-keepsakes", late: true },
+      { title: "Valorar a los proveedores", auto: "after-rate-vendors", late: true },
+      { title: "Recopilar las fotos de los invitados", auto: "after-photos", late: true },
+    ],
+  },
+  {
     category: "tareas_generales",
     title: "Tareas generales",
     description: "Lista libre para todo lo que no encaje en otra sección.",
     suggestedTasks: [],
   },
 ];
+
+/**
+ * Pasos posteriores a la primera versión del checklist. Los planes ya creados no
+ * los tienen: `ensureBaseSteps` (firebase/base-steps.ts) los crea una sola vez.
+ */
+export const LATE_STEPS: StepDefinition[] = STEP_DEFINITIONS.filter((def) => def.late);
+
+/** Tarea base posterior a la primera versión (en un paso nuevo o en uno que ya existía). */
+export interface LateTask {
+  category: string;
+  title: string;
+  auto: StepTaskAuto;
+}
+
+/** Todas las tareas base «tardías» por paso, para incorporarlas a los planes ya creados. */
+export const LATE_TASKS: LateTask[] = STEP_DEFINITIONS.flatMap((def) =>
+  def.suggestedTasks.flatMap((task) =>
+    typeof task !== "string" && task.late ? [{ category: def.category, title: task.title, auto: task.auto }] : []
+  )
+);
+
+/** Definición de un paso base por su categoría (o `undefined` si es una sección propia). */
+export function stepDefinitionOf(category: string): StepDefinition | undefined {
+  return STEP_DEFINITIONS.find((def) => def.category === category);
+}
 
 const AUTO_BY_CATEGORY_AND_TITLE = new Map<string, StepTaskAuto>(
   STEP_DEFINITIONS.flatMap((def) =>
@@ -219,10 +286,13 @@ const LEGACY_DISPLAY_TASK_KEYS: Record<string, string> = {
 
 /** Títulos y descripciones antiguos de las secciones base (planes viejos). */
 const LEGACY_STEP_TITLES: Record<string, string[]> = {
+  vestuario: ["Vestuario"],
   [TIMELINE_CATEGORY]: ["Timeline del día"],
   lista_regalos: ["Lista de regalos"],
 };
 const LEGACY_STEP_DESCRIPTIONS: Record<string, string[]> = {
+  vestuario: ["Traje/vestido de los novios, complementos y pruebas."],
+  [TIMELINE_CATEGORY]: ["Cronograma hora a hora del gran día."],
   papeleria: ["Save the date, invitaciones, seating cards."],
   invitados: ["Nombre, grupo/familia, estado RSVP, acompañante y notas dietéticas."],
   tareas_generales: ["Checklist libre para todo lo que no encaje en otra sección."],

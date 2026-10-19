@@ -1,6 +1,6 @@
 import type { DietId } from "@/lib/diets";
 
-export type PlanRole = "owner" | "partner" | "planner";
+export type PlanRole = "owner" | "partner" | "planner" | "family";
 export type MemberStatus = "pending" | "accepted";
 
 export interface PlanMember {
@@ -9,8 +9,10 @@ export interface PlanMember {
   status: MemberStatus;
   invitedEmail: string;
   /**
-   * Reserved for future fine-grained access (e.g. read-only guests limited to
-   * RSVP). Not enforced in the MVP — every member currently has full access.
+   * Acceso por sección de planner y familia: entradas `"<sección>:view"` o
+   * `"<sección>:edit"` (ver `src/lib/permissions.ts`). Si falta, vale el
+   * predeterminado del rol; owner y partner siempre tienen acceso total.
+   * Lo hacen cumplir `firestore.rules` (helpers `canView` / `canEdit`).
    */
   permissions?: string[];
 }
@@ -135,7 +137,25 @@ export type StepTaskAuto =
   | "legal-start"
   | "legal-docs"
   | "gift-decide"
-  | "gift-data";
+  | "gift-data"
+  | "ceremony-readings-music"
+  | "ceremony-witnesses"
+  | "dayof-contacts"
+  | "dayof-shots"
+  | "dayof-playlist"
+  | "banquet-seating"
+  | "banquet-menu"
+  | "style-beauty"
+  | "style-rings"
+  | "style-decor"
+  | "after-thanks"
+  | "after-payments"
+  | "after-returns"
+  | "after-register"
+  | "after-paperwork"
+  | "after-keepsakes"
+  | "after-rate-vendors"
+  | "after-photos";
 
 export interface StepTask {
   id: string;
@@ -208,6 +228,30 @@ export type GuestInput = Omit<Guest, "id" | "createdAt" | keyof GuestExtras> & P
 /** Flujo de decisión de una opción: explorando → visitada → favorita → elegida. */
 export type VendorStatus = "exploring" | "visited" | "favorite" | "chosen";
 
+/** Otra persona de contacto de un proveedor (además de los datos principales de la ficha). */
+export interface VendorContact {
+  id: string;
+  name: string;
+  role: string;
+  phone: string;
+  email: string;
+}
+
+export type VendorDocumentType = "contract" | "quote" | "invoice" | "other";
+
+/** Documento de un proveedor: solo se guarda el ENLACE (Drive, correo, web…), nunca el fichero. */
+export interface VendorDocument {
+  id: string;
+  type: VendorDocumentType;
+  title: string;
+  /** Enlace http(s) a donde lo tengan guardado. */
+  url: string;
+  /** Fecha del documento, `yyyy-MM-dd`, o cadena vacía. */
+  date: string;
+  signed: boolean;
+  notes: string;
+}
+
 export interface Vendor {
   id: string;
   category: string;
@@ -237,6 +281,17 @@ export interface Vendor {
   photoData?: string;
   /** Tipo principal de Google (p. ej. "wedding_venue"): elige la ilustración. */
   placeKind?: string;
+  /** Otras personas de contacto (opcional: los proveedores antiguos no lo tienen). */
+  contacts?: VendorContact[];
+  /** Contratos, presupuestos, facturas… como enlaces. */
+  documents?: VendorDocument[];
+  /** Qué incluye el presupuesto: texto libre, una cosa por línea. */
+  includes?: string;
+  /** Valoración personal de 1 a 5 (opcional). */
+  rating?: number;
+  /** A favor y en contra, texto libre (una cosa por línea). */
+  pros?: string;
+  cons?: string;
   createdAt: number | null;
 }
 

@@ -227,7 +227,7 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
       const id = await addVendor(planId, {
         category: "Finca",
         name,
-        contactEmail: "",
+        contactEmail: details.email && isLooseEmail(details.email) ? details.email.trim() : "",
         contactPhone: details.phone ?? "",
         cost: null,
         status: "exploring",
@@ -245,7 +245,7 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
         placeKind: details.primaryType || venue.primaryType || "",
       });
       toast.success(t("discovery.saved", { name }));
-      if (isHttpUrl(details.website)) void completeFromSite(id, details.website);
+      if (isHttpUrl(details.website)) void completeFromSite(id, details.website, venue.placeId);
     } catch {
       toast.error(t("discovery.saveError"));
     } finally {
@@ -258,9 +258,9 @@ export function VenueDiscovery({ planId, existingPlaceIds, open, onOpenChange }:
   }
 
   /** Mejor esfuerzo: correo y foto (solo enlazada) de la web de la finca. */
-  async function completeFromSite(vendorId: string, website: string) {
+  async function completeFromSite(vendorId: string, website: string, placeId: string) {
     try {
-      const info = await siteInfo(website);
+      const info = await siteInfo(website, placeId);
       const data: { contactEmail?: string; photoUrl?: string } = {};
       if (info.email && isLooseEmail(info.email)) data.contactEmail = info.email.trim();
       if (info.image && isHttpUrl(info.image)) data.photoUrl = info.image.trim();

@@ -36,11 +36,14 @@
       }
     },
     "vestuario": {
-      "title": "Attire",
-      "description": "The couple's outfits, accessories and fittings.",
+      "title": "Attire and style",
+      "description": "Outfits, accessories, fittings, beauty, rings and decor.",
       "tasks": {
         "outfit-choose": "Choose the dress/suit",
-        "outfit-fitting": "Book fittings"
+        "outfit-fitting": "Book fittings",
+        "style-beauty": "Book hair and makeup",
+        "style-rings": "Choose the rings",
+        "style-decor": "Plan decor and flowers"
       }
     },
     "papeleria": {
@@ -56,15 +59,20 @@
       "description": "Type (civil, religious, symbolic), officiant and structure.",
       "tasks": {
         "ceremony-type": "Choose the type of ceremony",
-        "officiant-confirmed": "Confirm the officiant"
+        "officiant-confirmed": "Confirm the officiant",
+        "ceremony-readings-music": "Choose readings and music",
+        "ceremony-witnesses": "Appoint witnesses"
       }
     },
     "timeline": {
       "title": "Day-of timeline",
-      "description": "Hour-by-hour timeline of the big day.",
+      "description": "Hour-by-hour schedule, contacts, key photos and playlist for the big day.",
       "tasks": {
         "timeline-draft": "Draft the timeline",
-        "timeline-share": "Share the timeline with vendors"
+        "timeline-share": "Share the timeline with vendors",
+        "dayof-contacts": "Gather the day-of contacts",
+        "dayof-shots": "Make the key photo list",
+        "dayof-playlist": "Prepare the playlist"
       }
     },
     "alojamiento_transporte": {
@@ -103,6 +111,58 @@
       "title": "General tasks",
       "description": "A free-form list for everything that does not fit in another section.",
       "tasks": {}
+    },
+    "banquete": {
+      "title": "Banquet",
+      "description": "Seating plan and menu with allergens and diets.",
+      "tasks": {
+        "banquet-seating": "Make the seating plan",
+        "banquet-menu": "Finalise the menu and allergens"
+      }
+    },
+    "despues_boda": {
+      "title": "After the wedding",
+      "description": "Thank-yous, final payments, returns, paperwork and keepsakes.",
+      "tasks": {
+        "after-thanks": "Send the thank-yous",
+        "after-payments": "Make final payments to vendors",
+        "after-returns": "Return rentals (suits, decor)",
+        "after-register": "Register the marriage and request the family record book (libro de familia)",
+        "after-paperwork": "Update your address registration, insurance, bank and Social Security",
+        "after-keepsakes": "Preserve the dress and bouquet",
+        "after-rate-vendors": "Rate your vendors",
+        "after-photos": "Collect the guests' photos"
+      }
+    }
+  },
+  "templates": {
+    "tasks": {
+      "civil-room": "Confirm the room, date and time with the registry or town hall",
+      "civil-capacity": "Ask how many guests fit in the ceremony room",
+      "civil-lunch": "Book the lunch or aperitif after the ceremony",
+      "religious-readings": "Choose the readings for the service with the priest",
+      "religious-choir": "Talk to the parish choir or musicians",
+      "religious-flowers": "Ask the parish what flowers and decoration are allowed",
+      "religious-rice": "Ask the parish what can be thrown at the exit (rice, petals)",
+      "religious-transfer": "Arrange the transfer from the church to the reception",
+      "dest-visit": "Visit the venue beforehand or have a video call with it",
+      "dest-legal": "Find out the legal requirements to marry at the destination",
+      "dest-recognition": "Check how to register in Spain a marriage held abroad",
+      "dest-planner": "Consider a local coordinator or wedding planner at the destination",
+      "dest-local": "Confirm local vendors: photography, catering and music",
+      "dest-savedate": "Send the save-the-date cards earlier than usual",
+      "dest-passports": "Check that travelling guests have valid passports or ID",
+      "dest-info": "Send guests the travel and accommodation details well in advance",
+      "dest-insurance": "Get travel and cancellation insurance",
+      "dest-schedule": "Adjust the schedule to the weather and local time at the destination",
+      "small-list": "Fix a short list: only the essential people",
+      "small-call": "Tell each guest personally (call or message)",
+      "small-place": "Consider a small restaurant or space with a set menu",
+      "small-photo": "Consider a photographer by the hour instead of a full day",
+      "small-invite": "Prepare a simple invitation by message or card",
+      "small-words": "Prepare a few words for the guests",
+      "small-plan": "Plan a simple schedule for the meal",
+      "small-party": "Decide whether you want a later celebration with other friends and family"
     }
   }
 }

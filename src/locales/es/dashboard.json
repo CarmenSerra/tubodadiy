@@ -134,11 +134,15 @@
     },
     "partner": {
       "label": "Pareja",
-      "description": "Gestiona el plan contigo, con acceso total."
+      "description": "Gestiona el plan contigo, con acceso total, también al equipo."
     },
     "planner": {
       "label": "Wedding planner",
-      "description": "Colabora con acceso total."
+      "description": "Colabora en todo menos en borrar el plan y gestionar el equipo."
+    },
+    "family": {
+      "label": "Familia",
+      "description": "Ve casi todo y edita solo lo que tú le permitas."
     }
   },
   "team": {
@@ -173,7 +177,7 @@
       "linkFor": "Enlace de invitación para {{email}}"
     },
     "invite": {
-      "intro": "Genera un enlace para que tu pareja o tu wedding planner vean y editen el plan contigo.",
+      "intro": "Genera un enlace para invitar a tu pareja, a tu wedding planner o a tu familia. Después podrás ajustar qué ve y qué edita cada persona.",
       "createError": "No se ha podido crear la invitación.",
       "emailLabel": "Correo electrónico de la persona invitada",
       "emailPlaceholder": "pareja@ejemplo.com",
@@ -185,7 +189,10 @@
       "linkLabel": "Enlace de invitación",
       "another": "Invitar a otra persona"
     },
-    "ownerOnly": "Solo la persona dueña del plan puede enviar invitaciones. Si quieres sumar a alguien, coméntaselo y lo invitará encantada."
+    "ownerOnly": "Solo la pareja (dueño/a y pareja) puede enviar invitaciones y ajustar el acceso. Si quieres sumar a alguien, coméntaselo y lo invitará encantada.",
+    "access": {
+      "adjust": "Ajustar acceso"
+    }
   },
   "invite": {
     "title": "Invitación a un plan de boda",

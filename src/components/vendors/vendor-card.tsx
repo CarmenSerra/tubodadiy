@@ -99,7 +99,7 @@ export function VendorCard({
         </div>
         <div className="mt-auto flex items-center justify-between gap-2">
           <VendorStatusBadge status={vendor.status} />
-          <VendorContactDialog vendor={vendor} />
+          <VendorContactDialog planId={planId} vendor={vendor} />
         </div>
       </div>
     </article>

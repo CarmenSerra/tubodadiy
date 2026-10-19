@@ -1,0 +1,181 @@
+{
+  "menu": {
+    "trigger": "Export",
+    "triggerAria": "Export {{what}}",
+    "formatLabel": "Format",
+    "xlsx": "Excel (.xlsx)",
+    "csv": "CSV for Excel (.csv)",
+    "print": "Print or save as PDF",
+    "error": "The file could not be created. Please try again."
+  },
+  "yes": "Yes",
+  "no": "No",
+  "guests": {
+    "file": "guests",
+    "sheet": "Guests",
+    "what": "the guest list",
+    "columns": {
+      "name": "Name",
+      "plusOne": "Has a plus-one",
+      "companion": "Plus-one name",
+      "rsvp": "RSVP",
+      "seats": "Seats",
+      "group": "Group",
+      "household": "Family",
+      "diets": "Allergies and diets",
+      "dietNotes": "Diet notes",
+      "table": "Table",
+      "lodging": "Needs accommodation",
+      "lodgingPlace": "Accommodation",
+      "transport": "Needs transport",
+      "transportFrom": "Transport departs from",
+      "gift": "Gift",
+      "giftAmount": "Gift amount",
+      "thanks": "Thank-you sent",
+      "thanksDate": "Thank-you date",
+      "notes": "Notes"
+    }
+  },
+  "budget": {
+    "file": "budget",
+    "what": "the budget",
+    "sheets": {
+      "items": "Items",
+      "installments": "Instalments",
+      "summary": "Summary"
+    },
+    "columns": {
+      "category": "Category",
+      "concept": "Item",
+      "vendor": "Vendor",
+      "payer": "Paid by",
+      "planned": "Planned",
+      "actual": "Actual",
+      "cost": "Cost",
+      "paid": "Paid",
+      "pending": "Pending",
+      "status": "Status",
+      "nextDue": "Next instalment",
+      "number": "Instalment no.",
+      "amount": "Amount",
+      "dueDate": "Due date",
+      "installmentPaid": "Paid",
+      "paidDate": "Payment date",
+      "field": "Item"
+    },
+    "status": {
+      "paid": "Paid",
+      "partial": "Partly paid",
+      "pending": "Pending"
+    },
+    "summary": {
+      "total": "Total budget",
+      "planned": "Planned",
+      "expected": "Expected (actual or planned)",
+      "paid": "Paid",
+      "pending": "Left to pay",
+      "remaining": "Remaining"
+    }
+  },
+  "banquet": {
+    "file": "banquet",
+    "what": "the tables and their guests",
+    "sheets": {
+      "tables": "Tables",
+      "guests": "Seated guests"
+    },
+    "columns": {
+      "table": "Table",
+      "shape": "Shape",
+      "capacity": "Seats",
+      "used": "Taken",
+      "free": "Free",
+      "guests": "Guests",
+      "guest": "Guest",
+      "companion": "Plus-one",
+      "rsvp": "RSVP",
+      "diets": "Allergies and diets",
+      "dietNotes": "Diet notes"
+    },
+    "companion": "plus-one",
+    "unseated": "No table"
+  },
+  "vendors": {
+    "file": "vendors",
+    "sheet": "Vendors",
+    "what": "the vendors",
+    "columns": {
+      "category": "Category",
+      "name": "Name",
+      "status": "Status",
+      "cost": "Cost",
+      "phone": "Phone",
+      "email": "Email",
+      "website": "Website",
+      "address": "Address",
+      "municipality": "Town",
+      "province": "Province",
+      "community": "Region",
+      "maps": "Map",
+      "notes": "Notes"
+    }
+  },
+  "print": {
+    "back": "Back",
+    "button": "Print",
+    "pdfHint": "In the print dialog you can save it as a PDF to share.",
+    "preparing": "Preparing the document",
+    "noAccess": "You don't have access to this wedding plan.",
+    "loadError": "We couldn't load the data.",
+    "guests": {
+      "meta": { "title": "Guest list" },
+      "title": "Guest list",
+      "summary": "{{total}} on the list · {{confirmed}} confirmed · {{pending}} pending · {{declined}} declined",
+      "seats": "{{count}} confirmed seats (including plus-ones)",
+      "empty": "There are no guests yet.",
+      "noTable": "—",
+      "columns": {
+        "name": "Guest",
+        "rsvp": "RSVP",
+        "groupHousehold": "Group and family",
+        "diets": "Allergies and diets",
+        "table": "Table",
+        "logistics": "Accommodation and transport"
+      },
+      "companion": "+ {{name}}",
+      "unnamedCompanion": "+ plus-one",
+      "lodging": "Accommodation: {{place}}",
+      "lodgingNoPlace": "Needs accommodation",
+      "transport": "Transport: {{place}}",
+      "transportNoPlace": "Needs transport"
+    },
+    "budget": {
+      "meta": { "title": "Budget" },
+      "title": "Budget",
+      "totals": {
+        "total": "Total budget",
+        "expected": "Expected",
+        "paid": "Paid",
+        "pending": "Pending",
+        "remaining": "Remaining"
+      },
+      "empty": "There are no items yet.",
+      "columns": {
+        "concept": "Item",
+        "cost": "Cost",
+        "paid": "Paid",
+        "pending": "Pending",
+        "nextDue": "Next instalment"
+      },
+      "subtotal": "Subtotal",
+      "noDue": "—",
+      "dueTitle": "Upcoming instalments",
+      "dueColumns": {
+        "date": "Due date",
+        "concept": "Item",
+        "amount": "Amount"
+      },
+      "dueEmpty": "No dated instalments are left to pay."
+    }
+  }
+}

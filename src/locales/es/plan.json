@@ -50,7 +50,19 @@
     "legalDocs": "Ver la guía de documentos legales",
     "gift": "Abrir los datos del regalo",
     "style": "Ir a estilo",
-    "guestsNeeds": "Ir a necesidades de invitados"
+    "guestsNeeds": "Ir a necesidades de invitados",
+    "readingsMusic": "Ir a lecturas y música",
+    "witnesses": "Ir a los testigos",
+    "dayContacts": "Ir a los contactos del día B",
+    "dayShots": "Ir a las fotos clave",
+    "playlist": "Ir a la playlist",
+    "seating": "Ir al plan de mesas",
+    "menu": "Ir al menú del banquete",
+    "styleBeauty": "Ir a belleza",
+    "styleRings": "Ir a las alianzas",
+    "styleDecor": "Ir a decoración y flores",
+    "thanks": "Ir a invitados para los agradecimientos",
+    "vendorsRate": "Ir a proveedores para valorarlos"
   },
   "status": {
     "options": {
@@ -111,11 +123,15 @@
     },
     "detalles": {
       "name": "Los detalles",
-      "blurb": "Vestuario, papelería, alojamiento y regalos."
+      "blurb": "Vestuario y estilo, papelería, alojamiento y regalos."
     },
     "recta_final": {
       "name": "Recta final",
-      "blurb": "Cronograma y luna de miel, para llegar con calma."
+      "blurb": "Banquete, cronograma y luna de miel, para llegar con calma."
+    },
+    "despues": {
+      "name": "Después de la boda",
+      "blurb": "Agradecer, cerrar pagos y trámites, y guardar los recuerdos."
     }
   },
   "general": {
@@ -205,5 +221,34 @@
       "removeTask": "No se ha podido eliminar la tarea.",
       "addTask": "No se ha podido añadir la tarea."
     }
+  },
+  "templates": {
+    "title": "Plantillas de tareas",
+    "description": "Añade de golpe un paquete de tareas a varias secciones. Las que ya tienes no se repiten.",
+    "civil": {
+      "name": "Civil sencilla",
+      "description": "Boda civil: trámites del registro, testigos y una ceremonia breve."
+    },
+    "religious": {
+      "name": "Religiosa",
+      "description": "Boda religiosa: documentación de la parroquia, lecturas, coro y logística."
+    },
+    "destination": {
+      "name": "Destino o fuera",
+      "description": "Boda fuera de casa: trámites del país, viaje de los invitados y proveedores locales."
+    },
+    "intimate": {
+      "name": "Pequeña e íntima",
+      "description": "Pocas personas y todo más sencillo: lista corta, invitación personal y plan ligero."
+    },
+    "summary_one": "Añadirá {{count}} tarea nueva en {{sections}}.",
+    "summary_other": "Añadirá {{count}} tareas nuevas en {{sections}}.",
+    "sections_one": "{{count}} sección",
+    "sections_other": "{{count}} secciones",
+    "add": "Añadir las tareas",
+    "added_one": "{{count}} tarea añadida",
+    "added_other": "{{count}} tareas añadidas",
+    "none": "Ya tienes todas las tareas de esta plantilla.",
+    "error": "No se ha podido añadir la plantilla."
   }
 }

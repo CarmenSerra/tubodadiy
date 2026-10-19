@@ -14,10 +14,11 @@ import type { PlanStep } from "@/lib/types";
  *  - Una fase está completa cuando todos sus pasos están completados u
  *    omitidos.
  *  - "tareas_generales" no pertenece a ninguna fase: siempre está a mano.
- *  - Una categoría desconocida cae en la última fase.
+ *  - Una categoría desconocida cae en la última fase de preparación («Recta
+ *    final»), nunca en «Después de la boda».
  */
 
-export type PhaseId = "esencial" | "equipo" | "detalles" | "recta_final";
+export type PhaseId = "esencial" | "equipo" | "detalles" | "recta_final" | "despues";
 
 export interface PhaseDefinition {
   id: PhaseId;
@@ -44,14 +45,20 @@ export const PHASES: PhaseDefinition[] = [
   {
     id: "detalles",
     name: "Los detalles",
-    blurb: "Vestuario, papelería, alojamiento y regalos.",
+    blurb: "Vestuario y estilo, papelería, alojamiento y regalos.",
     categories: ["vestuario", "papeleria", "alojamiento_transporte", "lista_regalos"],
   },
   {
     id: "recta_final",
     name: "Recta final",
-    blurb: "Cronograma y luna de miel, para llegar con calma.",
-    categories: ["timeline", "luna_de_miel"],
+    blurb: "Banquete, cronograma y luna de miel, para llegar con calma.",
+    categories: ["banquete", "timeline", "luna_de_miel"],
+  },
+  {
+    id: "despues",
+    name: "Después de la boda",
+    blurb: "Agradecer, cerrar pagos y trámites, y guardar los recuerdos.",
+    categories: ["despues_boda"],
   },
 ];
 
@@ -78,10 +85,13 @@ export function isAlwaysAvailable(category: string): boolean {
   return category === ALWAYS_AVAILABLE_CATEGORY;
 }
 
-/** Posición (0-based) de la fase de una categoría; las desconocidas van a la última. */
+/** Fase a la que van las categorías desconocidas (secciones propias): la última de preparación. */
+const FALLBACK_PHASE_INDEX = PHASES.findIndex((p) => p.id === "recta_final");
+
+/** Posición (0-based) de la fase de una categoría; las desconocidas van a «Recta final». */
 export function phaseIndexOf(category: string): number {
   const index = PHASES.findIndex((p) => p.categories.includes(category));
-  return index === -1 ? PHASES.length - 1 : index;
+  return index === -1 ? FALLBACK_PHASE_INDEX : index;
 }
 
 /** Fase de una categoría; null para la que no tiene fase (tareas generales). */

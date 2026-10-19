@@ -47,9 +47,9 @@
     "hint": "Keep the options you're comparing right here."
   },
   "contact": {
-    "button": "Contact",
-    "ariaLabel": "Contact details for {{name}}",
-    "description": "{{category}} · contact details",
+    "button": "Details",
+    "ariaLabel": "Details for {{name}}",
+    "description": "{{category}} · details, contacts and documents",
     "location": "Location",
     "viewOnMaps": "View on Google Maps",
     "newTab": "(opens in a new tab)",
@@ -91,7 +91,8 @@
     "discover": "Discover venues",
     "addAnother": "Add another",
     "invitation": "Want to browse wedding venues? We'll show you some by province so you can save the ones you like.",
-    "seeVenues": "Browse wedding venues"
+    "seeVenues": "Browse wedding venues",
+    "compare": "Compare"
   },
   "filter": {
     "section": "Filter vendors by location",
@@ -162,7 +163,13 @@
       "mapsLink": "Google Maps link",
       "email": "Contact email",
       "phone": "Phone",
-      "notes": "Notes"
+      "notes": "Notes",
+      "includes": "What's included",
+      "includesHint": "One item per line: for example, 8 hours of coverage, album, second photographer.",
+      "rating": "Rating",
+      "optional": "(optional)",
+      "pros": "Pros",
+      "cons": "Cons"
     }
   },
   "discovery": {
@@ -1298,5 +1305,107 @@
         "party": "Banquet and party"
       }
     }
+  },
+  "rating": {
+    "value": "Rating: {{count}} out of 5",
+    "clear": "Clear rating"
+  },
+  "sheet": {
+    "tabs": {
+      "summary": "Summary",
+      "contacts": "Contacts",
+      "documents": "Documents"
+    },
+    "includes": "What's included",
+    "pros": "Pros",
+    "cons": "Cons",
+    "appointments": "Appointments",
+    "noAppointments": "There are no appointments with this vendor in the agenda yet.",
+    "appointmentsDone_one": "{{done}} of {{count}} appointment done",
+    "appointmentsDone_other": "{{done}} of {{count}} appointments done"
+  },
+  "contacts": {
+    "intro": "Besides the main details, note here the people you deal with at this vendor.",
+    "empty": "You haven't added any other contacts yet. For example, the salesperson who helped you or the day-of coordinator.",
+    "noName": "No name",
+    "add": "Add a person",
+    "edit": "Edit contact {{name}}",
+    "delete": "Delete contact {{name}}",
+    "deleted": "Contact deleted",
+    "saveError": "Couldn't save the contact.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "name": "Give them a name so you can recognise them."
+    },
+    "fields": {
+      "name": "Name",
+      "role": "Job title or role",
+      "roleHint": "For example: sales, coordinator, lead photographer.",
+      "phone": "Phone",
+      "email": "Email"
+    }
+  },
+  "docs": {
+    "intro": "We save the link, not the file: paste the address from Drive, an email or the website where you keep the document. That way it takes up no space and is one click away.",
+    "empty": "No documents yet. When you have a quote, a contract or an invoice, note its link here.",
+    "types": {
+      "contract": "Contract",
+      "quote": "Quote",
+      "invoice": "Invoice",
+      "other": "Other"
+    },
+    "signed": "Signed",
+    "unsigned": "Awaiting signature",
+    "add": "Add a document",
+    "edit": "Edit document {{title}}",
+    "delete": "Delete document {{title}}",
+    "deleted": "Document deleted",
+    "saveError": "Couldn't save the document.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "title": "Give it a title so you can recognise it."
+    },
+    "fields": {
+      "type": "Type",
+      "title": "Title",
+      "link": "Link",
+      "linkHint": "Optional. If you only have it on paper, leave it empty and add a note.",
+      "date": "Date",
+      "signedLabel": "Signature",
+      "signed": "It's already signed",
+      "notes": "Notes"
+    }
+  },
+  "compare": {
+    "title": "Compare: {{category}}",
+    "description": "Pick 2 to 4 options to see them side by side and go with the one you love most.",
+    "pick": "Which options shall we compare?",
+    "pickCount_one": "{{count}} of {{max}} selected",
+    "pickCount_other": "{{count}} of {{max}} selected",
+    "needTwo": "Pick at least two options to compare them.",
+    "tableCaption": "Comparison of options",
+    "rows": {
+      "price": "Price",
+      "includes": "What's included",
+      "status": "Status",
+      "rating": "Rating",
+      "pros": "Pros",
+      "cons": "Cons",
+      "location": "Location",
+      "appointments": "Appointments",
+      "decision": "Decision"
+    },
+    "lowest": "Lowest price",
+    "notSpecified": "Not specified",
+    "noAppointments": "No appointments",
+    "appointmentsDone_one": "{{done}} of {{count}} appointment done",
+    "appointmentsDone_other": "{{done}} of {{count}} appointments done",
+    "choose": "Choose this one",
+    "chooseAria": "Choose {{name}}",
+    "chosen": "Chosen",
+    "chosenToast": "{{name}} is now your chosen option",
+    "chooseError": "Couldn't mark the chosen option."
   }
 }

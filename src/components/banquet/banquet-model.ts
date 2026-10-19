@@ -57,9 +57,9 @@ export type TableInput = Pick<BanquetTable, "name" | "shape" | "capacity">;
 
 // ---------- Invitados ----------
 
-/** Alergias y dietas anotadas en el invitado (campo `diets`, si la ficha ya lo guarda). */
+/** Alergias y dietas anotadas en el invitado (campo `dietIds` de la ficha). */
 export function guestDietIds(guest: Guest): DietId[] {
-  return normalizeDietIds((guest as { diets?: unknown }).diets);
+  return normalizeDietIds(guest.dietIds);
 }
 
 export function seatsOf(guest: Guest): number {

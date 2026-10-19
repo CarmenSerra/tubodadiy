@@ -11,6 +11,7 @@ import { VendorFormDialog } from "@/components/vendors/vendor-form-dialog";
 import { VendorsList } from "@/components/vendors/vendors-list";
 import { NEW_VENDOR_PARAM } from "@/components/plan/task-links";
 import { usePlanContext } from "@/lib/context/plan-context";
+import { usePlanPermission } from "@/lib/hooks/use-plan-permission";
 
 /**
  * Enlace directo `?nuevo=Catering`: abre «Nuevo proveedor» con esa categoría
@@ -52,6 +53,7 @@ function NewVendorFromLink({ planId }: { planId: string }) {
 export default function VendorsPage() {
   const { t } = useTranslation("vendors");
   const { planId } = usePlanContext();
+  const { canEdit } = usePlanPermission("vendors");
 
   return (
     <div className="flex flex-col gap-8">
@@ -62,24 +64,28 @@ export default function VendorsPage() {
             {t("page.description")}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <VendorFormDialog
-            planId={planId}
-            trigger={
-              <button type="button" className={CTA_PRIMARY}>
-                <PlusIcon className="size-4" aria-hidden="true" />
-                {t("form.addVendor")}
-              </button>
-            }
-          />
-          <VendorIdeas planId={planId} align="end" />
-        </div>
+        {canEdit && (
+          <div className="flex flex-wrap items-center gap-2">
+            <VendorFormDialog
+              planId={planId}
+              trigger={
+                <button type="button" className={CTA_PRIMARY}>
+                  <PlusIcon className="size-4" aria-hidden="true" />
+                  {t("form.addVendor")}
+                </button>
+              }
+            />
+            <VendorIdeas planId={planId} align="end" />
+          </div>
+        )}
       </div>
       <VendorsList planId={planId} />
       {/* useSearchParams pide un límite de Suspense. */}
-      <React.Suspense fallback={null}>
-        <NewVendorFromLink planId={planId} />
-      </React.Suspense>
+      {canEdit && (
+        <React.Suspense fallback={null}>
+          <NewVendorFromLink planId={planId} />
+        </React.Suspense>
+      )}
     </div>
   );
 }

@@ -1,0 +1,45 @@
+"use client";
+
+import * as React from "react";
+
+import { buildCalendarEvents, type CalendarEvent } from "@/components/calendar/calendar-model";
+import { appointmentsCollection, mapAppointment } from "@/lib/firebase/appointments";
+import { budgetItemsQuery, mapBudgetItem, mapStep, stepsQuery } from "@/lib/firebase/plans";
+import { useCollection } from "@/lib/hooks/use-collection";
+import { useLanguage } from "@/lib/i18n/provider";
+import type { WeddingPlan } from "@/lib/types";
+
+export interface CalendarData {
+  events: CalendarEvent[];
+  loading: boolean;
+  /** Algún listado no se pudo leer (sin permiso, sin conexión…). */
+  failed: boolean;
+}
+
+/** Citas, tareas con fecha, plazos de pago y día de la boda de un plan, ya juntos y ordenados. */
+export function useCalendarEvents(planId: string, plan: WeddingPlan | null): CalendarData {
+  const { lang } = useLanguage();
+  const steps = useCollection(stepsQuery(planId), mapStep);
+  const appointments = useCollection(appointmentsCollection(planId), mapAppointment);
+  const budget = useCollection(budgetItemsQuery(planId), mapBudgetItem);
+
+  const events = React.useMemo(
+    () =>
+      buildCalendarEvents({
+        planId,
+        planTitle: plan?.title ?? "",
+        weddingDate: plan?.weddingDate ?? null,
+        steps: steps.data,
+        appointments: appointments.data,
+        budgetItems: budget.data,
+        lang,
+      }),
+    [planId, plan?.title, plan?.weddingDate, steps.data, appointments.data, budget.data, lang]
+  );
+
+  return {
+    events,
+    loading: steps.loading || appointments.loading || budget.loading,
+    failed: Boolean(steps.error || appointments.error || budget.error),
+  };
+}

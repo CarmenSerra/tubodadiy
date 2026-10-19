@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "label": "Calendar"
+  },
+  "page": {
+    "title": "Calendar",
+    "description": "Appointments, dated tasks, payment deadlines and the wedding day, all in one place.",
+    "loading": "Loading the calendar",
+    "loadError": {
+      "title": "We couldn't load the calendar",
+      "text": "Check your connection and try again in a moment."
+    }
+  },
+  "types": {
+    "wedding": {
+      "label": "Wedding",
+      "one": "Wedding",
+      "title": "The wedding day!"
+    },
+    "appointment": {
+      "label": "Appointments",
+      "one": "Appointment"
+    },
+    "task": {
+      "label": "Tasks",
+      "one": "Task",
+      "assignee": "Assigned to: {{name}}"
+    },
+    "payment": {
+      "label": "Payments",
+      "one": "Payment",
+      "title": "Payment: {{concept}}",
+      "installment": "instalment {{n}} of {{total}}"
+    }
+  },
+  "filters": {
+    "label": "What to show"
+  },
+  "views": {
+    "label": "Calendar view",
+    "month": "Month",
+    "upcoming": "Upcoming"
+  },
+  "month": {
+    "prev": "Previous month",
+    "next": "Next month",
+    "today": "Today",
+    "goToWedding": "Go to the wedding",
+    "gridLabel": "Calendar for {{month}}",
+    "dayAria_one": "{{date}}: {{count}} event",
+    "dayAria_other": "{{date}}: {{count}} events",
+    "dayAriaNone": "{{date}}: no events",
+    "more_one": "+{{count}} more",
+    "more_other": "+{{count}} more"
+  },
+  "day": {
+    "empty": "Nothing on this day."
+  },
+  "upcoming": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "empty": "Nothing coming up with these filters.",
+    "more_one": "And {{count}} more further ahead.",
+    "more_other": "And {{count}} more further ahead."
+  },
+  "empty": {
+    "title": "There are no dates in your calendar yet",
+    "text": "Give a task a date, add an appointment or set a payment deadline and it will show up here."
+  },
+  "event": {
+    "done": "Done"
+  },
+  "ics": {
+    "button": "Add to my calendar",
+    "hint": "Downloads an .ics file with what you see (leaving out what's already done) to open in Google Calendar, Apple Calendar or Outlook.",
+    "file": "calendar",
+    "calendarName": "Wedding · {{title}}",
+    "calendarNameDefault": "My wedding",
+    "error": "The calendar file could not be created."
+  },
+  "notify": {
+    "enable": "Turn on reminders",
+    "disable": "Turn off reminders",
+    "blocked": "Notifications are blocked in this browser. You can allow them in the site settings.",
+    "help": "We'll remind you when you open the app if there's an appointment, task or payment today or tomorrow.",
+    "onHelp": "Reminders are on in this browser: once a day, if there's something for today or tomorrow.",
+    "title_one": "You have {{count}} thing for today or tomorrow",
+    "title_other": "You have {{count}} things for today or tomorrow",
+    "line": "{{title}} · {{when}}",
+    "more_one": "And {{count}} more",
+    "more_other": "And {{count}} more",
+    "when": {
+      "today": "today",
+      "tomorrow": "tomorrow",
+      "todayAt": "today at {{time}}",
+      "tomorrowAt": "tomorrow at {{time}}"
+    }
+  }
+}

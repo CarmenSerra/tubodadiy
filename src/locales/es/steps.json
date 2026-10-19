@@ -36,11 +36,14 @@
       }
     },
     "vestuario": {
-      "title": "Vestuario",
-      "description": "Traje/vestido de los novios, complementos y pruebas.",
+      "title": "Vestuario y estilo",
+      "description": "Traje/vestido, complementos, pruebas, belleza, alianzas y decoración.",
       "tasks": {
         "outfit-choose": "Elegir vestido/traje",
-        "outfit-fitting": "Reservar pruebas"
+        "outfit-fitting": "Reservar pruebas",
+        "style-beauty": "Reservar peluquería y maquillaje",
+        "style-rings": "Elegir las alianzas",
+        "style-decor": "Definir decoración y flores"
       }
     },
     "papeleria": {
@@ -56,15 +59,20 @@
       "description": "Tipo (civil, religiosa, simbólica), oficiante y estructura.",
       "tasks": {
         "ceremony-type": "Elegir tipo de ceremonia",
-        "officiant-confirmed": "Confirmar oficiante"
+        "officiant-confirmed": "Confirmar oficiante",
+        "ceremony-readings-music": "Elegir lecturas y música",
+        "ceremony-witnesses": "Designar testigos"
       }
     },
     "timeline": {
       "title": "Cronograma del día",
-      "description": "Cronograma hora a hora del gran día.",
+      "description": "Cronograma hora a hora, contactos, fotos clave y playlist del gran día.",
       "tasks": {
         "timeline-draft": "Borrador del cronograma",
-        "timeline-share": "Compartir cronograma con proveedores"
+        "timeline-share": "Compartir cronograma con proveedores",
+        "dayof-contacts": "Reunir los contactos del día B",
+        "dayof-shots": "Hacer la lista de fotos clave",
+        "dayof-playlist": "Preparar la playlist"
       }
     },
     "alojamiento_transporte": {
@@ -103,6 +111,58 @@
       "title": "Tareas generales",
       "description": "Lista libre para todo lo que no encaje en otra sección.",
       "tasks": {}
+    },
+    "banquete": {
+      "title": "Banquete",
+      "description": "Plan de mesas y menú con alérgenos y dietas.",
+      "tasks": {
+        "banquet-seating": "Hacer el plan de mesas",
+        "banquet-menu": "Cerrar el menú y los alérgenos"
+      }
+    },
+    "despues_boda": {
+      "title": "Después de la boda",
+      "description": "Agradecimientos, pagos finales, devoluciones, trámites y recuerdos.",
+      "tasks": {
+        "after-thanks": "Enviar los agradecimientos",
+        "after-payments": "Hacer los pagos finales a proveedores",
+        "after-returns": "Devolver los alquileres (trajes, decoración)",
+        "after-register": "Inscribir el matrimonio y pedir el libro de familia",
+        "after-paperwork": "Actualizar empadronamiento, seguros, banco y Seguridad Social",
+        "after-keepsakes": "Conservar el vestido y el ramo",
+        "after-rate-vendors": "Valorar a los proveedores",
+        "after-photos": "Recopilar las fotos de los invitados"
+      }
+    }
+  },
+  "templates": {
+    "tasks": {
+      "civil-room": "Confirmar con el registro o el ayuntamiento la sala, el día y la hora",
+      "civil-capacity": "Preguntar cuántos invitados caben en la sala de la ceremonia",
+      "civil-lunch": "Reservar la comida o el vermú para después de la ceremonia",
+      "religious-readings": "Elegir con el sacerdote las lecturas de la misa",
+      "religious-choir": "Hablar con el coro o los músicos de la parroquia",
+      "religious-flowers": "Preguntar en la parroquia por las flores y la decoración permitidas",
+      "religious-rice": "Preguntar en la parroquia qué se puede lanzar a la salida (arroz, pétalos)",
+      "religious-transfer": "Organizar el traslado de la iglesia al banquete",
+      "dest-visit": "Hacer una visita previa al lugar o una videollamada con el espacio",
+      "dest-legal": "Informarse de los requisitos legales para casarse en el destino",
+      "dest-recognition": "Consultar cómo inscribir en España un matrimonio celebrado fuera",
+      "dest-planner": "Valorar un coordinador local o wedding planner del destino",
+      "dest-local": "Confirmar proveedores locales: fotografía, catering y música",
+      "dest-savedate": "Enviar las tarjetas «reserva la fecha» con más antelación de lo habitual",
+      "dest-passports": "Comprobar que los invitados que viajan tienen el pasaporte o DNI en regla",
+      "dest-info": "Enviar a los invitados la información de viaje y alojamiento con antelación",
+      "dest-insurance": "Contratar un seguro de viaje y de cancelación",
+      "dest-schedule": "Ajustar el cronograma al clima y a la hora local del destino",
+      "small-list": "Fijar la lista corta: solo las personas imprescindibles",
+      "small-call": "Avisar a cada invitado personalmente (llamada o mensaje)",
+      "small-place": "Valorar un restaurante o espacio pequeño con menú cerrado",
+      "small-photo": "Valorar un fotógrafo por horas en lugar de la jornada completa",
+      "small-invite": "Preparar una invitación sencilla por mensaje o tarjeta",
+      "small-words": "Preparar unas palabras para los asistentes",
+      "small-plan": "Planificar un cronograma sencillo de la comida o cena",
+      "small-party": "Pensar si queréis una celebración posterior con el resto de amigos y familia"
     }
   }
 }

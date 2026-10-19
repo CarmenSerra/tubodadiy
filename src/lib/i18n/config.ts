@@ -58,6 +58,8 @@ export const NAMESPACES = [
   "envelope",
   "customCard",
   "diets",
+  "calendar",
+  "export",
   "errors",
 ] as const;
 

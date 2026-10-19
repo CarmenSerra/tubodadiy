@@ -6,6 +6,7 @@ import { BellIcon, BellOffIcon, UserIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
+import { useAgendaNotificationFromSteps } from "@/components/calendar/use-agenda-notification";
 import {
   assigneeLabel,
   planTasksWithDates,
@@ -21,7 +22,6 @@ import { cn } from "@/lib/utils";
 import {
   disableTaskNotifications,
   enableTaskNotifications,
-  showDueNotification,
   useTaskNotifyState,
 } from "./task-notifications";
 import { CARD, FOCUS, LINK } from "./ui";
@@ -161,27 +161,6 @@ function NotifyRow() {
 }
 
 /**
- * Al abrir la app, si los avisos están activados, avisa (una vez al día) de las
- * tareas sin hacer que vencen hoy o mañana.
- */
-function useDueNotification(planId: string, dueSoon: TaskWithDays[]) {
-  const { t } = useTranslation("dashboard");
-  const state = useTaskNotifyState();
-  const lines = dueSoon
-    .slice(0, 3)
-    .map((task) => t("taskReminders.notify.line", { title: task.title, when: whenLabel(task.days, t) }));
-  if (dueSoon.length > 3) lines.push(t("taskReminders.more", { count: dueSoon.length - 3 }));
-  const title = t("taskReminders.notify.title", { count: dueSoon.length });
-  const body = lines.join("\n");
-  const has = dueSoon.length > 0;
-
-  React.useEffect(() => {
-    if (state !== "on" || !has) return;
-    void showDueNotification(planId, title, body);
-  }, [state, has, planId, title, body]);
-}
-
-/**
  * «Próximas tareas» (vencen en ≤14 días) y «Atrasadas», con responsable y
  * fecha, cada una enlazando a su tarjeta. Tono amable, sin colores de alerta.
  * `onReveal` (opcional) permite saltar a la tarjeta sin recargar cuando ya se
@@ -202,10 +181,8 @@ export function TaskReminders({
     () => taskReminders(planTasksWithDates(planId, steps, { t, includeDone: false })),
     [planId, steps, t]
   );
-  useDueNotification(
-    planId,
-    upcoming.filter((task) => task.days <= 1)
-  );
+  // Avisos del navegador (opt-in): tareas, citas, pagos y boda de hoy o mañana.
+  useAgendaNotificationFromSteps(planId, steps);
 
   if (upcoming.length === 0 && overdue.length === 0) return null;
   return (

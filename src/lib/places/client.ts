@@ -71,9 +71,10 @@ export async function placeDetails(placeId: string, session?: string): Promise<P
 }
 
 /** Email y foto (og:image) de la web del proveedor; vacío si no se pudo leer. */
-export async function siteInfo(url: string): Promise<{ email?: string; image?: string }> {
+export async function siteInfo(url: string, placeId?: string): Promise<{ email?: string; image?: string }> {
   try {
-    return await call<{ email?: string; image?: string }>("site", { url });
+    // Con `placeId`, el servidor anota el email en la consulta guardada de ese lugar.
+    return await call<{ email?: string; image?: string }>("site", { url, placeId });
   } catch {
     return {};
   }
